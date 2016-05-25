@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using OpenNETCF.Net.NetworkInformation;
 using Datalogic.API;
+using System.Text.RegularExpressions;
 
 namespace gamma_mob
 {
@@ -17,7 +18,13 @@ namespace gamma_mob
             set { _isConnected = value; }
         }
 
-        static private string _gammaIp = "Gamma";
+        private static string ServerIP
+        {
+            get { return _serverIp; }
+            set { _serverIp = value; }
+        }
+
+        private static string _serverIp = "";
         public delegate void MethodContainer();
         static public event MethodContainer OnConnectionRestored;
 
@@ -26,6 +33,10 @@ namespace gamma_mob
 
         static public Boolean CheckConnection()
         {
+            if (ServerIP == "")
+            {
+                if (!GetIPFromSettings(Settings.ServerIP)) return false;
+            }
             if (Device.GetWiFiPowerStatus())
             {
                 uint quality;
@@ -36,23 +47,12 @@ namespace gamma_mob
                         IsConnected = false;
                         return false;
                     }
+  
                     using (var pinger = new Ping())
                     {
                         try
                         {
-                            if (_gammaIp == "Gamma")
-                            {
-                                try
-                                {
-                                    IPAddress[] ipAddresses = Dns.GetHostEntry("Gamma").AddressList;
-                                    _gammaIp = ipAddresses[0].ToString();
-                                }
-                                catch (SocketException)
-                                {
-                                        
-                                }
-                            }
-                            PingReply reply = pinger.Send(_gammaIp, 200);
+                            PingReply reply = pinger.Send(ServerIP, 200);
                             if (reply.Status == IPStatus.Success)
                             {
                                 IsConnected = true;
@@ -71,7 +71,7 @@ namespace gamma_mob
                 IsConnected = false;
                 return false;
             }
-            return false;
+            return false; 
         }
 
         static ConnectionState()
@@ -91,7 +91,7 @@ namespace gamma_mob
 
                     try
                     {
-                        var reply = newPinger.Send(_gammaIp, 200);
+                        var reply = newPinger.Send(ServerIP, 200);
                         if (reply.Status == IPStatus.Success && !_isConnected)
                         {
                             lock (Locker) IsConnected = true;
@@ -118,6 +118,43 @@ namespace gamma_mob
             //var pinger = new Thread(new ThreadStart(continuousPing)) {IsBackground = true};
             //pinger.Start();
             _checkerRunning = true;
+            
+        }
+        private static bool GetIPFromSettings(string server)
+        {    
+            string ippattern = @"^(?<ip>((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))(\\.*)?$";
+            var regEx = new Regex(ippattern);
+            var match = regEx.Match(server);
+            if (match.Success)
+            {
+                ServerIP = match.Groups["ip"].Value;
+                GammaDataSet.SetConnectionString(server, Settings.Database, Settings.UserName, Settings.Password, Settings.TimeOut);
+            }
+            else
+            {
+                string namepattern = @"^(?<server>.*?)(?<base>\\.*)?$";
+                regEx = new Regex(namepattern);
+                match = regEx.Match(server);
+                try
+                {
+                    IPAddress[] ipAddresses = Dns.GetHostEntry(match.Groups["server"].Value).AddressList;
+                    ServerIP = ipAddresses[0].ToString();
+                    string sqlserver;
+                    if (match.Groups.Count > 1)
+                    {
+                        sqlserver = ServerIP + match.Groups["base"].Value;
+                    }
+                    else sqlserver = ServerIP; 
+                    GammaDataSet.SetConnectionString(sqlserver, Settings.Database,
+                        Settings.UserName, Settings.Password, Settings.TimeOut);
+                }
+                catch (SocketException)
+                {
+                    IsConnected = false;
+                    return false;
+                }
+            }
+            return true;
         }
     }
 }

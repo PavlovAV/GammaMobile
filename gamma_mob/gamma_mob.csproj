@@ -26,7 +26,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE;$(PlatformFamilyName)</DefineConstants>
+    <DefineConstants>DEBUG;WindowsCE</DefineConstants>
     <NoStdLib>true</NoStdLib>
     <NoConfig>true</NoConfig>
     <ErrorReport>prompt</ErrorReport>
@@ -38,7 +38,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;$(PlatformFamilyName)</DefineConstants>
+    <DefineConstants>WindowsCE</DefineConstants>
     <NoStdLib>true</NoStdLib>
     <NoConfig>true</NoConfig>
     <ErrorReport>prompt</ErrorReport>
@@ -48,7 +48,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Accessibility, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
-    <Reference Include="Datalogic.API, Version=1.12.0.5, Culture=neutral, PublicKeyToken=349bc9cbc540e7eb, processorArchitecture=MSIL">
+    <Reference Include="Datalogic.API, Version=1.12.0.6, Culture=neutral, PublicKeyToken=349bc9cbc540e7eb, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\Program Files (x86)\Datalogic\SDK\DotNet\Datalogic.API.dll</HintPath>
     </Reference>
@@ -56,7 +56,7 @@
     <Reference Include="mscorlib" />
     <Reference Include="OpenNETCF, Version=2.3.12317.0, Culture=neutral, PublicKeyToken=e60dbea84bb431b7, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\SDF_Binaries\OpenNETCF.dll</HintPath>
+      <HintPath>..\..\..\..\SDF_Binaries\OpenNETCF.dll</HintPath>
     </Reference>
     <Reference Include="OpenNETCF.Net, Version=2.3.12317.0, Culture=neutral, PublicKeyToken=e60dbea84bb431b7, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -110,6 +110,7 @@
     </Compile>
     <Compile Include="GammaDataSet.cs">
       <DependentUpon>GammaDataSet.xsd</DependentUpon>
+      <SubType>Component</SubType>
     </Compile>
     <Compile Include="GammaDataSet.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -156,10 +157,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
     <Compile Include="Scanner.cs" />
+    <Compile Include="Settings.cs" />
     <Compile Include="SQLWork.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="ClassDiagram1.cd" />
     <None Include="GammaDataSet.xsc">
       <DependentUpon>GammaDataSet.xsd</DependentUpon>
     </None>
@@ -188,6 +191,11 @@
     <EmbeddedResource Include="Pixture-Ware-House-PalletTruck.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Settings.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CompactFramework.CSharp.targets" />
   <ProjectExtensions>

@@ -27,6 +27,8 @@ namespace gamma_mob
         public DocOrder()
         {
             InitializeComponent();
+            DocOrders.ConnectionString = GammaDataSet.ConnectionString;
+            DocOrderGroupPacks.ConnectionString = GammaDataSet.ConnectionString;
             _fileName = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase) + @"\BarCodeList.txt";
         }
         
@@ -168,6 +170,7 @@ namespace gamma_mob
             if (!ConnectionState.CheckConnection())
             {
                 RetryNewDocument();
+                return;
             }
             var docOrderRow = (GammaDataSet.DocMobGroupPackOrdersRow)GammaBase.DocMobGroupPackOrders.NewRow();
             docOrderRow["SerialNumber"] = Scanner.SerialNumber;
@@ -393,7 +396,6 @@ namespace gamma_mob
             try
             {
                 DocOrders.FillBy(GammaBase.DocMobGroupPackOrders, Scanner.SerialNumber);
-                DocOrderGroupPacks = new GammaDataSetTableAdapters.DocMobGroupPackOrderGroupPacksTableAdapter();
                 if (GammaBase.DocMobGroupPackOrders.Count == 0)
                 {
                     AddNewDoc();

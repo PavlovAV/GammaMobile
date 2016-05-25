@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<configuration>
+  <appSettings>
+    <add key="ServerIP" value="192.168.1.5\sqlexpress" />
+    <add key="Database" value="Semibratovo" />
+    <add key="UserName" value="sa" />
+    <add key="Password" value="123456" />
+    <add key="TimeOut" value="10" />
+  </appSettings>
+</configuration>

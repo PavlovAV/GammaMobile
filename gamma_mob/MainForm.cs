@@ -1,23 +1,16 @@
 ﻿using System;
 using System.Windows.Forms;
+using gamma_mob.Common;
 
 
 
 namespace gamma_mob
 {
-    public partial class MainForm : Form
+    public partial class MainForm : BaseForm
     {
         public MainForm()
         {
             InitializeComponent();
-            if (!ConnectionState.CheckConnection()) return;
-            if (GammaDataSet.CheckSQLConnection() != 1) return;
-            WrongUserPass();
-        }
-
-        private void MainForm_Load(object sender, EventArgs e)
-        {
-            
         }
 
         private void btnDocOrder_Click(object sender, EventArgs e)
@@ -25,7 +18,7 @@ namespace gamma_mob
             Cursor.Current = Cursors.WaitCursor;
             if (ConnectionState.CheckConnection())
             {
-                switch (GammaDataSet.CheckSQLConnection())
+                switch (Db.CheckSqlConnection())
                 {
                     case 2:
                         MessageBox.Show(@"Нет связи с БД. Повторите попытку в зоне покрытия WiFi",
@@ -35,8 +28,8 @@ namespace gamma_mob
                         WrongUserPass();
                         break;
                     default:
-                        var docOrder = new DocOrder { ParentForm = this };
-                        docOrder.Show();
+                        var docOrders = new DocShipmentOrdersForm() { ParentForm = this };
+                        docOrders.Show();
                         Hide();
                         break;
                 }
@@ -54,5 +47,11 @@ namespace gamma_mob
                                     MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
             Application.Exit();
         }
-    }
+
+        protected override void FormClosing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            base.FormClosing(sender, e);
+            Scanner.Dispose();
+        }
+   }
 }

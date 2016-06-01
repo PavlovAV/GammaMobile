@@ -83,6 +83,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common\EventHandlers.cs" />
+    <Compile Include="Common\BarcodeScanner.cs" />
+    <Compile Include="Common\BaseForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Common\BaseForm.Designer.cs">
+      <DependentUpon>BaseForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Common\Enums.cs" />
+    <Compile Include="Common\MiddleClass.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Common\Shared.cs" />
     <Compile Include="ConnectionState.cs" />
     <Compile Include="DocInventarisation.cs">
       <SubType>Form</SubType>
@@ -90,11 +103,17 @@
     <Compile Include="DocInventarisation.Designer.cs">
       <DependentUpon>DocInventarisation.cs</DependentUpon>
     </Compile>
-    <Compile Include="DocOrder.cs">
+    <Compile Include="DocOrderForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="DocOrder.Designer.cs">
-      <DependentUpon>DocOrder.cs</DependentUpon>
+    <Compile Include="DocOrderForm.Designer.cs">
+      <DependentUpon>DocOrderForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DocShipmentOrdersForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DocShipmentOrdersForm.Designer.cs">
+      <DependentUpon>DocShipmentOrdersForm.cs</DependentUpon>
     </Compile>
     <Compile Include="FieldUpDown.cs">
       <SubType>UserControl</SubType>
@@ -108,14 +127,11 @@
     <Compile Include="FindDocOrder.Designer.cs">
       <DependentUpon>FindDocOrder.cs</DependentUpon>
     </Compile>
-    <Compile Include="GammaDataSet.cs">
-      <DependentUpon>GammaDataSet.xsd</DependentUpon>
-      <SubType>Component</SubType>
+    <Compile Include="LoginForm.cs">
+      <SubType>Form</SubType>
     </Compile>
-    <Compile Include="GammaDataSet.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>GammaDataSet.xsd</DependentUpon>
+    <Compile Include="LoginForm.Designer.cs">
+      <DependentUpon>LoginForm.cs</DependentUpon>
     </Compile>
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
@@ -123,6 +139,12 @@
     <Compile Include="MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Models\AddProductResult.cs" />
+    <Compile Include="Models\DocShipmentGood.cs" />
+    <Compile Include="Models\DocShipmentOrder.cs" />
+    <Compile Include="Models\OfflineProduct.cs" />
+    <Compile Include="Models\Person.cs" />
+    <Compile Include="Models\Product.cs" />
     <Compile Include="OrderInfo.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -136,8 +158,8 @@
       <DependentUpon>DocInventarisation.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="DocOrder.resx">
-      <DependentUpon>DocOrder.cs</DependentUpon>
+    <EmbeddedResource Include="DocOrderForm.resx">
+      <DependentUpon>DocOrderForm.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
@@ -158,30 +180,31 @@
     </Compile>
     <Compile Include="Scanner.cs" />
     <Compile Include="Settings.cs" />
-    <Compile Include="SQLWork.cs" />
+    <Compile Include="DB.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
     <None Include="ClassDiagram1.cd" />
-    <None Include="GammaDataSet.xsc">
-      <DependentUpon>GammaDataSet.xsd</DependentUpon>
-    </None>
-    <None Include="GammaDataSet.xsd">
-      <Generator>MSDataSetGenerator</Generator>
-      <LastGenOutput>GammaDataSet.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="GammaDataSet.xss">
-      <DependentUpon>GammaDataSet.xsd</DependentUpon>
-    </None>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Common\BaseForm.resx">
+      <DependentUpon>BaseForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DocShipmentOrdersForm.resx">
+      <DependentUpon>DocShipmentOrdersForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="FieldUpDown.resx">
       <DependentUpon>FieldUpDown.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="FindDocOrder.resx">
       <DependentUpon>FindDocOrder.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="LoginForm.resx">
+      <DependentUpon>LoginForm.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="OrderInfo.resx">
@@ -193,6 +216,21 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\Back.bmp" />
+    <None Include="Resources\back.jpg" />
+    <None Include="Resources\network-offline.png" />
+    <None Include="Resources\network-offline_001.png" />
+    <None Include="Resources\network-transmit-receive.png" />
+    <None Include="Resources\network-transmit-receive_001.png" />
+    <None Include="Resources\network-transmit-receiveoff.jpg" />
+    <None Include="Resources\network-transmit-receiveoff.png" />
+    <None Include="Resources\script-plus-icon-icon.png" />
+    <None Include="Resources\search.png" />
+    <None Include="Resources\Search-icon.png" />
+    <None Include="Resources\network_transmit_receiveoff_small.png" />
+    <None Include="Resources\network_transmit_receiveoff.jpg" />
+    <None Include="Resources\edit_1518.png" />
+    <None Include="Resources\refresh1.png" />
     <Content Include="Settings.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

@@ -18,16 +18,14 @@ namespace gamma_mob
             _mutex = new NamedMutex(false,"gammamob",out isNew);
             if (!isNew) return;
             Decode.SetWedge(WedgeType.Barcode, false);
-            Application.Run(new MainForm());
+            var loginForm = new LoginForm();
+            if (loginForm.ShowDialog() == DialogResult.OK)
+            {
+                Application.Run(new MainForm());
+            }
         }
 
         private static NamedMutex _mutex;
 
     }
-
-    public delegate void EventDelegate(string barCode);
-
-    
-    
-    
 }

@@ -21,7 +21,7 @@ namespace gamma_mob
                                "SUM(Weight) AS Weight, SUM(GrossWeight) AS GrossWeight " +
                                "FROM vGroupPackOrders " +
                                "WHERE DocMobGroupPackOrderID = @DocMobGroupPackOrderID GROUP BY Nomenclature";
-            using (var connection = new SqlConnection((GammaDataSet.ConnectionString)))
+            /*using (var connection = new SqlConnection((GammaDataSet.ConnectionString)))
             {
                 var cmd = new SqlCommand(sql, connection);
                 cmd.Parameters.Add("@DocMobGroupPackOrderID", SqlDbType.BigInt);
@@ -41,7 +41,7 @@ namespace gamma_mob
                     connection.Close();
                 }
                 gridOrderInfo.DataSource = _tableOrderInfo;
-            }
+            }*/
         }
     }
 }

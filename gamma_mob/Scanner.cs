@@ -1,15 +1,16 @@
 ﻿using System;
 using Datalogic.API;
 using System.Windows.Forms;
+using gamma_mob.Common;
 
 namespace gamma_mob 
 {
-    class Scanner : IDisposable
+    public class Scanner : IDisposable
     {
         private bool _disposed;
         private readonly DecodeEvent _dcdEvent;
         private readonly DecodeHandle _hDcd;
-        private readonly EventDelegate _eventFunc;
+        private readonly BarcodeReceivedEventHandler _eventFunc;
         public string SerialNumber { get; private set; }
         
         public void StartScanListener()
@@ -22,8 +23,12 @@ namespace gamma_mob
             if (_dcdEvent != null) _dcdEvent.StopScanListener();
         }
         
-        //Конструктор
-        public Scanner(EventDelegate aEventFunc, Control ctlInvoker)
+        /// <summary>
+        /// Конструктор для создания элемента сканера
+        /// </summary>
+        /// <param name="aEventFunc">Делегат для реакции на сканер</param>
+        /// <param name="ctlInvoker"></param>
+        public Scanner(BarcodeReceivedEventHandler aEventFunc, Control ctlInvoker)
         {
             _eventFunc = aEventFunc;
             try

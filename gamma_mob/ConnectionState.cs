@@ -18,7 +18,7 @@ namespace gamma_mob
             set { _isConnected = value; }
         }
 
-        private static string ServerIP
+        private static string ServerIp
         {
             get { return _serverIp; }
             set { _serverIp = value; }
@@ -33,9 +33,9 @@ namespace gamma_mob
 
         static public Boolean CheckConnection()
         {
-            if (ServerIP == "")
+            if (ServerIp == "")
             {
-                if (!GetIPFromSettings(Settings.ServerIP)) return false;
+                if (!GetIpFromSettings(Settings.ServerIP)) return false;
             }
             if (Device.GetWiFiPowerStatus())
             {
@@ -52,7 +52,7 @@ namespace gamma_mob
                     {
                         try
                         {
-                            PingReply reply = pinger.Send(ServerIP, 200);
+                            PingReply reply = pinger.Send(ServerIp, 200);
                             if (reply.Status == IPStatus.Success)
                             {
                                 IsConnected = true;
@@ -91,7 +91,7 @@ namespace gamma_mob
 
                     try
                     {
-                        var reply = newPinger.Send(ServerIP, 200);
+                        var reply = newPinger.Send(ServerIp, 200);
                         if (reply.Status == IPStatus.Success && !_isConnected)
                         {
                             lock (Locker) IsConnected = true;
@@ -120,15 +120,15 @@ namespace gamma_mob
             _checkerRunning = true;
             
         }
-        private static bool GetIPFromSettings(string server)
+        private static bool GetIpFromSettings(string server)
         {    
             string ippattern = @"^(?<ip>((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))(\\.*)?$";
             var regEx = new Regex(ippattern);
             var match = regEx.Match(server);
             if (match.Success)
             {
-                ServerIP = match.Groups["ip"].Value;
-                GammaDataSet.SetConnectionString(server, Settings.Database, Settings.UserName, Settings.Password, Settings.TimeOut);
+                ServerIp = match.Groups["ip"].Value;
+                Db.SetConnectionString(server, Settings.Database, Settings.UserName, Settings.Password, Settings.TimeOut);
             }
             else
             {
@@ -138,14 +138,14 @@ namespace gamma_mob
                 try
                 {
                     IPAddress[] ipAddresses = Dns.GetHostEntry(match.Groups["server"].Value).AddressList;
-                    ServerIP = ipAddresses[0].ToString();
+                    ServerIp = ipAddresses[0].ToString();
                     string sqlserver;
                     if (match.Groups.Count > 1)
                     {
-                        sqlserver = ServerIP + match.Groups["base"].Value;
+                        sqlserver = ServerIp + match.Groups["base"].Value;
                     }
-                    else sqlserver = ServerIP; 
-                    GammaDataSet.SetConnectionString(sqlserver, Settings.Database,
+                    else sqlserver = ServerIp; 
+                    Db.SetConnectionString(sqlserver, Settings.Database,
                         Settings.UserName, Settings.Password, Settings.TimeOut);
                 }
                 catch (SocketException)

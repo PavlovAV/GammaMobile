@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
-using System.Text;
 
 namespace gamma_mob.Models
 {
@@ -15,6 +13,12 @@ namespace gamma_mob.Models
     {
         public Guid NomenclatureId { get; set; }
         public Guid CharacteristicId { get; set; }
+        public decimal Quantity { get; set; }
+    }
+
+    public class GoodProduct
+    {
+        public string Number { get; set; }
         public decimal Quantity { get; set; }
     }
 }

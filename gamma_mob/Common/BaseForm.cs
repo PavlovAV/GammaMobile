@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Linq;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Text;
 using System.Windows.Forms;
 
 namespace gamma_mob.Common
@@ -13,31 +8,37 @@ namespace gamma_mob.Common
     [DesignTimeVisible(false)]
     public partial class BaseForm : Form
     {
-        public BaseForm()
+        private BarcodeReceivedEventHandler _barcodeFunc;
+
+        protected BaseForm()
         {
             InitializeComponent();
+            if (DesignMode.IsTrue) return;
             Scanner = BarcodeScanner.Scanner;
         }
 
         protected BarcodeScanner Scanner { get; set; }
-        
 
-        private BarcodeReceivedEventHandler _barcodeFunc;
+
         protected BarcodeReceivedEventHandler BarcodeFunc
         {
             private get { return _barcodeFunc; }
-            set 
-            { 
+            set
+            {
                 _barcodeFunc = value;
+                if (DesignMode.IsTrue) return;
                 Scanner.BarcodeReceived += BarcodeFunc;
             }
         }
 
-        protected virtual void FormLoad(object sender, EventArgs e)
-        {
-        }
+        protected ImageList ImgList { get; set; }
 
         public Form ParentForm { get; set; }
+
+        protected virtual void FormLoad(object sender, EventArgs e)
+        {
+            ImgList = Shared.ImgList;
+        }
 
         protected virtual void FormClosing(object sender, CancelEventArgs e)
         {
@@ -46,7 +47,5 @@ namespace gamma_mob.Common
             if (ParentForm != null)
                 ParentForm.Show();
         }
-
-        
     }
 }

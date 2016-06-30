@@ -1,14 +1,13 @@
 ﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using System.Text;
 
 namespace gamma_mob.Models
 {
-    [Serializable]
     public class OfflineProduct
     {
-        public Guid DocId { get; set; }
+        public Guid? DocShipmentOrderId { get; set; }
         public string Barcode { get; set; }
+        public int PersonId { get; set; }
+        public string ResultMessage { get; set; }
+        public bool Unloaded { get; set; }
     }
 }

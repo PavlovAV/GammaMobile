@@ -1,10 +1,11 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8"?>
+
 <configuration>
   <appSettings>
-    <add key="ServerIP" value="192.168.1.29\sqlexpress" />
+    <add key="ServerIP" value="gamma" />
     <add key="Database" value="gammanew" />
     <add key="UserName" value="sa" />
-    <add key="Password" value="123456" />
+    <add key="Password" value="asutp1" />
     <add key="TimeOut" value="10" />
   </appSettings>
 </configuration>

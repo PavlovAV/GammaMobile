@@ -1,6 +1,6 @@
 ﻿namespace gamma_mob
 {
-    partial class DocShipmentOrdersForm
+    partial class DocShipmentGoodProductsForm
     {
         /// <summary>
         /// Требуется переменная конструктора.
@@ -28,55 +28,59 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.gridDocShipmentOrders = new System.Windows.Forms.DataGrid();
             this.tbrMain = new System.Windows.Forms.ToolBar();
             this.btnBack = new System.Windows.Forms.ToolBarButton();
-            this.btnEdit = new System.Windows.Forms.ToolBarButton();
-            this.btnRefresh = new System.Windows.Forms.ToolBarButton();
+            this.gridProducts = new System.Windows.Forms.DataGrid();
+            this.lblNomenclature = new System.Windows.Forms.Label();
             this.SuspendLayout();
-            // 
-            // gridDocShipmentOrders
-            // 
-            this.gridDocShipmentOrders.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
-            this.gridDocShipmentOrders.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
-            this.gridDocShipmentOrders.Location = new System.Drawing.Point(0, 23);
-            this.gridDocShipmentOrders.Name = "gridDocShipmentOrders";
-            this.gridDocShipmentOrders.RowHeadersVisible = false;
-            this.gridDocShipmentOrders.Size = new System.Drawing.Size(638, 432);
-            this.gridDocShipmentOrders.TabIndex = 1;
-            this.gridDocShipmentOrders.DoubleClick += new System.EventHandler(this.gridDocShipmentOrders_DoubleClick);
             // 
             // tbrMain
             // 
             this.tbrMain.Buttons.Add(this.btnBack);
-            this.tbrMain.Buttons.Add(this.btnEdit);
-            this.tbrMain.Buttons.Add(this.btnRefresh);
             this.tbrMain.Name = "tbrMain";
             this.tbrMain.ButtonClick += new System.Windows.Forms.ToolBarButtonClickEventHandler(this.tbrMain_ButtonClick);
             // 
-            // DocShipmentOrdersForm
+            // gridProducts
+            // 
+            this.gridProducts.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.gridProducts.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
+            this.gridProducts.Location = new System.Drawing.Point(0, 88);
+            this.gridProducts.Name = "gridProducts";
+            this.gridProducts.RowHeadersVisible = false;
+            this.gridProducts.Size = new System.Drawing.Size(638, 367);
+            this.gridProducts.TabIndex = 1;
+            // 
+            // lblNomenclature
+            // 
+            this.lblNomenclature.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblNomenclature.Location = new System.Drawing.Point(0, 27);
+            this.lblNomenclature.Name = "lblNomenclature";
+            this.lblNomenclature.Size = new System.Drawing.Size(638, 58);
+            this.lblNomenclature.Text = "label1";
+            // 
+            // DocShipmentGoodProductsForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(638, 455);
+            this.Controls.Add(this.lblNomenclature);
+            this.Controls.Add(this.gridProducts);
             this.Controls.Add(this.tbrMain);
-            this.Controls.Add(this.gridDocShipmentOrders);
             this.Location = new System.Drawing.Point(0, 0);
-            this.Name = "DocShipmentOrdersForm";
-            this.Text = "Приказы";
-            this.Load += new System.EventHandler(this.DocShipmentOrders_Load);
+            this.Name = "DocShipmentGoodProductsForm";
+            this.Text = "Продукция";
             this.ResumeLayout(false);
 
         }
 
         #endregion
 
-        private System.Windows.Forms.DataGrid gridDocShipmentOrders;
         private System.Windows.Forms.ToolBar tbrMain;
         private System.Windows.Forms.ToolBarButton btnBack;
-        private System.Windows.Forms.ToolBarButton btnEdit;
-        private System.Windows.Forms.ToolBarButton btnRefresh;
+        private System.Windows.Forms.DataGrid gridProducts;
+        private System.Windows.Forms.Label lblNomenclature;
     }
 }

@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Threading;
 using System.Windows.Forms;
-using gamma_mob.Common;
 using OpenNETCF.Windows.Forms;
+using gamma_mob.Common;
+using gamma_mob.Models;
 
 namespace gamma_mob
 {
@@ -28,14 +30,18 @@ namespace gamma_mob
                 MessageBox.Show(@"Нет связи с базой");
                 return;
             }
-            var person = Db.PersonByBarcode(barcode);
+            Person person = Db.PersonByBarcode(barcode);
             if (person == null)
             {
-                MessageBox.Show(@"Неверный шк или нет связи с базой");                
+                MessageBox.Show(@"Неверный шк или нет связи с базой");
                 return;
             }
             Shared.PersonId = person.PersonID;
-            Invoke((MethodInvoker)(CloseForm));
+            Invoke(
+                (MethodInvoker)
+                (() => lblMessage.Text = "Вы авторизовались " + Environment.NewLine + "как " + person.Name));
+            Thread.Sleep(3000);
+            Invoke((MethodInvoker) (CloseForm));
         }
 
         private void CloseForm()
@@ -47,8 +53,8 @@ namespace gamma_mob
         private void WrongUserPass()
         {
             MessageBox.Show(@"Неверно указан логин или пароль в настройках. Обратитесь к администратору приложения"
-                                , @"Ошибка связи с БД",
-                               MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
+                            , @"Ошибка связи с БД",
+                            MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
             Application.Exit();
         }
     }

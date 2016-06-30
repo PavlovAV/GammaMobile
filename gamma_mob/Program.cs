@@ -1,31 +1,30 @@
 ﻿using System;
 using System.Windows.Forms;
-using OpenNETCF.Threading;
 using Datalogic.API;
-
+using OpenNETCF.Threading;
+using OpenNETCF.Windows.Forms;
 
 namespace gamma_mob
 {
-    static class Program
+    internal static class Program
     {
+        private static NamedMutex _mutex;
+
         /// <summary>
-        /// Главная точка входа для приложения.
+        ///     Главная точка входа для приложения.
         /// </summary>
         [MTAThread]
-        static void Main()
+        private static void Main()
         {
             bool isNew;
-            _mutex = new NamedMutex(false,"gammamob",out isNew);
+            _mutex = new NamedMutex(false, "gammamob", out isNew);
             if (!isNew) return;
             Decode.SetWedge(WedgeType.Barcode, false);
             var loginForm = new LoginForm();
             if (loginForm.ShowDialog() == DialogResult.OK)
             {
-                Application.Run(new MainForm());
+                Application2.Run(new MainForm());
             }
         }
-
-        private static NamedMutex _mutex;
-
     }
 }

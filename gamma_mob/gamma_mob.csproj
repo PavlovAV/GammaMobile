@@ -83,6 +83,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common\ButtonWithParameter.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Common\ButtonWithParameter.Designer.cs">
+      <DependentUpon>ButtonWithParameter.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Common\DesignMode.cs" />
     <Compile Include="Common\EventHandlers.cs" />
     <Compile Include="Common\BarcodeScanner.cs" />
     <Compile Include="Common\BaseForm.cs">
@@ -92,16 +99,21 @@
       <DependentUpon>BaseForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Common\Enums.cs" />
-    <Compile Include="Common\MiddleClass.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="Common\Extensions.cs" />
+    <Compile Include="Common\InactivityFilter.cs" />
     <Compile Include="Common\Shared.cs" />
     <Compile Include="ConnectionState.cs" />
-    <Compile Include="DocInventarisation.cs">
+    <Compile Include="Dialogs\ChooseEndPointDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="DocInventarisation.Designer.cs">
-      <DependentUpon>DocInventarisation.cs</DependentUpon>
+    <Compile Include="Dialogs\ChooseEndPointDialog.Designer.cs">
+      <DependentUpon>ChooseEndPointDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DocAcceptForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DocAcceptForm.Designer.cs">
+      <DependentUpon>DocAcceptForm.cs</DependentUpon>
     </Compile>
     <Compile Include="DocOrderForm.cs">
       <SubType>Form</SubType>
@@ -109,23 +121,17 @@
     <Compile Include="DocOrderForm.Designer.cs">
       <DependentUpon>DocOrderForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="DocShipmentGoodProductsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DocShipmentGoodProductsForm.Designer.cs">
+      <DependentUpon>DocShipmentGoodProductsForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="DocShipmentOrdersForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="DocShipmentOrdersForm.Designer.cs">
       <DependentUpon>DocShipmentOrdersForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="FieldUpDown.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="FieldUpDown.Designer.cs">
-      <DependentUpon>FieldUpDown.cs</DependentUpon>
-    </Compile>
-    <Compile Include="FindDocOrder.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="FindDocOrder.Designer.cs">
-      <DependentUpon>FindDocOrder.cs</DependentUpon>
     </Compile>
     <Compile Include="LoginForm.cs">
       <SubType>Form</SubType>
@@ -139,29 +145,18 @@
     <Compile Include="MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Models\AcceptProductResult.cs" />
     <Compile Include="Models\AddProductResult.cs" />
     <Compile Include="Models\DocShipmentGood.cs" />
     <Compile Include="Models\DocShipmentOrder.cs" />
+    <Compile Include="Models\EndPointInfo.cs" />
     <Compile Include="Models\OfflineProduct.cs" />
     <Compile Include="Models\Person.cs" />
     <Compile Include="Models\Product.cs" />
-    <Compile Include="OrderInfo.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="OrderInfo.Designer.cs">
-      <DependentUpon>OrderInfo.cs</DependentUpon>
-    </Compile>
+    <Compile Include="Models\Warehouse.cs" />
     <Compile Include="Program.cs">
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="DocInventarisation.resx">
-      <DependentUpon>DocInventarisation.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="DocOrderForm.resx">
-      <DependentUpon>DocOrderForm.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
       <SubType>Designer</SubType>
@@ -184,31 +179,38 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="ClassDiagram1.cd" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Common\BaseForm.resx">
       <DependentUpon>BaseForm.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <EmbeddedResource Include="Common\ButtonWithParameter.resx">
+      <DependentUpon>ButtonWithParameter.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\ChooseEndPointDialog.resx">
+      <DependentUpon>ChooseEndPointDialog.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DocAcceptForm.resx">
+      <DependentUpon>DocAcceptForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DocOrderForm.resx">
+      <DependentUpon>DocOrderForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DocShipmentGoodProductsForm.resx">
+      <DependentUpon>DocShipmentGoodProductsForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="DocShipmentOrdersForm.resx">
       <DependentUpon>DocShipmentOrdersForm.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="FieldUpDown.resx">
-      <DependentUpon>FieldUpDown.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="FindDocOrder.resx">
-      <DependentUpon>FindDocOrder.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
     <EmbeddedResource Include="LoginForm.resx">
       <DependentUpon>LoginForm.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="OrderInfo.resx">
-      <DependentUpon>OrderInfo.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Pixture-Ware-House-PalletTruck.ico">
@@ -231,6 +233,7 @@
     <None Include="Resources\network_transmit_receiveoff.jpg" />
     <None Include="Resources\edit_1518.png" />
     <None Include="Resources\refresh1.png" />
+    <None Include="Resources\move_waiting_up_alternative.png" />
     <Content Include="Settings.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

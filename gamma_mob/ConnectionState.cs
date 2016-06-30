@@ -1,20 +1,29 @@
 ﻿using System;
-using System.Threading;
 using System.Net;
 using System.Net.Sockets;
-using OpenNETCF.Net.NetworkInformation;
-using Datalogic.API;
 using System.Text.RegularExpressions;
+using System.Threading;
+using Datalogic.API;
+using OpenNETCF.Net.NetworkInformation;
 
 namespace gamma_mob
 {
-    static class ConnectionState
+    internal static class ConnectionState
     {
-        static private bool _isConnected;
-        static private bool _checkerRunning;
-        private static bool IsConnected 
+        public delegate void MethodContainer();
+
+        private static bool _isConnected;
+        private static bool _checkerRunning;
+        private static string _serverIp = "";
+        private static readonly object Locker = new object();
+
+        static ConnectionState()
         {
-            get {return _isConnected;}
+        }
+
+        private static bool IsConnected
+        {
+            get { return _isConnected; }
             set { _isConnected = value; }
         }
 
@@ -24,14 +33,11 @@ namespace gamma_mob
             set { _serverIp = value; }
         }
 
-        private static string _serverIp = "";
-        public delegate void MethodContainer();
-        static public event MethodContainer OnConnectionRestored;
+        public static event MethodContainer OnConnectionRestored;
 
-        static private readonly object Locker = new object();
-//        static private DateTime TimePingChecked = new DateTime();
+        //        static private DateTime TimePingChecked = new DateTime();
 
-        static public Boolean CheckConnection()
+        public static Boolean CheckConnection()
         {
             if (ServerIp == "")
             {
@@ -47,7 +53,7 @@ namespace gamma_mob
                         IsConnected = false;
                         return false;
                     }
-  
+
                     using (var pinger = new Ping())
                     {
                         try
@@ -71,60 +77,55 @@ namespace gamma_mob
                 IsConnected = false;
                 return false;
             }
-            return false; 
+            return false;
         }
 
-        static ConnectionState()
-        {
-            
-        }
-
-        static public void StartChecker()
+        public static void StartChecker()
         {
             if (_checkerRunning) return;
             WaitCallback continuousPing = delegate
-            {
-                var newPinger = new Ping();
-                var isWorking = true;
-                while (isWorking)
                 {
-
-                    try
+                    var newPinger = new Ping();
+                    bool isWorking = true;
+                    while (isWorking)
                     {
-                        var reply = newPinger.Send(ServerIp, 200);
-                        if (reply.Status == IPStatus.Success && !_isConnected)
+                        try
                         {
-                            lock (Locker) IsConnected = true;
-                            if (OnConnectionRestored != null) OnConnectionRestored();
-                            isWorking = false;
+                            PingReply reply = newPinger.Send(ServerIp, 200);
+                            if (reply.Status == IPStatus.Success && !_isConnected)
+                            {
+                                lock (Locker) IsConnected = true;
+                                if (OnConnectionRestored != null) OnConnectionRestored();
+                                isWorking = false;
+                            }
+                            else if (reply.Status != IPStatus.Success && _isConnected)
+                            {
+                                lock (Locker) IsConnected = false;
+                            }
                         }
-                        else if (reply.Status != IPStatus.Success && _isConnected)
+                        catch (PingException)
                         {
-                            lock (Locker) IsConnected = false;
+                            if (IsConnected)
+                            {
+                                lock (Locker) IsConnected = false;
+                            }
                         }
+                        Thread.Sleep(0);
                     }
-                    catch (PingException)
-                    {
-                        if (IsConnected)
-                        {
-                            lock (Locker) IsConnected = false;
-                        }
-                    }
-                    Thread.Sleep(0);
-                }
-                lock (Locker) _checkerRunning = false;
-            };
+                    lock (Locker) _checkerRunning = false;
+                };
             ThreadPool.QueueUserWorkItem(continuousPing);
             //var pinger = new Thread(new ThreadStart(continuousPing)) {IsBackground = true};
             //pinger.Start();
             _checkerRunning = true;
-            
         }
+
         private static bool GetIpFromSettings(string server)
-        {    
-            string ippattern = @"^(?<ip>((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))(\\.*)?$";
+        {
+            string ippattern =
+                @"^(?<ip>((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))(\\.*)?$";
             var regEx = new Regex(ippattern);
-            var match = regEx.Match(server);
+            Match match = regEx.Match(server);
             if (match.Success)
             {
                 ServerIp = match.Groups["ip"].Value;
@@ -144,9 +145,9 @@ namespace gamma_mob
                     {
                         sqlserver = ServerIp + match.Groups["base"].Value;
                     }
-                    else sqlserver = ServerIp; 
+                    else sqlserver = ServerIp;
                     Db.SetConnectionString(sqlserver, Settings.Database,
-                        Settings.UserName, Settings.Password, Settings.TimeOut);
+                                           Settings.UserName, Settings.Password, Settings.TimeOut);
                 }
                 catch (SocketException)
                 {

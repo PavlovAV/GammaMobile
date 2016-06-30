@@ -1,9 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using System.Text;
-
-namespace gamma_mob.Models
+﻿namespace gamma_mob.Models
 {
     public class Person
     {

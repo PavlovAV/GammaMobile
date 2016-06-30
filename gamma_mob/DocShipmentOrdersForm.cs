@@ -1,10 +1,4 @@
 ﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Text;
 using System.Windows.Forms;
 using gamma_mob.Common;
 
@@ -17,32 +11,43 @@ namespace gamma_mob
             InitializeComponent();
         }
 
+        private BindingSource BSource { get; set; }
+
         private void DocShipmentOrders_Load(object sender, EventArgs e)
         {
             ImgList = Shared.ImgList;
             tbrMain.ImageList = ImgList;
             btnBack.ImageIndex = (int) Images.Back;
             btnEdit.ImageIndex = (int) Images.Edit;
-            var bindingSource = new BindingSource(Db.PersonDocShipmentOrders(Shared.PersonId), null);
-            gridDocShipmentOrders.DataSource = bindingSource;
-            var tableStyle = new DataGridTableStyle {MappingName = bindingSource.GetListName(null)};
-            tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn()
+            btnRefresh.ImageIndex = (int) Images.Refresh;
+            GetDocOrders();
+            gridDocShipmentOrders.DataSource = BSource;
+            var tableStyle = new DataGridTableStyle {MappingName = BSource.GetListName(null)};
+            tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
                 {
                     MappingName = "DocShipmentOrderId",
                     Width = -1
                 });
-            tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn()
-            {
-                HeaderText = "Номер",
-                MappingName = "Number",
-                Width = 100
-            });
+            tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
+                {
+                    HeaderText = "Номер",
+                    MappingName = "Number",
+                    Width = 90
+                });
+            tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
+                {
+                    HeaderText = "Покупатель",
+                    MappingName = "Buyer",
+                    Width = 140
+                });
             gridDocShipmentOrders.TableStyles.Add(tableStyle);
-            
         }
 
-        private ImageList ImgList { get; set; }
-               
+        private void GetDocOrders()
+        {
+            BSource = new BindingSource(Db.PersonDocShipmentOrders(Shared.PersonId), null);
+        }
+
         private void gridDocShipmentOrders_DoubleClick(object sender, EventArgs e)
         {
             EditDocOrder();
@@ -50,11 +55,14 @@ namespace gamma_mob
 
         private void EditDocOrder()
         {
-            var row = gridDocShipmentOrders.CurrentRowIndex;
+            Cursor.Current = Cursors.WaitCursor;
+            int row = gridDocShipmentOrders.CurrentRowIndex;
             var id = new Guid(gridDocShipmentOrders[row, 0].ToString());
-            Hide();
-            var docOrderForm = new DocOrderForm(id, this);
+            var docOrderForm = new DocOrderForm(id, this, gridDocShipmentOrders[row, 1].ToString());
             docOrderForm.Show();
+            if (docOrderForm.Enabled)
+                Hide();
+            Cursor.Current = Cursors.Default;
         }
 
         private void tbrMain_ButtonClick(object sender, ToolBarButtonClickEventArgs e)
@@ -66,6 +74,9 @@ namespace gamma_mob
                     break;
                 case 1:
                     EditDocOrder();
+                    break;
+                case 2:
+                    GetDocOrders();
                     break;
             }
         }

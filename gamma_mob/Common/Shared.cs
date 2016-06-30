@@ -1,17 +1,37 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Windows.Forms;
+using gamma_mob.Models;
 using gamma_mob.Properties;
 
 namespace gamma_mob.Common
 {
     public class Shared
     {
+        private static List<Warehouse> _warehouses;
+
         static Shared()
         {
             LoadImages();
+        }
+
+        public static bool LastQueryCompleted { get; set; }
+
+        public static ImageList ImgList { get; private set; }
+
+        public static int PersonId { get; set; }
+
+        public static List<Warehouse> Warehouses
+        {
+            get
+            {
+                if (_warehouses == null)
+                {
+                    List<Warehouse> list = Db.GetWarehouses();
+                    if (list == null) return null;
+                    _warehouses = list;
+                }
+                return _warehouses;
+            }
         }
 
         private static void LoadImages()
@@ -28,12 +48,8 @@ namespace gamma_mob.Common
             ImgList.Images.Add(Resources.search);
             ImgList.Images.Add(Resources.edit_1518);
             ImgList.Images.Add(Resources.refresh);
+            ImgList.Images.Add(Resources.UploadToDb);
         }
 
-        public static bool LastQueryCompleted { get; set; }
-
-        public static ImageList ImgList { get; private set; }
-
-        public static int PersonId { get; set; }
     }
 }

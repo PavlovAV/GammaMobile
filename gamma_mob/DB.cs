@@ -8,17 +8,18 @@ using System.Windows.Forms;
 using gamma_mob.Common;
 using gamma_mob.Models;
 
-
 namespace gamma_mob
 {
     public static class Db
     {
-        public static void SetConnectionString(string ipAddress, string database, string user, string password, string timeout)
+        private static string ConnectionString { get; set; }
+
+        public static void SetConnectionString(string ipAddress, string database, string user, string password,
+                                               string timeout)
         {
             ConnectionString = "Data Source=" + ipAddress + ";Initial Catalog=" + database + "" +
                                ";Persist Security Info=True;User ID=" + user + "" +
                                ";Password=" + password + ";Connect Timeout=" + timeout;
-
         }
 
         public static int CheckSqlConnection()
@@ -38,8 +39,6 @@ namespace gamma_mob
             return 0;
         }
 
-        private static string ConnectionString {get; set;}
-
         public static Person PersonByBarcode(string barcode)
         {
             Person person = null;
@@ -49,10 +48,10 @@ namespace gamma_mob
                     new SqlParameter("@BarCode", SqlDbType.VarChar)
                 };
             parameters[0].Value = barcode;
-            var table = ExecuteSelectQuery(sql, parameters, CommandType.Text);
+            DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.Text);
             if (table != null && table.Rows.Count > 0)
             {
-                var row = table.Rows[0];
+                DataRow row = table.Rows[0];
                 person = new Person
                     {
                         PersonID = Convert.ToInt32(row["PersonID"]),
@@ -62,19 +61,43 @@ namespace gamma_mob
             return person;
         }
 
+        public static DataTable DocShipmentOrderGoodProducts(Guid docShipmentOrderId, Guid nomenclatureId,
+                                                             Guid characteristicId)
+        {
+            const string sql = "dbo.mob_GetGoodProducts";
+            var parameters = new List<SqlParameter>
+                {
+                    new SqlParameter("@DocShipmentOrderID", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = docShipmentOrderId
+                        },
+                    new SqlParameter("@NomenclatureID", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = nomenclatureId
+                        },
+                    new SqlParameter("@CharacteristicID", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = characteristicId
+                        }
+                };
+            DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure);
+            return table;
+        }
+
         public static BindingList<DocShipmentOrder> PersonDocShipmentOrders(int personId)
         {
             BindingList<DocShipmentOrder> list = null;
-            const string sql = "SELECT a.[1CDocShipmentOrderID] AS DocShipmentOrderID, b.[1CNumber] AS Number FROM" +
-                               " ActiveOrders a" +
+            const string sql = "SELECT a.[1CDocShipmentOrderID] AS DocShipmentOrderID, b.[1CNumber] AS Number, c.Description AS Buyer FROM" +
+                               " DocShipmentOrderInfo a" +
                                " JOIN [1CDocShipmentOrder] b ON a.[1CDocShipmentOrderID] = b.[1CDocShipmentOrderID]" +
-                               " WHERE a.[PersonID] = @PersonID AND b.Posted = 0";
+                               " JOIN [1CContractors] c ON b.[1CConsigneeID] = c.[1CContractorID]" +                               
+                               " WHERE a.[ActivePersonID] = @PersonID AND b.Posted = 0";
             var parameters = new List<SqlParameter>
                 {
                     new SqlParameter("@PersonID", SqlDbType.Int)
                 };
             parameters[0].Value = personId;
-            var table = ExecuteSelectQuery(sql, parameters, CommandType.Text);
+            DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.Text);
             if (table != null && table.Rows.Count > 0)
             {
                 list = new BindingList<DocShipmentOrder>();
@@ -83,7 +106,8 @@ namespace gamma_mob
                     list.Add(new DocShipmentOrder
                         {
                             DocShipmentOrderId = new Guid(row["DocShipmentOrderID"].ToString()),
-                            Number = row["Number"].ToString()
+                            Number = row["Number"].ToString(),
+                            Buyer = row["Buyer"].ToString()
                         });
                 }
             }
@@ -124,18 +148,18 @@ namespace gamma_mob
             return product;
         }
 */
-        
+
         public static BindingList<DocShipmentGood> DocShipmentGoods(Guid docId)
         {
             BindingList<DocShipmentGood> list = null;
             const string sql = "SELECT * FROM vDocShipmentOrders WHERE [1CDocShipmentOrderID] = @DocID";
             var parameters =
-            new List<SqlParameter>
-                {
-                    new SqlParameter("@DocID", SqlDbType.UniqueIdentifier)
-                };
+                new List<SqlParameter>
+                    {
+                        new SqlParameter("@DocID", SqlDbType.UniqueIdentifier)
+                    };
             parameters[0].Value = docId;
-            var table = ExecuteSelectQuery(sql, parameters, CommandType.Text);
+            DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.Text);
             if (table != null && table.Rows.Count > 0)
             {
                 list = new BindingList<DocShipmentGood>();
@@ -154,14 +178,54 @@ namespace gamma_mob
             return list;
         }
 
+        public static List<Warehouse> GetWarehouses()
+        {
+            List<Warehouse> list = null;
+            const string sql = "dbo.mob_GetWarehouses";
+            DataTable table = ExecuteSelectQuery(sql, new List<SqlParameter>(), CommandType.StoredProcedure);
+            if (table != null && table.Rows.Count > 0)
+            {
+                list = new List<Warehouse>();
+                list.AddRange(from DataRow row in table.Rows
+                              select new Warehouse
+                                  {
+                                      WarehouseId = Convert.ToInt32(row["WarehouseID"]),
+                                      WarehouseName = row["WarehouseName"].ToString(),
+                                      WarehouseZones = new List<WarehouseZone>()
+                                  });
+            }
+            return list;
+        }
+
+        public static bool CancelLastMovement(string barcode)
+        {
+            bool result = false;
+            const string sql = "dbo.[mob_CancelLastMovement]";
+            var parameters = new List<SqlParameter>
+                {
+                    new SqlParameter("@barcode", SqlDbType.VarChar)
+                        {
+                            Value = barcode
+                        }
+                };
+            DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure);
+            if (table != null)
+            {
+                result = Convert.ToBoolean(table.Rows[0]["Result"]);
+            }
+            return result;
+        }
+
+
         /// <summary>
-        /// Удаление продукта из приказа
+        ///     Удаление продукта из приказа
         /// </summary>
         /// <param name="persontId">Идентификатор оператора</param>
         /// <param name="barcode">ШК продукта</param>
         /// <param name="docShipmentOrderId">Идентификатор документа на отгрузку 1С</param>
         /// <returns>Описание результата действия</returns>
-        public static DbOperationProductResult DeleteProductFromOrder(int persontId, string barcode, Guid docShipmentOrderId)
+        public static DbOperationProductResult DeleteProductFromOrder(int persontId, string barcode,
+                                                                      Guid docShipmentOrderId)
         {
             var deleteResult = new DbOperationProductResult
                 {
@@ -183,7 +247,7 @@ namespace gamma_mob
                             Value = docShipmentOrderId
                         }
                 };
-            var table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure);
+            DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure);
             if (table != null && table.Rows.Count > 0)
             {
                 deleteResult.ResultMessage = table.Rows[0]["ResultMessage"].ToString();
@@ -193,29 +257,68 @@ namespace gamma_mob
                     foreach (DataRow row in table.Rows)
                     {
                         deleteResult.ProductItems.Add(new ProductItem
-                        {
-                            NomenclatureId = new Guid(row["NomenclatureID"].ToString()),
-                            CharacteristicId = new Guid(row["CharacteristicID"].ToString()),
-                            Quantity = Convert.ToDecimal(row["Quantity"])
-                        });
+                            {
+                                NomenclatureId = new Guid(row["NomenclatureID"].ToString()),
+                                CharacteristicId = new Guid(row["CharacteristicID"].ToString()),
+                                Quantity = Convert.ToDecimal(row["Quantity"])
+                            });
                     }
                 }
             }
             return deleteResult;
         }
 
+        public static AcceptProductResult AcceptProduct(int personId, string barcode, EndPointInfo endPointInfo)
+        {
+            AcceptProductResult acceptProductResult = null;
+            const string sql = "dbo.[mob_AcceptProduct]";
+            var parameters = new List<SqlParameter>
+                {
+                    new SqlParameter("@PersonID", SqlDbType.Int)
+                        {
+                            Value = personId
+                        },
+                    new SqlParameter("@Barcode", SqlDbType.NVarChar)
+                        {
+                            Value = barcode
+                        },
+                    new SqlParameter("@PlaceID", SqlDbType.Int)
+                        {
+                            Value = endPointInfo.WarehouseId
+                        }
+                };
+            DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure);
+            if (table != null && table.Rows.Count > 0)
+            {
+                acceptProductResult = new AcceptProductResult
+                    {
+                        NomenclatureName =
+                            table.Rows[0].IsNull("NomenclatureName") ? "" : table.Rows[0]["NomenclatureName"].ToString(),
+                        Number = table.Rows[0].IsNull("Number") ? "" : table.Rows[0]["Number"].ToString(),
+                        Quantity = table.Rows[0].IsNull("Quantity") ? 0 : Convert.ToDecimal(table.Rows[0]["Quantity"]),
+                        ResultMessage = table.Rows[0]["ResultMessage"].ToString(),
+                        AlreadyAccepted =
+                            !table.Rows[0].IsNull("AlreadyAccepted") &&
+                            Convert.ToBoolean(table.Rows[0]["AlreadyAccepted"]),
+                        SourcePlace = table.Rows[0].IsNull("SourcePlace") ? "" : table.Rows[0]["SourcePlace"].ToString()
+                    };
+            }
+            return acceptProductResult;
+        }
 
         /// <summary>
-        /// Добавление продукта в приказ
+        ///     Добавление продукта в приказ
         /// </summary>
         /// <param name="personId">Идентификатор оператора(грузчика)</param>
         /// <param name="barcode">ШК продукта</param>
         /// <param name="docShipmentOrderId">Идентификатор приказа 1С</param>
-        /// <returns>Если успешно добавлено, то возвращает результат с последовтельностью элементов. В
-        /// противном случае последовательность null, в ResultMessage - сообщение</returns>
+        /// <returns>
+        ///     Если успешно добавлено, то возвращает результат с последовтельностью элементов. В
+        ///     противном случае последовательность null, в ResultMessage - сообщение
+        /// </returns>
         public static DbOperationProductResult AddProduct(int personId, string barcode, Guid docShipmentOrderId)
         {
-            var addProductResult = new DbOperationProductResult()
+            var addProductResult = new DbOperationProductResult
                 {
                     ProductItems = new List<ProductItem>()
                 };
@@ -235,7 +338,7 @@ namespace gamma_mob
                             Value = docShipmentOrderId
                         }
                 };
-            var table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure);
+            DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure);
             if (table != null && table.Rows.Count > 0)
             {
                 addProductResult.ResultMessage = table.Rows[0]["ResultMessage"].ToString();
@@ -262,7 +365,7 @@ namespace gamma_mob
         }
 
         /// <summary>
-        /// Возвращает ID документа Gamma
+        ///     Возвращает ID документа Gamma
         /// </summary>
         /// <param name="docShipmentOrderId">ID документа 1С</param>
         /// <param name="personId">ID оператора</param>
@@ -281,7 +384,7 @@ namespace gamma_mob
                             Value = personId
                         }
                 };
-            var table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure);
+            DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure);
             if (table == null || table.Rows.Count < 1) return null;
             if (table.Rows[0]["DocID"] == null) return null;
             return new Guid(table.Rows[0]["DocID"].ToString());
@@ -305,7 +408,7 @@ namespace gamma_mob
                             Value = personId
                         }
                 };
-            var table = ExecuteSelectQuery(sql, parameters, CommandType.Text);
+            DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.Text);
             if (table != null && table.Rows.Count > 0)
             {
                 list.AddRange(from DataRow row in table.Rows select row["Barcode"].ToString());
@@ -313,41 +416,45 @@ namespace gamma_mob
             return list;
         }
 
-        private static DataTable ExecuteSelectQuery(string sql, IEnumerable<SqlParameter> parameters, CommandType commandType)
+        private static DataTable ExecuteSelectQuery(string sql, IEnumerable<SqlParameter> parameters,
+                                                    CommandType commandType)
         {
-            DataTable table;
-            using (var command = new SqlCommand(sql))
+            try
             {
-                command.Connection = new SqlConnection(ConnectionString);
-                command.CommandType = commandType;
-                foreach (var parameter in parameters)
+                Cursor.Current = Cursors.WaitCursor;
+                DataTable table;
+                using (var command = new SqlCommand(sql))
                 {
-                    command.Parameters.Add(parameter);
-                }
-                using (var sda = new SqlDataAdapter(command))
-                {
-                    try
+                    command.Connection = new SqlConnection(ConnectionString);
+                    command.CommandType = commandType;
+                    foreach (SqlParameter parameter in parameters)
                     {
-                        table = new DataTable();
-                        sda.Fill(table);
-                        Shared.LastQueryCompleted = true;
+                        command.Parameters.Add(parameter);
                     }
-                    catch (SqlException ex)
+                    using (var sda = new SqlDataAdapter(command))
                     {
+                        try
+                        {
+                            table = new DataTable();
+                            sda.Fill(table);
+                            Shared.LastQueryCompleted = true;
+                        }
+                        catch (SqlException ex)
+                        {
 #if DEBUG
-                        MessageBox.Show(ex.ToString());
+                            MessageBox.Show(ex.Message);
 #endif
-                        Shared.LastQueryCompleted = false;
-                        table = null;
+                            Shared.LastQueryCompleted = false;
+                            table = null;
+                        }
                     }
                 }
-                
+                return table;
             }
-            return table;
+            finally
+            {
+                Cursor.Current = Cursors.Default;
+            }
         }
     }
-
-    
-
-    
 }

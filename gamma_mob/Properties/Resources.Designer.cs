@@ -133,5 +133,12 @@ namespace gamma_mob.Properties {
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
+        
+        internal static System.Drawing.Bitmap UploadToDb {
+            get {
+                object obj = ResourceManager.GetObject("UploadToDb", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
     }
 }

@@ -6,20 +6,6 @@ namespace gamma_mob.Common
 {
     public class BarcodeScanner : IDisposable
     {
-        private DecodeEvent DcdEvent { get; set; }
-        private DecodeHandle DecodeHandler { get; set; }
-        
-        public event BarcodeReceivedEventHandler BarcodeReceived;
-
-        private static BarcodeScanner Instance { get; set; }
-
-        public static BarcodeScanner Scanner
-        {
-            get { return Instance ?? (Instance = new BarcodeScanner()); }
-        }
-
-        public static Control CurrentListener { get; private set; }
-
         private BarcodeScanner()
         {
             try
@@ -30,8 +16,8 @@ namespace gamma_mob.Common
             {
                 MessageBox.Show(@"Exception loading barcode decoder.", @"Decoder Error");
             }
-            
-            const DecodeRequest reqType = (DecodeRequest)1 | DecodeRequest.PostRecurring;
+
+            const DecodeRequest reqType = (DecodeRequest) 1 | DecodeRequest.PostRecurring;
 
             //            if (DcdEvent != null)
             //                DcdEvent.Scanned -= DcdEvent_Scanned;
@@ -42,8 +28,21 @@ namespace gamma_mob.Common
             BarcodeReceived = null;
         }
 
+        private DecodeEvent DcdEvent { get; set; }
+        private DecodeHandle DecodeHandler { get; set; }
+
+        private static BarcodeScanner Instance { get; set; }
+
+        public static BarcodeScanner Scanner
+        {
+            get { return Instance ?? (Instance = new BarcodeScanner()); }
+        }
+
+        public static Control CurrentListener { get; private set; }
+        public event BarcodeReceivedEventHandler BarcodeReceived;
+
         /// <summary>
-        /// This method will be called when the DcdEvent is invoked.
+        ///     This method will be called when the DcdEvent is invoked.
         /// </summary>
         private void DcdEvent_Scanned(object sender, DecodeEventArgs e)
         {
@@ -69,13 +68,13 @@ namespace gamma_mob.Common
 
         #region Члены IDisposable
 
+        private bool Disposed { get; set; }
+
         public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
-
-        private bool Disposed { get; set; }
 
         public void Dispose(bool disposing)
         {

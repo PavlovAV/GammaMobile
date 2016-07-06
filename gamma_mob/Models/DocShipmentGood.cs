@@ -9,6 +9,7 @@ namespace gamma_mob.Models
         public Guid NomenclatureId { get; set; }
         public Guid CharacteristicId { get; set; }
         public string NomenclatureName { get; set; }
+        public string ShortNomenclatureName { get; set; }
 
         /// <summary>
         ///     Количество для сбора(может быть LoadToTop)

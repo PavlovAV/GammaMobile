@@ -3,6 +3,7 @@ using System.Windows.Forms;
 using Datalogic.API;
 using OpenNETCF.Threading;
 using OpenNETCF.Windows.Forms;
+using gamma_mob.Common;
 
 namespace gamma_mob
 {
@@ -25,6 +26,7 @@ namespace gamma_mob
             {
                 Application2.Run(new MainForm());
             }
+            else BarcodeScanner.Scanner.Dispose();
         }
     }
 }

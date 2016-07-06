@@ -171,7 +171,8 @@ namespace gamma_mob
                             NomenclatureId = new Guid(row["1CNomenclatureID"].ToString()),
                             NomenclatureName = row["NomenclatureName"].ToString(),
                             Quantity = row["Quantity"].ToString(),
-                            CollectedQuantity = Convert.ToDecimal(row["CollectedQuantity"])
+                            CollectedQuantity = Convert.ToDecimal(row["CollectedQuantity"]),
+                            ShortNomenclatureName = row["ShortNomenclatureName"].ToString()
                         });
                 }
             }

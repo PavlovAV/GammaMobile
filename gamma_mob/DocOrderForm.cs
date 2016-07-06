@@ -57,20 +57,20 @@ namespace gamma_mob
             tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
                 {
                     HeaderText = "Номенклатура",
-                    MappingName = "NomenclatureName",
-                    Width = 160
+                    MappingName = "ShortNomenclatureName",
+                    Width = 156
                 });
             tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
                 {
                     HeaderText = "Кол-во",
                     MappingName = "Quantity",
-                    Width = 39
+                    Width = 38
                 });
             tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
                 {
                     HeaderText = "Собрано",
                     MappingName = "CollectedQuantity",
-                    Width = 39,
+                    Width = 38,
                     Format = "0.###"
                 });
             gridDocShipmentOrder.TableStyles.Add(tableStyle);

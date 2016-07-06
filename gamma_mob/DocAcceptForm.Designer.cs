@@ -78,6 +78,7 @@
             this.gridDocAccept.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
             this.gridDocAccept.Location = new System.Drawing.Point(0, 59);
             this.gridDocAccept.Name = "gridDocAccept";
+            this.gridDocAccept.PreferredRowHeight = 32;
             this.gridDocAccept.RowHeadersVisible = false;
             this.gridDocAccept.Size = new System.Drawing.Size(638, 368);
             this.gridDocAccept.TabIndex = 4;
@@ -108,7 +109,6 @@
             this.Controls.Add(this.btnAddProduct);
             this.Controls.Add(this.edtNumber);
             this.Controls.Add(this.tbrMain);
-            this.Location = new System.Drawing.Point(0, 0);
             this.Menu = this.mainMenu1;
             this.Name = "DocAcceptForm";
             this.Text = "Приемка на склад";

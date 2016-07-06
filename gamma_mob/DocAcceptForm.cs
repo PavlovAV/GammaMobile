@@ -44,19 +44,20 @@ namespace gamma_mob
                 {
                     HeaderText = "Номер",
                     MappingName = "Number",
-                    Width = 39
+                    Width = 94
                 });
             tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
                 {
                     HeaderText = "Номенклатура",
                     MappingName = "NomenclatureName",
-                    Width = 160
+                    Width = 100
                 });
             tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
                 {
                     HeaderText = "Кол-во",
                     MappingName = "Quantity",
-                    Width = 39
+                    Width = 38,
+                    Format = "0.###"
                 });
             gridDocAccept.TableStyles.Add(tableStyle);
         }
@@ -174,7 +175,12 @@ namespace gamma_mob
                         AddOfflineBarcode(barcode);
                     return;
                 }
-                if (acceptResult.AlreadyAccepted)
+            if (acceptResult == null)
+            {
+                MessageBox.Show(@"Ну удалось принять продукцию на склад");
+                return;
+            }
+            if (acceptResult.AlreadyAccepted)
                 {
                     CancelLastMovement(barcode, acceptResult.SourcePlace);
                     return;

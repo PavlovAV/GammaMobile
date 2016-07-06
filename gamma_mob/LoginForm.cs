@@ -55,7 +55,6 @@ namespace gamma_mob
             MessageBox.Show(@"Неверно указан логин или пароль в настройках. Обратитесь к администратору приложения"
                             , @"Ошибка связи с БД",
                             MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
-            Application.Exit();
         }
     }
 }

@@ -98,9 +98,9 @@ namespace gamma_mob
             }
         }
 
-        protected override void FormClosing(object sender, CancelEventArgs e)
+        protected override void OnFormClosing(object sender, CancelEventArgs e)
         {
-            base.FormClosing(sender, e);
+            base.OnFormClosing(sender, e);
             ConnectionState.OnConnectionRestored -= UnloadOfflineProducts;
         }
 

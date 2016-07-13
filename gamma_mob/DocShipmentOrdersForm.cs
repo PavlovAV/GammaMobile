@@ -32,7 +32,7 @@ namespace gamma_mob
                 {
                     HeaderText = "Номер",
                     MappingName = "Number",
-                    Width = 90
+                    Width = 80
                 });
             tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
                 {
@@ -60,7 +60,7 @@ namespace gamma_mob
             var id = new Guid(gridDocShipmentOrders[row, 0].ToString());
             var docOrderForm = new DocOrderForm(id, this, gridDocShipmentOrders[row, 1].ToString());
             docOrderForm.Show();
-            if (docOrderForm.Enabled)
+            if (!docOrderForm.IsDisposed && docOrderForm.Enabled)
                 Hide();
             Cursor.Current = Cursors.Default;
         }

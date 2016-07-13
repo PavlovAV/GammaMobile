@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
+using Datalogic.API;
 using gamma_mob.Common;
 using gamma_mob.Models;
 
@@ -19,7 +20,7 @@ namespace gamma_mob.Dialogs
             DialogResult = DialogResult.OK;
             EndPointInfo = new EndPointInfo
                 {
-                    WarehouseId = Convert.ToInt32(edtWarehouse.SelectedValue)
+                    WarehouseId = Convert.ToInt32((sender as ButtonIntId).Id)
                 };
             Close();
         }
@@ -33,11 +34,22 @@ namespace gamma_mob.Dialogs
                 Close();
                 return;
             }
-            edtWarehouse.DataSource = Shared.Warehouses;
-            edtWarehouse.DisplayMember = "WarehouseName";
-            edtWarehouse.ValueMember = "WarehouseId";
-            if (Shared.Warehouses.Count > 0)
-                edtWarehouse.SelectedIndex = 0;
+
+            Height = 100 + (Shared.Warehouses.Count - 1)*40;
+
+            if (Height > Screen.PrimaryScreen.WorkingArea.Height) Height = Screen.PrimaryScreen.WorkingArea.Height;
+
+            for (int i = 0; i < Shared.Warehouses.Count; i++ )
+            {
+                var button = new ButtonIntId(Shared.Warehouses[i].WarehouseId);
+                button.Click += btnOK_Click;
+                button.Text = Shared.Warehouses[i].WarehouseName;
+                button.Width = Convert.ToInt32(GraphFuncs.TextSize(Shared.Warehouses[i].WarehouseName, button.Font).Width + 8);
+                button.Height = 30;
+                button.Left = (Width - button.Width) / 2;
+                button.Top = 10 + 40*i;
+                Controls.Add(button);
+            }
         }
     }
 }

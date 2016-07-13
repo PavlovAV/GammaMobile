@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Windows.Forms;
-using Microsoft.WindowsCE.Forms;
 using OpenNETCF.Win32;
-using OpenNETCF.Windows.Forms;
+using IMessageFilter = OpenNETCF.Windows.Forms.IMessageFilter;
+using Message = Microsoft.WindowsCE.Forms.Message;
+using MethodInvoker = OpenNETCF.Windows.Forms.MethodInvoker;
 
 namespace gamma_mob.Common
 {

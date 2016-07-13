@@ -39,16 +39,9 @@ namespace gamma_mob
             Text = "Приказ № " + orderNumber;
             DocShipmentOrderId = docShipmentOrderId;
             Guid? id = Db.GetDocId(docShipmentOrderId, Shared.PersonId);
-            if (id == null)
+            if (id == null || !RefreshDocOrderGoods(docShipmentOrderId))
             {
                 MessageBox.Show(@"Не удалось получить информацию о текущем документе");
-                Close();
-                return;
-            }
-            //DocId = (Guid)id;
-
-            if (!RefreshDocOrderGoods(docShipmentOrderId))
-            {
                 Close();
                 return;
             }
@@ -167,9 +160,9 @@ namespace gamma_mob
                 }
         */
 
-        protected override void FormClosing(object sender, CancelEventArgs e)
+        protected override void OnFormClosing(object sender, CancelEventArgs e)
         {
-            base.FormClosing(sender, e);
+            base.OnFormClosing(sender, e);
             ConnectionState.OnConnectionRestored -= UnloadOfflineProducts;
         }
 
@@ -203,7 +196,7 @@ namespace gamma_mob
             BindingList<DocShipmentGood> list = Db.DocShipmentGoods(docShipmentOrderId);
             if (!Shared.LastQueryCompleted || list == null)
             {
-                MessageBox.Show(@"Не удалось получить информацию о текущем документе");
+               // MessageBox.Show(@"Не удалось получить информацию о текущем документе");
                 return false;
             }
             GoodList = list;

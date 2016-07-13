@@ -40,7 +40,7 @@ namespace gamma_mob.Common
             ImgList = Shared.ImgList;
         }
 
-        protected virtual void FormClosing(object sender, CancelEventArgs e)
+        protected virtual void OnFormClosing(object sender, CancelEventArgs e)
         {
             if (Scanner != null)
                 Scanner.BarcodeReceived -= BarcodeFunc;

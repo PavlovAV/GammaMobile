@@ -73,21 +73,18 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="System.Deployment, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.Serialization.Formatters.Soap, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="System.Security, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Common\ButtonWithParameter.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Common\ButtonWithParameter.Designer.cs">
-      <DependentUpon>ButtonWithParameter.cs</DependentUpon>
+    <Compile Include="Common\ButtonIntId.cs">
+      <SubType>Component</SubType>
     </Compile>
     <Compile Include="Common\DesignMode.cs" />
     <Compile Include="Common\EventHandlers.cs" />
@@ -100,6 +97,7 @@
     </Compile>
     <Compile Include="Common\Enums.cs" />
     <Compile Include="Common\Extensions.cs" />
+    <Compile Include="Common\Graphics.cs" />
     <Compile Include="Common\InactivityFilter.cs" />
     <Compile Include="Common\Shared.cs" />
     <Compile Include="ConnectionState.cs" />
@@ -183,10 +181,6 @@
   <ItemGroup>
     <EmbeddedResource Include="Common\BaseForm.resx">
       <DependentUpon>BaseForm.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Common\ButtonWithParameter.resx">
-      <DependentUpon>ButtonWithParameter.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\ChooseEndPointDialog.resx">

@@ -177,7 +177,7 @@ namespace gamma_mob
                 }
             if (acceptResult == null)
             {
-                MessageBox.Show(@"Ну удалось принять продукцию на склад");
+                MessageBox.Show(@"Не удалось принять продукцию на склад");
                 return;
             }
             if (acceptResult.AlreadyAccepted)
@@ -217,7 +217,9 @@ namespace gamma_mob
 
         private void CancelLastMovement(string barcode, string sourcePlace)
         {
-            OfflineProduct offlineProduct = OfflineProducts.FirstOrDefault(p => p.Barcode == barcode);
+            OfflineProduct offlineProduct = null;
+            if (OfflineProducts != null)
+                offlineProduct = OfflineProducts.FirstOrDefault(p => p.Barcode == barcode);
             DialogResult dlgResult = MessageBox.Show(
                 string.Format("Вернуть продукт с шк {0} на передел {1}", barcode, sourcePlace),
                 @"Возврат продукта", MessageBoxButtons.YesNo, MessageBoxIcon.Question,

@@ -24,6 +24,8 @@ namespace gamma_mob
 
         public static int CheckSqlConnection()
         {
+            if (string.IsNullOrEmpty(ConnectionString)) return 1;
+            if (!ConnectionState.CheckConnection()) return 1;
             using (var connection = new SqlConnection(ConnectionString))
             {
                 try

@@ -4,7 +4,7 @@ using gamma_mob.Common;
 
 namespace gamma_mob
 {
-    public partial class DocShipmentOrdersForm : BaseForm
+    public partial class DocShipmentOrdersForm: BaseForm
     {
         public DocShipmentOrdersForm()
         {
@@ -45,7 +45,12 @@ namespace gamma_mob
 
         private void GetDocOrders()
         {
-            BSource = new BindingSource(Db.PersonDocShipmentOrders(Shared.PersonId), null);
+            if (BSource == null)
+                BSource = new BindingSource(Db.PersonDocShipmentOrders(Shared.PersonId), null);
+            else
+            {
+                BSource.DataSource = Db.PersonDocShipmentOrders(Shared.PersonId);
+            }
         }
 
         private void gridDocShipmentOrders_DoubleClick(object sender, EventArgs e)
@@ -58,7 +63,7 @@ namespace gamma_mob
             Cursor.Current = Cursors.WaitCursor;
             int row = gridDocShipmentOrders.CurrentRowIndex;
             var id = new Guid(gridDocShipmentOrders[row, 0].ToString());
-            var docOrderForm = new DocOrderForm(id, this, gridDocShipmentOrders[row, 1].ToString());
+            var docOrderForm = new DocOrderForm(id, this, gridDocShipmentOrders[row, 1].ToString(), DocType.DocShipmentOrder);
             docOrderForm.Show();
             if (!docOrderForm.IsDisposed && docOrderForm.Enabled)
                 Hide();

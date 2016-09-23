@@ -100,6 +100,7 @@
     <Compile Include="Common\Graphics.cs" />
     <Compile Include="Common\InactivityFilter.cs" />
     <Compile Include="Common\Shared.cs" />
+    <Compile Include="Common\UIServices.cs" />
     <Compile Include="ConnectionState.cs" />
     <Compile Include="Dialogs\ChooseEndPointDialog.cs">
       <SubType>Form</SubType>
@@ -112,6 +113,12 @@
     </Compile>
     <Compile Include="DocAcceptForm.Designer.cs">
       <DependentUpon>DocAcceptForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DocMovementOrdersForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DocMovementOrdersForm.Designer.cs">
+      <DependentUpon>DocMovementOrdersForm.cs</DependentUpon>
     </Compile>
     <Compile Include="DocOrderForm.cs">
       <SubType>Form</SubType>
@@ -145,7 +152,8 @@
     </Compile>
     <Compile Include="Models\AcceptProductResult.cs" />
     <Compile Include="Models\AddProductResult.cs" />
-    <Compile Include="Models\DocShipmentGood.cs" />
+    <Compile Include="Models\DocMovementOrder.cs" />
+    <Compile Include="Models\DocNomenclatureItem.cs" />
     <Compile Include="Models\DocShipmentOrder.cs" />
     <Compile Include="Models\EndPointInfo.cs" />
     <Compile Include="Models\OfflineProduct.cs" />
@@ -191,6 +199,10 @@
       <DependentUpon>DocAcceptForm.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <EmbeddedResource Include="DocMovementOrdersForm.resx">
+      <DependentUpon>DocMovementOrdersForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="DocOrderForm.resx">
       <DependentUpon>DocOrderForm.cs</DependentUpon>
       <SubType>Designer</SubType>
@@ -228,6 +240,9 @@
     <None Include="Resources\edit_1518.png" />
     <None Include="Resources\refresh1.png" />
     <None Include="Resources\move_waiting_up_alternative.png" />
+    <Content Include="dbnetlib.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Settings.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

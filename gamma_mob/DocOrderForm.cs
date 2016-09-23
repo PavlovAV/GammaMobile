@@ -30,16 +30,27 @@ namespace gamma_mob
         /// <summary>
         ///     инициализация формы приказа
         /// </summary>
-        /// <param name="docShipmentOrderId">ID Документа 1С</param>
+        /// <param name="docOrderId">ID Документа (для отгрузки - ID 1c, для заказа на перемещение ID gamma)</param>
         /// <param name="parentForm">Форма, вызвавшая данную форму</param>
         /// <param name="orderNumber">Номер приказа из 1С</param>
-        public DocOrderForm(Guid docShipmentOrderId, Form parentForm, string orderNumber)
+        /// <param name="docType">Тип документа(отгрузка, перемещение)</param>
+        public DocOrderForm(Guid docOrderId, Form parentForm, string orderNumber, DocType docType)
             : this(parentForm)
         {
-            Text = "Приказ № " + orderNumber;
-            DocShipmentOrderId = docShipmentOrderId;
-            Guid? id = Db.GetDocId(docShipmentOrderId, Shared.PersonId);
-            if (id == null || !RefreshDocOrderGoods(docShipmentOrderId))
+            DocType = docType;
+            switch (docType)
+            {
+                    case DocType.DocShipmentOrder:
+                        Text = "Приказ № " + orderNumber;
+                        break;
+                    case DocType.DocMovementOrder:
+                        Text = "Заказ № " + orderNumber;
+                        break;
+            }
+            
+            DocOrderId = docOrderId;
+            var id = Db.GetDocId(docOrderId, Shared.PersonId, DocType);
+            if (id == null || !RefreshDocOrderGoods(docOrderId))
             {
                 MessageBox.Show(@"Не удалось получить информацию о текущем документе");
                 Close();
@@ -66,16 +77,18 @@ namespace gamma_mob
                     Width = 38,
                     Format = "0.###"
                 });
-            gridDocShipmentOrder.TableStyles.Add(tableStyle);
+            gridDocOrder.TableStyles.Add(tableStyle);
 
-            //Получение шк текущего документа(Если не получили, то и фиг с ними, будут лишние запросы к базе)
-            Barcodes = Db.CurrentBarcodes(docShipmentOrderId, Shared.PersonId);
+            //Получение штрих-кодов текущего документа(Если не получили, то и фиг с ними, будут лишние запросы к базе)
+            Barcodes = Db.CurrentBarcodes(docOrderId, Shared.PersonId, DocType);
         }
+
+        private DocType DocType { get; set; }
 
         private string FileName { get; set; }
         private BindingSource BSource { get; set; }
 
-        private BindingList<DocShipmentGood> GoodList { get; set; }
+        private BindingList<DocNomenclatureItem> GoodList { get; set; }
 
         private List<string> Barcodes { get; set; }
         private List<OfflineProduct> OfflineProducts { get; set; }
@@ -83,7 +96,7 @@ namespace gamma_mob
         /// <summary>
         ///     ID документа 1с
         /// </summary>
-        private Guid DocShipmentOrderId { get; set; }
+        private Guid DocOrderId { get; set; }
 
         protected override void FormLoad(object sender, EventArgs e)
         {
@@ -174,18 +187,26 @@ namespace gamma_mob
                     Close();
                     break;
                 case 1:
-                    DocShipmentGood good = GoodList[gridDocShipmentOrder.CurrentRowIndex];
-                    var form = new DocShipmentGoodProductsForm(DocShipmentOrderId, good.NomenclatureId, good.NomenclatureName,
+                    DocNomenclatureItem good = GoodList[gridDocOrder.CurrentRowIndex];
+                    if (!ConnectionState.CheckConnection())
+                    {
+                        MessageBox.Show(@"Нет связи с сервером");
+                        return;
+                    }
+                    var form = new DocShipmentGoodProductsForm(DocOrderId, good.NomenclatureId, good.NomenclatureName,
                                                                good.CharacteristicId, this);
-                    form.Show();
-                    if (form.Enabled)
-                        Hide();
+                    if (!form.IsDisposed)
+                    {
+                        form.Show();
+                        if (form.Enabled)
+                            Hide();
+                    }
                     break;
                 case 2:
-                    RefreshDocOrderGoods(DocShipmentOrderId);
+                    RefreshDocOrderGoods(DocOrderId);
                     break;
                 case 3:
-                    if (OfflineProducts.Count(p => p.DocShipmentOrderId == DocShipmentOrderId) > 0)
+                    if (OfflineProducts.Count(p => p.DocShipmentOrderId == DocOrderId) > 0)
                         UnloadOfflineProducts();
                     break;
             }
@@ -193,22 +214,29 @@ namespace gamma_mob
 
         private bool RefreshDocOrderGoods(Guid docShipmentOrderId)
         {
-            BindingList<DocShipmentGood> list = Db.DocShipmentGoods(docShipmentOrderId);
+            BindingList<DocNomenclatureItem> list = Db.DocNomenclatureItems(docShipmentOrderId, DocType);
             if (!Shared.LastQueryCompleted || list == null)
             {
                // MessageBox.Show(@"Не удалось получить информацию о текущем документе");
                 return false;
             }
             GoodList = list;
-            BSource = new BindingSource {DataSource = GoodList};
-            gridDocShipmentOrder.DataSource = BSource;
+            if (BSource == null)
+                BSource = new BindingSource {DataSource = GoodList};
+            else
+            {
+                BSource.DataSource = GoodList;
+            }
+            gridDocOrder.DataSource = BSource;
             return true;
         }
 
         private void BarcodeReaction(string barcode)
         {
             Invoke((MethodInvoker) (() => edtNumber.Text = barcode));
+            UIServices.SetBusyState(this);
             AddProductByBarcode(barcode, false);
+            UIServices.SetNormalState(this);
         }
 
         /// <summary>
@@ -235,7 +263,7 @@ namespace gamma_mob
                     }
                     return;
                 }
-                DbOperationProductResult addResult = Db.AddProduct(Shared.PersonId, barcode, DocShipmentOrderId);
+                DbOperationProductResult addResult = Db.AddProduct(Shared.PersonId, barcode, DocOrderId, DocType);
                 if (addResult.AlreadyMadeChanges)
                 {
                     if (DeleteProductByBarcode(barcode) && fromBuffer)
@@ -283,7 +311,7 @@ namespace gamma_mob
             if (dlgresult == DialogResult.Yes)
             {
                 DbOperationProductResult deleteResult = Db.DeleteProductFromOrder(Shared.PersonId, barcode,
-                                                                                  DocShipmentOrderId);
+                                                                                  DocOrderId, DocType);
                 if (deleteResult.ResultMessage == "" && Shared.LastQueryCompleted)
                 {
                     result = true;
@@ -305,7 +333,7 @@ namespace gamma_mob
 
         private void UpdateGrid(Guid nomenclatureId, Guid characteristicId, decimal quantity, bool add)
         {
-            DocShipmentGood good =
+            DocNomenclatureItem good =
                 GoodList.FirstOrDefault(
                     g => g.NomenclatureId == nomenclatureId && g.CharacteristicId == characteristicId);
             if (good == null) return;
@@ -313,15 +341,17 @@ namespace gamma_mob
                 good.CollectedQuantity += quantity;
             else
                 good.CollectedQuantity -= quantity;
-            gridDocShipmentOrder.UnselectAll();
+            gridDocOrder.UnselectAll();
             int index = GoodList.IndexOf(good);
-            gridDocShipmentOrder.CurrentRowIndex = index;
-            gridDocShipmentOrder.Select(index);
+            gridDocOrder.CurrentRowIndex = index;
+            gridDocOrder.Select(index);
         }
 
         private void btnAddProduct_Click(object sender, EventArgs e)
         {
+            UIServices.SetBusyState(this);
             AddProductByBarcode(edtNumber.Text, false);
+            UIServices.SetNormalState(this);
         }
 
         private void AddOfflineProduct(string barcode)
@@ -329,14 +359,14 @@ namespace gamma_mob
             if (OfflineProducts == null) OfflineProducts = new List<OfflineProduct>();
             OfflineProducts.Add(new OfflineProduct
                 {
-                    DocShipmentOrderId = DocShipmentOrderId,
+                    DocShipmentOrderId = DocOrderId,
                     Barcode = barcode,
                     PersonId = Shared.PersonId,
                     ResultMessage = "Не выгружено"
                 });
             Invoke(
                 (MethodInvoker)
-                (() => lblBufferCount.Text = OfflineProducts.Count(p => p.DocShipmentOrderId == DocShipmentOrderId)
+                (() => lblBufferCount.Text = OfflineProducts.Count(p => p.DocShipmentOrderId == DocOrderId)
                                                             .ToString(CultureInfo.InvariantCulture)));
             SaveToXml(OfflineProducts);
         }
@@ -346,17 +376,18 @@ namespace gamma_mob
         /// </summary>
         private void UnloadOfflineProducts()
         {
+            UIServices.SetBusyState(this);
             Invoke((ConnectStateChangeInvoker) (ShowConnection), new object[] {ConnectState.NoConInProgress});
             string message = "";
             string resultMessage = "";
             foreach (
                 OfflineProduct offlineProduct in
-                    OfflineProducts.Where(p => p.DocShipmentOrderId == DocShipmentOrderId).ToList())
+                    OfflineProducts.Where(p => p.DocShipmentOrderId == DocOrderId).ToList())
             {
                 AddProductByBarcode(offlineProduct.Barcode, true);
             }
             List<OfflineProduct> tempList = OfflineProducts.Where(p => p.Unloaded
-                                                                       && p.DocShipmentOrderId == DocShipmentOrderId)
+                                                                       && p.DocShipmentOrderId == DocOrderId)
                                                            .ToList();
             int unloaded = tempList.Count(p => p.ResultMessage == "");
             if (unloaded > 0)
@@ -380,13 +411,14 @@ namespace gamma_mob
             }
             Invoke(
                 (MethodInvoker)
-                (() => lblBufferCount.Text = OfflineProducts.Count(p => p.DocShipmentOrderId == DocShipmentOrderId)
+                (() => lblBufferCount.Text = OfflineProducts.Count(p => p.DocShipmentOrderId == DocOrderId)
                                                             .ToString(CultureInfo.InvariantCulture)));
-            if (OfflineProducts.Count(p => p.DocShipmentOrderId == DocShipmentOrderId) > 0)
+            if (OfflineProducts.Count(p => p.DocShipmentOrderId == DocOrderId) > 0)
             {
                 ConnectionState.StartChecker();
             }
             SaveToXml(OfflineProducts);
+            UIServices.SetNormalState(this);
         }
 
         private void SaveToXml(ICollection offlineProducts)
@@ -407,7 +439,7 @@ namespace gamma_mob
 
         private void gridDocShipmentOrder_CurrentCellChanged(object sender, EventArgs e)
         {
-            gridDocShipmentOrder.Select(gridDocShipmentOrder.CurrentRowIndex);
+            gridDocOrder.Select(gridDocOrder.CurrentRowIndex);
         }
 
         private delegate void ConnectStateChangeInvoker(ConnectState state);

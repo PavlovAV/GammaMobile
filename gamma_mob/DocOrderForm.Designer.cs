@@ -36,7 +36,7 @@
             this.edtNumber = new System.Windows.Forms.TextBox();
             this.btnAddProduct = new System.Windows.Forms.Button();
             this.imgConnection = new System.Windows.Forms.PictureBox();
-            this.gridDocShipmentOrder = new System.Windows.Forms.DataGrid();
+            this.gridDocOrder = new System.Windows.Forms.DataGrid();
             this.lblBufferCount = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.SuspendLayout();
@@ -72,18 +72,18 @@
             this.imgConnection.Name = "imgConnection";
             this.imgConnection.Size = new System.Drawing.Size(22, 23);
             // 
-            // gridDocShipmentOrder
+            // gridDocOrder
             // 
-            this.gridDocShipmentOrder.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            this.gridDocOrder.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
                         | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
-            this.gridDocShipmentOrder.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
-            this.gridDocShipmentOrder.Location = new System.Drawing.Point(0, 59);
-            this.gridDocShipmentOrder.Name = "gridDocShipmentOrder";
-            this.gridDocShipmentOrder.PreferredRowHeight = 32;
-            this.gridDocShipmentOrder.RowHeadersVisible = false;
-            this.gridDocShipmentOrder.Size = new System.Drawing.Size(638, 360);
-            this.gridDocShipmentOrder.TabIndex = 4;
+            this.gridDocOrder.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
+            this.gridDocOrder.Location = new System.Drawing.Point(0, 59);
+            this.gridDocOrder.Name = "gridDocOrder";
+            this.gridDocOrder.PreferredRowHeight = 32;
+            this.gridDocOrder.RowHeadersVisible = false;
+            this.gridDocOrder.Size = new System.Drawing.Size(238, 200);
+            this.gridDocOrder.TabIndex = 4;
             // 
             // lblBufferCount
             // 
@@ -103,15 +103,14 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.ClientSize = new System.Drawing.Size(638, 455);
+            this.ClientSize = new System.Drawing.Size(238, 295);
             this.Controls.Add(this.lblBufferCount);
             this.Controls.Add(this.label2);
-            this.Controls.Add(this.gridDocShipmentOrder);
+            this.Controls.Add(this.gridDocOrder);
             this.Controls.Add(this.imgConnection);
             this.Controls.Add(this.btnAddProduct);
             this.Controls.Add(this.edtNumber);
             this.Controls.Add(this.tbrMain);
-            this.Location = new System.Drawing.Point(0, 0);
             this.Name = "DocOrderForm";
             this.Text = "DocOrderForm";
             this.ResumeLayout(false);
@@ -127,7 +126,7 @@
         private System.Windows.Forms.TextBox edtNumber;
         private System.Windows.Forms.Button btnAddProduct;
         private System.Windows.Forms.PictureBox imgConnection;
-        private System.Windows.Forms.DataGrid gridDocShipmentOrder;
+        private System.Windows.Forms.DataGrid gridDocOrder;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label lblBufferCount;
         private System.Windows.Forms.ToolBarButton btnUpload;

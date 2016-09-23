@@ -50,6 +50,7 @@ namespace gamma_mob.Common
         {
             m_inactivityTimer.Enabled = false;
             Elapsed = true;
+            Cursor.Current = Cursors.Default;
 
             if (InactivityElapsed != null) InactivityElapsed();
         }

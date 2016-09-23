@@ -22,4 +22,16 @@
         NoConInProgress,
         NoConnection
     }
+
+    public enum DocType
+    {
+        DocShipmentOrder,
+        DocMovementOrder,
+    }
+
+    public enum MovementType
+    {
+        Accept,
+        Movement
+    }
 }

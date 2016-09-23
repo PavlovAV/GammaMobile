@@ -3,7 +3,7 @@ using System.ComponentModel;
 
 namespace gamma_mob.Models
 {
-    public class DocShipmentGood : INotifyPropertyChanged
+    public class DocNomenclatureItem : INotifyPropertyChanged
     {
         private decimal _collectedQuantity;
         public Guid NomenclatureId { get; set; }

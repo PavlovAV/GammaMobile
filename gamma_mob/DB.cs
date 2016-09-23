@@ -86,20 +86,43 @@ namespace gamma_mob
             return table;
         }
 
-        public static BindingList<DocShipmentOrder> PersonDocShipmentOrders(int personId)
+        public static BindingList<DocMovementOrder> DocMovementOrders(int personId)
         {
-            BindingList<DocShipmentOrder> list = null;
-            const string sql = "SELECT a.[1CDocShipmentOrderID] AS DocShipmentOrderID, b.[1CNumber] AS Number, c.Description AS Buyer FROM" +
-                               " DocShipmentOrderInfo a" +
-                               " JOIN [1CDocShipmentOrder] b ON a.[1CDocShipmentOrderID] = b.[1CDocShipmentOrderID]" +
-                               " JOIN [1CContractors] c ON b.[1CConsigneeID] = c.[1CContractorID]" +                               
-                               " WHERE a.[ActivePersonID] = @PersonID AND b.Posted = 0";
+            BindingList<DocMovementOrder> list = null;
+            const string sql = "dbo.mob_GetDocMovementOrders";
             var parameters = new List<SqlParameter>
                 {
                     new SqlParameter("@PersonID", SqlDbType.Int)
                 };
             parameters[0].Value = personId;
-            DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.Text);
+            DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure);
+            if (table != null && table.Rows.Count > 0)
+            {
+                list = new BindingList<DocMovementOrder>();
+                foreach (DataRow row in table.Rows)
+                {
+                    list.Add(new DocMovementOrder()
+                    {
+                        DocId = new Guid(row["DocID"].ToString()),
+                        Number = row["Number"].ToString(),
+                        PlaceFrom = row["PlaceFrom"].ToString(),
+                        PlaceTo = row["PlaceTo"].ToString()
+                    });
+                }
+            }
+            return list ?? new BindingList<DocMovementOrder>();
+        }
+
+        public static BindingList<DocShipmentOrder> PersonDocShipmentOrders(int personId)
+        {
+            BindingList<DocShipmentOrder> list = null;
+            const string sql = "dbo.mob_GetPersonDocShipmentOrders";
+            var parameters = new List<SqlParameter>
+                {
+                    new SqlParameter("@PersonID", SqlDbType.Int)
+                };
+            parameters[0].Value = personId;
+            DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure);
             if (table != null && table.Rows.Count > 0)
             {
                 list = new BindingList<DocShipmentOrder>();
@@ -151,10 +174,20 @@ namespace gamma_mob
         }
 */
 
-        public static BindingList<DocShipmentGood> DocShipmentGoods(Guid docId)
+        public static BindingList<DocNomenclatureItem> DocNomenclatureItems(Guid docId, DocType docType)
         {
-            BindingList<DocShipmentGood> list = null;
-            const string sql = "SELECT * FROM vDocShipmentOrders WHERE [1CDocShipmentOrderID] = @DocID";
+            BindingList<DocNomenclatureItem> list = null;
+            var sql = "";
+            switch (docType)
+            {
+                case DocType.DocShipmentOrder:
+                    sql = "SELECT * FROM vDocShipmentOrders WHERE [1CDocShipmentOrderID] = @DocID";
+                    break;
+                case DocType.DocMovementOrder:
+                    sql = "SELECT * FROM vDocMovementOrders WHERE DocID = @DocID";
+                    break;
+            }
+                
             var parameters =
                 new List<SqlParameter>
                     {
@@ -164,10 +197,10 @@ namespace gamma_mob
             DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.Text);
             if (table != null && table.Rows.Count > 0)
             {
-                list = new BindingList<DocShipmentGood>();
+                list = new BindingList<DocNomenclatureItem>();
                 foreach (DataRow row in table.Rows)
                 {
-                    list.Add(new DocShipmentGood
+                    list.Add(new DocNomenclatureItem
                         {
                             CharacteristicId = new Guid(row["1CCharacteristicID"].ToString()),
                             NomenclatureId = new Guid(row["1CNomenclatureID"].ToString()),
@@ -226,15 +259,25 @@ namespace gamma_mob
         /// <param name="persontId">Идентификатор оператора</param>
         /// <param name="barcode">ШК продукта</param>
         /// <param name="docShipmentOrderId">Идентификатор документа на отгрузку 1С</param>
+        /// <param name="docType">Тип документа из которого удаляется продукт</param>
         /// <returns>Описание результата действия</returns>
         public static DbOperationProductResult DeleteProductFromOrder(int persontId, string barcode,
-                                                                      Guid docShipmentOrderId)
+                                                                      Guid docShipmentOrderId, DocType docType)
         {
             var deleteResult = new DbOperationProductResult
                 {
                     ProductItems = new List<ProductItem>()
                 };
-            const string sql = "dbo.[mob_DelProductFromOrder]";
+            var sql = "";
+            switch (docType)
+            {
+                case DocType.DocShipmentOrder:
+                    sql = "dbo.[mob_DelProductFromOrder]";
+                    break;
+                case DocType.DocMovementOrder:
+                    sql = "dbo.[mob_DelProductFromDocMovementOrder]";
+                    break;
+            }
             var parameters = new List<SqlParameter>
                 {
                     new SqlParameter("@PersonID", SqlDbType.Int)
@@ -244,12 +287,27 @@ namespace gamma_mob
                     new SqlParameter("@Barcode", SqlDbType.NVarChar)
                         {
                             Value = barcode
-                        },
-                    new SqlParameter("@DocShipmentOrderID", SqlDbType.UniqueIdentifier)
+                        }
+                    
+                };
+            switch (docType)
+            {
+                case DocType.DocShipmentOrder:
+                    parameters.Add(
+                        new SqlParameter("@DocShipmentOrderID", SqlDbType.UniqueIdentifier)
                         {
                             Value = docShipmentOrderId
-                        }
-                };
+                        });
+                    break;
+                case DocType.DocMovementOrder:
+                    parameters.Add(
+                        new SqlParameter("@DocOrderID", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = docShipmentOrderId
+                        });
+                    break;
+            }
+
             DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure);
             if (table != null && table.Rows.Count > 0)
             {
@@ -314,18 +372,29 @@ namespace gamma_mob
         /// </summary>
         /// <param name="personId">Идентификатор оператора(грузчика)</param>
         /// <param name="barcode">ШК продукта</param>
-        /// <param name="docShipmentOrderId">Идентификатор приказа 1С</param>
+        /// <param name="docShipmentOrderId">Идентификатор приказа 1С для отгрузки, ID документа гамма для перемещения</param>
+        /// <param name="docType">Тип документа, к которому добавляется продукт</param>
         /// <returns>
         ///     Если успешно добавлено, то возвращает результат с последовтельностью элементов. В
         ///     противном случае последовательность null, в ResultMessage - сообщение
         /// </returns>
-        public static DbOperationProductResult AddProduct(int personId, string barcode, Guid docShipmentOrderId)
+        public static DbOperationProductResult AddProduct(int personId, string barcode, Guid docOrderId, DocType docType)
         {
             var addProductResult = new DbOperationProductResult
                 {
                     ProductItems = new List<ProductItem>()
                 };
-            const string sql = "dbo.[mob_AddProduct]";
+            var sql = "";
+            switch (docType)
+            {
+                    case DocType.DocShipmentOrder:
+                        sql = "dbo.[mob_AddProduct]";
+                        break;
+                    case DocType.DocMovementOrder:
+                        sql = "dbo.[mob_AddProductToDocMovementOrder]";
+                        break;
+            }
+            
             var parameters = new List<SqlParameter>
                 {
                     new SqlParameter("@PersonID", SqlDbType.Int)
@@ -335,12 +404,25 @@ namespace gamma_mob
                     new SqlParameter("@Barcode", SqlDbType.NVarChar)
                         {
                             Value = barcode
-                        },
-                    new SqlParameter("@DocShipmentOrderID", SqlDbType.UniqueIdentifier)
-                        {
-                            Value = docShipmentOrderId
                         }
                 };
+            switch (docType)
+            {
+                    case DocType.DocShipmentOrder:
+                        parameters.Add( 
+                            new SqlParameter("@DocShipmentOrderID", SqlDbType.UniqueIdentifier)
+                                {
+                                    Value = docOrderId
+                                });
+                    break;
+                    case DocType.DocMovementOrder:
+                        parameters.Add(
+                            new SqlParameter("@DocOrderID", SqlDbType.UniqueIdentifier)
+                            {
+                                Value = docOrderId
+                            });
+                        break;
+            }
             DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure);
             if (table != null && table.Rows.Count > 0)
             {
@@ -373,18 +455,22 @@ namespace gamma_mob
         /// <param name="docShipmentOrderId">ID документа 1С</param>
         /// <param name="personId">ID оператора</param>
         /// <returns></returns>
-        public static Guid? GetDocId(Guid docShipmentOrderId, int personId)
+        public static Guid? GetDocId(Guid docShipmentOrderId, int personId, DocType docType)
         {
-            const string sql = "dbo.mob_GetDocId";
+            const string sql = "dbo.mob_CurrentDocId";
             var parameters = new List<SqlParameter>
                 {
-                    new SqlParameter("@DocShipmentOrderID", SqlDbType.UniqueIdentifier)
+                    new SqlParameter("@DocOrderID", SqlDbType.UniqueIdentifier)
                         {
                             Value = docShipmentOrderId
                         },
                     new SqlParameter("@PersonID", SqlDbType.Int)
                         {
                             Value = personId
+                        },
+                    new SqlParameter("@DocType", SqlDbType.Int)
+                        {
+                            Value = (int)docType
                         }
                 };
             DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure);
@@ -393,25 +479,26 @@ namespace gamma_mob
             return new Guid(table.Rows[0]["DocID"].ToString());
         }
 
-        public static List<string> CurrentBarcodes(Guid docShipmentId, int personId)
+        public static List<string> CurrentBarcodes(Guid docShipmentId, int personId, DocType docType)
         {
             var list = new List<string>();
-            const string sql = "SELECT c.Barcode FROM DocShipments a" +
-                               " JOIN DocProducts b ON a.DocID = b.DocID" +
-                               " JOIN Products c ON b.ProductID = c.ProductID" +
-                               " WHERE a.[1CDocShipmentOrderId] = @DocShipmentOrderID AND a.PersonID = @PersonID";
+            const string sql = "mob_GetDocBarcodes";
             var parameters = new List<SqlParameter>
                 {
-                    new SqlParameter("@DocShipmentOrderID", SqlDbType.UniqueIdentifier)
+                    new SqlParameter("@DocOrderID", SqlDbType.UniqueIdentifier)
                         {
                             Value = docShipmentId
                         },
                     new SqlParameter("@PersonID", SqlDbType.Int)
                         {
                             Value = personId
+                        },
+                    new SqlParameter("@DocType", SqlDbType.Int)
+                        {
+                            Value = (int)docType
                         }
                 };
-            DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.Text);
+            DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure);
             if (table != null && table.Rows.Count > 0)
             {
                 list.AddRange(from DataRow row in table.Rows select row["Barcode"].ToString());

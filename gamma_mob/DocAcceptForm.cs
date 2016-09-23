@@ -28,9 +28,11 @@ namespace gamma_mob
         ///     инициализация формы приказа
         /// </summary>
         /// <param name="parentForm">Форма, вызвавшая данную форму</param>
-        public DocAcceptForm(Form parentForm)
+        /// <param name="movementType">Тип перемещения(приемка на склад с передела или со склада на склад)</param>
+        public DocAcceptForm(Form parentForm, MovementType movementType)
             : this()
         {
+            MovementType = movementType;
             ParentForm = parentForm;
 
             AcceptedProducts = new BindingList<ShortProduct>();
@@ -59,8 +61,16 @@ namespace gamma_mob
                     Width = 38,
                     Format = "0.###"
                 });
+            tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
+                {
+                    HeaderText = "Склад",
+                    MappingName = "PlaceTo",
+                    Width = 40
+                });
             gridDocAccept.TableStyles.Add(tableStyle);
         }
+
+        private MovementType MovementType { get; set; }
 
         private List<OfflineProduct> OfflineProducts { get; set; }
         private string FileName { get; set; }
@@ -155,11 +165,14 @@ namespace gamma_mob
                     AddOfflineBarcode(barcode);
                 return;
             }
-            ShortProduct acceptedProduct = AcceptedProducts.FirstOrDefault(p => p.Barcode == barcode);
-            if (acceptedProduct != null)
+            if (MovementType == MovementType.Accept)
             {
-                CancelLastMovement(acceptedProduct.Barcode, acceptedProduct.SourcePlace);
-                return;
+                ShortProduct acceptedProduct = AcceptedProducts.FirstOrDefault(p => p.Barcode == barcode);
+                if (acceptedProduct != null)
+                {
+                    CancelLastMovement(acceptedProduct.Barcode, acceptedProduct.SourcePlace);
+                    return;
+                }
             }
             using (var form = new ChooseEndPointDialog())
             {
@@ -168,7 +181,16 @@ namespace gamma_mob
                 endPointInfo = form.EndPointInfo;
             }
                 Cursor.Current = Cursors.WaitCursor;
-                AcceptProductResult acceptResult = Db.AcceptProduct(Shared.PersonId, barcode, endPointInfo);
+                AcceptProductResult acceptResult = null;
+                switch (MovementType)
+                {
+                    case MovementType.Accept:
+                        acceptResult = Db.AcceptProduct(Shared.PersonId, barcode, endPointInfo);
+                        break;
+                    case MovementType.Movement:
+
+                        break;
+                }
                 if (!Shared.LastQueryCompleted)
                 {
                     if (!fromBuffer)
@@ -177,7 +199,7 @@ namespace gamma_mob
                 }
             if (acceptResult == null)
             {
-                MessageBox.Show(@"Не удалось принять продукцию на склад");
+                MessageBox.Show(@"Не удалось переместить продукцию на склад");
                 return;
             }
             if (acceptResult.AlreadyAccepted)
@@ -358,6 +380,7 @@ namespace gamma_mob
             public string NomenclatureName { get; set; }
             public decimal Quantity { get; set; }
             public string SourcePlace { get; set; }
+            public string PlaceTo { get; set; }
             public string Barcode { get; set; }
         }
 

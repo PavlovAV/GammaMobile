@@ -15,9 +15,11 @@ using gamma_mob.Models;
 
 namespace gamma_mob
 {
-    public partial class DocAcceptForm : BaseForm
+    [DesignerCategory("Form")]
+    [DesignTimeVisible(false)]
+    public partial class BaseDocMovementForm : BaseForm
     {
-        private DocAcceptForm()
+        private BaseDocMovementForm()
         {
             InitializeComponent();
             FileName = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase) +
@@ -29,7 +31,7 @@ namespace gamma_mob
         /// </summary>
         /// <param name="parentForm">Форма, вызвавшая данную форму</param>
         /// <param name="movementType">Тип перемещения(приемка на склад с передела или со склада на склад)</param>
-        public DocAcceptForm(Form parentForm, MovementType movementType)
+        public BaseDocMovementForm(Form parentForm, MovementType movementType)
             : this()
         {
             MovementType = movementType;
@@ -181,11 +183,11 @@ namespace gamma_mob
                 endPointInfo = form.EndPointInfo;
             }
                 Cursor.Current = Cursors.WaitCursor;
-                AcceptProductResult acceptResult = null;
+                MoveProductResult acceptResult = null;
                 switch (MovementType)
                 {
                     case MovementType.Accept:
-                        acceptResult = Db.AcceptProduct(Shared.PersonId, barcode, endPointInfo);
+                        acceptResult = Db.MoveProduct(Shared.PersonId, barcode, endPointInfo);
                         break;
                     case MovementType.Movement:
 
@@ -204,7 +206,7 @@ namespace gamma_mob
             }
             if (acceptResult.AlreadyAccepted)
                 {
-                    CancelLastMovement(barcode, acceptResult.SourcePlace);
+                    CancelLastMovement(barcode, acceptResult.OutPlace);
                     return;
                 }
                 if (acceptResult.ResultMessage == string.Empty)
@@ -218,7 +220,7 @@ namespace gamma_mob
                            new object[]
                                {
                                    acceptResult.NomenclatureName, acceptResult.Number, acceptResult.Quantity
-                                   , true, barcode, acceptResult.SourcePlace
+                                   , true, barcode, acceptResult.OutPlace
                                });
                 }
                 else

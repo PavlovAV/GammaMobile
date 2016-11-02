@@ -86,7 +86,14 @@
     <Compile Include="Common\ButtonIntId.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Common\Delegates.cs" />
     <Compile Include="Common\DesignMode.cs" />
+    <Compile Include="DocWithNomenclatureForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DocWithNomenclatureForm.Designer.cs">
+      <DependentUpon>DocWithNomenclatureForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Common\EventHandlers.cs" />
     <Compile Include="Common\BarcodeScanner.cs" />
     <Compile Include="Common\BaseForm.cs">
@@ -108,23 +115,11 @@
     <Compile Include="Dialogs\ChooseEndPointDialog.Designer.cs">
       <DependentUpon>ChooseEndPointDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="DocAcceptForm.cs">
+    <Compile Include="DocMovementForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="DocAcceptForm.Designer.cs">
-      <DependentUpon>DocAcceptForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="DocMovementOrdersForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="DocMovementOrdersForm.Designer.cs">
-      <DependentUpon>DocMovementOrdersForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="DocOrderForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="DocOrderForm.Designer.cs">
-      <DependentUpon>DocOrderForm.cs</DependentUpon>
+    <Compile Include="DocMovementForm.Designer.cs">
+      <DependentUpon>DocMovementForm.cs</DependentUpon>
     </Compile>
     <Compile Include="DocShipmentGoodProductsForm.cs">
       <SubType>Form</SubType>
@@ -132,11 +127,11 @@
     <Compile Include="DocShipmentGoodProductsForm.Designer.cs">
       <DependentUpon>DocShipmentGoodProductsForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="DocShipmentOrdersForm.cs">
+    <Compile Include="DocOrdersForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="DocShipmentOrdersForm.Designer.cs">
-      <DependentUpon>DocShipmentOrdersForm.cs</DependentUpon>
+    <Compile Include="DocOrdersForm.Designer.cs">
+      <DependentUpon>DocOrdersForm.cs</DependentUpon>
     </Compile>
     <Compile Include="LoginForm.cs">
       <SubType>Form</SubType>
@@ -150,16 +145,17 @@
     <Compile Include="MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Models\AcceptProductResult.cs" />
-    <Compile Include="Models\AddProductResult.cs" />
+    <Compile Include="Models\MoveProductResult.cs" />
+    <Compile Include="Models\DbOperationProductResult.cs" />
     <Compile Include="Models\DocMovementOrder.cs" />
     <Compile Include="Models\DocNomenclatureItem.cs" />
-    <Compile Include="Models\DocShipmentOrder.cs" />
+    <Compile Include="Models\DocOrder.cs" />
     <Compile Include="Models\EndPointInfo.cs" />
     <Compile Include="Models\OfflineProduct.cs" />
     <Compile Include="Models\Person.cs" />
     <Compile Include="Models\Product.cs" />
     <Compile Include="Models\Warehouse.cs" />
+    <Compile Include="Models\MovementProduct.cs" />
     <Compile Include="Program.cs">
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -191,28 +187,24 @@
       <DependentUpon>BaseForm.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <EmbeddedResource Include="DocWithNomenclatureForm.resx">
+      <DependentUpon>DocWithNomenclatureForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\ChooseEndPointDialog.resx">
       <DependentUpon>ChooseEndPointDialog.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="DocAcceptForm.resx">
-      <DependentUpon>DocAcceptForm.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="DocMovementOrdersForm.resx">
-      <DependentUpon>DocMovementOrdersForm.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="DocOrderForm.resx">
-      <DependentUpon>DocOrderForm.cs</DependentUpon>
+    <EmbeddedResource Include="DocMovementForm.resx">
+      <DependentUpon>DocMovementForm.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="DocShipmentGoodProductsForm.resx">
       <DependentUpon>DocShipmentGoodProductsForm.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="DocShipmentOrdersForm.resx">
-      <DependentUpon>DocShipmentOrdersForm.cs</DependentUpon>
+    <EmbeddedResource Include="DocOrdersForm.resx">
+      <DependentUpon>DocOrdersForm.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="LoginForm.resx">

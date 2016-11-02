@@ -3,6 +3,8 @@ using System.ComponentModel;
 using System.Windows.Forms;
 using OpenNETCF.Windows.Forms;
 using gamma_mob.Common;
+using gamma_mob.Dialogs;
+using gamma_mob.Models;
 
 namespace gamma_mob
 {
@@ -38,7 +40,7 @@ namespace gamma_mob
                         WrongUserPass();
                         break;
                     default:
-                        var docOrders = new DocShipmentOrdersForm {ParentForm = this};
+                        var docOrders = new DocOrdersForm (this, DocDirection.DocOut);
                         docOrders.Show();
                         if (docOrders.Enabled)
                             Hide();
@@ -67,7 +69,7 @@ namespace gamma_mob
             Scanner.Dispose();
         }
 
-        private void btnDocAccept_Click(object sender, EventArgs e)
+        private void btnExtAccept_Click(object sender, EventArgs e)
         {
             Cursor.Current = Cursors.WaitCursor;
             if (ConnectionState.CheckConnection())
@@ -83,9 +85,9 @@ namespace gamma_mob
                         WrongUserPass();
                         break;
                     default:
-                        var docAcceptForm = new DocAcceptForm(this, MovementType.Accept);
-                        docAcceptForm.Show();
-                        if (docAcceptForm.Enabled)
+                        var docOrders = new DocOrdersForm(this, DocDirection.DocIn);
+                        docOrders.Show();
+                        if (docOrders.Enabled)
                             Hide();
                         break;
                 }
@@ -99,7 +101,7 @@ namespace gamma_mob
             Cursor.Current = Cursors.Default;
         }
 
-        private void btnMovement_Click(object sender, EventArgs e)
+        private void btnDocMovement_Click(object sender, EventArgs e)
         {
             Cursor.Current = Cursors.WaitCursor;
             if (ConnectionState.CheckConnection())
@@ -115,9 +117,16 @@ namespace gamma_mob
                         WrongUserPass();
                         break;
                     default:
-                        var docAcceptForm = new DocMovementOrdersForm(this);
-                        docAcceptForm.Show();
-                        if (docAcceptForm.Enabled)
+                        EndPointInfo endPointInfo;
+                        using (var form = new ChooseEndPointDialog())
+                        {
+                            DialogResult result = form.ShowDialog();
+                            if (result != DialogResult.OK) return;
+                            endPointInfo = form.EndPointInfo;
+                        }
+                        var docMovementForm = new DocMovementForm(this, endPointInfo.WarehouseId);
+                        docMovementForm.Show();
+                        if (docMovementForm.Enabled)
                             Hide();
                         break;
                 }
@@ -130,5 +139,7 @@ namespace gamma_mob
             }
             Cursor.Current = Cursors.Default;
         }
+
+        
     }
 }

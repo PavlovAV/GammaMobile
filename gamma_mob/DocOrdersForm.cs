@@ -4,12 +4,20 @@ using gamma_mob.Common;
 
 namespace gamma_mob
 {
-    public partial class DocShipmentOrdersForm: BaseForm
+    public partial class DocOrdersForm: BaseForm
     {
-        public DocShipmentOrdersForm()
+        private DocOrdersForm()
         {
             InitializeComponent();
         }
+              
+        public DocOrdersForm(Form parentForm, DocDirection docDirection):this()
+        {
+            ParentForm = parentForm;
+            DocDirection = docDirection;
+        }
+
+        private DocDirection DocDirection { get; set; }
 
         private BindingSource BSource { get; set; }
 
@@ -25,7 +33,7 @@ namespace gamma_mob
             var tableStyle = new DataGridTableStyle {MappingName = BSource.GetListName(null)};
             tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
                 {
-                    MappingName = "DocShipmentOrderId",
+                    MappingName = "DocOrderId",
                     Width = -1
                 });
             tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
@@ -36,9 +44,14 @@ namespace gamma_mob
                 });
             tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
                 {
-                    HeaderText = "Покупатель",
-                    MappingName = "Buyer",
+                    HeaderText = "Получатель",
+                    MappingName = "Consignee",
                     Width = 140
+                });
+            tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
+                {
+                    MappingName = "OrderType",
+                    Width = -1
                 });
             gridDocShipmentOrders.TableStyles.Add(tableStyle);
         }
@@ -46,10 +59,10 @@ namespace gamma_mob
         private void GetDocOrders()
         {
             if (BSource == null)
-                BSource = new BindingSource(Db.PersonDocShipmentOrders(Shared.PersonId), null);
+                BSource = new BindingSource(Db.PersonDocOrders(Shared.PersonId, DocDirection), null);
             else
             {
-                BSource.DataSource = Db.PersonDocShipmentOrders(Shared.PersonId);
+                BSource.DataSource = Db.PersonDocOrders(Shared.PersonId, DocDirection);
             }
         }
 
@@ -63,7 +76,9 @@ namespace gamma_mob
             Cursor.Current = Cursors.WaitCursor;
             int row = gridDocShipmentOrders.CurrentRowIndex;
             var id = new Guid(gridDocShipmentOrders[row, 0].ToString());
-            var docOrderForm = new DocOrderForm(id, this, gridDocShipmentOrders[row, 1].ToString(), DocType.DocShipmentOrder);
+            var orderType = (OrderType) Convert.ToInt32(gridDocShipmentOrders[row, 3]);
+            var docOrderForm = new DocWithNomenclatureForm(id, this, gridDocShipmentOrders[row, 1].ToString(),
+                orderType, "DocOrderBarcodes.xml", DocDirection);
             docOrderForm.Show();
             if (!docOrderForm.IsDisposed && docOrderForm.Enabled)
                 Hide();

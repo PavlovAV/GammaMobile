@@ -2,6 +2,7 @@
 using System.Windows.Forms;
 using gamma_mob.Models;
 using gamma_mob.Properties;
+using System;
 
 namespace gamma_mob.Common
 {
@@ -18,7 +19,7 @@ namespace gamma_mob.Common
 
         public static ImageList ImgList { get; private set; }
 
-        public static int PersonId { get; set; }
+        public static Guid PersonId { get; set; }
 
         public static List<Warehouse> Warehouses
         {

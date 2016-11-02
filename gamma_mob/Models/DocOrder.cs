@@ -1,19 +1,22 @@
 ﻿using System;
+using gamma_mob.Common;
 
 namespace gamma_mob.Models
 {
-    public class DocShipmentOrder
+    public class DocOrder
     {
         /// <summary>
         ///     ID приказа 1С
         /// </summary>
-        public Guid DocShipmentOrderId { get; set; }
+        public Guid DocOrderId { get; set; }
+
+        public OrderType OrderType { get; set; }
 
         /// <summary>
         ///     Номер приказа 1С
         /// </summary>
         public string Number { get; set; }
 
-        public string Buyer { get; set; }
+        public string Consignee { get; set; }
     }
 }

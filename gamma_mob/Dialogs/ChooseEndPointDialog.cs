@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Windows.Forms;
-using Datalogic.API;
 using gamma_mob.Common;
 using gamma_mob.Models;
 

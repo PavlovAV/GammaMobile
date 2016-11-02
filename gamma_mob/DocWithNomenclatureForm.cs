@@ -11,52 +11,58 @@ using System.Xml.Serialization;
 using OpenNETCF.Windows.Forms;
 using gamma_mob.Common;
 using gamma_mob.Models;
+using gamma_mob.Dialogs;
 
 namespace gamma_mob
 {
-    public sealed partial class DocOrderForm : BaseForm
+    [DesignerCategory(@"Form")]
+    [DesignTimeVisible(false)]
+    public partial class DocWithNomenclatureForm : BaseForm
     {
-        private DocOrderForm()
+        private DocWithNomenclatureForm()
         {
+            OfflineProducts = new List<OfflineProduct>();
             InitializeComponent();
         }
 
-        private DocOrderForm(Form parentForm)
-            : this()
+        private DocWithNomenclatureForm(Form parentForm):this()
         {
             ParentForm = parentForm;
         }
 
         /// <summary>
-        ///     инициализация формы приказа
+        ///     инициализация формы
         /// </summary>
         /// <param name="docOrderId">ID Документа (для отгрузки - ID 1c, для заказа на перемещение ID gamma)</param>
         /// <param name="parentForm">Форма, вызвавшая данную форму</param>
         /// <param name="orderNumber">Номер приказа из 1С</param>
-        /// <param name="docType">Тип документа(отгрузка, перемещение)</param>
-        public DocOrderForm(Guid docOrderId, Form parentForm, string orderNumber, DocType docType)
+        /// <param name="orderType">Тип документа(приказ 1с, перемещение)</param>
+        /// <param name="fileName">Имя файла для хранения информации о невыгруженных продуктах</param>
+        /// <param name="docDirection">Направление движения продукции(in, out, outin)</param>
+        public DocWithNomenclatureForm(Guid docOrderId, Form parentForm, string orderNumber, OrderType orderType, string fileName, 
+            DocDirection docDirection)
             : this(parentForm)
         {
-            DocType = docType;
-            switch (docType)
-            {
-                    case DocType.DocShipmentOrder:
-                        Text = "Приказ № " + orderNumber;
-                        break;
-                    case DocType.DocMovementOrder:
-                        Text = "Заказ № " + orderNumber;
-                        break;
-            }
-            
+            OrderType = orderType;
+            FileName = FileName = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase) + fileName;
             DocOrderId = docOrderId;
-            var id = Db.GetDocId(docOrderId, Shared.PersonId, DocType);
-            if (id == null || !RefreshDocOrderGoods(docOrderId))
+            DocDirection = docDirection;
+            
+            if (!RefreshDocOrderGoods(docOrderId))
             {
-                MessageBox.Show(@"Не удалось получить информацию о текущем документе");
+                MessageBox.Show(@"Не удалось получить информацию о документе");
                 Close();
                 return;
             }
-
+            switch (orderType)
+            {
+                case OrderType.ShipmentOrder:
+                    Text = "Приказ № " + orderNumber;
+                    break;
+                case OrderType.InternalOrder:
+                    Text = "Внутренний заказ № " + orderNumber;
+                    break;
+            }
             var tableStyle = new DataGridTableStyle {MappingName = BSource.GetListName(null)};
             tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
                 {
@@ -80,27 +86,28 @@ namespace gamma_mob
             gridDocOrder.TableStyles.Add(tableStyle);
 
             //Получение штрих-кодов текущего документа(Если не получили, то и фиг с ними, будут лишние запросы к базе)
-            Barcodes = Db.CurrentBarcodes(docOrderId, Shared.PersonId, DocType);
+            Barcodes = Db.CurrentBarcodes(DocOrderId, DocDirection); 
         }
 
-        private DocType DocType { get; set; }
+        private OrderType OrderType { get; set; }
+        private DocDirection DocDirection { get; set; }
 
         private string FileName { get; set; }
         private BindingSource BSource { get; set; }
 
-        private BindingList<DocNomenclatureItem> GoodList { get; set; }
+        private BindingList<DocNomenclatureItem> NomenclatureList { get; set; }
 
         private List<string> Barcodes { get; set; }
-        private List<OfflineProduct> OfflineProducts { get; set; }
+        private List<OfflineProduct> OfflineProducts { get; set; } 
+        
 
         /// <summary>
-        ///     ID документа 1с
+        ///     ID документа, по которому идет работа (основание)
         /// </summary>
         private Guid DocOrderId { get; set; }
 
         protected override void FormLoad(object sender, EventArgs e)
         {
-            FileName = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase) + @"\BarCodeList.xml";
             base.FormLoad(sender, e);
             tbrMain.ImageList = ImgList;
             btnBack.ImageIndex = (int) Images.Back;
@@ -187,7 +194,7 @@ namespace gamma_mob
                     Close();
                     break;
                 case 1:
-                    DocNomenclatureItem good = GoodList[gridDocOrder.CurrentRowIndex];
+                    DocNomenclatureItem good = NomenclatureList[gridDocOrder.CurrentRowIndex];
                     if (!ConnectionState.CheckConnection())
                     {
                         MessageBox.Show(@"Нет связи с сервером");
@@ -212,20 +219,22 @@ namespace gamma_mob
             }
         }
 
-        private bool RefreshDocOrderGoods(Guid docShipmentOrderId)
+        
+
+        private bool RefreshDocOrderGoods(Guid docId)
         {
-            BindingList<DocNomenclatureItem> list = Db.DocNomenclatureItems(docShipmentOrderId, DocType);
+            BindingList<DocNomenclatureItem> list = Db.DocNomenclatureItems(docId, OrderType, DocDirection);
             if (!Shared.LastQueryCompleted || list == null)
             {
                // MessageBox.Show(@"Не удалось получить информацию о текущем документе");
                 return false;
             }
-            GoodList = list;
+            NomenclatureList = list;
             if (BSource == null)
-                BSource = new BindingSource {DataSource = GoodList};
+                BSource = new BindingSource {DataSource = NomenclatureList};
             else
             {
-                BSource.DataSource = GoodList;
+                BSource.DataSource = NomenclatureList;
             }
             gridDocOrder.DataSource = BSource;
             return true;
@@ -239,66 +248,61 @@ namespace gamma_mob
             UIServices.SetNormalState(this);
         }
 
-        /// <summary>
-        ///     Добавление продукта по штрихкоду
-        /// </summary>
-        /// <param name="barcode">штрих-код</param>
-        /// <param name="fromBuffer">ШК из буфера невыгруженных</param>
+//        private BarcodeGetDelegate AddProductByBarcode { get; set; }
+
+
         private void AddProductByBarcode(string barcode, bool fromBuffer)
         {
-            OfflineProduct offlineProduct;
-                if (!ConnectionState.CheckConnection())
+            var offlineProduct = OfflineProducts.FirstOrDefault(p => p.Barcode == barcode);
+            if (!ConnectionState.CheckConnection())
+            {
+                if (!fromBuffer)
+                    AddOfflineBarcode(barcode);
+                return;
+            }
+            if (Barcodes.Contains(barcode))
+            {
+                if (DeleteProductByBarcode(barcode) && fromBuffer)
                 {
-                    if (!fromBuffer)
-                        AddOfflineBarcode(barcode);
-                    return;
+                    if (offlineProduct != null)
+                        offlineProduct.Unloaded = true;
                 }
-                if (Barcodes.Contains(barcode))
+                return;
+            }
+            var addResult = Db.AddProductToOrder(DocOrderId, OrderType, Shared.PersonId, barcode, DocDirection);
+            if (addResult.AlreadyMadeChanges)
+            {
+                if (DeleteProductByBarcode(barcode) && fromBuffer)
                 {
-                    if (DeleteProductByBarcode(barcode) && fromBuffer)
-                    {
-                        offlineProduct = OfflineProducts.FirstOrDefault(p => p.Barcode == barcode);
-                        if (offlineProduct != null)
-                            offlineProduct.Unloaded = true;
-                    }
-                    return;
+                    offlineProduct = OfflineProducts.FirstOrDefault(p => p.Barcode == barcode);
+                    if (offlineProduct != null)
+                        offlineProduct.Unloaded = true;
                 }
-                DbOperationProductResult addResult = Db.AddProduct(Shared.PersonId, barcode, DocOrderId, DocType);
-                if (addResult.AlreadyMadeChanges)
-                {
-                    if (DeleteProductByBarcode(barcode) && fromBuffer)
-                    {
-                        offlineProduct = OfflineProducts.FirstOrDefault(p => p.Barcode == barcode);
-                        if (offlineProduct != null)
-                            offlineProduct.Unloaded = true;
-                    }
-                    return;
-                }
-                if (!Shared.LastQueryCompleted)
-                {
-                    if (!fromBuffer)
-                        AddOfflineBarcode(barcode);
-                    return;
-                }
-                if (addResult.ResultMessage == string.Empty)
-                {
-                    foreach (ProductItem productItem in addResult.ProductItems)
-                    {
-                        Invoke((UpdateGridInvoker) (UpdateGrid),
-                               new object[]
-                                   {productItem.NomenclatureId, productItem.CharacteristicId, productItem.Quantity, true});
-                    }
-                }
-                else
-                {
-                    if (!fromBuffer)
-                        MessageBox.Show(addResult.ResultMessage);
-                }
-                if (!fromBuffer) return;
-                offlineProduct = OfflineProducts.FirstOrDefault(p => p.Barcode == barcode);
-                if (offlineProduct == null) return;
-                offlineProduct.ResultMessage = addResult.ResultMessage;
-                offlineProduct.Unloaded = true;
+                return;
+            }
+            if (!Shared.LastQueryCompleted)
+            {
+                if (!fromBuffer)
+                    AddOfflineBarcode(barcode);
+                return;
+            }
+            if (addResult.ResultMessage == string.Empty)
+            {
+                var product = addResult.Product;
+                if (product != null)
+                    Invoke((UpdateGridInvoker)(UpdateGrid),
+                           new object[] { product.NomenclatureId, product.CharacteristicId, product.Quantity, true });                
+            }
+            else
+            {
+                if (!fromBuffer)
+                    MessageBox.Show(addResult.ResultMessage);
+            }
+            if (!fromBuffer) return;
+            offlineProduct = OfflineProducts.FirstOrDefault(p => p.Barcode == barcode);
+            if (offlineProduct == null) return;
+            offlineProduct.ResultMessage = addResult.ResultMessage;
+            offlineProduct.Unloaded = true;
         }
 
         private bool DeleteProductByBarcode(string barcode)
@@ -310,22 +314,22 @@ namespace gamma_mob
                                                      MessageBoxDefaultButton.Button1);
             if (dlgresult == DialogResult.Yes)
             {
-                DbOperationProductResult deleteResult = Db.DeleteProductFromOrder(Shared.PersonId, barcode,
-                                                                                  DocOrderId, DocType);
+                DbOperationProductResult deleteResult = Db.DeleteProductFromOrder(barcode, DocOrderId, DocDirection);
                 if (deleteResult.ResultMessage == "" && Shared.LastQueryCompleted)
                 {
                     result = true;
                     Barcodes.Remove(barcode);
-                    foreach (ProductItem productItem in deleteResult.ProductItems)
+                    var product = deleteResult.Product;
+                    if (product != null)
                     {
                         Invoke((UpdateGridInvoker) (UpdateGrid),
                                new object[]
                                    {
-                                       productItem.NomenclatureId, productItem.CharacteristicId, productItem.Quantity,
+                                       product.NomenclatureId, product.CharacteristicId, product.Quantity,
                                        false
                                    });
                     }
-                }
+                }                
             }
             else result = true;
             return result;
@@ -334,7 +338,7 @@ namespace gamma_mob
         private void UpdateGrid(Guid nomenclatureId, Guid characteristicId, decimal quantity, bool add)
         {
             DocNomenclatureItem good =
-                GoodList.FirstOrDefault(
+                NomenclatureList.FirstOrDefault(
                     g => g.NomenclatureId == nomenclatureId && g.CharacteristicId == characteristicId);
             if (good == null) return;
             if (add)
@@ -342,7 +346,7 @@ namespace gamma_mob
             else
                 good.CollectedQuantity -= quantity;
             gridDocOrder.UnselectAll();
-            int index = GoodList.IndexOf(good);
+            int index = NomenclatureList.IndexOf(good);
             gridDocOrder.CurrentRowIndex = index;
             gridDocOrder.Select(index);
         }
@@ -437,7 +441,7 @@ namespace gamma_mob
             }
         }
 
-        private void gridDocShipmentOrder_CurrentCellChanged(object sender, EventArgs e)
+        private void gridDocOrder_CurrentCellChanged(object sender, EventArgs e)
         {
             gridDocOrder.Select(gridDocOrder.CurrentRowIndex);
         }

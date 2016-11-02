@@ -35,7 +35,8 @@ namespace gamma_mob
             Cursor.Current = Cursors.WaitCursor;
             int row = gridDocMovementOrders.CurrentRowIndex;
             var id = new Guid(gridDocMovementOrders[row, 0].ToString());
-            var docOrderForm = new DocOrderForm(id, this, gridDocMovementOrders[row, 1].ToString(), DocType.DocMovementOrder);
+            var docOrderForm = new DocWithNomenclatureForm(id, this, gridDocMovementOrders[row, 1].ToString(), 
+                DocType.DocMovementOrder, "MovementOrderBarcodes.xml", DocDirection.DocOutIn);
             docOrderForm.Show();
             if (!docOrderForm.IsDisposed && docOrderForm.Enabled)
                 Hide();

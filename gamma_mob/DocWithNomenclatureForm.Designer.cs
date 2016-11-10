@@ -39,6 +39,12 @@
             this.gridDocOrder = new System.Windows.Forms.DataGrid();
             this.lblBufferCount = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
+            this.pnlInfo = new System.Windows.Forms.Panel();
+            this.pnlSearch = new System.Windows.Forms.Panel();
+            this.label1 = new System.Windows.Forms.Label();
+            this.lblCollected = new System.Windows.Forms.Label();
+            this.pnlInfo.SuspendLayout();
+            this.pnlSearch.SuspendLayout();
             this.SuspendLayout();
             // 
             // tbrMain
@@ -52,14 +58,14 @@
             // 
             // edtNumber
             // 
-            this.edtNumber.Location = new System.Drawing.Point(0, 30);
+            this.edtNumber.Location = new System.Drawing.Point(0, 4);
             this.edtNumber.Name = "edtNumber";
             this.edtNumber.Size = new System.Drawing.Size(127, 23);
             this.edtNumber.TabIndex = 1;
             // 
             // btnAddProduct
             // 
-            this.btnAddProduct.Location = new System.Drawing.Point(133, 30);
+            this.btnAddProduct.Location = new System.Drawing.Point(133, 4);
             this.btnAddProduct.Name = "btnAddProduct";
             this.btnAddProduct.Size = new System.Drawing.Size(72, 23);
             this.btnAddProduct.TabIndex = 2;
@@ -68,53 +74,84 @@
             // 
             // imgConnection
             // 
-            this.imgConnection.Location = new System.Drawing.Point(211, 30);
+            this.imgConnection.Location = new System.Drawing.Point(211, 4);
             this.imgConnection.Name = "imgConnection";
             this.imgConnection.Size = new System.Drawing.Size(22, 23);
             // 
             // gridDocOrder
             // 
-            this.gridDocOrder.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
             this.gridDocOrder.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
-            this.gridDocOrder.Location = new System.Drawing.Point(0, 59);
+            this.gridDocOrder.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.gridDocOrder.Location = new System.Drawing.Point(0, 54);
             this.gridDocOrder.Name = "gridDocOrder";
             this.gridDocOrder.PreferredRowHeight = 32;
             this.gridDocOrder.RowHeadersVisible = false;
-            this.gridDocOrder.Size = new System.Drawing.Size(638, 360);
+            this.gridDocOrder.Size = new System.Drawing.Size(238, 181);
             this.gridDocOrder.TabIndex = 4;
             this.gridDocOrder.CurrentCellChanged += new System.EventHandler(this.gridDocOrder_CurrentCellChanged);
             // 
             // lblBufferCount
             // 
-            this.lblBufferCount.Location = new System.Drawing.Point(105, 266);
+            this.lblBufferCount.Location = new System.Drawing.Point(105, 40);
             this.lblBufferCount.Name = "lblBufferCount";
             this.lblBufferCount.Size = new System.Drawing.Size(100, 20);
             this.lblBufferCount.Text = "0";
             // 
             // label2
             // 
-            this.label2.Location = new System.Drawing.Point(4, 266);
+            this.label2.Location = new System.Drawing.Point(3, 40);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(100, 20);
             this.label2.Text = "Не выгружено:";
+            // 
+            // pnlInfo
+            // 
+            this.pnlInfo.Controls.Add(this.label1);
+            this.pnlInfo.Controls.Add(this.lblCollected);
+            this.pnlInfo.Controls.Add(this.label2);
+            this.pnlInfo.Controls.Add(this.lblBufferCount);
+            this.pnlInfo.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.pnlInfo.Location = new System.Drawing.Point(0, 235);
+            this.pnlInfo.Name = "pnlInfo";
+            this.pnlInfo.Size = new System.Drawing.Size(238, 60);
+            // 
+            // pnlSearch
+            // 
+            this.pnlSearch.Controls.Add(this.btnAddProduct);
+            this.pnlSearch.Controls.Add(this.imgConnection);
+            this.pnlSearch.Controls.Add(this.edtNumber);
+            this.pnlSearch.Dock = System.Windows.Forms.DockStyle.Top;
+            this.pnlSearch.Location = new System.Drawing.Point(0, 24);
+            this.pnlSearch.Name = "pnlSearch";
+            this.pnlSearch.Size = new System.Drawing.Size(238, 30);
+            // 
+            // label1
+            // 
+            this.label1.Location = new System.Drawing.Point(3, 13);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(100, 27);
+            this.label1.Text = "Собрано:";
+            // 
+            // lblCollected
+            // 
+            this.lblCollected.Location = new System.Drawing.Point(105, 13);
+            this.lblCollected.Name = "lblCollected";
+            this.lblCollected.Size = new System.Drawing.Size(24, 27);
+            this.lblCollected.Text = "0";
             // 
             // DocWithNomenclatureForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.ClientSize = new System.Drawing.Size(638, 455);
-            this.Controls.Add(this.lblBufferCount);
-            this.Controls.Add(this.label2);
+            this.ClientSize = new System.Drawing.Size(238, 295);
             this.Controls.Add(this.gridDocOrder);
-            this.Controls.Add(this.imgConnection);
-            this.Controls.Add(this.btnAddProduct);
-            this.Controls.Add(this.edtNumber);
+            this.Controls.Add(this.pnlSearch);
+            this.Controls.Add(this.pnlInfo);
             this.Controls.Add(this.tbrMain);
-            this.Location = new System.Drawing.Point(0, 0);
             this.Name = "DocWithNomenclatureForm";
             this.Text = "title";
+            this.pnlInfo.ResumeLayout(false);
+            this.pnlSearch.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -132,5 +169,9 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label lblBufferCount;
         private System.Windows.Forms.ToolBarButton btnUpload;
+        private System.Windows.Forms.Panel pnlInfo;
+        private System.Windows.Forms.Panel pnlSearch;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label lblCollected;
     }
 }

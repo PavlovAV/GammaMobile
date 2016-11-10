@@ -28,11 +28,11 @@ namespace gamma_mob
         }
 
         public DocShipmentGoodProductsForm(Guid docShipmentOrderId, Guid nomenclatureId, string nomenclatureName
-            , Guid characteristicId, Form parentForm) : this()
+            , Guid characteristicId, Form parentForm, DocDirection docDirection) : this()
         {
             lblNomenclature.Text = nomenclatureName;
             ParentForm = parentForm;
-            DataTable table = Db.DocShipmentOrderGoodProducts(docShipmentOrderId, nomenclatureId, characteristicId);
+            DataTable table = Db.DocShipmentOrderGoodProducts(docShipmentOrderId, nomenclatureId, characteristicId, docDirection);
             if (!Shared.LastQueryCompleted)
             {
                 MessageBox.Show(@"Не удалось получить информацию о продукции");

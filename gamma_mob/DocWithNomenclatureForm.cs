@@ -11,7 +11,6 @@ using System.Xml.Serialization;
 using OpenNETCF.Windows.Forms;
 using gamma_mob.Common;
 using gamma_mob.Models;
-using gamma_mob.Dialogs;
 
 namespace gamma_mob
 {
@@ -85,8 +84,8 @@ namespace gamma_mob
                 });
             gridDocOrder.TableStyles.Add(tableStyle);
 
-            //Получение штрих-кодов текущего документа(Если не получили, то и фиг с ними, будут лишние запросы к базе)
-            Barcodes = Db.CurrentBarcodes(DocOrderId, DocDirection); 
+            Barcodes = Db.CurrentBarcodes(DocOrderId, DocDirection);
+            Collected = Barcodes.Count;
         }
 
         private OrderType OrderType { get; set; }
@@ -135,6 +134,18 @@ namespace gamma_mob
                 }
             }
             if (OfflineProducts != null && OfflineProducts.Count > 0) UnloadOfflineProducts();
+        }
+
+        private int _collected;
+
+        private int Collected
+        {
+            get { return _collected; }
+            set 
+            { 
+                _collected = value;
+                lblCollected.Text = Collected.ToString(CultureInfo.InvariantCulture);
+            }
         }
 
         /// <summary>
@@ -201,7 +212,7 @@ namespace gamma_mob
                         return;
                     }
                     var form = new DocShipmentGoodProductsForm(DocOrderId, good.NomenclatureId, good.NomenclatureName,
-                                                               good.CharacteristicId, this);
+                                                               good.CharacteristicId, this, DocDirection);
                     if (!form.IsDisposed)
                     {
                         form.Show();
@@ -291,7 +302,8 @@ namespace gamma_mob
                 var product = addResult.Product;
                 if (product != null)
                     Invoke((UpdateGridInvoker)(UpdateGrid),
-                           new object[] { product.NomenclatureId, product.CharacteristicId, product.Quantity, true });                
+                           new object[] { product.NomenclatureId, product.CharacteristicId, product.NomenclatureName, 
+                                product.ShortNomenclatureName, product.Quantity, true });                
             }
             else
             {
@@ -325,7 +337,8 @@ namespace gamma_mob
                         Invoke((UpdateGridInvoker) (UpdateGrid),
                                new object[]
                                    {
-                                       product.NomenclatureId, product.CharacteristicId, product.Quantity,
+                                       product.NomenclatureId, product.CharacteristicId, product.NomenclatureName, product.ShortNomenclatureName,
+                                            product.Quantity, 
                                        false
                                    });
                     }
@@ -335,16 +348,36 @@ namespace gamma_mob
             return result;
         }
 
-        private void UpdateGrid(Guid nomenclatureId, Guid characteristicId, decimal quantity, bool add)
+        private void UpdateGrid(Guid nomenclatureId, Guid characteristicId, string nomenclatureName, 
+                string shortNomenclatureName, decimal quantity, bool add)
         {
             DocNomenclatureItem good =
                 NomenclatureList.FirstOrDefault(
                     g => g.NomenclatureId == nomenclatureId && g.CharacteristicId == characteristicId);
-            if (good == null) return;
+            if (good == null)
+            {
+                good = new DocNomenclatureItem
+                    {
+                        NomenclatureId = nomenclatureId,
+                        CharacteristicId = characteristicId,
+                        NomenclatureName = nomenclatureName,
+                        ShortNomenclatureName = shortNomenclatureName,
+                        CollectedQuantity = 0,
+                        Quantity = "0"
+                    };
+                NomenclatureList.Add(good);
+                BSource.DataSource = NomenclatureList;
+            };
             if (add)
+            {
                 good.CollectedQuantity += quantity;
+                Collected++;
+            }
             else
+            {
                 good.CollectedQuantity -= quantity;
+                Collected--;
+            }
             gridDocOrder.UnselectAll();
             int index = NomenclatureList.IndexOf(good);
             gridDocOrder.CurrentRowIndex = index;
@@ -448,6 +481,7 @@ namespace gamma_mob
 
         private delegate void ConnectStateChangeInvoker(ConnectState state);
 
-        private delegate void UpdateGridInvoker(Guid nomenclatureId, Guid characteristicId, decimal quantity, bool add);
+        private delegate void UpdateGridInvoker(Guid nomenclatureId, Guid characteristicId, string nomenclatureName,
+                    string shortNomenclatureName, decimal quantity, bool add);
     }
 }

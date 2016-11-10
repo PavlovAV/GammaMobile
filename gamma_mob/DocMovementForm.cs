@@ -10,7 +10,6 @@ using System.Windows.Forms;
 using System.Xml.Serialization;
 using OpenNETCF.Windows.Forms;
 using gamma_mob.Common;
-using gamma_mob.Dialogs;
 using gamma_mob.Models;
 
 namespace gamma_mob
@@ -224,6 +223,18 @@ namespace gamma_mob
                 }
         }
 
+        private int _collected;
+
+        public int Collected
+        {
+            get { return _collected; }
+            set 
+            { 
+                _collected = value;
+                lblCollected.Text = Collected.ToString(CultureInfo.InvariantCulture);
+            }
+        }
+
         private void GetLastMovementProducts(BindingSource bSource)
         {
             BindingList<MovementProduct> list = Db.GetMovementProducts(EndPointInfo.WarehouseId);
@@ -233,6 +244,7 @@ namespace gamma_mob
                 return;
             }
             AcceptedProducts = list;
+            Collected = list.Count;
             if (bSource == null)
                 bSource = new BindingSource { DataSource = AcceptedProducts };
             else
@@ -352,17 +364,23 @@ namespace gamma_mob
                                 string sourcePlace, Guid productId)
         {
             if (!add)
+            {
                 AcceptedProducts.Remove(AcceptedProducts.FirstOrDefault(p => p.Number == number));
+                Collected--;
+            }
             else
+            {
                 AcceptedProducts.Insert(0, new MovementProduct
-                    {
-                        NomenclatureName = nomenclatureName,
-                        Number = number,
-                        Quantity = quantity,
-                        Barcode = barcode,
-                        SourcePlace = sourcePlace,
-                        ProductId = productId
-                    });
+                {
+                    NomenclatureName = nomenclatureName,
+                    Number = number,
+                    Quantity = quantity,
+                    Barcode = barcode,
+                    SourcePlace = sourcePlace,
+                    ProductId = productId
+                });
+                Collected++;
+            }
         }
 
         private void tbrMain_ButtonClick(object sender, ToolBarButtonClickEventArgs e)

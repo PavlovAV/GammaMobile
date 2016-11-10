@@ -64,12 +64,12 @@ namespace gamma_mob
         }
 
         public static DataTable DocShipmentOrderGoodProducts(Guid docShipmentOrderId, Guid nomenclatureId,
-                                                             Guid characteristicId)
+                                                             Guid characteristicId, DocDirection docDirection)
         {
             const string sql = "dbo.mob_GetGoodProducts";
             var parameters = new List<SqlParameter>
                 {
-                    new SqlParameter("@DocShipmentOrderID", SqlDbType.UniqueIdentifier)
+                    new SqlParameter("@DocOrderID", SqlDbType.UniqueIdentifier)
                         {
                             Value = docShipmentOrderId
                         },
@@ -80,6 +80,10 @@ namespace gamma_mob
                     new SqlParameter("@CharacteristicID", SqlDbType.UniqueIdentifier)
                         {
                             Value = characteristicId
+                        },
+                    new SqlParameter("@IsOutDoc", SqlDbType.Bit)
+                        {
+                            Value = docDirection == DocDirection.DocOut
                         }
                 };
             DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure);
@@ -140,7 +144,8 @@ namespace gamma_mob
                         {
                             DocOrderId = new Guid(row["1COrderID"].ToString()),
                             Number = row["Number"].ToString(),
-                            Consignee = row["Consignee"].ToString()
+                            Consignee = row["Consignee"].ToString(),
+                            OrderType = (OrderType) Convert.ToInt32(row["OrderKindID"])
                         });
                 }
             }
@@ -419,7 +424,9 @@ namespace gamma_mob
                             ProductId = new Guid(table.Rows[0]["ProductID"].ToString()),
                             NomenclatureId = new Guid(table.Rows[0]["NomenclatureID"].ToString()),
                             CharacteristicId = new Guid(table.Rows[0]["CharacteristicID"].ToString()),
-                            Quantity = Convert.ToDecimal(table.Rows[0]["Quantity"])
+                            Quantity = Convert.ToDecimal(table.Rows[0]["Quantity"]),
+                            NomenclatureName = table.Rows[0]["NomenclatureName"].ToString(),
+                            ShortNomenclatureName = table.Rows[0]["ShortNomenclatureName"].ToString()
                         };
                 }
             }
@@ -704,9 +711,9 @@ namespace gamma_mob
                         {
                             Value = docOrderId
                         },
-                    new SqlParameter("@IsOutDoc", SqlDbType.Bit)
+                    new SqlParameter("@IsInDoc", SqlDbType.Bit)
                         {
-                            Value = (int)docDirection > 1?0:docDirection
+                            Value = (int)docDirection > 1?1:(int)docDirection
                         }
                 };
             DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure);

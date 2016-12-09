@@ -113,6 +113,7 @@ namespace gamma_mob
             btnInspect.ImageIndex = (int) Images.Inspect;
             btnRefresh.ImageIndex = (int) Images.Refresh;
             btnUpload.ImageIndex = (int) Images.UploadToDb;
+            btnQuestionNomenclature.ImageIndex = (int) Images.Question;
             BarcodeFunc = BarcodeReaction;
 
 
@@ -205,20 +206,7 @@ namespace gamma_mob
                     Close();
                     break;
                 case 1:
-                    DocNomenclatureItem good = NomenclatureList[gridDocOrder.CurrentRowIndex];
-                    if (!ConnectionState.CheckConnection())
-                    {
-                        MessageBox.Show(@"Нет связи с сервером");
-                        return;
-                    }
-                    var form = new DocShipmentGoodProductsForm(DocOrderId, good.NomenclatureId, good.NomenclatureName,
-                                                               good.CharacteristicId, this, DocDirection);
-                    if (!form.IsDisposed)
-                    {
-                        form.Show();
-                        if (form.Enabled)
-                            Hide();
-                    }
+                    OpenDetails();
                     break;
                 case 2:
                     RefreshDocOrderGoods(DocOrderId);
@@ -227,10 +215,40 @@ namespace gamma_mob
                     if (OfflineProducts.Count(p => p.DocId == DocOrderId) > 0)
                         UnloadOfflineProducts();
                     break;
+                case 4:
+                    if (!ConnectionState.CheckConnection())
+                    {
+                        MessageBox.Show(@"Нет связи с базой", @"Ошибка связи");
+                        return;
+                    }
+                    var nomenclatureItem = NomenclatureList[gridDocOrder.CurrentRowIndex];
+                    var resultMessage = Db.FindDocOrderItemPosition(DocOrderId, nomenclatureItem.LineNumber)
+                                        ?? "Не удалось получить информацию о расположении продукции";
+                    MessageBox.Show(resultMessage, @"Расположение продукции", MessageBoxButtons.OK,
+                                    MessageBoxIcon.Question,
+                                    MessageBoxDefaultButton.Button1);
+                    break;
             }
         }
 
-        
+        private void OpenDetails()
+        {
+            if (!ConnectionState.CheckConnection())
+            {
+                MessageBox.Show(@"Нет связи с сервером");
+                return;
+            }
+            var good = NomenclatureList[gridDocOrder.CurrentRowIndex];
+            var form = new DocShipmentGoodProductsForm(DocOrderId, good.NomenclatureId, good.NomenclatureName,
+                                                       good.CharacteristicId, this, DocDirection);
+            if (!form.IsDisposed)
+            {
+                form.Show();
+                if (form.Enabled)
+                    Hide();
+            }
+        }
+
 
         private bool RefreshDocOrderGoods(Guid docId)
         {
@@ -281,6 +299,12 @@ namespace gamma_mob
                 return;
             }
             var addResult = Db.AddProductToOrder(DocOrderId, OrderType, Shared.PersonId, barcode, DocDirection);
+            if (addResult == null)
+            {
+                if (!fromBuffer) 
+                    AddOfflineBarcode(barcode);
+                return;
+            }
             if (addResult.AlreadyMadeChanges)
             {
                 if (DeleteProductByBarcode(barcode) && fromBuffer)
@@ -327,6 +351,7 @@ namespace gamma_mob
             if (dlgresult == DialogResult.Yes)
             {
                 DbOperationProductResult deleteResult = Db.DeleteProductFromOrder(barcode, DocOrderId, DocDirection);
+                if (deleteResult == null) return false;
                 if (deleteResult.ResultMessage == "" && Shared.LastQueryCompleted)
                 {
                     result = true;
@@ -483,5 +508,10 @@ namespace gamma_mob
 
         private delegate void UpdateGridInvoker(Guid nomenclatureId, Guid characteristicId, string nomenclatureName,
                     string shortNomenclatureName, decimal quantity, bool add);
+
+        private void gridDocOrder_DoubleClick(object sender, EventArgs e)
+        {
+            OpenDetails();
+        }
     }
 }

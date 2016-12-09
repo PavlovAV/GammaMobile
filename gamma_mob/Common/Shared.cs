@@ -50,6 +50,7 @@ namespace gamma_mob.Common
             ImgList.Images.Add(Resources.edit_1518);
             ImgList.Images.Add(Resources.refresh);
             ImgList.Images.Add(Resources.UploadToDb);
+            ImgList.Images.Add(Resources.question);
         }
 
     }

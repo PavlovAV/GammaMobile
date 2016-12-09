@@ -8,5 +8,9 @@ namespace gamma_mob.Models
         public Product Product { get; set; }
         public string ResultMessage { get; set; }
         public bool AlreadyMadeChanges { get; set; }
+        /// <summary>
+        /// Признак того, что документ, с которым проводилась операция, уже подтвержден
+        /// </summary>
+        public bool DocIsConfirmed { get; set; }
     }
 }

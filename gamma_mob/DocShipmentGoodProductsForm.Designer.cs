@@ -42,34 +42,32 @@
             // 
             // gridProducts
             // 
-            this.gridProducts.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
             this.gridProducts.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
-            this.gridProducts.Location = new System.Drawing.Point(0, 88);
+            this.gridProducts.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.gridProducts.Location = new System.Drawing.Point(0, 109);
             this.gridProducts.Name = "gridProducts";
             this.gridProducts.RowHeadersVisible = false;
-            this.gridProducts.Size = new System.Drawing.Size(638, 367);
+            this.gridProducts.Size = new System.Drawing.Size(238, 186);
             this.gridProducts.TabIndex = 1;
             // 
             // lblNomenclature
             // 
             this.lblNomenclature.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblNomenclature.Font = new System.Drawing.Font("Tahoma", 8F, System.Drawing.FontStyle.Regular);
             this.lblNomenclature.Location = new System.Drawing.Point(0, 27);
             this.lblNomenclature.Name = "lblNomenclature";
-            this.lblNomenclature.Size = new System.Drawing.Size(638, 58);
+            this.lblNomenclature.Size = new System.Drawing.Size(238, 79);
             this.lblNomenclature.Text = "label1";
             // 
             // DocShipmentGoodProductsForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.ClientSize = new System.Drawing.Size(638, 455);
+            this.ClientSize = new System.Drawing.Size(238, 295);
             this.Controls.Add(this.lblNomenclature);
             this.Controls.Add(this.gridProducts);
             this.Controls.Add(this.tbrMain);
-            this.Location = new System.Drawing.Point(0, 0);
             this.Name = "DocShipmentGoodProductsForm";
             this.Text = "Продукция";
             this.ResumeLayout(false);

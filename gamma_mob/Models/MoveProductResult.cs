@@ -12,6 +12,7 @@ namespace gamma_mob.Models
         public string OutPlace { get; set; }
         public Guid? DocMovementId { get; set; }
         public Guid? ProductId { get; set; }
+        public DateTime? Date { get; set; }
 
     }
 }

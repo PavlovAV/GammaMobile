@@ -11,5 +11,8 @@ namespace gamma_mob.Models
         public string PlaceTo { get; set; }
         public string Barcode { get; set; }
         public Guid ProductId { get; set; }
+        public Guid DocMovementId { get; set; }
+        public DateTime? Date { get; set; }
+        public bool? DocIsConfirmed { get; set; }
     }
 }

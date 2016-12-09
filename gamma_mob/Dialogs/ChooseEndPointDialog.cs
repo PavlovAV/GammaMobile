@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.Windows.Forms;
 using gamma_mob.Common;
 using gamma_mob.Models;
@@ -19,7 +20,7 @@ namespace gamma_mob.Dialogs
             DialogResult = DialogResult.OK;
             EndPointInfo = new EndPointInfo
                 {
-                    WarehouseId = Convert.ToInt32((sender as ButtonIntId).Id)
+                    PlaceId = Convert.ToInt32((sender as ButtonIntId).Id)
                 };
             Close();
         }
@@ -37,7 +38,7 @@ namespace gamma_mob.Dialogs
             Height = 100 + (Shared.Warehouses.Count - 1)*40;
 
             if (Height > Screen.PrimaryScreen.WorkingArea.Height) Height = Screen.PrimaryScreen.WorkingArea.Height;
-
+            Location = new Point(0, (Screen.PrimaryScreen.WorkingArea.Height - Height) / 2);
             for (int i = 0; i < Shared.Warehouses.Count; i++ )
             {
                 var button = new ButtonIntId(Shared.Warehouses[i].WarehouseId);

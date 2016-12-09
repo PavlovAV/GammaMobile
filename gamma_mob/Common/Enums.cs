@@ -13,7 +13,8 @@
         Inspect,
         Edit,
         Refresh,
-        UploadToDb
+        UploadToDb,
+        Question
     }
 
     public enum ConnectState

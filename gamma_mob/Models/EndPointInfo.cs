@@ -4,8 +4,7 @@ namespace gamma_mob.Models
 {
     public class EndPointInfo
     {
-        public int WarehouseId { get; set; }
-        public Guid? WarehouseZoneId { get; set; }
-        public Guid? ZoneCellId { get; set; }
+        public int PlaceId { get; set; }
+        public Guid? PlaceZoneId { get; set; }
     }
 }

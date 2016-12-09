@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Data.SqlClient;
+using System.Globalization;
 using System.Linq;
 using System.Windows.Forms;
 using gamma_mob.Common;
@@ -90,34 +91,28 @@ namespace gamma_mob
             return table;
         }
 
-/*
-        public static BindingList<DocMovementOrder> DocMovementOrders(Guid personId)
+        public static string FindDocOrderItemPosition(Guid docOrderId, int lineNumber)
         {
-            BindingList<DocMovementOrder> list = null;
-            const string sql = "dbo.mob_GetDocMovementOrders";
+            string result = null;
+            const string sql = "dbo.mob_FindDocOrderItemStoragePlaces";
             var parameters = new List<SqlParameter>
                 {
-                    new SqlParameter("@PersonID", SqlDbType.UniqueIdentifier)
+                    new SqlParameter("@DocOrderID", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = docOrderId
+                        },
+                    new SqlParameter("@LineNumber", SqlDbType.Int)
+                        {
+                            Value = lineNumber
+                        }
                 };
-            parameters[0].Value = personId;
             DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure);
             if (table != null && table.Rows.Count > 0)
             {
-                list = new BindingList<DocMovementOrder>();
-                foreach (DataRow row in table.Rows)
-                {
-                    list.Add(new DocMovementOrder
-                    {
-                        DocId = new Guid(row["DocID"].ToString()),
-                        Number = row["Number"].ToString(),
-                        PlaceFrom = row["PlaceFrom"].ToString(),
-                        PlaceTo = row["PlaceTo"].ToString()
-                    });
-                }
+                result = table.Rows[0].IsNull("ResultMessage") ? null : table.Rows[0]["ResultMessage"].ToString();
             }
-            return list ?? new BindingList<DocMovementOrder>();
+            return result;
         }
-*/
 
         public static BindingList<DocOrder> PersonDocOrders(Guid personId, DocDirection docDirection)
         {
@@ -153,39 +148,56 @@ namespace gamma_mob
             //return table;
         }
 
-/*
-        public static Product ProductByBarcode(string barcode)
+        public static List<PlaceZone> GetWarehousePlaceZones(int placeId)
         {
-            Product product = null;
-            const string sql = "SELECT * FROM vProductsInfo WHERE Barcode = @Barcode";
-            var parameters =
-                new List<SqlParameter>
-                    {
-                        new SqlParameter("@Barcode", SqlDbType.VarChar)
-                    };
-            parameters[0].Value = barcode;
-            var table = ExecuteSelectQuery(sql, parameters, CommandType.Text);
+            List<PlaceZone> list = null;
+            const string sql = "dbo.mob_GetWarehousePlaceZones";
+            var parameters = new List<SqlParameter>
+                {
+                    new SqlParameter("@PlaceID", SqlDbType.Int)
+                        {
+                            Value = placeId
+                        }
+                };
+            DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure);
             if (table != null && table.Rows.Count > 0)
             {
-                
-                product = new Product()
-                    {
-                        ProductId = new Guid(table.Rows[0]["ProductId"].ToString()),
-                        ProductItems = new List<ProductItem>()
-                    };
+                list = new List<PlaceZone>();
                 foreach (DataRow row in table.Rows)
                 {
-                    product.ProductItems.Add(new ProductItem()
+                    list.Add(new PlaceZone
                         {
-                            NomenclatureId = new Guid(row["1CNomenclatureID"].ToString()),
-                            CharacteristicId = new Guid(row["1CCharacteristicID"].ToString()),
-                            Quantity = Convert.ToDecimal(row["Quantity"])
+                            PlaceZoneId = new Guid(row["PlaceZoneID"].ToString()),
+                            Name = row["Name"].ToString()
                         });
                 }
             }
-            return product;
+            return list;
         }
-*/
+
+        public static List<PlaceZone> GetPlaceZoneChilds(Guid placeZoneId)
+        {
+            List<PlaceZone> list = null;
+            const string sql = "dbo.mob_GetPlaceZoneChilds";
+            var parameters = new List<SqlParameter>
+                {
+                    new SqlParameter("@PlaceZoneID", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = placeZoneId
+                        }
+                };
+            DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure);
+            if (table != null && table.Rows.Count > 0)
+            {
+                list = (from DataRow row in table.Rows
+                        select new PlaceZone
+                            {
+                                PlaceZoneId = new Guid(row["PlaceZoneID"].ToString()), Name = row["Name"].ToString()
+                            }).ToList();
+            }
+            return list;
+        }
+
         public static BindingList<MovementProduct> GetMovementProducts(int placeId)
         {
             BindingList<MovementProduct> list = null;
@@ -208,7 +220,9 @@ namespace gamma_mob
                             Barcode = row["Barcode"].ToString(),
                             Number = row["Number"].ToString(),
                             NomenclatureName = row["ShortNomenclatureName"].ToString(),
-                            Quantity = Convert.ToDecimal(row["Quantity"])
+                            Quantity = Convert.ToDecimal(row["Quantity"]),
+                            DocMovementId = new Guid(row["DocMovementID"].ToString()),
+                            Date = Convert.ToDateTime(row["Date"].ToString())
                         });
                 }
             }
@@ -281,11 +295,13 @@ namespace gamma_mob
                                   {
                                       WarehouseId = Convert.ToInt32(row["WarehouseID"]),
                                       WarehouseName = row["WarehouseName"].ToString(),
-                                      WarehouseZones = new List<WarehouseZone>()
+                                      WarehouseZones = GetWarehousePlaceZones(Convert.ToInt32(row["WarehouseID"]))
                                   });
             }
             return list;
         }
+
+
 
         public static DbOperationProductResult DeleteProductFromMovement(string barcode, Guid docMovementId, DocDirection docDirection)
         {
@@ -312,7 +328,8 @@ namespace gamma_mob
                 result = new DbOperationProductResult
                     {
                         AlreadyMadeChanges = Convert.ToBoolean(table.Rows[0]["AlreadyRemoved"]),
-                        ResultMessage = table.Rows[0]["ResultMessage"].ToString()
+                        ResultMessage = table.Rows[0]["ResultMessage"].ToString(),
+                        DocIsConfirmed = Convert.ToBoolean(table.Rows[0]["IsConfirmed"])
                     };
                 if (!table.Rows[0].IsNull("NomenclatureID"))
                 {
@@ -321,7 +338,7 @@ namespace gamma_mob
                             ProductId = new Guid(table.Rows[0]["ProductID"].ToString()),
                             NomenclatureId = new Guid(table.Rows[0]["NomenclatureID"].ToString()),
                             CharacteristicId = new Guid(table.Rows[0]["CharacteristicID"].ToString()),
-                            Quantity = Convert.ToDecimal(table.Rows[0]["Quantity"])
+                            Quantity = Convert.ToDecimal(table.Rows[0]["Quantity"]),
                         };
                 }
             }
@@ -449,15 +466,11 @@ namespace gamma_mob
                         },
                     new SqlParameter("@PlaceID", SqlDbType.Int)
                         {
-                            Value = endPointInfo.WarehouseId
+                            Value = endPointInfo.PlaceId
                         },
                     new SqlParameter("@PlaceZoneID", SqlDbType.UniqueIdentifier)
                         {
-                            Value = endPointInfo.WarehouseZoneId
-                        },
-                    new SqlParameter("@PlaceZoneCellID", SqlDbType.UniqueIdentifier)
-                        {
-                            Value = endPointInfo.ZoneCellId
+                            Value = endPointInfo.PlaceZoneId
                         }
                 };
             DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure);
@@ -474,232 +487,12 @@ namespace gamma_mob
                             !table.Rows[0].IsNull("AlreadyAdded") &&
                             Convert.ToBoolean(table.Rows[0]["AlreadyAdded"]),
                         OutPlace = table.Rows[0].IsNull("OutPlace") ? "" : table.Rows[0]["OutPlace"].ToString(),
-                        DocMovementId = !table.Rows[0].IsNull("DocMovementID") ? new Guid(table.Rows[0]["DocMovementID"].ToString()) : new Guid()
+                        DocMovementId = !table.Rows[0].IsNull("DocMovementID") ? new Guid(table.Rows[0]["DocMovementID"].ToString()) : new Guid(),
+                        Date = table.Rows[0].IsNull("Date") ? DateTime.Now : Convert.ToDateTime(table.Rows[0]["Date"].ToString())
                     };
             }
             return acceptProductResult;
         }
-/*
-        /// <summary>
-        /// Добавление продукта в обе табличные части перемещения
-        /// </summary>
-        /// <param name="personId"></param>
-        /// <param name="barcode"></param>
-        /// <param name="docOrderId">ID приказа основания, если перемещение на основании приказа</param>
-        /// <param name="docType"></param>
-        /// <param name="placeId"></param>
-        /// <param name="placeZoneId"></param>
-        /// <param name="placeZoneCellId"></param>
-        /// <returns></returns>
-        public static DbOperationProductResult AddOutInProduct(Guid personId, string barcode, Guid? docOrderId, DocType docType,
-                    int? placeId, Guid? placeZoneId, Guid? placeZoneCellId)
-        {
-            var addProductResult = new DbOperationProductResult();
-//            {
-//                ProductItems = new List<ProductItem>()
-//            };
-            var sql = "dbo.[mob_AddOutInProduct]";
-            var parameters = new List<SqlParameter>
-                {
-                    new SqlParameter("@PersonID", SqlDbType.UniqueIdentifier)
-                        {
-                            Value = personId
-                        },
-                    new SqlParameter("@Barcode", SqlDbType.NVarChar)
-                        {
-                            Value = barcode
-                        },
-                    new SqlParameter("@DocOrderID", SqlDbType.UniqueIdentifier)
-                        {
-                            Value = docOrderId
-                        },
-                    new SqlParameter("@DocType", SqlDbType.Int)
-                        {
-                            Value = (int) docType
-                        },
-                    new SqlParameter("@PlaceID",SqlDbType.Int)
-                        {
-                            Value = placeId
-                        },
-                    new SqlParameter("@PlaceZoneID", SqlDbType.UniqueIdentifier)
-                        {
-                            Value = placeZoneId
-                        },
-                    new SqlParameter("@PlaceZoneCellID", SqlDbType.UniqueIdentifier)
-                        {
-                            Value = placeZoneCellId
-                        }
-                };
-            DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure);
-            if (table != null && table.Rows.Count > 0)
-            {
-                addProductResult.ResultMessage = table.Rows[0]["ResultMessage"].ToString();
-                addProductResult.AlreadyMadeChanges = Convert.ToBoolean(table.Rows[0]["AlreadyAdded"]);
-                if (!table.Rows[0].IsNull("NomenclatureID"))
-                {
-                    foreach (DataRow row in table.Rows)
-                    {
-                        addProductResult.ProductItems.Add(new ProductItem
-                        {
-                            NomenclatureId = new Guid(row["NomenclatureID"].ToString()),
-                            CharacteristicId = new Guid(row["CharacteristicID"].ToString()),
-                            Quantity = Convert.ToDecimal(row["Quantity"])
-                        });
-                    }
-                }
-            }
-            return addProductResult;
-        }
-
-
-        /// <summary>
-        ///     Добавление продукта в отгрузку
-        /// </summary>
-        /// <param name="personId">Идентификатор оператора(грузчика)</param>
-        /// <param name="barcode">ШК продукта</param>
-        /// <param name="docOrderId">Идентификатор приказа основания</param>
-        /// <param name="docType">Тип документа, к которому добавляется продукт</param>
-        /// <returns>
-        ///     Если успешно добавлено, то возвращает результат с последовтельностью элементов. В
-        ///     противном случае последовательность null, в ResultMessage - сообщение
-        /// </returns>
-        public static DbOperationProductResult AddOutProduct(Guid personId, string barcode, Guid? docOrderId, DocType docType)
-        {
-            var addProductResult = new DbOperationProductResult
-                {
-                    ProductItems = new List<ProductItem>()
-                };
-            var sql = "dbo.[mob_AddOutProduct]";
-            var parameters = new List<SqlParameter>
-                {
-                    new SqlParameter("@PersonID", SqlDbType.UniqueIdentifier)
-                        {
-                            Value = personId
-                        },
-                    new SqlParameter("@Barcode", SqlDbType.NVarChar)
-                        {
-                            Value = barcode
-                        },
-                    new SqlParameter("@DocOrderID", SqlDbType.UniqueIdentifier)
-                        {
-                            Value = docOrderId
-                        },
-                    new SqlParameter("@DocType", SqlDbType.Int)
-                        {
-                            Value = (int) docType
-                        }
-                };
-            DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure);
-            if (table != null && table.Rows.Count > 0)
-            {
-                addProductResult.ResultMessage = table.Rows[0]["ResultMessage"].ToString();
-                addProductResult.AlreadyMadeChanges = Convert.ToBoolean(table.Rows[0]["AlreadyAdded"]);
-                if (!table.Rows[0].IsNull("NomenclatureID"))
-                {
-                    foreach (DataRow row in table.Rows)
-                    {
-                        addProductResult.ProductItems.Add(new ProductItem
-                            {
-                                NomenclatureId = new Guid(row["NomenclatureID"].ToString()),
-                                CharacteristicId = new Guid(row["CharacteristicID"].ToString()),
-                                Quantity = Convert.ToDecimal(row["Quantity"])
-                            });
-                    }
-                }
-            }
-            return addProductResult;
-        }
-
-        
-
-        public static DbOperationProductResult AddInProduct(Guid personId, string barcode, Guid? docOrderId, DocType docType,
-                int placeId, Guid? placeZoneId, Guid? placeZoneCellId)
-        {
-            var addProductResult = new DbOperationProductResult
-            {
-                ProductItems = new List<ProductItem>()
-            };
-            var sql = "dbo.[mob_AddInProduct]";
-            var parameters = new List<SqlParameter>
-                {
-                    new SqlParameter("@PersonID", SqlDbType.UniqueIdentifier)
-                        {
-                            Value = personId
-                        },
-                    new SqlParameter("@Barcode", SqlDbType.NVarChar)
-                        {
-                            Value = barcode
-                        },
-                    new SqlParameter("@DocOrderID", SqlDbType.UniqueIdentifier)
-                        {
-                            Value = docOrderId
-                        },
-                    new SqlParameter("@DocType", SqlDbType.Int)
-                        {
-                            Value = (int) docType
-                        },
-                    new SqlParameter("@PlaceID", SqlDbType.Int)
-                        {
-                            Value = placeId
-                        },
-                    new SqlParameter("@PlaceZoneID", SqlDbType.UniqueIdentifier)
-                        {
-                            Value = placeZoneId
-                        },
-                    new SqlParameter("@PlaceZoneCellID", SqlDbType.UniqueIdentifier)
-                        {
-                            Value = placeZoneCellId
-                        }
-                };
-            DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure);
-            if (table != null && table.Rows.Count > 0)
-            {
-                addProductResult.ResultMessage = table.Rows[0]["ResultMessage"].ToString();
-                addProductResult.AlreadyMadeChanges = Convert.ToBoolean(table.Rows[0]["AlreadyAdded"]);
-                if (!table.Rows[0].IsNull("NomenclatureID"))
-                {
-                    foreach (DataRow row in table.Rows)
-                    {
-                        addProductResult.ProductItems.Add(new ProductItem
-                        {
-                            NomenclatureId = new Guid(row["NomenclatureID"].ToString()),
-                            CharacteristicId = new Guid(row["CharacteristicID"].ToString()),
-                            Quantity = Convert.ToDecimal(row["Quantity"])
-                        });
-                    }
-                }
-            }
-            return addProductResult;
-        }
- */
-
-/*
-        /// <summary>
-        ///     Возвращает ID документа Gamma
-        /// </summary>
-        /// <param name="docOrderId">ID документа основания</param>
-        /// <param name="docType">Тип документа</param>
-        /// <returns></returns>
-        public static Guid? GetDocId(Guid? docOrderId, DocType docType)
-        {
-            const string sql = "dbo.mob_GetDocId";
-            var parameters = new List<SqlParameter>
-                {
-                    new SqlParameter("@DocOrderID", SqlDbType.UniqueIdentifier)
-                        {
-                            Value = docOrderId
-                        },
-                    new SqlParameter("@DocType", SqlDbType.Int)
-                        {
-                            Value = (int)docType
-                        }
-                };
-            DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure);
-            if (table == null || table.Rows.Count < 1) return null;
-            if (table.Rows[0].IsNull("DocID")) return null;
-            return new Guid(table.Rows[0]["DocID"].ToString());
-        }
-*/
 
         public static List<string> CurrentBarcodes(Guid docOrderId, DocDirection docDirection)
         {

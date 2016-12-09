@@ -33,6 +33,7 @@
             this.btnInspect = new System.Windows.Forms.ToolBarButton();
             this.btnRefresh = new System.Windows.Forms.ToolBarButton();
             this.btnUpload = new System.Windows.Forms.ToolBarButton();
+            this.btnQuestionNomenclature = new System.Windows.Forms.ToolBarButton();
             this.edtNumber = new System.Windows.Forms.TextBox();
             this.btnAddProduct = new System.Windows.Forms.Button();
             this.imgConnection = new System.Windows.Forms.PictureBox();
@@ -40,9 +41,9 @@
             this.lblBufferCount = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.pnlInfo = new System.Windows.Forms.Panel();
-            this.pnlSearch = new System.Windows.Forms.Panel();
             this.label1 = new System.Windows.Forms.Label();
             this.lblCollected = new System.Windows.Forms.Label();
+            this.pnlSearch = new System.Windows.Forms.Panel();
             this.pnlInfo.SuspendLayout();
             this.pnlSearch.SuspendLayout();
             this.SuspendLayout();
@@ -53,6 +54,7 @@
             this.tbrMain.Buttons.Add(this.btnInspect);
             this.tbrMain.Buttons.Add(this.btnRefresh);
             this.tbrMain.Buttons.Add(this.btnUpload);
+            this.tbrMain.Buttons.Add(this.btnQuestionNomenclature);
             this.tbrMain.Name = "tbrMain";
             this.tbrMain.ButtonClick += new System.Windows.Forms.ToolBarButtonClickEventHandler(this.tbrMain_ButtonClick);
             // 
@@ -88,6 +90,7 @@
             this.gridDocOrder.RowHeadersVisible = false;
             this.gridDocOrder.Size = new System.Drawing.Size(238, 181);
             this.gridDocOrder.TabIndex = 4;
+            this.gridDocOrder.DoubleClick += new System.EventHandler(this.gridDocOrder_DoubleClick);
             this.gridDocOrder.CurrentCellChanged += new System.EventHandler(this.gridDocOrder_CurrentCellChanged);
             // 
             // lblBufferCount
@@ -115,16 +118,6 @@
             this.pnlInfo.Name = "pnlInfo";
             this.pnlInfo.Size = new System.Drawing.Size(238, 60);
             // 
-            // pnlSearch
-            // 
-            this.pnlSearch.Controls.Add(this.btnAddProduct);
-            this.pnlSearch.Controls.Add(this.imgConnection);
-            this.pnlSearch.Controls.Add(this.edtNumber);
-            this.pnlSearch.Dock = System.Windows.Forms.DockStyle.Top;
-            this.pnlSearch.Location = new System.Drawing.Point(0, 24);
-            this.pnlSearch.Name = "pnlSearch";
-            this.pnlSearch.Size = new System.Drawing.Size(238, 30);
-            // 
             // label1
             // 
             this.label1.Location = new System.Drawing.Point(3, 13);
@@ -138,6 +131,16 @@
             this.lblCollected.Name = "lblCollected";
             this.lblCollected.Size = new System.Drawing.Size(24, 27);
             this.lblCollected.Text = "0";
+            // 
+            // pnlSearch
+            // 
+            this.pnlSearch.Controls.Add(this.btnAddProduct);
+            this.pnlSearch.Controls.Add(this.imgConnection);
+            this.pnlSearch.Controls.Add(this.edtNumber);
+            this.pnlSearch.Dock = System.Windows.Forms.DockStyle.Top;
+            this.pnlSearch.Location = new System.Drawing.Point(0, 24);
+            this.pnlSearch.Name = "pnlSearch";
+            this.pnlSearch.Size = new System.Drawing.Size(238, 30);
             // 
             // DocWithNomenclatureForm
             // 
@@ -173,5 +176,6 @@
         private System.Windows.Forms.Panel pnlSearch;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label lblCollected;
+        private System.Windows.Forms.ToolBarButton btnQuestionNomenclature;
     }
 }

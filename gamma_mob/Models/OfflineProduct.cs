@@ -11,6 +11,5 @@ namespace gamma_mob.Models
         public bool Unloaded { get; set; }
         public int? PlaceId { get; set; }
         public Guid? PlaceZoneId { get; set; }
-        public Guid? PlaceZoneCellId { get; set; }
     }
 }

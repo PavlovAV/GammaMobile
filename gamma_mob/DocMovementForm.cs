@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using System.Xml.Serialization;
 using OpenNETCF.Windows.Forms;
 using gamma_mob.Common;
+using gamma_mob.Dialogs;
 using gamma_mob.Models;
 
 namespace gamma_mob
@@ -34,7 +35,7 @@ namespace gamma_mob
             ParentForm = parentForm;
             EndPointInfo = new EndPointInfo
                 {
-                    WarehouseId = placeIdTo
+                    PlaceId = placeIdTo
                 };
             AcceptedProducts = new BindingList<MovementProduct>();
 
@@ -89,10 +90,12 @@ namespace gamma_mob
         ///     Добавление шк к буферу
         /// </summary>
         /// <param name="barCode">Штрихкод</param>
-        private void AddOfflineBarcode(string barCode)
+        /// <param name="placeId"></param>
+        /// <param name="placeZoneId"></param>
+        private void AddOfflineBarcode(string barCode, int placeId, Guid? placeZoneId)
         {
             ConnectionState.StartChecker();
-            AddOfflineProduct(barCode);
+            AddOfflineProduct(barCode, placeId, placeZoneId);
             Invoke((ConnectStateChangeInvoker) (ShowConnection), new object[] {ConnectState.NoConnection});
         }
 
@@ -118,13 +121,15 @@ namespace gamma_mob
             ConnectionState.OnConnectionRestored -= UnloadOfflineProducts;
         }
 
-        private void AddOfflineProduct(string barcode)
+        private void AddOfflineProduct(string barcode, int placeId, Guid? placeZoneId)
         {
             if (OfflineProducts == null) OfflineProducts = new List<OfflineProduct>();
             OfflineProducts.Add(new OfflineProduct
                 {
                     Barcode = barcode,
-                    PersonId = Shared.PersonId
+                    PersonId = Shared.PersonId,
+                    PlaceId = placeId,
+                    PlaceZoneId = placeZoneId
                 });
             Invoke(
                 (MethodInvoker)
@@ -162,26 +167,42 @@ namespace gamma_mob
             OfflineProduct offlineProduct = null;
             if (fromBuffer)
                 offlineProduct = OfflineProducts.FirstOrDefault(p => p.Barcode == barcode);
+            else
+            {
+                var acceptedProduct = AcceptedProducts.OrderByDescending(p => p.Date)
+                    .FirstOrDefault(p => p.Barcode == barcode || p.Number == barcode);
+                if (acceptedProduct != null)
+                {
+                    if (!(acceptedProduct.DocIsConfirmed??false))
+                    {
+                        var dialogResult = MessageBox.Show(string.Format("Вы хотите отменить последнее перемещение продукта с шк {0}?", barcode)
+                        , @"Операция с продуктом",
+                        MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
+                        if (dialogResult == DialogResult.Yes)
+                        {
+                            CancelLastMovement(barcode, acceptedProduct.SourcePlace, acceptedProduct.DocMovementId, false);
+                            return;
+                        }
+                        if (dialogResult != DialogResult.No)
+                        {
+                            return;
+                        }
+                    }
+                }
+                if (!SetPlaceZoneId(EndPointInfo)) return;
+            }
             if (!ConnectionState.CheckConnection())
             {
                 if (!fromBuffer)
-                    AddOfflineBarcode(barcode);
+                    AddOfflineBarcode(barcode, EndPointInfo.PlaceId, EndPointInfo.PlaceZoneId);
                 return;
-            }
-            /*
-            using (var form = new ChooseEndPointDialog())
-            {
-                DialogResult result = form.ShowDialog();
-                if (result != DialogResult.OK) return;
-                endPointInfo = form.EndPointInfo;
-            }
-             */
+            }           
             Cursor.Current = Cursors.WaitCursor;
             var acceptResult = Db.MoveProduct(Shared.PersonId, barcode, EndPointInfo);
             if (!Shared.LastQueryCompleted)
                 {
                     if (!fromBuffer)
-                        AddOfflineBarcode(barcode);
+                        AddOfflineBarcode(barcode, EndPointInfo.PlaceId, EndPointInfo.PlaceZoneId);
                     return;
                 }
             if (acceptResult == null)
@@ -190,42 +211,63 @@ namespace gamma_mob
                 return;
             }
             if (acceptResult.AlreadyAdded && acceptResult.DocMovementId != null)
+            {
+                CancelLastMovement(barcode, acceptResult.OutPlace, (Guid)acceptResult.DocMovementId, true);
+                return;
+            }
+            if (acceptResult.ResultMessage == string.Empty)
+            {
+                if (fromBuffer)
                 {
-                    CancelLastMovement(barcode, acceptResult.OutPlace, (Guid)acceptResult.DocMovementId);
-                    return;
+                    if (offlineProduct != null)
+                        offlineProduct.Unloaded = true;
                 }
-                if (acceptResult.ResultMessage == string.Empty)
-                {
-                    if (fromBuffer)
-                    {
-                        if (offlineProduct != null)
-                            offlineProduct.Unloaded = true;
-                    }
-                    Invoke((UpdateGridInvoker) (UpdateGrid),
-                           new object[]
+                Invoke((UpdateGridInvoker) (UpdateGrid),
+                    new object[]
                                {
                                    acceptResult.NomenclatureName, acceptResult.Number, acceptResult.Quantity
-                                   , true, barcode, acceptResult.OutPlace, acceptResult.ProductId
+                                   , true, barcode, acceptResult.OutPlace, acceptResult.ProductId, acceptResult.DocMovementId,
+                                   acceptResult.Date
                                });
-                }
+            }
+            else
+            {
+                if (!fromBuffer)
+                    MessageBox.Show(acceptResult.ResultMessage);
                 else
                 {
-                    if (!fromBuffer)
-                        MessageBox.Show(acceptResult.ResultMessage);
-                    else
+                    if (offlineProduct != null)
                     {
-                        if (offlineProduct != null)
-                        {
-                            offlineProduct.Unloaded = true;
-                            offlineProduct.ResultMessage = acceptResult.ResultMessage;
-                        }
+                        offlineProduct.Unloaded = true;
+                        offlineProduct.ResultMessage = acceptResult.ResultMessage;
                     }
                 }
+            }
+        }
+
+        private bool SetPlaceZoneId(EndPointInfo endPointInfo)
+        {
+            if (Shared.Warehouses.First(w => w.WarehouseId == EndPointInfo.PlaceId).WarehouseZones.Count > 0)
+            {
+                using (var form = new ChooseZoneDialog(endPointInfo.PlaceId))
+                {
+                    DialogResult result = form.ShowDialog();
+                    Invoke((MethodInvoker)Activate);
+                    if (result != DialogResult.OK)
+                    {
+                        MessageBox.Show(@"Не выбрана зона склада. Перемещение не закончено", @"Отмена перемещения",
+                                        MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
+                        return false;
+                    }
+                    endPointInfo.PlaceZoneId = form.PlaceZoneId;
+                }
+            }
+            return true;
         }
 
         private int _collected;
 
-        public int Collected
+        private int Collected
         {
             get { return _collected; }
             set 
@@ -237,7 +279,7 @@ namespace gamma_mob
 
         private void GetLastMovementProducts(BindingSource bSource)
         {
-            BindingList<MovementProduct> list = Db.GetMovementProducts(EndPointInfo.WarehouseId);
+            BindingList<MovementProduct> list = Db.GetMovementProducts(EndPointInfo.PlaceId);
             if (!Shared.LastQueryCompleted || list == null)
             {
                 // MessageBox.Show(@"Не удалось получить информацию о текущем документе");
@@ -254,29 +296,50 @@ namespace gamma_mob
             gridDocAccept.DataSource = bSource;
         }
 
-        private void CancelLastMovement(string barcode, string outPlace, Guid docMovementId)
+        private void CancelLastMovement(string barcode, string outPlace, Guid docMovementId, bool showWarningMessage)
         {
             OfflineProduct offlineProduct = null;
             if (OfflineProducts != null)
                 offlineProduct = OfflineProducts.FirstOrDefault(p => p.Barcode == barcode);
-            DialogResult dlgResult = MessageBox.Show(
-                string.Format("Вернуть продукт с шк {0} на передел {1}", barcode, outPlace),
-                @"Возврат продукта", MessageBoxButtons.YesNo, MessageBoxIcon.Question,
-                MessageBoxDefaultButton.Button1);
-            if (dlgResult == DialogResult.Yes)
+//            DialogResult dlgResult = MessageBox.Show(
+//                string.Format("Вернуть продукт с шк {0} на передел {1}", barcode, outPlace),
+//                @"Возврат продукта", MessageBoxButtons.YesNo, MessageBoxIcon.Question,
+//                MessageBoxDefaultButton.Button1);
+            if (!showWarningMessage || MessageBox.Show(
+                            string.Format("Вернуть продукт с шк {0} на передел {1}", barcode, outPlace),
+                            @"Возврат продукта", MessageBoxButtons.YesNo, MessageBoxIcon.Question,
+                            MessageBoxDefaultButton.Button1) == DialogResult.Yes)
             {
                 var delResult = Db.DeleteProductFromMovement(barcode, docMovementId, DocDirection.DocOutIn);
                 if (string.IsNullOrEmpty(delResult.ResultMessage))
                 {
                     if (offlineProduct != null) offlineProduct.Unloaded = true;
-                    Invoke(
-                        (MethodInvoker)
-                        (() => AcceptedProducts.Remove(AcceptedProducts.FirstOrDefault(p => p.Barcode == barcode || p.Number == barcode))));
+                    var product = AcceptedProducts.FirstOrDefault(p => p.Barcode == barcode || p.Number == barcode);
+                    if (product != null)
+                    {
+                        if (delResult.DocIsConfirmed)
+                        {
+                            product.DocIsConfirmed = true;
+                            MessageBox.Show(
+                                @"Перемещение уже подтверждено. Удалять продукт из подтвержденного перемещения нельзя",
+                                @"Ошибка удаления", MessageBoxButtons.OK, MessageBoxIcon.Asterisk,
+                                MessageBoxDefaultButton.Button1);
+                            return;
+                        }
+                        Invoke((UpdateGridInvoker)(UpdateGrid),
+                               new object[]
+                                   {
+                                       product.NomenclatureName, product.Number, product.Quantity
+                                       , false, product.Barcode, product.SourcePlace, product.ProductId,
+                                       product.DocMovementId, product.Date
+                                   });
+                    }
                 }
                 else
                 {
                     MessageBox.Show(@"Связь с базой потеряна, не удалось вернуть продукт на передел", @"Ошибка связи");
-                    if (offlineProduct == null) AddOfflineBarcode(barcode);
+                    if (offlineProduct == null) AddOfflineBarcode(barcode, EndPointInfo.PlaceId, EndPointInfo.PlaceZoneId);  
+                    //TODO: Вернуться и перепроверить, возможно херня с offlineProduct
                 }
             }
             else
@@ -361,7 +424,7 @@ namespace gamma_mob
         }
 
         private void UpdateGrid(string nomenclatureName, string number, decimal quantity, bool add, string barcode,
-                                string sourcePlace, Guid productId)
+                                string sourcePlace, Guid productId, Guid docMovementId, DateTime date)
         {
             if (!add)
             {
@@ -377,10 +440,13 @@ namespace gamma_mob
                     Quantity = quantity,
                     Barcode = barcode,
                     SourcePlace = sourcePlace,
-                    ProductId = productId
+                    ProductId = productId,
+                    DocMovementId = docMovementId,
+                    Date = date
                 });
                 Collected++;
             }
+            Activate();
         }
 
         private void tbrMain_ButtonClick(object sender, ToolBarButtonClickEventArgs e)
@@ -400,6 +466,7 @@ namespace gamma_mob
         private delegate void ConnectStateChangeInvoker(ConnectState state);
 
         private delegate void UpdateGridInvoker(string nomenclatureName, string number
-                                                , decimal quantity, bool add, string barcode, string sourcePlace, Guid productId);
+                                                , decimal quantity, bool add, string barcode, string sourcePlace, Guid productId,
+                                                Guid docMovementId, DateTime date);
     }
 }

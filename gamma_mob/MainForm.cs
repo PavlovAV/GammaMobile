@@ -124,7 +124,7 @@ namespace gamma_mob
                             if (result != DialogResult.OK) return;
                             endPointInfo = form.EndPointInfo;
                         }
-                        var docMovementForm = new DocMovementForm(this, endPointInfo.WarehouseId);
+                        var docMovementForm = new DocMovementForm(this, endPointInfo.PlaceId);
                         docMovementForm.Show();
                         if (docMovementForm.Enabled)
                             Hide();

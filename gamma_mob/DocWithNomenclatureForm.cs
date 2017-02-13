@@ -324,6 +324,7 @@ namespace gamma_mob
             if (addResult.ResultMessage == string.Empty)
             {
                 var product = addResult.Product;
+                Barcodes.Add(barcode);
                 if (product != null)
                     Invoke((UpdateGridInvoker)(UpdateGrid),
                            new object[] { product.NomenclatureId, product.CharacteristicId, product.NomenclatureName, 
@@ -392,7 +393,7 @@ namespace gamma_mob
                     };
                 NomenclatureList.Add(good);
                 BSource.DataSource = NomenclatureList;
-            };
+            }
             if (add)
             {
                 good.CollectedQuantity += quantity;

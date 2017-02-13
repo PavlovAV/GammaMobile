@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Data.SqlClient;
-using System.Globalization;
 using System.Linq;
 using System.Windows.Forms;
 using gamma_mob.Common;
@@ -37,6 +36,10 @@ namespace gamma_mob
                 catch (SqlException ex)
                 {
                     return ex.Class == 14 ? 1 : 2;
+                }
+                catch (Exception)
+                {
+                    return 1;
                 }
             }
             return 0;
@@ -540,7 +543,7 @@ namespace gamma_mob
                             sda.Fill(table);
                             Shared.LastQueryCompleted = true;
                         }
-                        catch (SqlException ex)
+                        catch (Exception ex)
                         {
 #if DEBUG
                             MessageBox.Show(ex.Message);

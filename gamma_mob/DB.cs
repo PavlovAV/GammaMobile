@@ -94,6 +94,13 @@ namespace gamma_mob
             return table;
         }
 
+        public static DataTable GetInventarisations()
+        {
+            const string sql = "dbo.mob_GetInventarisations";
+            DataTable table = ExecuteSelectQuery(sql, new List<SqlParameter>(), CommandType.StoredProcedure);
+            return table;
+        }
+
         public static string FindDocOrderItemPosition(Guid docOrderId, int lineNumber)
         {
             string result = null;
@@ -547,6 +554,12 @@ namespace gamma_mob
                         {
 #if DEBUG
                             MessageBox.Show(ex.Message);
+                            var sqlex = ex as SqlException;
+                            if (sqlex != null)
+                                foreach (var error in sqlex.Errors)
+                                {
+                                    MessageBox.Show(error.ToString());
+                                }
 #endif
                             Shared.LastQueryCompleted = false;
                             table = null;
@@ -559,6 +572,145 @@ namespace gamma_mob
             {
                 Cursor.Current = Cursors.Default;
             }
+        }
+
+        public static List<string> CurrentInventarisationBarcodes(Guid docInventarisationId)
+        {
+            var list = new List<string>();
+            const string sql = "mob_GetInventarisationBarcodes";
+            var parameters = new List<SqlParameter>
+                {
+                    new SqlParameter("@DocInventarisationID", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = docInventarisationId
+                        }
+                };
+            DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure);
+            if (table != null && table.Rows.Count > 0)
+            {
+                list.AddRange(from DataRow row in table.Rows select row["Barcode"].ToString());
+            }
+            return list;
+        }
+
+        internal static BindingList<DocNomenclatureItem> InventarisationProducts(Guid docInventarisationId)
+        {
+            BindingList<DocNomenclatureItem> list = null;
+            const string sql = "mob_GetInventarisationProducts";
+            
+            var parameters =
+                new List<SqlParameter>
+                    {
+                        new SqlParameter("@DocInventarisationID", SqlDbType.UniqueIdentifier)
+                            {
+                                Value = docInventarisationId
+                            }
+                    };
+            DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure);
+            if (table != null)
+            {
+                list = new BindingList<DocNomenclatureItem>();
+                foreach (DataRow row in table.Rows)
+                {
+                    list.Add(new DocNomenclatureItem()
+                    {
+                        CharacteristicId = new Guid(row["1CCharacteristicID"].ToString()),
+                        NomenclatureId = new Guid(row["1CNomenclatureID"].ToString()),
+                        NomenclatureName = row["NomenclatureName"].ToString(),
+                        CollectedQuantity = Convert.ToDecimal(row["Quantity"]),
+                        ShortNomenclatureName = row["ShortNomenclatureName"].ToString()
+                    });
+                }
+            }
+            return list;
+        }
+
+        internal static DbOperationProductResult AddProductToInventarisation(Guid docInventarisationId, string barcode)
+        {
+            DbOperationProductResult result = null;
+            const string sql = "dbo.[mob_AddProductToInventarisation]";
+            var parameters = new List<SqlParameter>
+                {
+                    new SqlParameter("@DocInventarisationID", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = docInventarisationId
+                        },
+                    new SqlParameter("@Barcode", SqlDbType.VarChar)
+                        {
+                            Value = barcode
+                        }
+                };
+            DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure);
+            if (table != null && table.Rows.Count > 0)
+            {
+                result = new DbOperationProductResult
+                {
+                    AlreadyMadeChanges = Convert.ToBoolean(table.Rows[0]["AlreadyAdded"]),
+                    ResultMessage = table.Rows[0]["ResultMessage"].ToString()
+                };
+                if (!table.Rows[0].IsNull("NomenclatureID"))
+                {
+                    result.Product = new Product
+                    {
+                        ProductId = new Guid(table.Rows[0]["ProductID"].ToString()),
+                        NomenclatureId = new Guid(table.Rows[0]["NomenclatureID"].ToString()),
+                        CharacteristicId = new Guid(table.Rows[0]["CharacteristicID"].ToString()),
+                        Quantity = Convert.ToDecimal(table.Rows[0]["Quantity"]),
+                        NomenclatureName = table.Rows[0]["NomenclatureName"].ToString(),
+                        ShortNomenclatureName = table.Rows[0]["ShortNomenclatureName"].ToString()
+                    };
+                }
+            }
+            return result;
+        }
+
+        internal static DocInventarisation CreateNewInventarisation(Guid personId, int placeId)
+        {
+            DocInventarisation result = null;
+            const string sql = "dbo.[mob_CreateNewInventarisation]";
+            var parameters = new List<SqlParameter>
+                {
+                    new SqlParameter("@PersonID", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = personId
+                        },
+                    new SqlParameter("@PlaceID", SqlDbType.Int)
+                        {
+                            Value = placeId
+                        }
+                };
+            DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure);
+            if (table != null && table.Rows.Count > 0)
+            {
+                result = new DocInventarisation
+                {
+                    DocInventarisationId = new Guid(table.Rows[0]["DocInventarisationID"].ToString()),
+                    Number = table.Rows[0]["Number"].ToString()
+                };
+            }
+            return result;
+        }
+
+        internal static DataTable DocInventarisationNomenclatureProducts(Guid docInventarisationId, Guid nomenclatureId, Guid characteristicId)
+        {
+            const string sql = "dbo.mob_GetInventarisationNomenclatureProducts";
+            var parameters = new List<SqlParameter>
+                {
+                    new SqlParameter("@DocInventarisationID", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = docInventarisationId
+                        },
+                    new SqlParameter("@NomenclatureID", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = nomenclatureId
+                        },
+                    new SqlParameter("@CharacteristicID", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = characteristicId
+                        }
+                };
+            DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure);
+            return table;
         }
     }
 }

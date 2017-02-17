@@ -88,7 +88,7 @@
             this.gridDocOrder.Name = "gridDocOrder";
             this.gridDocOrder.PreferredRowHeight = 32;
             this.gridDocOrder.RowHeadersVisible = false;
-            this.gridDocOrder.Size = new System.Drawing.Size(238, 181);
+            this.gridDocOrder.Size = new System.Drawing.Size(638, 341);
             this.gridDocOrder.TabIndex = 4;
             this.gridDocOrder.DoubleClick += new System.EventHandler(this.gridDocOrder_DoubleClick);
             this.gridDocOrder.CurrentCellChanged += new System.EventHandler(this.gridDocOrder_CurrentCellChanged);
@@ -114,9 +114,9 @@
             this.pnlInfo.Controls.Add(this.label2);
             this.pnlInfo.Controls.Add(this.lblBufferCount);
             this.pnlInfo.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.pnlInfo.Location = new System.Drawing.Point(0, 235);
+            this.pnlInfo.Location = new System.Drawing.Point(0, 395);
             this.pnlInfo.Name = "pnlInfo";
-            this.pnlInfo.Size = new System.Drawing.Size(238, 60);
+            this.pnlInfo.Size = new System.Drawing.Size(638, 60);
             // 
             // label1
             // 
@@ -140,17 +140,18 @@
             this.pnlSearch.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlSearch.Location = new System.Drawing.Point(0, 24);
             this.pnlSearch.Name = "pnlSearch";
-            this.pnlSearch.Size = new System.Drawing.Size(238, 30);
+            this.pnlSearch.Size = new System.Drawing.Size(638, 30);
             // 
             // DocWithNomenclatureForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.ClientSize = new System.Drawing.Size(238, 295);
+            this.ClientSize = new System.Drawing.Size(638, 455);
             this.Controls.Add(this.gridDocOrder);
             this.Controls.Add(this.pnlSearch);
             this.Controls.Add(this.pnlInfo);
             this.Controls.Add(this.tbrMain);
+            this.Location = new System.Drawing.Point(0, 0);
             this.Name = "DocWithNomenclatureForm";
             this.Text = "title";
             this.pnlInfo.ResumeLayout(false);

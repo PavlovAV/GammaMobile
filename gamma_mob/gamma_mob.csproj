@@ -20,6 +20,8 @@
     </FormFactorID>
     <StartupObject>gamma_mob.Program</StartupObject>
     <ApplicationIcon>Pixture-Ware-House-PalletTruck.ico</ApplicationIcon>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>sn.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -52,7 +54,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\Program Files (x86)\Datalogic\SDK\DotNet\Datalogic.API.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.WindowsCE.Forms" />
     <Reference Include="mscorlib" />
     <Reference Include="OpenNETCF, Version=2.3.12317.0, Culture=neutral, PublicKeyToken=e60dbea84bb431b7, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -103,6 +104,24 @@
     <Compile Include="Dialogs\ChooseZoneDialog.Designer.cs">
       <DependentUpon>ChooseZoneDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="DocInventarisationForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DocInventarisationForm.Designer.cs">
+      <DependentUpon>DocInventarisationForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DocInventarisationListForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DocInventarisationListForm.Designer.cs">
+      <DependentUpon>DocInventarisationListForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DocInventarisationNomenclatureProductsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DocInventarisationNomenclatureProductsForm.Designer.cs">
+      <DependentUpon>DocInventarisationNomenclatureProductsForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="DocWithNomenclatureForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -120,7 +139,6 @@
     <Compile Include="Common\Enums.cs" />
     <Compile Include="Common\Extensions.cs" />
     <Compile Include="Common\Graphics.cs" />
-    <Compile Include="Common\InactivityFilter.cs" />
     <Compile Include="Common\Shared.cs" />
     <Compile Include="Common\UIServices.cs" />
     <Compile Include="ConnectionState.cs" />
@@ -160,6 +178,7 @@
     <Compile Include="MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Models\DocInventarisation.cs" />
     <Compile Include="Models\MoveProductResult.cs" />
     <Compile Include="Models\DbOperationProductResult.cs" />
     <Compile Include="Models\DocMovementOrder.cs" />
@@ -211,6 +230,18 @@
       <DependentUpon>ChooseZoneDialog.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <EmbeddedResource Include="DocInventarisationForm.resx">
+      <DependentUpon>DocInventarisationForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DocInventarisationListForm.resx">
+      <DependentUpon>DocInventarisationListForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DocInventarisationNomenclatureProductsForm.resx">
+      <DependentUpon>DocInventarisationNomenclatureProductsForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="DocWithNomenclatureForm.resx">
       <DependentUpon>DocWithNomenclatureForm.cs</DependentUpon>
       <SubType>Designer</SubType>
@@ -260,6 +291,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Include="Resources\system_question_alt.png" />
+    <None Include="sn.snk" />
     <Content Include="Settings.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

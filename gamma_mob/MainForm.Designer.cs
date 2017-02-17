@@ -31,6 +31,7 @@
             this.btnDocOrder = new System.Windows.Forms.Button();
             this.btnDocMovement = new System.Windows.Forms.Button();
             this.btnExtAccept = new System.Windows.Forms.Button();
+            this.btnInventarisation = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // btnDocOrder
@@ -66,11 +67,23 @@
             this.btnExtAccept.Text = "Приемка";
             this.btnExtAccept.Click += new System.EventHandler(this.btnExtAccept_Click);
             // 
+            // btnInventarisation
+            // 
+            this.btnInventarisation.Font = new System.Drawing.Font("Tahoma", 16F, System.Drawing.FontStyle.Bold);
+            this.btnInventarisation.Location = new System.Drawing.Point(3, 198);
+            this.btnInventarisation.Name = "btnInventarisation";
+            this.btnInventarisation.Size = new System.Drawing.Size(232, 50);
+            this.btnInventarisation.TabIndex = 4;
+            this.btnInventarisation.TabStop = false;
+            this.btnInventarisation.Text = "Инвентаризация";
+            this.btnInventarisation.Click += new System.EventHandler(this.btnInventarisation_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(638, 455);
+            this.Controls.Add(this.btnInventarisation);
             this.Controls.Add(this.btnExtAccept);
             this.Controls.Add(this.btnDocMovement);
             this.Controls.Add(this.btnDocOrder);
@@ -86,6 +99,7 @@
         private System.Windows.Forms.Button btnDocOrder;
         private System.Windows.Forms.Button btnDocMovement;
         private System.Windows.Forms.Button btnExtAccept;
+        private System.Windows.Forms.Button btnInventarisation;
     }
 }
 

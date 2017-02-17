@@ -326,7 +326,7 @@ namespace gamma_mob
                 var product = addResult.Product;
                 Barcodes.Add(barcode);
                 if (product != null)
-                    Invoke((UpdateGridInvoker)(UpdateGrid),
+                    Invoke((UpdateOrderGridInvoker)(UpdateGrid),
                            new object[] { product.NomenclatureId, product.CharacteristicId, product.NomenclatureName, 
                                 product.ShortNomenclatureName, product.Quantity, true });                
             }
@@ -360,7 +360,7 @@ namespace gamma_mob
                     var product = deleteResult.Product;
                     if (product != null)
                     {
-                        Invoke((UpdateGridInvoker) (UpdateGrid),
+                        Invoke((UpdateOrderGridInvoker) (UpdateGrid),
                                new object[]
                                    {
                                        product.NomenclatureId, product.CharacteristicId, product.NomenclatureName, product.ShortNomenclatureName,
@@ -505,11 +505,7 @@ namespace gamma_mob
             gridDocOrder.Select(gridDocOrder.CurrentRowIndex);
         }
 
-        private delegate void ConnectStateChangeInvoker(ConnectState state);
-
-        private delegate void UpdateGridInvoker(Guid nomenclatureId, Guid characteristicId, string nomenclatureName,
-                    string shortNomenclatureName, decimal quantity, bool add);
-
+        
         private void gridDocOrder_DoubleClick(object sender, EventArgs e)
         {
             OpenDetails();

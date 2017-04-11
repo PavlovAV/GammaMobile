@@ -16,12 +16,12 @@ namespace gamma_mob
             //mFilter.InactivityElapsed += m_filter_InactivityElapsed;
  //           Application2.AddMessageFilter(mFilter);
         }
-
+/*
         private void m_filter_InactivityElapsed()
         {
             Cursor.Current = Cursors.Default;
         }
-
+*/
 
         private void btnDocOrder_Click(object sender, EventArgs e)
         {
@@ -116,6 +116,7 @@ namespace gamma_mob
                         WrongUserPass();
                         break;
                     default:
+                        Cursor.Current = Cursors.Default;
                         EndPointInfo endPointInfo;
                         using (var form = new ChooseEndPointDialog())
                         {
@@ -123,6 +124,7 @@ namespace gamma_mob
                             if (result != DialogResult.OK) return;
                             endPointInfo = form.EndPointInfo;
                         }
+                        Cursor.Current = Cursors.WaitCursor;
                         var docMovementForm = new DocMovementForm(this, endPointInfo.PlaceId);
                         docMovementForm.Show();
                         if (docMovementForm.Enabled)

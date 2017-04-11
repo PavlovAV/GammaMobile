@@ -113,6 +113,7 @@ namespace gamma_mob
             btnInspect.ImageIndex = (int) Images.Inspect;
             btnRefresh.ImageIndex = (int) Images.Refresh;
             btnUpload.ImageIndex = (int) Images.UploadToDb;
+            btnPallets.ImageIndex = (int) Images.Pallet;
             btnQuestionNomenclature.ImageIndex = (int) Images.Question;
             BarcodeFunc = BarcodeReaction;
 
@@ -228,6 +229,18 @@ namespace gamma_mob
                                     MessageBoxIcon.Question,
                                     MessageBoxDefaultButton.Button1);
                     break;
+                case 5:
+                    var form = new PalletsForm(this, DocOrderId);
+                    if (!form.IsDisposed)
+                    {
+                        form.Show();
+                        if (form.Enabled)
+                        {
+                            BarcodeFunc = null;
+                            Hide();
+                        }
+                    }                   
+                    break;
             }
         }
 
@@ -276,8 +289,6 @@ namespace gamma_mob
             AddProductByBarcode(barcode, false);
             UIServices.SetNormalState(this);
         }
-
-//        private BarcodeGetDelegate AddProductByBarcode { get; set; }
 
 
         private void AddProductByBarcode(string barcode, bool fromBuffer)
@@ -509,6 +520,11 @@ namespace gamma_mob
         private void gridDocOrder_DoubleClick(object sender, EventArgs e)
         {
             OpenDetails();
+        }
+
+        private void DocWithNomenclatureForm_Activated(object sender, EventArgs e)
+        {
+            BarcodeFunc = BarcodeReaction;
         }
     }
 }

@@ -34,6 +34,7 @@
             this.btnRefresh = new System.Windows.Forms.ToolBarButton();
             this.btnUpload = new System.Windows.Forms.ToolBarButton();
             this.btnQuestionNomenclature = new System.Windows.Forms.ToolBarButton();
+            this.btnPallets = new System.Windows.Forms.ToolBarButton();
             this.edtNumber = new System.Windows.Forms.TextBox();
             this.btnAddProduct = new System.Windows.Forms.Button();
             this.imgConnection = new System.Windows.Forms.PictureBox();
@@ -55,6 +56,7 @@
             this.tbrMain.Buttons.Add(this.btnRefresh);
             this.tbrMain.Buttons.Add(this.btnUpload);
             this.tbrMain.Buttons.Add(this.btnQuestionNomenclature);
+            this.tbrMain.Buttons.Add(this.btnPallets);
             this.tbrMain.Name = "tbrMain";
             this.tbrMain.ButtonClick += new System.Windows.Forms.ToolBarButtonClickEventHandler(this.tbrMain_ButtonClick);
             // 
@@ -154,6 +156,7 @@
             this.Location = new System.Drawing.Point(0, 0);
             this.Name = "DocWithNomenclatureForm";
             this.Text = "title";
+            this.Activated += new System.EventHandler(this.DocWithNomenclatureForm_Activated);
             this.pnlInfo.ResumeLayout(false);
             this.pnlSearch.ResumeLayout(false);
             this.ResumeLayout(false);
@@ -178,5 +181,6 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label lblCollected;
         private System.Windows.Forms.ToolBarButton btnQuestionNomenclature;
+        private System.Windows.Forms.ToolBarButton btnPallets;
     }
 }

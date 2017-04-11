@@ -2,10 +2,10 @@
 
 <configuration>
   <appSettings>
-    <add key="ServerIP" value="gamma" />
+    <add key="ServerIP" value="asutpmatt\gammanew" />
     <add key="Database" value="gammanew" />
     <add key="UserName" value="sa" />
-    <add key="Password" value="asutp1" />
+    <add key="Password" value="123456" />
     <add key="TimeOut" value="10" />
   </appSettings>
 </configuration>

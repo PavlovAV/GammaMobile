@@ -50,7 +50,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Accessibility, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
-    <Reference Include="Datalogic.API, Version=1.12.0.6, Culture=neutral, PublicKeyToken=349bc9cbc540e7eb, processorArchitecture=MSIL">
+    <Reference Include="Datalogic.API, Version=2.0.6126.14084, Culture=neutral, PublicKeyToken=349bc9cbc540e7eb, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\Program Files (x86)\Datalogic\SDK\DotNet\Datalogic.API.dll</HintPath>
     </Reference>
@@ -75,8 +75,10 @@
     </Reference>
     <Reference Include="System.Deployment, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Runtime.Serialization.Formatters.Soap, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="System.Security, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -103,6 +105,12 @@
     </Compile>
     <Compile Include="Dialogs\ChooseZoneDialog.Designer.cs">
       <DependentUpon>ChooseZoneDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\SetPacksNumberDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\SetPacksNumberDialog.Designer.cs">
+      <DependentUpon>SetPacksNumberDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="DocInventarisationForm.cs">
       <SubType>Form</SubType>
@@ -178,6 +186,7 @@
     <Compile Include="MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Models\AddPalletItemResult.cs" />
     <Compile Include="Models\DocInventarisation.cs" />
     <Compile Include="Models\MoveProductResult.cs" />
     <Compile Include="Models\DbOperationProductResult.cs" />
@@ -186,11 +195,25 @@
     <Compile Include="Models\DocOrder.cs" />
     <Compile Include="Models\EndPointInfo.cs" />
     <Compile Include="Models\OfflineProduct.cs" />
+    <Compile Include="Models\Pallet.cs" />
+    <Compile Include="Models\PalletListItem.cs" />
     <Compile Include="Models\Person.cs" />
     <Compile Include="Models\PlaceZone.cs" />
     <Compile Include="Models\Product.cs" />
     <Compile Include="Models\Warehouse.cs" />
     <Compile Include="Models\MovementProduct.cs" />
+    <Compile Include="PalletForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PalletForm.Designer.cs">
+      <DependentUpon>PalletForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PalletsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PalletsForm.Designer.cs">
+      <DependentUpon>PalletsForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs">
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -213,6 +236,8 @@
     <Compile Include="Scanner.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="DB.cs" />
+    <Compile Include="WCF\CFClientBase.cs" />
+    <Compile Include="WCF\ServiceProxy.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -228,6 +253,10 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\ChooseZoneDialog.resx">
       <DependentUpon>ChooseZoneDialog.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\SetPacksNumberDialog.resx">
+      <DependentUpon>SetPacksNumberDialog.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="DocInventarisationForm.resx">
@@ -266,6 +295,14 @@
       <DependentUpon>LoginForm.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <EmbeddedResource Include="PalletForm.resx">
+      <DependentUpon>PalletForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PalletsForm.resx">
+      <DependentUpon>PalletsForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="Pixture-Ware-House-PalletTruck.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
@@ -292,6 +329,11 @@
     </Content>
     <None Include="Resources\system_question_alt.png" />
     <None Include="sn.snk" />
+    <None Include="Resources\pallet-300x203.jpg" />
+    <None Include="Resources\add.png" />
+    <None Include="Resources\delete.png" />
+    <Content Include="Resources\printer.png" />
+    <Content Include="Resources\save.png" />
     <Content Include="Settings.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

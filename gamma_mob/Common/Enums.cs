@@ -14,7 +14,12 @@
         Edit,
         Refresh,
         UploadToDb,
-        Question
+        Question,
+        Save,
+        Print,
+        Pallet,
+        Add,
+        Remove
     }
 
     public enum ConnectState

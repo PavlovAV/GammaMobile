@@ -51,6 +51,11 @@ namespace gamma_mob.Common
             ImgList.Images.Add(Resources.refresh);
             ImgList.Images.Add(Resources.UploadToDb);
             ImgList.Images.Add(Resources.question);
+            ImgList.Images.Add(Resources.save);
+            ImgList.Images.Add(Resources.print);
+            ImgList.Images.Add(Resources.pallet);
+            ImgList.Images.Add(Resources.add);
+            ImgList.Images.Add(Resources.delete);
         }
 
     }

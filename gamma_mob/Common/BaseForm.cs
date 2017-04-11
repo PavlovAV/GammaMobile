@@ -25,7 +25,9 @@ namespace gamma_mob.Common
             private get { return _barcodeFunc; }
             set
             {
+                Scanner.BarcodeReceived -= BarcodeFunc;
                 _barcodeFunc = value;
+                if (value == null) return;
                 if (DesignMode.IsTrue) return;
                 Scanner.BarcodeReceived += BarcodeFunc;
             }
@@ -45,7 +47,11 @@ namespace gamma_mob.Common
             if (Scanner != null)
                 Scanner.BarcodeReceived -= BarcodeFunc;
             if (ParentForm != null)
+            {
                 ParentForm.Show();
+                ParentForm.Activate();
+            }
+                
         }
     }
 }

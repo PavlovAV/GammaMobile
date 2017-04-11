@@ -298,7 +298,7 @@ namespace gamma_mob
                     CharacteristicId = characteristicId,
                     NomenclatureName = nomenclatureName,
                     ShortNomenclatureName = shortNomenclatureName,
-                    CollectedQuantity = quantity
+                    CollectedQuantity = 0
                 };
                 NomenclatureList.Add(good);
                 BSource.DataSource = NomenclatureList;

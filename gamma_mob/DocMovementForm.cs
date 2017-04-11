@@ -22,6 +22,7 @@ namespace gamma_mob
             InitializeComponent();
             FileName = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase) +
                        @"\DocMovementBarcodes.xml";
+            OfflineProducts = new List<OfflineProduct>();
         }
 
         /// <summary>
@@ -247,7 +248,8 @@ namespace gamma_mob
 
         private bool SetPlaceZoneId(EndPointInfo endPointInfo)
         {
-            if (Shared.Warehouses.First(w => w.WarehouseId == EndPointInfo.PlaceId).WarehouseZones.Count > 0)
+            if (Shared.Warehouses.First(w => w.WarehouseId == EndPointInfo.PlaceId).WarehouseZones != null
+                && Shared.Warehouses.First(w => w.WarehouseId == EndPointInfo.PlaceId).WarehouseZones.Count > 0)
             {
                 using (var form = new ChooseZoneDialog(endPointInfo.PlaceId))
                 {
@@ -413,6 +415,7 @@ namespace gamma_mob
                 }
                 catch (InvalidOperationException)
                 {
+                    OfflineProducts = new List<OfflineProduct>();
                 }
             }
         }

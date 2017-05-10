@@ -39,20 +39,20 @@
             this.label1.Font = new System.Drawing.Font("Tahoma", 16F, System.Drawing.FontStyle.Regular);
             this.label1.Location = new System.Drawing.Point(0, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(291, 56);
-            this.label1.Text = "Задайте количество групповых пачек";
+            this.label1.Size = new System.Drawing.Size(238, 56);
+            this.label1.Text = "Задайте колличество групповых пачек";
             this.label1.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // edtQuantity
             // 
-            this.edtQuantity.Location = new System.Drawing.Point(98, 64);
+            this.edtQuantity.Location = new System.Drawing.Point(69, 59);
             this.edtQuantity.Name = "edtQuantity";
             this.edtQuantity.Size = new System.Drawing.Size(100, 24);
             this.edtQuantity.TabIndex = 1;
             // 
             // btnOK
             // 
-            this.btnOK.Location = new System.Drawing.Point(98, 94);
+            this.btnOK.Location = new System.Drawing.Point(69, 89);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(100, 35);
             this.btnOK.TabIndex = 3;
@@ -64,10 +64,11 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.AutoScroll = true;
-            this.ClientSize = new System.Drawing.Size(291, 132);
+            this.ClientSize = new System.Drawing.Size(238, 132);
             this.Controls.Add(this.btnOK);
             this.Controls.Add(this.edtQuantity);
             this.Controls.Add(this.label1);
+            this.Location = new System.Drawing.Point(0, 80);
             this.Name = "SetPacksNumberDialog";
             this.Text = "Количество пачек";
             this.ResumeLayout(false);

@@ -106,8 +106,16 @@ namespace gamma_mob
         {
             var pallet = Pallets[gridPallets.CurrentRowIndex];
             if (pallet == null) return;
-            var result = Db.DeletePallet(pallet.ProductId);
-            if (String.IsNullOrEmpty(result)) return;
+            if (MessageBox.Show(@"Вы действительно хотите удалить паллету № " + pallet.Number, @"Удаление паллеты", 
+                MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) != DialogResult.Yes) return;
+            UIServices.SetBusyState(this);
+                var result = Db.DeletePallet(pallet.ProductId);
+            UIServices.SetNormalState(this);
+            if (String.IsNullOrEmpty(result))
+            {
+                Pallets.Remove(pallet);
+                return;
+            }
             MessageBox.Show(result);
         }
 

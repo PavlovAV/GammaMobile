@@ -114,8 +114,9 @@ namespace gamma_mob
 
         private void DeleteItem()
         {
+            if (!Items.Any() || gridPalletItems.CurrentRowIndex < 0) return;
+            var item = Items[gridPalletItems.CurrentRowIndex];
             UIServices.SetBusyState(this);
-                var item = Items[gridPalletItems.CurrentRowIndex];
             if (!Db.DeleteItemFromPallet(ProductId, item.NomenclatureId, item.CharacteristicId))
             {
                 MessageBox.Show(@"Не удалось связаться с базой");

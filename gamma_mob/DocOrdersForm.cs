@@ -28,6 +28,7 @@ namespace gamma_mob
             btnBack.ImageIndex = (int) Images.Back;
             btnEdit.ImageIndex = (int) Images.Edit;
             btnRefresh.ImageIndex = (int) Images.Refresh;
+            btnInfoProduct.ImageIndex = (int) Images.InfoProduct;
             GetDocOrders();
             gridDocShipmentOrders.DataSource = BSource;
             var tableStyle = new DataGridTableStyle {MappingName = BSource.GetListName(null)};
@@ -97,6 +98,13 @@ namespace gamma_mob
                     break;
                 case 2:
                     GetDocOrders();
+                    break;
+                case 3:
+                    var InfoProduct = new InfoProductForm(this);
+                    //BarcodeFunc = null;
+                    DialogResult result = InfoProduct.ShowDialog();
+                    //Invoke((MethodInvoker)Activate);
+                    //BarcodeFunc = BarcodeReaction;
                     break;
             }
         }

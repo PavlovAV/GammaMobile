@@ -115,6 +115,7 @@ namespace gamma_mob
             btnUpload.ImageIndex = (int) Images.UploadToDb;
             btnPallets.ImageIndex = (int) Images.Pallet;
             btnQuestionNomenclature.ImageIndex = (int) Images.Question;
+            btnInfoProduct.ImageIndex = (int)Images.InfoProduct;
             BarcodeFunc = BarcodeReaction;
 
 
@@ -240,6 +241,13 @@ namespace gamma_mob
                             Hide();
                         }
                     }                   
+                    break;
+                case 6:
+                    var InfoProduct = new InfoProductForm(this);
+                    BarcodeFunc = null;
+                    DialogResult result = InfoProduct.ShowDialog();
+                    Invoke((MethodInvoker)Activate);
+                    BarcodeFunc = BarcodeReaction;
                     break;
             }
         }

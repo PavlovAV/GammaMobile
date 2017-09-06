@@ -945,5 +945,28 @@ namespace gamma_mob
             ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure);
             return Shared.LastQueryCompleted;
         }
+        
+        public static string InfoProductByBarcode(string barcode)
+        {
+            string infoproduct = null;
+            const string sql = "dbo.mob_GetInfoProduct";
+            var parameters = new List<SqlParameter>
+                {
+                    new SqlParameter("@BarCode", SqlDbType.VarChar)
+                    {
+                         Value = barcode
+                    }
+                };
+            using (DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure))
+            {
+                if (table != null && table.Rows.Count > 0)
+                {
+                    DataRow row = table.Rows[0];
+                    infoproduct = row["Name"].ToString();
+                }
+            }
+            return infoproduct;
+        }
+
     }
 }

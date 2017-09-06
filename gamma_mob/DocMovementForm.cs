@@ -398,6 +398,7 @@ namespace gamma_mob
             tbrMain.ImageList = ImgList;
             btnBack.ImageIndex = (int) Images.Back;
             btnUpload.ImageIndex = (int) Images.UploadToDb;
+            btnInfoProduct.ImageIndex = (int)Images.InfoProduct;
             BarcodeFunc = BarcodeReaction;
 
             //Подписка на событие восстановления связи
@@ -462,6 +463,12 @@ namespace gamma_mob
                 case 1:
                     if (OfflineProducts.Count > 0)
                         UnloadOfflineProducts();
+                    break;
+                case 2:
+                    var InfoProduct = new InfoProductForm(this);
+                    BarcodeFunc = null;
+                    DialogResult result = InfoProduct.ShowDialog();
+                    BarcodeFunc = BarcodeReaction;
                     break;
             }
         }

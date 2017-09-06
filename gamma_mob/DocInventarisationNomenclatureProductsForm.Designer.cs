@@ -32,6 +32,7 @@
             this.gridProducts = new System.Windows.Forms.DataGrid();
             this.tbrMain = new System.Windows.Forms.ToolBar();
             this.btnBack = new System.Windows.Forms.ToolBarButton();
+            this.btnInfoProduct = new System.Windows.Forms.ToolBarButton();
             this.SuspendLayout();
             // 
             // lblNomenclature
@@ -57,6 +58,7 @@
             // tbrMain
             // 
             this.tbrMain.Buttons.Add(this.btnBack);
+            this.tbrMain.Buttons.Add(this.btnInfoProduct);
             this.tbrMain.Name = "tbrMain";
             this.tbrMain.ButtonClick += new System.Windows.Forms.ToolBarButtonClickEventHandler(this.tbrMain_ButtonClick);
             // 
@@ -81,6 +83,7 @@
         private System.Windows.Forms.DataGrid gridProducts;
         private System.Windows.Forms.ToolBar tbrMain;
         private System.Windows.Forms.ToolBarButton btnBack;
+        private System.Windows.Forms.ToolBarButton btnInfoProduct;
 
     }
 }

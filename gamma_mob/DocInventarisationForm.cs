@@ -107,6 +107,7 @@ namespace gamma_mob
             btnRefresh.ImageIndex = (int)Images.Refresh;
             btnUpload.ImageIndex = (int)Images.UploadToDb;
             btnInspect.ImageIndex = (int) Images.Inspect;
+            btnInfoProduct.ImageIndex = (int)Images.InfoProduct;
             BarcodeFunc = BarcodeReaction;
 
 
@@ -354,6 +355,13 @@ namespace gamma_mob
                 case 3:
                     if (OfflineProducts.Count(p => p.DocId == DocInventarisationId) > 0)
                         UnloadOfflineProducts();
+                    break;
+                case 4:
+                    var InfoProduct = new InfoProductForm(this);
+                    BarcodeFunc = null;
+                    DialogResult result = InfoProduct.ShowDialog();
+                    Invoke((MethodInvoker)Activate);
+                    BarcodeFunc = BarcodeReaction;
                     break;
             }
         }

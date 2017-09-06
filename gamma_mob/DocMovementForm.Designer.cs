@@ -41,6 +41,7 @@
             this.lblCollected = new System.Windows.Forms.Label();
             this.pnlSearch = new System.Windows.Forms.Panel();
             this.imgConnection = new System.Windows.Forms.PictureBox();
+            this.btnInfoProduct = new System.Windows.Forms.ToolBarButton();
             this.pnlInfo.SuspendLayout();
             this.pnlSearch.SuspendLayout();
             this.SuspendLayout();
@@ -49,6 +50,7 @@
             // 
             this.tbrMain.Buttons.Add(this.btnBack);
             this.tbrMain.Buttons.Add(this.btnUpload);
+            this.tbrMain.Buttons.Add(this.btnInfoProduct);
             this.tbrMain.Name = "tbrMain";
             this.tbrMain.ButtonClick += new System.Windows.Forms.ToolBarButtonClickEventHandler(this.tbrMain_ButtonClick);
             // 
@@ -56,7 +58,7 @@
             // 
             this.edtNumber.Location = new System.Drawing.Point(0, 6);
             this.edtNumber.Name = "edtNumber";
-            this.edtNumber.Size = new System.Drawing.Size(129, 23);
+            this.edtNumber.Size = new System.Drawing.Size(129, 25);
             this.edtNumber.TabIndex = 1;
             // 
             // btnAddProduct
@@ -143,7 +145,6 @@
             this.Controls.Add(this.pnlSearch);
             this.Controls.Add(this.pnlInfo);
             this.Controls.Add(this.tbrMain);
-            this.Location = new System.Drawing.Point(0, 0);
             this.Name = "DocMovementForm";
             this.Text = "Перемещение на склад";
             this.pnlInfo.ResumeLayout(false);
@@ -167,5 +168,6 @@
         private System.Windows.Forms.Panel pnlSearch;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label lblCollected;
+        private System.Windows.Forms.ToolBarButton btnInfoProduct;
     }
 }

@@ -56,6 +56,7 @@ namespace gamma_mob.Common
             ImgList.Images.Add(Resources.pallet);
             ImgList.Images.Add(Resources.add);
             ImgList.Images.Add(Resources.delete);
+            ImgList.Images.Add(Resources.InfoProduct);
         }
 
     }

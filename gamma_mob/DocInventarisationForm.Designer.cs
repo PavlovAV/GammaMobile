@@ -43,6 +43,7 @@
             this.btnInspect = new System.Windows.Forms.ToolBarButton();
             this.btnRefresh = new System.Windows.Forms.ToolBarButton();
             this.btnUpload = new System.Windows.Forms.ToolBarButton();
+            this.btnInfoProduct = new System.Windows.Forms.ToolBarButton();
             this.pnlSearch.SuspendLayout();
             this.pnlInfo.SuspendLayout();
             this.SuspendLayout();
@@ -87,7 +88,7 @@
             // 
             this.edtNumber.Location = new System.Drawing.Point(0, 4);
             this.edtNumber.Name = "edtNumber";
-            this.edtNumber.Size = new System.Drawing.Size(127, 23);
+            this.edtNumber.Size = new System.Drawing.Size(127, 25);
             this.edtNumber.TabIndex = 1;
             // 
             // pnlInfo
@@ -135,6 +136,7 @@
             this.tbrMain.Buttons.Add(this.btnInspect);
             this.tbrMain.Buttons.Add(this.btnRefresh);
             this.tbrMain.Buttons.Add(this.btnUpload);
+            this.tbrMain.Buttons.Add(this.btnInfoProduct);
             this.tbrMain.Name = "tbrMain";
             this.tbrMain.ButtonClick += new System.Windows.Forms.ToolBarButtonClickEventHandler(this.tbrMain_ButtonClick);
             // 
@@ -172,5 +174,6 @@
         private System.Windows.Forms.ToolBarButton btnRefresh;
         private System.Windows.Forms.ToolBarButton btnUpload;
         private System.Windows.Forms.ToolBarButton btnInspect;
+        private System.Windows.Forms.ToolBarButton btnInfoProduct;
     }
 }

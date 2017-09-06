@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.21022</ProductVersion>
+    <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{2FD39108-709B-49CC-AB4B-A321FDE10E9E}</ProjectGuid>
     <OutputType>WinExe</OutputType>
@@ -93,6 +93,12 @@
     <Compile Include="Common\DesignMode.cs" />
     <Compile Include="Common\ButtonGuidId.cs">
       <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="InfoProductForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="InfoProductForm.Designer.cs">
+      <DependentUpon>InfoProductForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Dialogs\ChoosePlaceZoneCellDialog.cs">
       <SubType>Form</SubType>
@@ -247,6 +253,10 @@
       <DependentUpon>BaseForm.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <EmbeddedResource Include="InfoProductForm.resx">
+      <DependentUpon>InfoProductForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\ChoosePlaceZoneCellDialog.resx">
       <DependentUpon>ChoosePlaceZoneCellDialog.cs</DependentUpon>
       <SubType>Designer</SubType>
@@ -332,6 +342,7 @@
     <None Include="Resources\pallet-300x203.jpg" />
     <None Include="Resources\add.png" />
     <None Include="Resources\delete.png" />
+    <None Include="Resources\InfoProduct.png" />
     <Content Include="Resources\printer.png" />
     <Content Include="Resources\save.png" />
     <Content Include="Settings.xml">

@@ -50,6 +50,13 @@ namespace gamma_mob
                 case 0:
                     Close();
                     break;
+                case 1:
+                    var InfoProduct = new InfoProductForm(this);
+                    //BarcodeFunc = null;
+                    DialogResult result = InfoProduct.ShowDialog();
+                    //Invoke((MethodInvoker)Activate);
+                    //BarcodeFunc = BarcodeReaction;
+                    break;
             }
         }
 
@@ -58,6 +65,7 @@ namespace gamma_mob
             base.FormLoad(sender, e);
             tbrMain.ImageList = ImgList;
             btnBack.ImageIndex = (int)Images.Back;
+            btnInfoProduct.ImageIndex = (int)Images.InfoProduct;
         }
     }
 }

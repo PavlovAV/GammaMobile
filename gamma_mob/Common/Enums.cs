@@ -19,7 +19,8 @@
         Print,
         Pallet,
         Add,
-        Remove
+        Remove,
+        InfoProduct
     }
 
     public enum ConnectState

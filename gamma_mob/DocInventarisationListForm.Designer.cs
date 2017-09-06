@@ -34,6 +34,7 @@
             this.btnRefresh = new System.Windows.Forms.ToolBarButton();
             this.btnAdd = new System.Windows.Forms.ToolBarButton();
             this.gridInventarisations = new System.Windows.Forms.DataGrid();
+            this.btnInfoProduct = new System.Windows.Forms.ToolBarButton();
             this.SuspendLayout();
             // 
             // tbrMain
@@ -42,6 +43,7 @@
             this.tbrMain.Buttons.Add(this.btnEdit);
             this.tbrMain.Buttons.Add(this.btnRefresh);
             this.tbrMain.Buttons.Add(this.btnAdd);
+            this.tbrMain.Buttons.Add(this.btnInfoProduct);
             this.tbrMain.Name = "tbrMain";
             this.tbrMain.ButtonClick += new System.Windows.Forms.ToolBarButtonClickEventHandler(this.tbrMain_ButtonClick);
             // 
@@ -62,7 +64,6 @@
             this.ClientSize = new System.Drawing.Size(638, 455);
             this.Controls.Add(this.gridInventarisations);
             this.Controls.Add(this.tbrMain);
-            this.Location = new System.Drawing.Point(0, 0);
             this.Name = "DocInventarisationListForm";
             this.Text = "Инвентаризации";
             this.Load += new System.EventHandler(this.DocInventarisationListForm_Load);
@@ -79,5 +80,6 @@
         private System.Windows.Forms.ToolBarButton btnRefresh;
         private System.Windows.Forms.DataGrid gridInventarisations;
         private System.Windows.Forms.ToolBarButton btnAdd;
+        private System.Windows.Forms.ToolBarButton btnInfoProduct;
     }
 }

@@ -34,6 +34,13 @@ namespace gamma_mob
                 case 3:
                     NewInventarisation();
                     break;
+                case 4:
+                    var InfoProduct = new InfoProductForm(this);
+                    //BarcodeFunc = null;
+                    DialogResult result = InfoProduct.ShowDialog();
+                    //Invoke((MethodInvoker)Activate);
+                    //BarcodeFunc = BarcodeReaction;
+                    break;
             }
         }
 
@@ -46,6 +53,7 @@ namespace gamma_mob
             btnBack.ImageIndex = (int)Images.Back;
             btnEdit.ImageIndex = (int)Images.Edit;
             btnRefresh.ImageIndex = (int)Images.Refresh;
+            btnInfoProduct.ImageIndex = (int)Images.InfoProduct;
             GetDocInventarisations();
             gridInventarisations.DataSource = BSource;
             var tableStyle = new DataGridTableStyle { MappingName = BSource.GetListName(null) };

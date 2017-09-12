@@ -15,11 +15,14 @@ namespace gamma_mob
         {
             ParentForm = parentForm;
             DocDirection = docDirection;
+            MaxAllowedPercentBreak = Convert.ToInt32(Db.GetProgramSettings("MaxAllowedPercentBreakInDocOrder"));
         }
 
         private DocDirection DocDirection { get; set; }
 
         private BindingSource BSource { get; set; }
+
+        private int MaxAllowedPercentBreak { get; set; }
 
         private void DocShipmentOrders_Load(object sender, EventArgs e)
         {
@@ -79,7 +82,7 @@ namespace gamma_mob
             var id = new Guid(gridDocShipmentOrders[row, 0].ToString());
             var orderType = (OrderType) Convert.ToInt32(gridDocShipmentOrders[row, 3]);
             var docOrderForm = new DocWithNomenclatureForm(id, this, gridDocShipmentOrders[row, 1].ToString(),
-                orderType, "DocOrderBarcodes.xml", DocDirection);
+                orderType, "DocOrderBarcodes.xml", DocDirection, MaxAllowedPercentBreak);
             docOrderForm.Show();
             if (!docOrderForm.IsDisposed && docOrderForm.Enabled)
                 Hide();

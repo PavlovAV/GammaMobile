@@ -294,7 +294,9 @@ namespace gamma_mob
                             NomenclatureName = row["NomenclatureName"].ToString(),
                             Quantity = quantity,
                             CollectedQuantity = collectedQuantity,
-                            ShortNomenclatureName = row["ShortNomenclatureName"].ToString()
+                            ShortNomenclatureName = row["ShortNomenclatureName"].ToString(),
+                            CountProductSpools = Convert.ToInt16(row["CountProductSpools"]),
+                            CountProductSpoolsWithBreak = Convert.ToInt16(row["CountProductSpoolsWithBreak"])
                         });
                     }
                 }
@@ -414,8 +416,9 @@ namespace gamma_mob
                             NomenclatureId = new Guid(table.Rows[0]["NomenclatureID"].ToString()),
                             CharacteristicId = new Guid(table.Rows[0]["CharacteristicID"].ToString()),
                             Quantity = Convert.ToDecimal(table.Rows[0]["Quantity"]),
-                            ProductId = new Guid(table.Rows[0]["ProductID"].ToString())
-                        };
+                            ProductId = new Guid(table.Rows[0]["ProductID"].ToString()),
+                            CountProductSpools = Convert.ToInt16(table.Rows[0]["CountProductSpools"]),
+                            CountProductSpoolsWithBreak = Convert.ToInt16(table.Rows[0]["CountProductSpoolsWithBreak"])                        };
                     }
                 }
             }
@@ -470,7 +473,9 @@ namespace gamma_mob
                             CharacteristicId = new Guid(table.Rows[0]["CharacteristicID"].ToString()),
                             Quantity = Convert.ToDecimal(table.Rows[0]["Quantity"]),
                             NomenclatureName = table.Rows[0]["NomenclatureName"].ToString(),
-                            ShortNomenclatureName = table.Rows[0]["ShortNomenclatureName"].ToString()
+                            ShortNomenclatureName = table.Rows[0]["ShortNomenclatureName"].ToString(),
+                            CountProductSpools = Convert.ToInt16(table.Rows[0]["CountProductSpools"]),
+                            CountProductSpoolsWithBreak = Convert.ToInt16(table.Rows[0]["CountProductSpoolsWithBreak"])
                         };
                     }
                 }
@@ -547,6 +552,56 @@ namespace gamma_mob
                 }
             }
             return list;
+        }
+
+        public static int CurrentCountProductSpools(Guid docOrderId,bool isWithBreak, DocDirection docDirection)
+        {
+            var countProductSpools = (int) 0;
+            const string sql = "mob_GetDocCountProductSpools";
+            var parameters = new List<SqlParameter>
+                {
+                    new SqlParameter("@DocOrderID", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = docOrderId
+                        },
+                    new SqlParameter("@IsWithBreak", SqlDbType.Bit)
+                        {
+                            Value = isWithBreak?1:0
+                        },
+                    new SqlParameter("@IsInDoc", SqlDbType.Bit)
+                        {
+                            Value = (int)docDirection > 1?1:(int)docDirection
+                        }
+                };
+            using (DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure))
+            {
+                if (table != null && table.Rows.Count > 0)
+                {
+                    countProductSpools = Convert.ToInt32(table.Rows[0]["CountProductSpools"]);
+                }
+            }
+            return countProductSpools;
+        }
+
+        public static string GetProgramSettings(string NameSetting)
+        {
+            var valueSetting = "";
+            const string sql = "GetProgramSettings";
+            var parameters = new List<SqlParameter>
+                {
+                    new SqlParameter("@Setting", SqlDbType.VarChar)
+                        {
+                            Value = NameSetting
+                        }
+                };
+            using (DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure))
+            {
+                if (table != null && table.Rows.Count > 0)
+                {
+                    valueSetting = table.Rows[0]["ValueSetting"].ToString();
+                }
+            }
+            return valueSetting;
         }
 
         private static DataTable ExecuteSelectQuery(string sql, IEnumerable<SqlParameter> parameters,

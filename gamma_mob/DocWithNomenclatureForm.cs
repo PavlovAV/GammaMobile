@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
 using System.Xml.Serialization;
+using System.Drawing;
 using OpenNETCF.Windows.Forms;
 using gamma_mob.Common;
 using gamma_mob.Models;
@@ -39,7 +40,7 @@ namespace gamma_mob
         /// <param name="fileName">Имя файла для хранения информации о невыгруженных продуктах</param>
         /// <param name="docDirection">Направление движения продукции(in, out, outin)</param>
         public DocWithNomenclatureForm(Guid docOrderId, Form parentForm, string orderNumber, OrderType orderType, string fileName, 
-            DocDirection docDirection)
+            DocDirection docDirection, int maxAllowedPercentBreak)
             : this(parentForm)
         {
             OrderType = orderType;
@@ -84,8 +85,12 @@ namespace gamma_mob
                 });
             gridDocOrder.TableStyles.Add(tableStyle);
 
+            MaxAllowedPercentBreak = maxAllowedPercentBreak;
+
             Barcodes = Db.CurrentBarcodes(DocOrderId, DocDirection);
             Collected = Barcodes.Count;
+            CountProductSpoolsWithBreak = Db.CurrentCountProductSpools(DocOrderId, true, DocDirection);
+            CountProductSpools = Db.CurrentCountProductSpools(DocOrderId, false, DocDirection);
         }
 
         private OrderType OrderType { get; set; }
@@ -97,8 +102,9 @@ namespace gamma_mob
         private BindingList<DocNomenclatureItem> NomenclatureList { get; set; }
 
         private List<string> Barcodes { get; set; }
-        private List<OfflineProduct> OfflineProducts { get; set; } 
-        
+        private List<OfflineProduct> OfflineProducts { get; set; }
+
+        private int MaxAllowedPercentBreak { get; set; }
 
         /// <summary>
         ///     ID документа, по которому идет работа (основание)
@@ -150,7 +156,36 @@ namespace gamma_mob
                 lblCollected.Text = Collected.ToString(CultureInfo.InvariantCulture);
             }
         }
+        private int _countProductSpools;
 
+        private int CountProductSpools
+        {
+            get { return _countProductSpools; }
+            set
+            {
+                _countProductSpools = value;
+                if (CountProductSpools == 0)
+                    lblPercentBreak.Text = "";
+                else
+                    lblPercentBreak.Text = (100 * CountProductSpoolsWithBreak / CountProductSpools).ToString(CultureInfo.InvariantCulture);
+            }
+        }
+        
+        private int _countProductSpoolsWithBreak;
+
+        private int CountProductSpoolsWithBreak
+        {
+            get { return _countProductSpoolsWithBreak; }
+            set
+            {
+                _countProductSpoolsWithBreak = value;
+                if (CountProductSpools == 0)
+                    lblPercentBreak.Text = "";
+                else
+                    lblPercentBreak.Text = (100 * CountProductSpoolsWithBreak / CountProductSpools).ToString(CultureInfo.InvariantCulture);
+            }
+        }
+        
         /// <summary>
         ///     Добавление шк к буферу
         /// </summary>
@@ -298,7 +333,6 @@ namespace gamma_mob
             UIServices.SetNormalState(this);
         }
 
-
         private void AddProductByBarcode(string barcode, bool fromBuffer)
         {
             var offlineProduct = OfflineProducts.FirstOrDefault(p => p.Barcode == barcode);
@@ -347,7 +381,7 @@ namespace gamma_mob
                 if (product != null)
                     Invoke((UpdateOrderGridInvoker)(UpdateGrid),
                            new object[] { product.NomenclatureId, product.CharacteristicId, product.NomenclatureName, 
-                                product.ShortNomenclatureName, product.Quantity, true });                
+                                product.ShortNomenclatureName, product.Quantity, true, product.CountProductSpools, product.CountProductSpoolsWithBreak });                
             }
             else
             {
@@ -384,7 +418,7 @@ namespace gamma_mob
                                    {
                                        product.NomenclatureId, product.CharacteristicId, product.NomenclatureName, product.ShortNomenclatureName,
                                             product.Quantity, 
-                                       false
+                                       false, product.CountProductSpools, product.CountProductSpoolsWithBreak
                                    });
                     }
                 }                
@@ -393,8 +427,8 @@ namespace gamma_mob
             return result;
         }
 
-        private void UpdateGrid(Guid nomenclatureId, Guid characteristicId, string nomenclatureName, 
-                string shortNomenclatureName, decimal quantity, bool add)
+        private void UpdateGrid(Guid nomenclatureId, Guid characteristicId, string nomenclatureName,
+                string shortNomenclatureName, decimal quantity, bool add, int countProductSpools, int countProductSpoolsWithBreak)
         {
             DocNomenclatureItem good =
                 NomenclatureList.FirstOrDefault(
@@ -408,7 +442,9 @@ namespace gamma_mob
                         NomenclatureName = nomenclatureName,
                         ShortNomenclatureName = shortNomenclatureName,
                         CollectedQuantity = 0,
-                        Quantity = "0"
+                        Quantity = "0",
+                        CountProductSpools = 0,
+                        CountProductSpoolsWithBreak = 0
                     };
                 NomenclatureList.Add(good);
                 BSource.DataSource = NomenclatureList;
@@ -417,12 +453,17 @@ namespace gamma_mob
             {
                 good.CollectedQuantity += quantity;
                 Collected++;
+                CountProductSpools += countProductSpools;
+                CountProductSpoolsWithBreak += countProductSpoolsWithBreak;
             }
             else
             {
                 good.CollectedQuantity -= quantity;
                 Collected--;
+                CountProductSpools -= countProductSpools;
+                CountProductSpoolsWithBreak -= countProductSpoolsWithBreak;
             }
+          
             gridDocOrder.UnselectAll();
             int index = NomenclatureList.IndexOf(good);
             gridDocOrder.CurrentRowIndex = index;
@@ -534,5 +575,43 @@ namespace gamma_mob
         {
             BarcodeFunc = BarcodeReaction;
         }
+
+        private void lblPercentBreak_TextChanged(object sender, EventArgs e)
+        {
+
+            Label label = sender as Label;
+            if (label != null)
+            {
+                int value;
+                if (label.Text == "")
+                    value = 0;
+                else
+                {
+                    try
+                    {
+                        value = Int32.Parse(label.Text);
+                    }
+                    catch (ArgumentNullException ex)
+                    {
+                        value = 0;
+                    }
+                }
+                if (MaxAllowedPercentBreak < value)
+                {
+                    lblPercentBreak.BackColor = Color.Red;
+                    lblPercentBreak.ForeColor = Color.White;
+                    lblBreak.BackColor = Color.Red;
+                    lblBreak.ForeColor = Color.White;
+                }
+                else
+                {
+                    lblPercentBreak.BackColor = Color.FromArgb(192,192,192);
+                    lblPercentBreak.ForeColor = Color.Black;
+                    lblBreak.BackColor = Color.FromArgb(192, 192, 192);
+                    lblBreak.ForeColor = Color.Black;
+                }
+            }
+        }
+
     }
 }

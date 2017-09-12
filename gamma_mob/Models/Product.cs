@@ -10,5 +10,7 @@ namespace gamma_mob.Models
         public decimal Quantity { get; set; }
         public string NomenclatureName { get; set; }
         public string ShortNomenclatureName { get; set; }
+        public int CountProductSpools { get; set; }
+        public int CountProductSpoolsWithBreak { get; set; }
     }
 }

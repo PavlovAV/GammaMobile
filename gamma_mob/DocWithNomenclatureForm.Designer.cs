@@ -35,6 +35,7 @@
             this.btnUpload = new System.Windows.Forms.ToolBarButton();
             this.btnQuestionNomenclature = new System.Windows.Forms.ToolBarButton();
             this.btnPallets = new System.Windows.Forms.ToolBarButton();
+            this.btnInfoProduct = new System.Windows.Forms.ToolBarButton();
             this.edtNumber = new System.Windows.Forms.TextBox();
             this.btnAddProduct = new System.Windows.Forms.Button();
             this.imgConnection = new System.Windows.Forms.PictureBox();
@@ -42,10 +43,11 @@
             this.lblBufferCount = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.pnlInfo = new System.Windows.Forms.Panel();
+            this.lblPercentBreak = new System.Windows.Forms.Label();
+            this.lblBreak = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.lblCollected = new System.Windows.Forms.Label();
             this.pnlSearch = new System.Windows.Forms.Panel();
-            this.btnInfoProduct = new System.Windows.Forms.ToolBarButton();
             this.pnlInfo.SuspendLayout();
             this.pnlSearch.SuspendLayout();
             this.SuspendLayout();
@@ -99,20 +101,24 @@
             // 
             // lblBufferCount
             // 
-            this.lblBufferCount.Location = new System.Drawing.Point(105, 40);
+            this.lblBufferCount.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Regular);
+            this.lblBufferCount.Location = new System.Drawing.Point(98, 40);
             this.lblBufferCount.Name = "lblBufferCount";
-            this.lblBufferCount.Size = new System.Drawing.Size(100, 20);
+            this.lblBufferCount.Size = new System.Drawing.Size(47, 20);
             this.lblBufferCount.Text = "0";
             // 
             // label2
             // 
+            this.label2.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Regular);
             this.label2.Location = new System.Drawing.Point(3, 40);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(100, 20);
+            this.label2.Size = new System.Drawing.Size(89, 20);
             this.label2.Text = "Не выгружено:";
             // 
             // pnlInfo
             // 
+            this.pnlInfo.Controls.Add(this.lblPercentBreak);
+            this.pnlInfo.Controls.Add(this.lblBreak);
             this.pnlInfo.Controls.Add(this.label1);
             this.pnlInfo.Controls.Add(this.lblCollected);
             this.pnlInfo.Controls.Add(this.label2);
@@ -122,18 +128,37 @@
             this.pnlInfo.Name = "pnlInfo";
             this.pnlInfo.Size = new System.Drawing.Size(638, 60);
             // 
+            // lblPercentBreak
+            // 
+            this.lblPercentBreak.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Regular);
+            this.lblPercentBreak.Location = new System.Drawing.Point(211, 13);
+            this.lblPercentBreak.Name = "lblPercentBreak";
+            this.lblPercentBreak.Size = new System.Drawing.Size(51, 20);
+            this.lblPercentBreak.Text = "0";
+            this.lblPercentBreak.TextChanged += new System.EventHandler(this.lblPercentBreak_TextChanged);
+            // 
+            // lblBreak
+            // 
+            this.lblBreak.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Regular);
+            this.lblBreak.Location = new System.Drawing.Point(146, 13);
+            this.lblBreak.Name = "lblBreak";
+            this.lblBreak.Size = new System.Drawing.Size(63, 20);
+            this.lblBreak.Text = "% обрыва:";
+            // 
             // label1
             // 
+            this.label1.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Regular);
             this.label1.Location = new System.Drawing.Point(3, 13);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(100, 27);
+            this.label1.Size = new System.Drawing.Size(89, 20);
             this.label1.Text = "Собрано:";
             // 
             // lblCollected
             // 
-            this.lblCollected.Location = new System.Drawing.Point(105, 13);
+            this.lblCollected.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Regular);
+            this.lblCollected.Location = new System.Drawing.Point(98, 13);
             this.lblCollected.Name = "lblCollected";
-            this.lblCollected.Size = new System.Drawing.Size(24, 27);
+            this.lblCollected.Size = new System.Drawing.Size(47, 20);
             this.lblCollected.Text = "0";
             // 
             // pnlSearch
@@ -184,5 +209,7 @@
         private System.Windows.Forms.ToolBarButton btnQuestionNomenclature;
         private System.Windows.Forms.ToolBarButton btnPallets;
         private System.Windows.Forms.ToolBarButton btnInfoProduct;
+        private System.Windows.Forms.Label lblBreak;
+        private System.Windows.Forms.Label lblPercentBreak;
     }
 }

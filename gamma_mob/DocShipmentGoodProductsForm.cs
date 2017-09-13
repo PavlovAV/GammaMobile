@@ -21,7 +21,7 @@ namespace gamma_mob
                 {
                     MappingName = "Quantity",
                     HeaderText = "Кол-во",
-                    Width = 80,
+                    Width = 70,
                     Format = "0.###"
                 });
             gridProducts.TableStyles.Add(tableStyle);

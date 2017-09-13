@@ -13,6 +13,9 @@ namespace gamma_mob.Models
         public string NomenclatureName { get; set; }
         public string ShortNomenclatureName { get; set; }
         public int LineNumber { get; set; }
+        public int? CoefficientPackage { get; set; }
+        public int? CoefficientPallet { get; set; }
+        public string CollectedQuantityComputedColumn { get; set; }
 
         /// <summary>
         ///     Количество для сбора(может быть LoadToTop)
@@ -25,7 +28,10 @@ namespace gamma_mob.Models
             set
             {
                 _collectedQuantity = value;
-                NotifyPropertyChanged("CollectedQuantity");
+                //количество, пересчитанное в групповые упаковки для СГИ
+                CollectedQuantityComputedColumn = ((CoefficientPackage == null || CoefficientPackage == 0) ? Convert.ToDecimal(value) : (Convert.ToDecimal(value) / Convert.ToInt32(CoefficientPackage))).ToString("0.###");
+                //NotifyPropertyChanged("CollectedQuantity");
+                NotifyPropertyChanged("CollectedQuantityComputedColumn");
             }
         }
 

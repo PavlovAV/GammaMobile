@@ -279,12 +279,14 @@ namespace gamma_mob
                         decimal collectedQuantity;
                         if (docDirection == DocDirection.DocOut || orderType == OrderType.MovementOrder)
                         {
-                            quantity = row.IsNull("Quantity") ? "0" : row["Quantity"].ToString();
+                            //СГБ учитываем по весу, а СГИ - по групповым упаковкам
+                            //!(row["Quantity"].ToString().All(char.IsDigit)) - проверяем, является ли числом (внимание: не отрабатывает отрицательное значение)
+                            quantity = row.IsNull("Quantity") ? "0" : (row.IsNull("CoefficientPackage") || !(row["Quantity"].ToString().All(char.IsDigit))) ? row["Quantity"].ToString() : (Convert.ToInt32(row["Quantity"]) / Convert.ToInt32(row["CoefficientPackage"])).ToString();
                             collectedQuantity = row.IsNull("OutQuantity") ? 0 : Convert.ToDecimal(row["OutQuantity"]);
                         }
                         else
                         {
-                            quantity = row.IsNull("OutQuantity") ? "0" : row["OutQuantity"].ToString();
+                            quantity = row.IsNull("OutQuantity") ? "0" : (row.IsNull("CoefficientPackage") || !(row["OutQuantity"].ToString().All(char.IsDigit))) ? row["OutQuantity"].ToString() : (Convert.ToInt32(row["OutQuantity"]) / Convert.ToInt32(row["CoefficientPackage"])).ToString();
                             collectedQuantity = row.IsNull("InQuantity") ? 0 : Convert.ToDecimal(row["InQuantity"]);
                         }
                         list.Add(new DocNomenclatureItem
@@ -295,8 +297,12 @@ namespace gamma_mob
                             Quantity = quantity,
                             CollectedQuantity = collectedQuantity,
                             ShortNomenclatureName = row["ShortNomenclatureName"].ToString(),
-                            CountProductSpools = Convert.ToInt16(row["CountProductSpools"]),
-                            CountProductSpoolsWithBreak = Convert.ToInt16(row["CountProductSpoolsWithBreak"])
+                            CountProductSpools = Convert.ToInt32(row["CountProductSpools"]),
+                            CountProductSpoolsWithBreak = Convert.ToInt32(row["CountProductSpoolsWithBreak"]),
+                            CoefficientPackage = row.IsNull("CoefficientPackage") ? (int?)null : Convert.ToInt32(row["CoefficientPackage"]),
+                            CoefficientPallet = row.IsNull("CoefficientPallet") ? (int?)null : Convert.ToInt32(row["CoefficientPallet"]),
+                            //количество, пересчитанное в групповые упаковки для СГИ
+                            CollectedQuantityComputedColumn = ((row.IsNull("CoefficientPackage") || Convert.ToInt32(row["CoefficientPackage"]) == 0) ? collectedQuantity.ToString("0.###") : (collectedQuantity / Convert.ToInt32(row["CoefficientPackage"])).ToString("0.###"))
                         });
                     }
                 }

@@ -68,7 +68,7 @@ namespace gamma_mob
                 {
                     HeaderText = "Номенклатура",
                     MappingName = "ShortNomenclatureName",
-                    Width = 156
+                    Width = 144
                 });
             tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
                 {
@@ -76,6 +76,7 @@ namespace gamma_mob
                     MappingName = "Quantity",
                     Width = 38
                 });
+            /*
             tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
                 {
                     HeaderText = "Собрано",
@@ -83,6 +84,13 @@ namespace gamma_mob
                     Width = 38,
                     Format = "0.###"
                 });
+             */
+            tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
+            {
+                HeaderText = "Собр",
+                MappingName = "CollectedQuantityComputedColumn",
+                Width = 38
+            });
             gridDocOrder.TableStyles.Add(tableStyle);
 
             MaxAllowedPercentBreak = maxAllowedPercentBreak;
@@ -444,7 +452,9 @@ namespace gamma_mob
                         CollectedQuantity = 0,
                         Quantity = "0",
                         CountProductSpools = 0,
-                        CountProductSpoolsWithBreak = 0
+                        CountProductSpoolsWithBreak = 0,
+                        CoefficientPackage = null,
+                        CoefficientPallet = null
                     };
                 NomenclatureList.Add(good);
                 BSource.DataSource = NomenclatureList;
@@ -586,16 +596,7 @@ namespace gamma_mob
                 if (label.Text == "")
                     value = 0;
                 else
-                {
-                    try
-                    {
-                        value = Int32.Parse(label.Text);
-                    }
-                    catch (ArgumentNullException ex)
-                    {
-                        value = 0;
-                    }
-                }
+                    value = Convert.ToInt32(label.Text);
                 if (MaxAllowedPercentBreak < value)
                 {
                     lblPercentBreak.BackColor = Color.Red;

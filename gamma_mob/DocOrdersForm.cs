@@ -79,6 +79,8 @@ namespace gamma_mob
         {
             Cursor.Current = Cursors.WaitCursor;
             int row = gridDocShipmentOrders.CurrentRowIndex;
+            if (row >= 0)
+            {
             var id = new Guid(gridDocShipmentOrders[row, 0].ToString());
             var orderType = (OrderType) Convert.ToInt32(gridDocShipmentOrders[row, 3]);
             var docOrderForm = new DocWithNomenclatureForm(id, this, gridDocShipmentOrders[row, 1].ToString(),
@@ -86,7 +88,9 @@ namespace gamma_mob
             docOrderForm.Show();
             if (!docOrderForm.IsDisposed && docOrderForm.Enabled)
                 Hide();
+            } 
             Cursor.Current = Cursors.Default;
+            
         }
 
         private void tbrMain_ButtonClick(object sender, ToolBarButtonClickEventArgs e)

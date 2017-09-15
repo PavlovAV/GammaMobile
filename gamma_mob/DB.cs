@@ -22,6 +22,11 @@ namespace gamma_mob
                                ";Password=" + password + ";Connect Timeout=" + timeout;
         }
 
+        public static string GetConnectionString()
+        {
+            return ConnectionString;
+        }
+
         public static int CheckSqlConnection()
         {
             if (string.IsNullOrEmpty(ConnectionString)) return 1;

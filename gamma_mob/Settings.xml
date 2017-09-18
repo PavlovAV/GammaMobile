@@ -6,6 +6,6 @@
     <add key="Database" value="gammanew" />
     <add key="UserName" value="tsd" />
     <add key="Password" value="mobileuser" />
-    <add key="TimeOut" value="10" />
+    <add key="TimeOut" value="30" />
   </appSettings>
 </configuration>

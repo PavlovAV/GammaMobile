@@ -44,7 +44,7 @@ namespace gamma_mob
             public string DirName { get; private set; }
             public string FileName { get; private set; }
             public string Title { get; private set; }
-            public byte[] Image { get; private set; }
+            public byte[] Image { get; set; }
             public string MD5 { get; private set; }
             public bool Action { get; private set; }
 
@@ -54,9 +54,11 @@ namespace gamma_mob
         {
             try
             {
-                if (!File.Exists(executablePath + @"UpdateLoading.inf"))
+                if (!File.Exists(executablePath + @"UpdateLoading.tmp"))
                 {
-                    File.CreateText(executablePath + @"UpdateLoading.inf");
+                    //Создаем флаг и возвращаем Ложь, что бы загрузка обновления пошла дальше.
+                    FileStream fileUpdateLoadingInf = new FileStream(executablePath + @"UpdateLoading.tmp",FileMode.OpenOrCreate);
+                    fileUpdateLoadingInf.Close();
                     return false;
                 }
                 else
@@ -76,13 +78,195 @@ namespace gamma_mob
         {
             try
             {
-                File.Delete(executablePath + @"UpdateLoading.inf");
+                if (File.Exists(executablePath + @"UpdateLoading.tmp"))
+                {
+                    File.Delete(executablePath + @"UpdateLoading.tmp");
+                }
             }
             catch
             {
-                //Console.WriteLine("Ошибка при удалении файла {0}!", executablePath + @"UpdateLoading.inf");
+                //Control.WriteLine("Ошибка при удалении файла {0}!", executablePath + @"UpdateLoading.inf");
             }
             
+        }
+
+        private static bool CheckFile(FileOfRepositary file)
+        {
+            try
+            {
+                FileInfo fileInf = new FileInfo(executablePath + file.FileName);
+                if (file.Action)
+                    if (fileInf.Exists && file.MD5 == ComputeMD5Checksum(executablePath + file.FileName))
+                    {
+                        return false;
+                        //Console.WriteLine("Файл '{0}' не сохранен, так как изменений нет.", file.Title);
+                    }
+                    else
+                        if (new FileInfo(updatePath + file.FileName).Exists && file.MD5 == ComputeMD5Checksum(updatePath + file.FileName))
+                        {
+                            return false;
+                            //Console.WriteLine("Файл '{0}' не сохранен, так как уже загружен.", updatePath + file.Title);
+                        }
+                        else
+                        {
+                            if (new FileInfo(updatePath + file.FileName + @".tmp").Exists && file.MD5 == ComputeMD5Checksum(updatePath + file.FileName + @".tmp"))
+                            {
+                                return false;
+                                //Console.WriteLine("Файл '{0}' не сохранен, так как уже загружен.", updatePath + file.FileName + @".tmp");
+                            }
+                            else
+                            {
+                                return true;
+                                    //Console.WriteLine("Файл '{0}' сохранен.", file.Title);
+                                
+                            }
+                        }
+                else
+                {
+                    if (fileInf.Exists)
+                    {
+                        return true;
+                        //Console.WriteLine("Файл '{0}' удален.", file.Title);
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+            catch
+            {
+                return true;
+                //Console.WriteLine("Ошибка! Файл '{0}' не обработан!", file.Title);
+            }
+        }
+
+        private static void SaveFile(FileOfRepositary file)
+        {
+            DirectoryInfo dirInfo = new DirectoryInfo(updatePath);
+            if (!dirInfo.Exists)
+            {
+                try
+                {
+                    dirInfo.Create();
+                }
+                catch
+                {
+                    //Console.WriteLine("Ошибка при содании папки {0}", updatePath);
+                    return;
+                }
+            }
+            try
+            {
+                FileInfo fileInf = new FileInfo(executablePath + file.FileName);
+                if (file.Action)
+                {
+                    {
+                        //MessageBox.Show(file.Title + " - " + file.Image.Length.ToString());
+                        DirectoryInfo di = new DirectoryInfo(updatePath + file.DirName);
+                        if (!(di.Exists))
+                            di.Create();
+                        using (System.IO.FileStream fs = new System.IO.FileStream(updatePath + file.FileName + @".tmp", FileMode.Create))
+                        {
+                            //fs.Write(image, 0, image.Length);
+                            fs.Write(file.Image, 0, file.Image.Length);
+                            //Console.WriteLine("Файл '{0}' сохранен.", file.Title);
+                        }
+                    }
+                    FileInfo fi = new FileInfo(updatePath + file.FileName + @".tmp");
+                    if (file.MD5 == ComputeMD5Checksum(updatePath + file.FileName + @".tmp"))
+                        fi.MoveTo(updatePath + file.FileName);
+                    else
+                    {
+                        //MessageBox.Show("Не совпадает MD5" + updatePath + file.FileName + @".tmp");
+                        fi.Delete();
+                        //MessageBox.Show("Удален Не совпадает MD5" + updatePath + file.FileName + @".tmp");
+                    }
+                }
+                else
+                {
+                    if (fileInf.Exists)
+                    {
+                        DeleteFile(fileInf.FullName);
+                        //Console.WriteLine("Файл '{0}' удален.", file.Title);
+                    }
+                }
+            }
+            catch
+            {
+                //Console.WriteLine("Ошибка! Файл '{0}' не обработан!", file.Title);
+            }
+        }
+
+        private static void LoadFile(FileOfRepositary file)
+        {
+            DirectoryInfo dirInfo = new DirectoryInfo(updatePath);
+                if (!dirInfo.Exists)
+                {
+                    try
+                    {
+                        dirInfo.Create();
+                    }
+                    catch
+                    {
+                        //Console.WriteLine("Ошибка при содании папки {0}", updatePath);
+                        return;
+                    }
+                }
+            try
+            {
+                FileInfo fileInf = new FileInfo(executablePath + file.FileName);
+                if (file.Action)
+                    if (fileInf.Exists && file.MD5 == ComputeMD5Checksum(executablePath + file.FileName))
+                    {
+                        //Console.WriteLine("Файл '{0}' не сохранен, так как изменений нет.", file.Title);
+                    }
+                    else
+                        if (new FileInfo(updatePath + file.FileName).Exists && file.MD5 == ComputeMD5Checksum(updatePath + file.FileName))
+                        {
+                            //Console.WriteLine("Файл '{0}' не сохранен, так как уже загружен.", updatePath + file.Title);
+                        }
+                        else
+                        {
+                            if (new FileInfo(updatePath + file.FileName + @".tmp").Exists && file.MD5 == ComputeMD5Checksum(updatePath + file.FileName + @".tmp"))
+                            {
+                                //Console.WriteLine("Файл '{0}' не сохранен, так как уже загружен.", updatePath + file.FileName + @".tmp");
+                            }
+                            else
+                            {
+                                //MessageBox.Show(file.Title + " - " + file.Image.Length.ToString());
+                                DirectoryInfo di = new DirectoryInfo(updatePath + file.DirName);
+                                if (!(di.Exists))
+                                    di.Create();
+                                using (System.IO.FileStream fs = new System.IO.FileStream(updatePath + file.FileName + @".tmp", FileMode.Create))
+                                {
+                                    fs.Write(file.Image, 0, file.Image.Length);
+                                    //Console.WriteLine("Файл '{0}' сохранен.", file.Title);
+                                }
+                            }
+                            FileInfo fi = new FileInfo(updatePath + file.FileName + @".tmp");
+                            if (file.MD5 == ComputeMD5Checksum(updatePath + file.FileName + @".tmp"))
+                                fi.MoveTo(updatePath + file.FileName);
+                            else
+                            {
+                                //MessageBox.Show("Не совпадает MD5" + updatePath + file.FileName + @".tmp");
+                                fi.Delete();
+                                //MessageBox.Show("Удален Не совпадает MD5" + updatePath + file.FileName + @".tmp");
+                            }
+                        }
+                else
+                {
+                    if (fileInf.Exists)
+                    {
+                        DeleteFile(fileInf.FullName);
+                        //Console.WriteLine("Файл '{0}' удален.", file.Title);
+                    }
+                }
+            }
+            catch
+            {
+                //Console.WriteLine("Ошибка! Файл '{0}' не обработан!", file.Title);
+            }
         }
 
         public static void LoadUpdate(object obj)
@@ -92,100 +276,66 @@ namespace gamma_mob
                 if (ConnectionState.CheckConnection() && Db.CheckSqlConnection() == 0)
                 {
                     string connectionString = Db.GetConnectionString();
-                    List<FileOfRepositary> files = new List<FileOfRepositary>();
-                    using (SqlConnection connection = new SqlConnection(connectionString))
+                    try
                     {
-                        try
+                        using (SqlConnection connection = new SqlConnection(connectionString))
                         {
                             connection.Open();
-                            string sql = "SELECT FileID, DirName, FileName, Title, Image, MD5, Action FROM RepositoryOfProgramFiles WHERE IsActivity = 1 AND ProgramName = @Program AND action IS NOT NULL";
+                            string sql = "SELECT FileID, DirName, FileName, Title, MD5, Action FROM vRepositoryOfProgramFiles WHERE ProgramName = @Program";
                             SqlCommand command = new SqlCommand(sql, connection);
                             command.Parameters.Add("@Program", SqlDbType.NVarChar, 50);
                             command.Parameters["@Program"].Value = program;
                             SqlDataReader reader = command.ExecuteReader();
-
-                            while (reader.Read())
-                            {
-                                int id = reader.GetInt32(0);
-                                string dirname = reader.GetString(1);
-                                string filename = reader.GetString(2);
-                                string title = reader.GetString(3);
-                                byte[] image = (byte[])reader.GetValue(4);
-                                string md5 = reader.GetString(5);
-                                bool action = (bool)reader.GetValue(6);
-
-                                FileOfRepositary file = new FileOfRepositary(id, dirname, filename, title, image, md5, action);
-                                files.Add(file);
-                            }
-                        }
-                        catch
-                        {
-                            //Console.WriteLine("Ошибка при получении данных с БД!");
-                        }
-                    }
-                    DirectoryInfo dirInfo = new DirectoryInfo(updatePath);
-                    if (!dirInfo.Exists)
-                    {
-                        try
-                        {
-                            dirInfo.Create();
-                        }
-                        catch
-                        {
-                            //Console.WriteLine("Ошибка при содании папки {0}", updatePath);
-                            return;
-                        }
-                    }
-                    // сохраним файлы из списка
-                    for (int i = 0; i < files.Count; i++)
-                    {
-                        try
-                        {
-                            FileInfo fileInf = new FileInfo(executablePath + files[i].FileName);
-                            if (files[i].Action)
-                                if (fileInf.Exists && files[i].MD5 == ComputeMD5Checksum(executablePath + files[i].FileName))
+                                while (reader.Read())
                                 {
-                                    //Console.WriteLine("Файл '{0}' не сохранен, так как изменений нет.", files[i].Title);
-                                }
-                                else
-                                    if (new FileInfo(updatePath + files[i].FileName).Exists && files[i].MD5 == ComputeMD5Checksum(updatePath + files[i].FileName))
+                                    string file_name = reader.GetString(2);
+                                    try
                                     {
-                                        //Console.WriteLine("Файл '{0}' не сохранен, так как уже загружен.", updatePath + files[i].Title);
-                                    }
-                                    else
-                                    {
-                                        if (new FileInfo(updatePath + files[i].FileName + @".bak").Exists && files[i].MD5 == ComputeMD5Checksum(updatePath + files[i].FileName + @".bak"))
+                                        int id = reader.GetInt32(0);
+                                        string dirname = reader.GetString(1);
+                                        string filename = reader.GetString(2);
+                                        string title = reader.GetString(3);
+                                        byte[] image = (byte[])null; //(byte?[])reader.GetValue(4);
+                                        string md5 = reader.GetString(4);
+                                        bool action = (bool)reader.GetValue(5);
+
+                                        FileOfRepositary file = new FileOfRepositary(id, dirname, filename, title, image, md5, action);
+                                        //LoadFile(file);
+                                        if (CheckFile(file))
                                         {
-                                            //Console.WriteLine("Файл '{0}' не сохранен, так как уже загружен.", updatePath + files[i].FileName + @".bak");
-                                        }
-                                        else
-                                        {
-                                            DirectoryInfo di = new DirectoryInfo(updatePath + files[i].DirName);
-                                            if (!(di.Exists))
-                                                di.Create();
-                                            using (System.IO.FileStream fs = new System.IO.FileStream(updatePath + files[i].FileName + @".bak", FileMode.Create))
+                                            if (file.Action)
+                                            using (SqlConnection connection_image = new SqlConnection(connectionString))
                                             {
-                                                fs.Write(files[i].Image, 0, files[i].Image.Length);
-                                                //Console.WriteLine("Файл '{0}' сохранен.", files[i].Title);
+                                              connection_image.Open();
+                                                string sql_image = "SELECT Image FROM vRepositoryOfProgramFiles WHERE FileID = @FileID";
+                                                SqlCommand command_image = new SqlCommand(sql_image, connection_image);
+                                                command_image.Parameters.Add("@FileID", SqlDbType.Int);
+                                                command_image.Parameters["@FileID"].Value = file.Id;
+                                                SqlDataReader reader_image = command_image.ExecuteReader();
+                                                if (reader_image.Read())
+                                                {
+                                                    file.Image = (byte[])reader_image.GetValue(0);
+                                                }
+                                                reader_image.Close();
                                             }
+                                            SaveFile(file);
                                         }
-                                        FileInfo fi = new FileInfo(updatePath + files[i].FileName + @".bak");
-                                        fi.MoveTo(updatePath + files[i].FileName);
-                                    }
-                            else
-                            {
-                                if (fileInf.Exists)
-                                {
-                                    DeleteFile(fileInf.FullName);
-                                    //Console.WriteLine("Файл '{0}' удален.", files[i].Title);
-                                }
-                            }
-                        }
-                        catch
-                        {
-                            //Console.WriteLine("Ошибка! Файл '{0}' не обработан!", files[i].Title);
-                        }
 
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        //Console.WriteLine("Ошибка при получении данных с БД!");
+                                        //MessageBox.Show("Ошибка при получении данных с БД! " + file_name + ":" + ex.Message);
+                                    }
+                                    //files.Add(file);
+                                }
+                        }
+                    }
+                    catch
+                    {
+                        //Console.WriteLine("Ошибка при получении данных с БД!");
+                        //MessageBox.Show("Ошибка при получении данных с БД!");
+                        //return;
                     }
                 }
                 DropFlagUpdateLoading();
@@ -252,8 +402,15 @@ namespace gamma_mob
                 {
                     UpdateFile(s);
                 }
-                if (Directory.GetFiles(dirName).Length == 0)
-                    Directory.Delete(dirName);
+                try
+                {
+                    if (Directory.GetFiles(dirName).Length == 0)
+                        Directory.Delete(dirName);
+                }
+                catch
+                {
+                    //Console.WriteLine("Ошибка! Папка '{0}' не удалена!", dirName);
+                }
             }
         }
 
@@ -264,10 +421,7 @@ namespace gamma_mob
                 ApplyUpdateFiles(updatePath);
                 MessageBox.Show(
                     "Есть обновление, перезапустите программу!",
-                    "Внимание!",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Question,
-                    MessageBoxDefaultButton.Button1);
+                    "Внимание!");
             }
         }
     }

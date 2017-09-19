@@ -244,7 +244,9 @@ namespace gamma_mob
             }
             if (Barcodes.Contains(barcode))
             {
-                MessageBox.Show(@"Данный продукт уже отмечен");
+                //MessageBox.Show(@"Данный продукт уже отмечен");
+                offlineProduct.ResultMessage = @"Данный продукт уже отмечен";
+                offlineProduct.Unloaded = true;
                 return;
             }
             var addResult = Db.AddProductToInventarisation(DocInventarisationId, barcode);
@@ -256,7 +258,9 @@ namespace gamma_mob
             }
             if (addResult.AlreadyMadeChanges && !fromBuffer)
             {
-                MessageBox.Show(@"Данный продукт уже отмечен");
+                //MessageBox.Show(@"Данный продукт уже отмечен");
+                offlineProduct.ResultMessage = @"Данный продукт уже отмечен";
+                offlineProduct.Unloaded = true;
                 return;
             }
             if (!Shared.LastQueryCompleted)

@@ -37,10 +37,9 @@
             // 
             // lblNomenclature
             // 
-            this.lblNomenclature.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblNomenclature.Dock = System.Windows.Forms.DockStyle.Top;
             this.lblNomenclature.Font = new System.Drawing.Font("Tahoma", 8F, System.Drawing.FontStyle.Regular);
-            this.lblNomenclature.Location = new System.Drawing.Point(0, 27);
+            this.lblNomenclature.Location = new System.Drawing.Point(0, 24);
             this.lblNomenclature.Name = "lblNomenclature";
             this.lblNomenclature.Size = new System.Drawing.Size(238, 79);
             this.lblNomenclature.Text = "label1";
@@ -48,11 +47,11 @@
             // gridProducts
             // 
             this.gridProducts.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
-            this.gridProducts.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.gridProducts.Location = new System.Drawing.Point(0, 109);
+            this.gridProducts.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.gridProducts.Location = new System.Drawing.Point(0, 103);
             this.gridProducts.Name = "gridProducts";
             this.gridProducts.RowHeadersVisible = false;
-            this.gridProducts.Size = new System.Drawing.Size(238, 186);
+            this.gridProducts.Size = new System.Drawing.Size(238, 192);
             this.gridProducts.TabIndex = 4;
             // 
             // tbrMain
@@ -68,8 +67,8 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.AutoScroll = true;
             this.ClientSize = new System.Drawing.Size(238, 295);
-            this.Controls.Add(this.lblNomenclature);
             this.Controls.Add(this.gridProducts);
+            this.Controls.Add(this.lblNomenclature);
             this.Controls.Add(this.tbrMain);
             this.Name = "DocInventarisationNomenclatureProductsForm";
             this.Text = "Продукция";

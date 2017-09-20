@@ -58,6 +58,8 @@
             this.gridInventarisation.RowHeadersVisible = false;
             this.gridInventarisation.Size = new System.Drawing.Size(638, 341);
             this.gridInventarisation.TabIndex = 8;
+            this.gridInventarisation.DoubleClick += new System.EventHandler(this.gridInventarisation_DoubleClick);
+            this.gridInventarisation.CurrentCellChanged += new System.EventHandler(this.gridInventarisation_CurrentCellChanged);
             // 
             // pnlSearch
             // 

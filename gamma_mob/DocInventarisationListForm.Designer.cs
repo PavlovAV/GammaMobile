@@ -33,8 +33,8 @@
             this.btnEdit = new System.Windows.Forms.ToolBarButton();
             this.btnRefresh = new System.Windows.Forms.ToolBarButton();
             this.btnAdd = new System.Windows.Forms.ToolBarButton();
-            this.gridInventarisations = new System.Windows.Forms.DataGrid();
             this.btnInfoProduct = new System.Windows.Forms.ToolBarButton();
+            this.gridInventarisations = new System.Windows.Forms.DataGrid();
             this.SuspendLayout();
             // 
             // tbrMain
@@ -56,6 +56,7 @@
             this.gridInventarisations.Size = new System.Drawing.Size(638, 431);
             this.gridInventarisations.TabIndex = 2;
             this.gridInventarisations.DoubleClick += new System.EventHandler(this.gridInventarisations_DoubleClick);
+            this.gridInventarisations.CurrentCellChanged += new System.EventHandler(this.gridInventarisations_CurrentCellChanged);
             // 
             // DocInventarisationListForm
             // 

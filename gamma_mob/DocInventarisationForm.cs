@@ -52,13 +52,13 @@ namespace gamma_mob
                 {
                     HeaderText = "Номенклатура",
                     MappingName = "ShortNomenclatureName",
-                    Width = 156
+                    Width = 171
                 });
             tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
                 {
                     HeaderText = "Кол-во",
                     MappingName = "CollectedQuantity",
-                    Width = 38
+                    Width = 50
                 });
             gridInventarisation.TableStyles.Add(tableStyle);
 
@@ -244,9 +244,13 @@ namespace gamma_mob
             }
             if (Barcodes.Contains(barcode))
             {
-                //MessageBox.Show(@"Данный продукт уже отмечен");
-                offlineProduct.ResultMessage = @"Данный продукт уже отмечен";
-                offlineProduct.Unloaded = true;
+                if (offlineProduct == null)
+                    MessageBox.Show(@"Данный продукт уже отмечен");
+                else
+                {
+                    offlineProduct.ResultMessage = @"Данный продукт уже отмечен";
+                    offlineProduct.Unloaded = true;
+                };
                 return;
             }
             var addResult = Db.AddProductToInventarisation(DocInventarisationId, barcode);
@@ -258,9 +262,13 @@ namespace gamma_mob
             }
             if (addResult.AlreadyMadeChanges && !fromBuffer)
             {
-                //MessageBox.Show(@"Данный продукт уже отмечен");
-                offlineProduct.ResultMessage = @"Данный продукт уже отмечен";
-                offlineProduct.Unloaded = true;
+                if (offlineProduct == null)
+                    MessageBox.Show(@"Данный продукт уже отмечен");
+                else
+                {
+                    offlineProduct.ResultMessage = @"Данный продукт уже отмечен";
+                    offlineProduct.Unloaded = true;
+                };
                 return;
             }
             if (!Shared.LastQueryCompleted)
@@ -377,14 +385,18 @@ namespace gamma_mob
                 MessageBox.Show(@"Нет связи с сервером");
                 return;
             }
-            var good = NomenclatureList[gridInventarisation.CurrentRowIndex];
-            var form = new DocInventarisationNomenclatureProductsForm(DocInventarisationId, good.NomenclatureId, good.NomenclatureName,
-                                                       good.CharacteristicId, this);
-            if (!form.IsDisposed)
+            int row = gridInventarisation.CurrentRowIndex;
+            if (row >= 0)
             {
-                form.Show();
-                if (form.Enabled)
-                    Hide();
+                var good = NomenclatureList[row];
+                var form = new DocInventarisationNomenclatureProductsForm(DocInventarisationId, good.NomenclatureId, good.NomenclatureName,
+                                                           good.CharacteristicId, this);
+                if (!form.IsDisposed)
+                {
+                    form.Show();
+                    if (form.Enabled)
+                        Hide();
+                }
             }
         }
 
@@ -394,5 +406,16 @@ namespace gamma_mob
             AddProductByBarcode(edtNumber.Text, false);
             UIServices.SetNormalState(this);
         }
+
+        private void gridInventarisation_DoubleClick(object sender, EventArgs e)
+        {
+            OpenDetails();
+        }
+
+        private void gridInventarisation_CurrentCellChanged(object sender, EventArgs e)
+        {
+            gridInventarisation.Select(gridInventarisation.CurrentRowIndex);
+        }
+
     }   
 }

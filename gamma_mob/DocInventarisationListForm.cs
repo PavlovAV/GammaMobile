@@ -72,7 +72,7 @@ namespace gamma_mob
             {
                 HeaderText = "Номер",
                 MappingName = "Number",
-                Width = 140
+                Width = 120
             });
             gridInventarisations.TableStyles.Add(tableStyle);
         }
@@ -147,6 +147,11 @@ namespace gamma_mob
             btnBack.ImageIndex = (int)Images.Back;
             btnRefresh.ImageIndex = (int)Images.Refresh;
             btnAdd.ImageIndex = (int) Images.DocPlus;
+        }
+
+        private void gridInventarisations_CurrentCellChanged(object sender, EventArgs e)
+        {
+            gridInventarisations.Select(gridInventarisations.CurrentRowIndex);
         }
 
         

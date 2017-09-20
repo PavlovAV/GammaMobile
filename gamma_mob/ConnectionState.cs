@@ -71,6 +71,10 @@ namespace gamma_mob
                         try
                         {
                             PingReply reply = pinger.Send(ServerIp, 200);
+                            if (reply.Status != IPStatus.Success)
+                            {
+                                reply = pinger.Send(ServerIp, 400);
+                            }
                             if (reply.Status == IPStatus.Success)
                             {
                                 IsConnected = true;

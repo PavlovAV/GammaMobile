@@ -31,7 +31,7 @@ namespace gamma_mob
                 switch (Db.CheckSqlConnection())
                 {
                     case 2:
-                        MessageBox.Show(@"Нет связи с БД. Повторите попытку в зоне покрытия WiFi",
+                        MessageBox.Show(@"Нет связи с БД. Повторите попытку в зоне покрытия WiFi" + Environment.NewLine + ConnectionState.GetConnectionState(),
                                         @"Отсутствует WiFi", MessageBoxButtons.OK, MessageBoxIcon.Hand,
                                         MessageBoxDefaultButton.Button1);
                         break;
@@ -48,7 +48,7 @@ namespace gamma_mob
             }
             else
             {
-                MessageBox.Show(@"Нет связи с БД. Повторите попытку в зоне покрытия WiFi",
+                MessageBox.Show(@"Нет связи с БД. Повторите попытку в зоне покрытия WiFi" + Environment.NewLine + ConnectionState.GetConnectionState(),
                                 @"Отсутствует WiFi", MessageBoxButtons.OK, MessageBoxIcon.Hand,
                                 MessageBoxDefaultButton.Button1);
             }
@@ -76,7 +76,7 @@ namespace gamma_mob
                 switch (Db.CheckSqlConnection())
                 {
                     case 2:
-                        MessageBox.Show(@"Нет связи с БД. Повторите попытку в зоне покрытия WiFi",
+                        MessageBox.Show(@"Нет связи с БД. Повторите попытку в зоне покрытия WiFi" + Environment.NewLine + ConnectionState.GetConnectionState(),
                                         @"Отсутствует WiFi", MessageBoxButtons.OK, MessageBoxIcon.Hand,
                                         MessageBoxDefaultButton.Button1);
                         break;
@@ -93,7 +93,7 @@ namespace gamma_mob
             }
             else
             {
-                MessageBox.Show(@"Нет связи с БД. Повторите попытку в зоне покрытия WiFi",
+                MessageBox.Show(@"Нет связи с БД. Повторите попытку в зоне покрытия WiFi" + Environment.NewLine + ConnectionState.GetConnectionState(),
                                 @"Отсутствует WiFi", MessageBoxButtons.OK, MessageBoxIcon.Hand,
                                 MessageBoxDefaultButton.Button1);
             }
@@ -108,7 +108,7 @@ namespace gamma_mob
                 switch (Db.CheckSqlConnection())
                 {
                     case 2:
-                        MessageBox.Show(@"Нет связи с БД. Повторите попытку в зоне покрытия WiFi",
+                        MessageBox.Show(@"Нет связи с БД. Повторите попытку в зоне покрытия WiFi" + Environment.NewLine + ConnectionState.GetConnectionState(),
                                         @"Отсутствует WiFi", MessageBoxButtons.OK, MessageBoxIcon.Hand,
                                         MessageBoxDefaultButton.Button1);
                         break;
@@ -134,7 +134,7 @@ namespace gamma_mob
             }
             else
             {
-                MessageBox.Show(@"Нет связи с БД. Повторите попытку в зоне покрытия WiFi",
+                MessageBox.Show(@"Нет связи с БД. Повторите попытку в зоне покрытия WiFi" + Environment.NewLine + ConnectionState.GetConnectionState(),
                                 @"Отсутствует WiFi", MessageBoxButtons.OK, MessageBoxIcon.Hand,
                                 MessageBoxDefaultButton.Button1);
             }
@@ -149,7 +149,7 @@ namespace gamma_mob
                 switch (Db.CheckSqlConnection())
                 {
                     case 2:
-                        MessageBox.Show(@"Нет связи с БД. Повторите попытку в зоне покрытия WiFi",
+                        MessageBox.Show(@"Нет связи с БД. Повторите попытку в зоне покрытия WiFi" + Environment.NewLine + ConnectionState.GetConnectionState(),
                                         @"Отсутствует WiFi", MessageBoxButtons.OK, MessageBoxIcon.Hand,
                                         MessageBoxDefaultButton.Button1);
                         break;
@@ -166,7 +166,7 @@ namespace gamma_mob
             }
             else
             {
-                MessageBox.Show(@"Нет связи с БД. Повторите попытку в зоне покрытия WiFi",
+                MessageBox.Show(@"Нет связи с БД. Повторите попытку в зоне покрытия WiFi" + Environment.NewLine + ConnectionState.GetConnectionState(),
                                 @"Отсутствует WiFi", MessageBoxButtons.OK, MessageBoxIcon.Hand,
                                 MessageBoxDefaultButton.Button1);
             }

@@ -27,7 +27,7 @@ namespace gamma_mob
         {
             if (Db.CheckSqlConnection() == 1)
             {
-                MessageBox.Show(@"Нет связи с базой");
+                MessageBox.Show(@"Нет связи с базой!" + Environment.NewLine + ConnectionState.GetConnectionState());
                 return;
             }
             Person person = Db.PersonByBarcode(barcode);

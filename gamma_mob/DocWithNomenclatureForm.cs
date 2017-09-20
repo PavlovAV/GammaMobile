@@ -263,7 +263,7 @@ namespace gamma_mob
                 case 4:
                     if (!ConnectionState.CheckConnection())
                     {
-                        MessageBox.Show(@"Нет связи с базой", @"Ошибка связи");
+                        MessageBox.Show(@"Нет связи с базой" + Environment.NewLine + ConnectionState.GetConnectionState(), @"Ошибка связи");
                         return;
                     }
                     var nomenclatureItem = NomenclatureList[gridDocOrder.CurrentRowIndex];
@@ -299,7 +299,7 @@ namespace gamma_mob
         {
             if (!ConnectionState.CheckConnection())
             {
-                MessageBox.Show(@"Нет связи с сервером");
+                MessageBox.Show(@"Нет связи с сервером" + Environment.NewLine + ConnectionState.GetConnectionState());
                 return;
             }
             var good = NomenclatureList[gridDocOrder.CurrentRowIndex];

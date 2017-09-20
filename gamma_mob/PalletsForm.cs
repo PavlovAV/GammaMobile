@@ -147,7 +147,7 @@ namespace gamma_mob
         {
             if (!ConnectionState.CheckConnection())
             {
-                MessageBox.Show(@"Нет связи с сервером");
+                MessageBox.Show(@"Нет связи с сервером" + Environment.NewLine + ConnectionState.GetConnectionState());
                 return;
             }
             var listItem = Pallets[gridPallets.CurrentRowIndex];
@@ -166,7 +166,7 @@ namespace gamma_mob
             UIServices.SetBusyState(this);
             if (!ConnectionState.CheckConnection())
             {
-                MessageBox.Show(@"Нет связи с сервером");
+                MessageBox.Show(@"Нет связи с сервером" + Environment.NewLine + ConnectionState.GetConnectionState());
                 return;
             }
             var form = new PalletForm(this, pallet);

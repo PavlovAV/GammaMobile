@@ -110,7 +110,7 @@ namespace gamma_mob
             Cursor.Current = Cursors.WaitCursor;
             if (!ConnectionState.CheckConnection())
             {
-                MessageBox.Show(@"Нет сети, повторите попытку в зоне покрытия WiFi");
+                MessageBox.Show(@"Нет сети, повторите попытку в зоне покрытия WiFi" + Environment.NewLine + ConnectionState.GetConnectionState());
                 Cursor.Current = Cursors.Default;
                 return;
             }

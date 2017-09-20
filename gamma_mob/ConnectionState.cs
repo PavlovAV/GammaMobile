@@ -16,6 +16,8 @@ namespace gamma_mob
         private static bool _checkerRunning;
         private static string _serverIp = "";
         private static readonly object Locker = new object();
+        
+        private static string stateConnection {get; set;}
 
         static ConnectionState()
         {
@@ -33,15 +35,24 @@ namespace gamma_mob
             set { _serverIp = value; }
         }
 
+        public static string GetConnectionState()
+        {
+            return stateConnection;
+        }
+
         public static event MethodContainer OnConnectionRestored;
 
         //        static private DateTime TimePingChecked = new DateTime();
-
+        
         public static Boolean CheckConnection()
         {
             if (ServerIp == "")
             {
-                if (!GetIpFromSettings(Settings.ServerIP)) return false;
+                if (!GetIpFromSettings(Settings.ServerIP))
+                {
+                    stateConnection = @"Не определен IP сервера";
+                    return false;
+                }
             }
             if (Device.GetWiFiPowerStatus())
             {
@@ -50,6 +61,7 @@ namespace gamma_mob
                 {
                     if (quality < 3)
                     {
+                        stateConnection = @"Низкий уровень сигнала";
                         IsConnected = false;
                         return false;
                     }
@@ -64,16 +76,19 @@ namespace gamma_mob
                                 IsConnected = true;
                                 return true;
                             }
+                            stateConnection = @"Сервер не пингуется";
                             IsConnected = false;
                             return false;
                         }
                         catch (PingException)
                         {
+                            stateConnection = @"Ошибка при пинге сервера";
                             IsConnected = false;
                             return false;
                         }
                     }
                 }
+                stateConnection = @"Сигнал отсутствует";
                 IsConnected = false;
                 return false;
             }

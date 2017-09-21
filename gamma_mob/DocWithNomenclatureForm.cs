@@ -68,13 +68,13 @@ namespace gamma_mob
                 {
                     HeaderText = "Номенклатура",
                     MappingName = "ShortNomenclatureName",
-                    Width = 144
+                    Width = 135
                 });
             tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
                 {
                     HeaderText = "Кол-во",
                     MappingName = "Quantity",
-                    Width = 38
+                    Width = 37
                 });
             /*
             tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
@@ -89,7 +89,14 @@ namespace gamma_mob
             {
                 HeaderText = "Собр",
                 MappingName = "CollectedQuantityComputedColumn",
-                Width = 38
+                Width = 37
+            });
+            tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
+            {
+                HeaderText = "% обр",
+                MappingName = "SpoolWithBreakPercentColumn",
+                Width = 30,
+                Format = "0.#"
             });
             gridDocOrder.TableStyles.Add(tableStyle);
 
@@ -97,8 +104,12 @@ namespace gamma_mob
 
             Barcodes = Db.CurrentBarcodes(DocOrderId, DocDirection);
             Collected = Barcodes.Count;
-            CountProductSpoolsWithBreak = Db.CurrentCountProductSpools(DocOrderId, true, DocDirection);
-            CountProductSpools = Db.CurrentCountProductSpools(DocOrderId, false, DocDirection);
+            
+            CountNomenclatureExceedingMaxPercentWithBreak = 0;
+            foreach (DocNomenclatureItem item in NomenclatureList)
+            {
+                CountNomenclatureExceedingMaxPercentWithBreak += (item.SpoolWithBreakPercentColumn > Convert.ToDecimal(MaxAllowedPercentBreak)) ? 1 : 0;
+            }
         }
 
         private OrderType OrderType { get; set; }
@@ -164,33 +175,15 @@ namespace gamma_mob
                 lblCollected.Text = Collected.ToString(CultureInfo.InvariantCulture);
             }
         }
-        private int _countProductSpools;
+        private int _countNomenclatureExceedingMaxPercentWithBreak;
 
-        private int CountProductSpools
+        private int CountNomenclatureExceedingMaxPercentWithBreak
         {
-            get { return _countProductSpools; }
+            get { return _countNomenclatureExceedingMaxPercentWithBreak; }
             set
             {
-                _countProductSpools = value;
-                if (CountProductSpools == 0)
-                    lblPercentBreak.Text = "";
-                else
-                    lblPercentBreak.Text = (100 * CountProductSpoolsWithBreak / CountProductSpools).ToString(CultureInfo.InvariantCulture);
-            }
-        }
-        
-        private int _countProductSpoolsWithBreak;
-
-        private int CountProductSpoolsWithBreak
-        {
-            get { return _countProductSpoolsWithBreak; }
-            set
-            {
-                _countProductSpoolsWithBreak = value;
-                if (CountProductSpools == 0)
-                    lblPercentBreak.Text = "";
-                else
-                    lblPercentBreak.Text = (100 * CountProductSpoolsWithBreak / CountProductSpools).ToString(CultureInfo.InvariantCulture);
+                _countNomenclatureExceedingMaxPercentWithBreak = value;
+                lblPercentBreak.Text = (CountNomenclatureExceedingMaxPercentWithBreak > 0) ? "% обрыва превышен" : "% обрыва в норме";//(100 * CountProductSpoolsWithBreak / CountProductSpools).ToString(CultureInfo.InvariantCulture);
             }
         }
         
@@ -461,19 +454,23 @@ namespace gamma_mob
             }
             if (add)
             {
+                good.CountProductSpools += countProductSpools;
+                good.CountProductSpoolsWithBreak += countProductSpoolsWithBreak;
                 good.CollectedQuantity += quantity;
                 Collected++;
-                CountProductSpools += countProductSpools;
-                CountProductSpoolsWithBreak += countProductSpoolsWithBreak;
             }
             else
             {
+                good.CountProductSpools -= countProductSpools;
+                good.CountProductSpoolsWithBreak -= countProductSpoolsWithBreak;
                 good.CollectedQuantity -= quantity;
                 Collected--;
-                CountProductSpools -= countProductSpools;
-                CountProductSpoolsWithBreak -= countProductSpoolsWithBreak;
             }
-          
+            CountNomenclatureExceedingMaxPercentWithBreak = 0;
+            foreach (DocNomenclatureItem item in NomenclatureList)
+            {
+                CountNomenclatureExceedingMaxPercentWithBreak += (item.SpoolWithBreakPercentColumn > Convert.ToDecimal(MaxAllowedPercentBreak)) ? 1 : 0;
+            }
             gridDocOrder.UnselectAll();
             int index = NomenclatureList.IndexOf(good);
             gridDocOrder.CurrentRowIndex = index;
@@ -592,24 +589,15 @@ namespace gamma_mob
             Label label = sender as Label;
             if (label != null)
             {
-                int value;
-                if (label.Text == "")
-                    value = 0;
-                else
-                    value = Convert.ToInt32(label.Text);
-                if (MaxAllowedPercentBreak < value)
+                if (label.Text == "% обрыва превышен")
                 {
                     lblPercentBreak.BackColor = Color.Red;
                     lblPercentBreak.ForeColor = Color.White;
-                    lblBreak.BackColor = Color.Red;
-                    lblBreak.ForeColor = Color.White;
                 }
                 else
                 {
                     lblPercentBreak.BackColor = Color.FromArgb(192,192,192);
                     lblPercentBreak.ForeColor = Color.Black;
-                    lblBreak.BackColor = Color.FromArgb(192, 192, 192);
-                    lblBreak.ForeColor = Color.Black;
                 }
             }
         }

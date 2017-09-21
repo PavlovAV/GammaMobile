@@ -16,6 +16,7 @@ namespace gamma_mob.Models
         public int? CoefficientPackage { get; set; }
         public int? CoefficientPallet { get; set; }
         public string CollectedQuantityComputedColumn { get; set; }
+        public decimal SpoolWithBreakPercentColumn { get; set; }
 
         /// <summary>
         ///     Количество для сбора(может быть LoadToTop)
@@ -30,6 +31,7 @@ namespace gamma_mob.Models
                 _collectedQuantity = value;
                 //количество, пересчитанное в групповые упаковки для СГИ
                 CollectedQuantityComputedColumn = ((CoefficientPackage == null || CoefficientPackage == 0) ? Convert.ToDecimal(value) : (Convert.ToDecimal(value) / Convert.ToInt32(CoefficientPackage))).ToString("0.###");
+                SpoolWithBreakPercentColumn = (CountProductSpools == null || CountProductSpools == 0) ? 0 : (100 * Convert.ToDecimal(CountProductSpoolsWithBreak) / Convert.ToDecimal(CountProductSpools));
                 //NotifyPropertyChanged("CollectedQuantity");
                 NotifyPropertyChanged("CollectedQuantityComputedColumn");
             }

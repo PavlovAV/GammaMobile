@@ -15,15 +15,22 @@ namespace gamma_mob
                 {
                     MappingName = "Number",
                     HeaderText = "Номер",
-                    Width = 150
+                    Width = 120
                 });
             tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
                 {
                     MappingName = "Quantity",
                     HeaderText = "Кол-во",
-                    Width = 70,
+                    Width = 60,
                     Format = "0.###"
                 });
+            tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
+            {
+                MappingName = "SpoolWithBreakPercent",
+                HeaderText = "% обрыва",
+                Width = 40,
+                Format = "0.#"
+            });
             gridProducts.TableStyles.Add(tableStyle);
         }
 

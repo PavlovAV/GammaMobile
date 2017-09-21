@@ -44,7 +44,6 @@
             this.label2 = new System.Windows.Forms.Label();
             this.pnlInfo = new System.Windows.Forms.Panel();
             this.lblPercentBreak = new System.Windows.Forms.Label();
-            this.lblBreak = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.lblCollected = new System.Windows.Forms.Label();
             this.pnlSearch = new System.Windows.Forms.Panel();
@@ -118,7 +117,6 @@
             // pnlInfo
             // 
             this.pnlInfo.Controls.Add(this.lblPercentBreak);
-            this.pnlInfo.Controls.Add(this.lblBreak);
             this.pnlInfo.Controls.Add(this.label1);
             this.pnlInfo.Controls.Add(this.lblCollected);
             this.pnlInfo.Controls.Add(this.label2);
@@ -131,19 +129,11 @@
             // lblPercentBreak
             // 
             this.lblPercentBreak.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Regular);
-            this.lblPercentBreak.Location = new System.Drawing.Point(211, 13);
+            this.lblPercentBreak.Location = new System.Drawing.Point(133, 13);
             this.lblPercentBreak.Name = "lblPercentBreak";
-            this.lblPercentBreak.Size = new System.Drawing.Size(51, 20);
-            this.lblPercentBreak.Text = "0";
+            this.lblPercentBreak.Size = new System.Drawing.Size(100, 39);
+            this.lblPercentBreak.Text = "% обрыва";
             this.lblPercentBreak.TextChanged += new System.EventHandler(this.lblPercentBreak_TextChanged);
-            // 
-            // lblBreak
-            // 
-            this.lblBreak.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Regular);
-            this.lblBreak.Location = new System.Drawing.Point(146, 13);
-            this.lblBreak.Name = "lblBreak";
-            this.lblBreak.Size = new System.Drawing.Size(63, 20);
-            this.lblBreak.Text = "% обрыва:";
             // 
             // label1
             // 
@@ -209,7 +199,6 @@
         private System.Windows.Forms.ToolBarButton btnQuestionNomenclature;
         private System.Windows.Forms.ToolBarButton btnPallets;
         private System.Windows.Forms.ToolBarButton btnInfoProduct;
-        private System.Windows.Forms.Label lblBreak;
         private System.Windows.Forms.Label lblPercentBreak;
     }
 }

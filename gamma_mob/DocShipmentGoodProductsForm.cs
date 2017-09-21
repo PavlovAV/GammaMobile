@@ -26,8 +26,8 @@ namespace gamma_mob
                 });
             tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
             {
-                MappingName = "SpoolWithBreakPercent",
-                HeaderText = "% обрыва",
+                MappingName = "SpoolWithBreak",
+                HeaderText = "Обрыв",
                 Width = 40,
                 Format = "0.#"
             });

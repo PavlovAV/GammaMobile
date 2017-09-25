@@ -14,5 +14,6 @@ namespace gamma_mob.Models
         public Guid DocMovementId { get; set; }
         public DateTime? Date { get; set; }
         public bool? DocIsConfirmed { get; set; }
+        public string NumberAndInPlaceZone { get; set; }
     }
 }

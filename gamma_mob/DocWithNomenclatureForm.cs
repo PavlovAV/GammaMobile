@@ -260,7 +260,7 @@ namespace gamma_mob
                         return;
                     }
                     var nomenclatureItem = NomenclatureList[gridDocOrder.CurrentRowIndex];
-                    var resultMessage = Db.FindDocOrderItemPosition(DocOrderId, nomenclatureItem.LineNumber)
+                    var resultMessage = Db.FindDocOrderNomenclatureStoragePlaces(DocOrderId, nomenclatureItem.NomenclatureId, nomenclatureItem.CharacteristicId)
                                         ?? "Не удалось получить информацию о расположении продукции";
                     MessageBox.Show(resultMessage, @"Расположение продукции", MessageBoxButtons.OK,
                                     MessageBoxIcon.Question,

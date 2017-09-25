@@ -126,6 +126,7 @@ namespace gamma_mob
                         }
                         Cursor.Current = Cursors.WaitCursor;
                         var docMovementForm = new DocMovementForm(this, endPointInfo.PlaceId);
+                        docMovementForm.Text = "Перем-е на " + endPointInfo.PlaceName;
                         docMovementForm.Show();
                         if (docMovementForm.Enabled)
                             Hide();

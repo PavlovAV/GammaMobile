@@ -48,7 +48,7 @@ namespace gamma_mob
             tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
                 {
                     HeaderText = "Номер",
-                    MappingName = "Number",
+                    MappingName = "NumberAndInPlaceZone",
                     Width = 94
                 });
             tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
@@ -228,7 +228,7 @@ namespace gamma_mob
                                {
                                    acceptResult.NomenclatureName, acceptResult.Number, acceptResult.Quantity
                                    , true, barcode, acceptResult.OutPlace, acceptResult.ProductId, acceptResult.DocMovementId,
-                                   acceptResult.Date
+                                   acceptResult.Date, acceptResult.NumberAndInPlaceZone
                                });
             }
             else
@@ -281,7 +281,7 @@ namespace gamma_mob
 
         private void GetLastMovementProducts(BindingSource bSource)
         {
-            BindingList<MovementProduct> list = Db.GetMovementProducts(EndPointInfo.PlaceId);
+            BindingList<MovementProduct> list = Db.GetMovementProducts(EndPointInfo.PlaceId, Shared.PersonId);
             if (!Shared.LastQueryCompleted || list == null)
             {
                 // MessageBox.Show(@"Не удалось получить информацию о текущем документе");
@@ -333,7 +333,7 @@ namespace gamma_mob
                                    {
                                        product.NomenclatureName, product.Number, product.Quantity
                                        , false, product.Barcode, product.SourcePlace, product.ProductId,
-                                       product.DocMovementId, product.Date
+                                       product.DocMovementId, product.Date, @""
                                    });
                     }
                 }
@@ -428,7 +428,7 @@ namespace gamma_mob
         }
 
         private void UpdateGrid(string nomenclatureName, string number, decimal quantity, bool add, string barcode,
-                                string sourcePlace, Guid productId, Guid docMovementId, DateTime date)
+                                string sourcePlace, Guid productId, Guid docMovementId, DateTime date, string numberAndInPlaceZone)
         {
             if (!add)
             {
@@ -446,7 +446,8 @@ namespace gamma_mob
                     SourcePlace = sourcePlace,
                     ProductId = productId,
                     DocMovementId = docMovementId,
-                    Date = date
+                    Date = date,
+                    NumberAndInPlaceZone = numberAndInPlaceZone
                 });
                 Collected++;
             }
@@ -477,6 +478,6 @@ namespace gamma_mob
 
         private delegate void UpdateGridInvoker(string nomenclatureName, string number
                                                 , decimal quantity, bool add, string barcode, string sourcePlace, Guid productId,
-                                                Guid docMovementId, DateTime date);
+                                                Guid docMovementId, DateTime date, string numberAndInPlaceZone);
     }
 }

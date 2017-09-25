@@ -20,7 +20,8 @@ namespace gamma_mob.Dialogs
             DialogResult = DialogResult.OK;
             EndPointInfo = new EndPointInfo
                 {
-                    PlaceId = Convert.ToInt32((sender as ButtonIntId).Id)
+                    PlaceId = Convert.ToInt32((sender as ButtonIntId).Id),
+                    PlaceName = Convert.ToString((sender as ButtonIntId).Text)
                 };
             Close();
         }

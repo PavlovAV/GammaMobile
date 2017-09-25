@@ -74,6 +74,10 @@ namespace gamma_mob
                             if (reply.Status != IPStatus.Success)
                             {
                                 reply = pinger.Send(ServerIp, 400);
+                                if (reply.Status != IPStatus.Success)
+                                {
+                                    reply = pinger.Send(ServerIp, 800);
+                                }
                             }
                             if (reply.Status == IPStatus.Success)
                             {

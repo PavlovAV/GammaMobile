@@ -108,6 +108,35 @@ namespace gamma_mob
             return table;
         }
 
+        public static string FindDocOrderNomenclatureStoragePlaces(Guid docOrderId, Guid nomenclatureId, Guid characteristicId)
+        {
+            string result = null;
+            const string sql = "dbo.mob_FindDocOrderNomenclatureStoragePlaces";
+            var parameters = new List<SqlParameter>
+                {
+                    new SqlParameter("@DocOrderID", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = docOrderId
+                        },
+                    new SqlParameter("@NomenclatureId", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = nomenclatureId
+                        },
+                    new SqlParameter("@CharacteristicId", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = characteristicId
+                        }
+                };
+            using (DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure))
+            {
+                if (table != null && table.Rows.Count > 0)
+                {
+                    result = table.Rows[0].IsNull("ResultMessage") ? null : table.Rows[0]["ResultMessage"].ToString();
+                }
+            }
+            return result;
+        }
+
         public static string FindDocOrderItemPosition(Guid docOrderId, int lineNumber)
         {
             string result = null;
@@ -219,16 +248,21 @@ namespace gamma_mob
             return list;
         }
 
-        public static BindingList<MovementProduct> GetMovementProducts(int placeId)
+        public static BindingList<MovementProduct> GetMovementProducts(int placeId, Guid personId)
         {
             BindingList<MovementProduct> list = null;
-            const string sql = "dbo.mob_GetLastMovementProducts";
+            const string sql = "dbo.mob_GetLastMovementProductsForPerson";
             var parameters = new List<SqlParameter>
                 {
                     new SqlParameter("@PlaceIdTo", SqlDbType.Int)
                         {
                             Value = placeId
+                        },
+                    new SqlParameter("@PersonID", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = personId
                         }
+
                 };
             using (DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure))
             {
@@ -244,7 +278,8 @@ namespace gamma_mob
                             NomenclatureName = row["ShortNomenclatureName"].ToString(),
                             Quantity = Convert.ToDecimal(row["Quantity"]),
                             DocMovementId = new Guid(row["DocMovementID"].ToString()),
-                            Date = Convert.ToDateTime(row["Date"].ToString())
+                            Date = Convert.ToDateTime(row["Date"].ToString()),
+                            NumberAndInPlaceZone = row["NumberAndInPlaceZone"].ToString()
                         });
                     }
                 }
@@ -534,7 +569,8 @@ namespace gamma_mob
                             Convert.ToBoolean(table.Rows[0]["AlreadyAdded"]),
                         OutPlace = table.Rows[0].IsNull("OutPlace") ? "" : table.Rows[0]["OutPlace"].ToString(),
                         DocMovementId = !table.Rows[0].IsNull("DocMovementID") ? new Guid(table.Rows[0]["DocMovementID"].ToString()) : new Guid(),
-                        Date = table.Rows[0].IsNull("Date") ? DateTime.Now : Convert.ToDateTime(table.Rows[0]["Date"].ToString())
+                        Date = table.Rows[0].IsNull("Date") ? DateTime.Now : Convert.ToDateTime(table.Rows[0]["Date"].ToString()),
+                        NumberAndInPlaceZone = table.Rows[0]["NumberAndInPlaceZone"].ToString()
                     };
                 }
             }

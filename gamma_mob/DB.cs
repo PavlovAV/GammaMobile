@@ -337,8 +337,8 @@ namespace gamma_mob
                             Quantity = quantity,
                             CollectedQuantity = collectedQuantity,
                             ShortNomenclatureName = row["ShortNomenclatureName"].ToString(),
-                            CountProductSpools = Convert.ToInt32(row["CountProductSpools"]),
-                            CountProductSpoolsWithBreak = Convert.ToInt32(row["CountProductSpoolsWithBreak"]),
+                            CountProductSpools = table.Rows[0].IsNull("CountProductSpools") ? 0 : Convert.ToInt32(row["CountProductSpools"]),
+                            CountProductSpoolsWithBreak = table.Rows[0].IsNull("CountProductSpoolsWithBreak") ? 0 : Convert.ToInt32(row["CountProductSpoolsWithBreak"]),
                             CoefficientPackage = row.IsNull("CoefficientPackage") ? (int?)null : Convert.ToInt32(row["CoefficientPackage"]),
                             CoefficientPallet = row.IsNull("CoefficientPallet") ? (int?)null : Convert.ToInt32(row["CoefficientPallet"]),
                             //количество, пересчитанное в групповые упаковки для СГИ
@@ -464,8 +464,9 @@ namespace gamma_mob
                             CharacteristicId = new Guid(table.Rows[0]["CharacteristicID"].ToString()),
                             Quantity = Convert.ToDecimal(table.Rows[0]["Quantity"]),
                             ProductId = new Guid(table.Rows[0]["ProductID"].ToString()),
-                            CountProductSpools = Convert.ToInt16(table.Rows[0]["CountProductSpools"]),
-                            CountProductSpoolsWithBreak = Convert.ToInt16(table.Rows[0]["CountProductSpoolsWithBreak"])                        };
+                            CountProductSpools = table.Rows[0].IsNull("CountProductSpools") ? 0 : Convert.ToInt16(table.Rows[0]["CountProductSpools"]),
+                            CountProductSpoolsWithBreak = table.Rows[0].IsNull("CountProductSpoolsWithBreak") ? 0 : Convert.ToInt16(table.Rows[0]["CountProductSpoolsWithBreak"])
+                        };
                     }
                 }
             }
@@ -625,7 +626,7 @@ namespace gamma_mob
             {
                 if (table != null && table.Rows.Count > 0)
                 {
-                    countProductSpools = Convert.ToInt32(table.Rows[0]["CountProductSpools"]);
+                    countProductSpools = table.Rows[0].IsNull("CountProductSpools") ? 0 : Convert.ToInt32(table.Rows[0]["CountProductSpools"]);
                 }
             }
             return countProductSpools;

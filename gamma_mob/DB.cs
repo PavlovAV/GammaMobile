@@ -521,8 +521,8 @@ namespace gamma_mob
                             Quantity = Convert.ToDecimal(table.Rows[0]["Quantity"]),
                             NomenclatureName = table.Rows[0]["NomenclatureName"].ToString(),
                             ShortNomenclatureName = table.Rows[0]["ShortNomenclatureName"].ToString(),
-                            CountProductSpools = Convert.ToInt16(table.Rows[0]["CountProductSpools"]),
-                            CountProductSpoolsWithBreak = Convert.ToInt16(table.Rows[0]["CountProductSpoolsWithBreak"])
+                            CountProductSpools = table.Rows[0].IsNull("CountProductSpools") ? 0 : Convert.ToInt16(table.Rows[0]["CountProductSpools"]),
+                            CountProductSpoolsWithBreak = table.Rows[0].IsNull("CountProductSpoolsWithBreak") ? 0 : Convert.ToInt16(table.Rows[0]["CountProductSpoolsWithBreak"])
                         };
                     }
                 }

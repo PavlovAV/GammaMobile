@@ -30,7 +30,10 @@
         {
             this.tbrMain = new System.Windows.Forms.ToolBar();
             this.btnBack = new System.Windows.Forms.ToolBarButton();
+            this.btnInspect = new System.Windows.Forms.ToolBarButton();
+            this.btnRefresh = new System.Windows.Forms.ToolBarButton();
             this.btnUpload = new System.Windows.Forms.ToolBarButton();
+            this.btnInfoProduct = new System.Windows.Forms.ToolBarButton();
             this.edtNumber = new System.Windows.Forms.TextBox();
             this.btnAddProduct = new System.Windows.Forms.Button();
             this.gridDocAccept = new System.Windows.Forms.DataGrid();
@@ -41,7 +44,6 @@
             this.lblCollected = new System.Windows.Forms.Label();
             this.pnlSearch = new System.Windows.Forms.Panel();
             this.imgConnection = new System.Windows.Forms.PictureBox();
-            this.btnInfoProduct = new System.Windows.Forms.ToolBarButton();
             this.pnlInfo.SuspendLayout();
             this.pnlSearch.SuspendLayout();
             this.SuspendLayout();
@@ -49,6 +51,8 @@
             // tbrMain
             // 
             this.tbrMain.Buttons.Add(this.btnBack);
+            this.tbrMain.Buttons.Add(this.btnInspect);
+            this.tbrMain.Buttons.Add(this.btnRefresh);
             this.tbrMain.Buttons.Add(this.btnUpload);
             this.tbrMain.Buttons.Add(this.btnInfoProduct);
             this.tbrMain.Name = "tbrMain";
@@ -80,6 +84,7 @@
             this.gridDocAccept.RowHeadersVisible = false;
             this.gridDocAccept.Size = new System.Drawing.Size(638, 341);
             this.gridDocAccept.TabIndex = 4;
+            this.gridDocAccept.DoubleClick += new System.EventHandler(this.gridDocAccept_DoubleClick);
             // 
             // label1
             // 
@@ -169,5 +174,7 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label lblCollected;
         private System.Windows.Forms.ToolBarButton btnInfoProduct;
+        private System.Windows.Forms.ToolBarButton btnInspect;
+        private System.Windows.Forms.ToolBarButton btnRefresh;
     }
 }

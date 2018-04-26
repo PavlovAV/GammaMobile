@@ -12,5 +12,6 @@ namespace gamma_mob.Models
         public string ShortNomenclatureName { get; set; }
         public int CountProductSpools { get; set; }
         public int CountProductSpoolsWithBreak { get; set; }
+        public Guid QualityId { get; set; }
     }
 }

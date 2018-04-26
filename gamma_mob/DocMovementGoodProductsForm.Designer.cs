@@ -1,6 +1,6 @@
 ﻿namespace gamma_mob
 {
-    partial class DocShipmentGoodProductsForm
+    partial class DocMovementGoodProductsForm
     {
         /// <summary>
         /// Требуется переменная конструктора.
@@ -71,7 +71,7 @@
             this.lblNomenclature.Size = new System.Drawing.Size(238, 79);
             this.lblNomenclature.Text = "label1";
             // 
-            // DocShipmentGoodProductsForm
+            // DocMovementGoodProductsForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
@@ -79,7 +79,7 @@
             this.Controls.Add(this.gridProducts);
             this.Controls.Add(this.lblNomenclature);
             this.Controls.Add(this.tbrMain);
-            this.Name = "DocShipmentGoodProductsForm";
+            this.Name = "DocMovementGoodProductsForm";
             this.Text = "Продукция";
             this.ResumeLayout(false);
 

@@ -11,5 +11,13 @@ namespace gamma_mob.Models
         public bool Unloaded { get; set; }
         public int? PlaceId { get; set; }
         public Guid? PlaceZoneId { get; set; }
+        public Guid NomenclatureId { get; set; }
+        public Guid CharacteristicId { get; set; }
+        public Guid QualityId { get; set; }
+        public Guid MeasureUnitId { get; set; }
+        /// <summary>
+        /// Количество групповых упаковок для россыпи ( и только для россыпи)
+        /// </summary>
+        public int? Quantity { get; set; }
     }
 }

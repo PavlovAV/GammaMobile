@@ -14,5 +14,10 @@ namespace gamma_mob.Models
         public Guid? ProductId { get; set; }
         public DateTime? Date { get; set; }
         public string NumberAndInPlaceZone { get; set; }
+        public Guid NomenclatureId { get; set; }
+        public Guid CharacteristicId { get; set; }
+        public Guid QualityId { get; set; }
+        public string ShortNomenclatureName { get; set; }
+        public Guid? PlaceZoneId { get; set; }
     }
 }

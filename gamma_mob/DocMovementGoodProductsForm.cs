@@ -6,9 +6,9 @@ using gamma_mob.Dialogs;
 
 namespace gamma_mob
 {
-    public partial class DocShipmentGoodProductsForm : BaseForm
+    public partial class DocMovementGoodProductsForm : BaseForm
     {
-        protected DocShipmentGoodProductsForm()
+        protected DocMovementGoodProductsForm()
         {
             InitializeComponent();
             var tableStyle = new DataGridTableStyle();
@@ -38,7 +38,7 @@ namespace gamma_mob
 
         private RefreshDocOrderDelegate RefreshDocOrder;
 
-        public DocShipmentGoodProductsForm(Guid docShipmentOrderId, Guid nomenclatureId, string nomenclatureName
+        public DocMovementGoodProductsForm(Guid docShipmentOrderId, Guid nomenclatureId, string nomenclatureName
             , Guid characteristicId, Guid qualityId, Form parentForm)
             : this()
         {
@@ -56,7 +56,7 @@ namespace gamma_mob
             }
         }
 
-        public DocShipmentGoodProductsForm(Guid docShipmentOrderId, Guid nomenclatureId, string nomenclatureName
+        public DocMovementGoodProductsForm(Guid docShipmentOrderId, Guid nomenclatureId, string nomenclatureName
             , Guid characteristicId, Guid qualityId, Form parentForm, RefreshDocOrderDelegate refreshDocOrder)
             : this()
         {
@@ -75,7 +75,7 @@ namespace gamma_mob
             }
         }
         
-        public DocShipmentGoodProductsForm(Guid docShipmentOrderId, Guid nomenclatureId, string nomenclatureName
+        public DocMovementGoodProductsForm(Guid docShipmentOrderId, Guid nomenclatureId, string nomenclatureName
             , Guid characteristicId, Guid qualityId, Form parentForm, DocDirection docDirection, RefreshDocOrderDelegate refreshDocOrder)
             : this()
         {

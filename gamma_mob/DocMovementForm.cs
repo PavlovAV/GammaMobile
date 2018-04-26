@@ -12,6 +12,7 @@ using OpenNETCF.Windows.Forms;
 using gamma_mob.Common;
 using gamma_mob.Dialogs;
 using gamma_mob.Models;
+using gamma_mob.CustomDataGrid;
 
 namespace gamma_mob
 {
@@ -40,48 +41,33 @@ namespace gamma_mob
                 };
             AcceptedProducts = new BindingList<MovementProduct>();
 
-            var bsource = new BindingSource {DataSource = AcceptedProducts};
+            GetLastMovementProducts();
 
-            gridDocAccept.DataSource = bsource;
-
-            var tableStyle = new DataGridTableStyle {MappingName = bsource.GetListName(null)};
-            tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
-                {
-                    HeaderText = "Номер",
-                    MappingName = "NumberAndInPlaceZone",
-                    Width = 94
-                });
+            var tableStyle = new DataGridTableStyle {MappingName = BSource.GetListName(null)};
             tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
                 {
                     HeaderText = "Номенклатура",
-                    MappingName = "NomenclatureName",
-                    Width = 100
+                    MappingName = "ShortNomenclatureName",
+                    Width = 135
                 });
             tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
                 {
                     HeaderText = "Кол-во",
-                    MappingName = "Quantity",
+                    MappingName = "CollectedQuantityComputedColumn",
                     Width = 38,
                     Format = "0.###"
                 });
-/*            tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
-                {
-                    HeaderText = "Склад",
-                    MappingName = "PlaceTo",
-                    Width = 40
-                });
- */
             gridDocAccept.TableStyles.Add(tableStyle);
-            GetLastMovementProducts(bsource);
+            Barcodes1C = Db.GetBarcodes1C();
         }
-
-//        private MovementType MovementType { get; set; }
 
         private EndPointInfo EndPointInfo { get; set; }
         private List<OfflineProduct> OfflineProducts { get; set; }
         private string FileName { get; set; }
         private BindingList<MovementProduct> AcceptedProducts { get; set; }
-
+        private BindingList<ChooseNomenclatureItem> Barcodes1C { get; set; }
+        private BindingSource BSource { get; set; }
+        private List<Barcodes> Barcodes { get; set; }
         private void btnAddProduct_Click(object sender, EventArgs e)
         {
             AddProductByBarcode(edtNumber.Text, false);
@@ -98,6 +84,19 @@ namespace gamma_mob
             ConnectionState.StartChecker();
             AddOfflineProduct(barCode, placeId, placeZoneId);
             Invoke((ConnectStateChangeInvoker) (ShowConnection), new object[] {ConnectState.NoConnection});
+        }
+
+        /// <summary>
+        ///     Добавление шк к буферу
+        /// </summary>
+        /// <param name="barCode">Штрихкод</param>
+        /// <param name="placeId"></param>
+        /// <param name="placeZoneId"></param>
+        private void AddOfflineBarcode(string barCode, int placeId, Guid? placeZoneId, Guid nomenclatureId, Guid characteristicId, Guid qualityId, int quantity)
+        {
+            ConnectionState.StartChecker();
+            AddOfflineProduct(barCode, placeId, placeZoneId, nomenclatureId, characteristicId, qualityId, quantity);
+            Invoke((ConnectStateChangeInvoker)(ShowConnection), new object[] { ConnectState.NoConnection });
         }
 
         private void ShowConnection(ConnectState conState)
@@ -138,6 +137,26 @@ namespace gamma_mob
             SaveToXml(OfflineProducts);
         }
 
+        private void AddOfflineProduct(string barcode, int placeId, Guid? placeZoneId, Guid nomenclatureId, Guid characteristicId, Guid qualityId, int quantity)
+        {
+            if (OfflineProducts == null) OfflineProducts = new List<OfflineProduct>();
+            OfflineProducts.Add(new OfflineProduct
+            {
+                Barcode = barcode,
+                PersonId = Shared.PersonId,
+                PlaceId = placeId,
+                PlaceZoneId = placeZoneId,
+                NomenclatureId = nomenclatureId,
+                CharacteristicId = characteristicId,
+                QualityId = qualityId,
+                Quantity = quantity
+            });
+            Invoke(
+                (MethodInvoker)
+                (() => lblBufferCount.Text = OfflineProducts.Count.ToString(CultureInfo.InvariantCulture)));
+            SaveToXml(OfflineProducts);
+        }
+
         /// <summary>
         ///     Сохранение буферных шк в файл
         /// </summary>
@@ -165,45 +184,119 @@ namespace gamma_mob
         /// <param name="fromBuffer">ШК из буфера невыгруженных</param>
         private void AddProductByBarcode(string barcode, bool fromBuffer)
         {
+            AddProductByBarcode(barcode, fromBuffer, new Guid(), new Guid(), new Guid(), null);
+        }
+
+        private void AddProductByBarcode(string barcode, bool fromBuffer, Guid nomenclatureId, Guid characteristicId, Guid qualityId, int? quantity)
+        {
             OfflineProduct offlineProduct = null;
             if (fromBuffer)
                 offlineProduct = OfflineProducts.FirstOrDefault(p => p.Barcode == barcode);
             else
             {
-                var acceptedProduct = AcceptedProducts.OrderByDescending(p => p.Date)
-                    .FirstOrDefault(p => p.Barcode == barcode || p.Number == barcode);
+                Barcodes acceptedProduct = null;
+                if (Barcodes != null)
+                    acceptedProduct = Barcodes.FirstOrDefault(p => p.Barcode == barcode);// & (p.ProductKindId == null || p.ProductKindId != 3));
                 if (acceptedProduct != null)
+                    if (acceptedProduct.ProductKindId == null || acceptedProduct.ProductKindId != 3)
                 {
-                    if (!(acceptedProduct.DocIsConfirmed??false))
-                    {
                         var dialogResult = MessageBox.Show(string.Format("Вы хотите отменить последнее перемещение продукта с шк {0}?", barcode)
                         , @"Операция с продуктом",
                         MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
                         if (dialogResult == DialogResult.Yes)
                         {
-                            CancelLastMovement(barcode, acceptedProduct.SourcePlace, acceptedProduct.DocMovementId, false);
+                            CancelLastMovement(barcode, null, null, false);
                             return;
                         }
-                        if (dialogResult != DialogResult.No)
+                        if (dialogResult != DialogResult.Cancel)
                         {
                             return;
                         }
-                    }
                 }
                 if (!SetPlaceZoneId(EndPointInfo)) return;
             }
+            
             if (!ConnectionState.CheckConnection())
             {
                 if (!fromBuffer)
                     AddOfflineBarcode(barcode, EndPointInfo.PlaceId, EndPointInfo.PlaceZoneId);
                 return;
             }           
+            
             Cursor.Current = Cursors.WaitCursor;
-            var acceptResult = Db.MoveProduct(Shared.PersonId, barcode, EndPointInfo);
+            
+            DbProductIdFromBarcodeResult getProductResult = Db.GetProductIdFromBarcodeOrNumber(barcode);
+            if (getProductResult == null)
+            {
+                if (!fromBuffer)
+                    AddOfflineBarcode(barcode, EndPointInfo.PlaceId, EndPointInfo.PlaceZoneId);
+                return;
+            }
+            if (getProductResult.ProductKindId == null || (getProductResult.ProductKindId != 3 && (getProductResult.ProductId == null || getProductResult.ProductId == Guid.Empty)))
+            {
+                MessageBox.Show(@"Продукция не найдена по ШК!", @"Продукция не найдена",
+                                MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
+                if (offlineProduct != null && fromBuffer)
+                {
+                    offlineProduct.ResultMessage = @"Продукция не найдена по ШК!";
+                    offlineProduct.Unloaded = true;
+                }
+                return;
+            }
+            if (getProductResult.ProductKindId == 3 && (getProductResult.ProductId == null || getProductResult.ProductId == Guid.Empty))
+            {
+                if (!(nomenclatureId == null || nomenclatureId == Guid.Empty || characteristicId == null || characteristicId == Guid.Empty || qualityId == null || qualityId == Guid.Empty || quantity == null))
+                {
+                    getProductResult.NomenclatureId = nomenclatureId;
+                    getProductResult.CharacteristicId = characteristicId;
+                    getProductResult.QualityId = qualityId;
+                    getProductResult.CountProducts = (int)quantity;
+                }
+                else
+                {
+                    if (getProductResult.NomenclatureId == null || getProductResult.NomenclatureId == Guid.Empty || getProductResult.CharacteristicId == null || getProductResult.CharacteristicId == Guid.Empty || getProductResult.QualityId == null || getProductResult.QualityId == Guid.Empty)
+                    {
+                        using (var form = new ChooseNomenclatureCharacteristicDialog(barcode, Barcodes1C))
+                        {
+                            DialogResult result = form.ShowDialog();
+                            Invoke((MethodInvoker)Activate);
+                            if (result != DialogResult.OK || form.NomenclatureId == null || form.CharacteristicId == null || form.QualityId == null)
+                            {
+                                MessageBox.Show(@"Не выбран продукт. Продукт не добавлен!", @"Продукт не добавлен",
+                                                MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
+                                return;
+                            }
+                            else
+                            {
+                                getProductResult.NomenclatureId = form.NomenclatureId;
+                                getProductResult.CharacteristicId = form.CharacteristicId;
+                                getProductResult.QualityId = form.QualityId;
+                            }
+                        }
+                    }
+                    using (var form = new SetCountProductsDialog())
+                    {
+                        DialogResult result = form.ShowDialog();
+                        Invoke((MethodInvoker)Activate);
+                        if (result != DialogResult.OK || form.Quantity == null)
+                        {
+                            MessageBox.Show(@"Не указано количество продукта. Продукт не добавлен!", @"Продукт не добавлен",
+                                            MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
+                            return;
+                        }
+                        else
+                        {
+                            getProductResult.CountProducts = form.Quantity;
+                        }
+                    }
+                }
+            }
+
+            var acceptResult = Db.MoveProduct(Shared.PersonId, getProductResult.ProductId, EndPointInfo, getProductResult.ProductKindId, getProductResult.NomenclatureId, getProductResult.CharacteristicId, getProductResult.QualityId, getProductResult.CountProducts);
             if (!Shared.LastQueryCompleted)
                 {
                     if (!fromBuffer)
-                        AddOfflineBarcode(barcode, EndPointInfo.PlaceId, EndPointInfo.PlaceZoneId);
+                        AddOfflineBarcode(barcode, EndPointInfo.PlaceId, EndPointInfo.PlaceZoneId, getProductResult.NomenclatureId, getProductResult.CharacteristicId, getProductResult.QualityId, getProductResult.CountProducts);
                     return;
                 }
             if (acceptResult == null)
@@ -211,6 +304,7 @@ namespace gamma_mob
                 MessageBox.Show(@"Не удалось переместить продукцию на склад");
                 return;
             }
+            //надо подумать - никогда не сработает - DocMovementId всегда null
             if (acceptResult.AlreadyAdded && acceptResult.DocMovementId != null)
             {
                 CancelLastMovement(barcode, acceptResult.OutPlace, (Guid)acceptResult.DocMovementId, true);
@@ -226,9 +320,8 @@ namespace gamma_mob
                 Invoke((UpdateGridInvoker) (UpdateGrid),
                     new object[]
                                {
-                                   acceptResult.NomenclatureName, acceptResult.Number, acceptResult.Quantity
-                                   , true, barcode, acceptResult.OutPlace, acceptResult.ProductId, acceptResult.DocMovementId,
-                                   acceptResult.Date, acceptResult.NumberAndInPlaceZone
+                                    acceptResult.NomenclatureId, acceptResult.CharacteristicId, acceptResult.QualityId, acceptResult.NomenclatureName, acceptResult.ShortNomenclatureName, acceptResult.PlaceZoneId,  acceptResult.Quantity
+                                   , true, barcode, getProductResult.ProductKindId
                                });
             }
             else
@@ -279,49 +372,70 @@ namespace gamma_mob
             }
         }
 
-        private void GetLastMovementProducts(BindingSource bSource)
+        private bool GetLastMovementProducts()
         {
-            BindingList<MovementProduct> list = Db.GetMovementProducts(EndPointInfo.PlaceId, Shared.PersonId);
-            if (!Shared.LastQueryCompleted || list == null)
+            BindingList<MovementProduct> list = Db.GetMovementProductsList(EndPointInfo.PlaceId, Shared.PersonId);
+            if (!Shared.LastQueryCompleted )//|| list == null)
             {
                 // MessageBox.Show(@"Не удалось получить информацию о текущем документе");
-                return;
+                return false;
             }
-            AcceptedProducts = list;
-            Collected = list.Count;
-            if (bSource == null)
-                bSource = new BindingSource { DataSource = AcceptedProducts };
+            if (list != null)
+                AcceptedProducts = list;
+            if (BSource == null)
+                BSource = new BindingSource {DataSource = AcceptedProducts};
             else
             {
-                bSource.DataSource = AcceptedProducts;
+                BSource.DataSource = AcceptedProducts;
             }
-            gridDocAccept.DataSource = bSource;
+            gridDocAccept.DataSource = BSource;
+            
+            Barcodes = Db.GetCurrentMovementBarcodes(EndPointInfo.PlaceId, Shared.PersonId);
+            
+            //Collected = list.Count;
+            Collected = 0;
+            if (Barcodes != null)
+            {
+                foreach (Barcodes item in Barcodes)
+                {
+                    Collected += (item.ProductKindId == 3) ? 0 : 1;
+                }
+            }
+            else
+            {
+                Barcodes = new List<Barcodes>();
+            }
+            return true;
         }
 
-        private void CancelLastMovement(string barcode, string outPlace, Guid docMovementId, bool showWarningMessage)
+        private void CancelLastMovement(string barcode, string outPlace, Guid? docMovementId, bool showWarningMessage)
         {
             OfflineProduct offlineProduct = null;
             if (OfflineProducts != null)
                 offlineProduct = OfflineProducts.FirstOrDefault(p => p.Barcode == barcode);
-//            DialogResult dlgResult = MessageBox.Show(
-//                string.Format("Вернуть продукт с шк {0} на передел {1}", barcode, outPlace),
-//                @"Возврат продукта", MessageBoxButtons.YesNo, MessageBoxIcon.Question,
-//                MessageBoxDefaultButton.Button1);
             if (!showWarningMessage || MessageBox.Show(
                             string.Format("Вернуть продукт с шк {0} на передел {1}", barcode, outPlace),
                             @"Возврат продукта", MessageBoxButtons.YesNo, MessageBoxIcon.Question,
                             MessageBoxDefaultButton.Button1) == DialogResult.Yes)
             {
-                var delResult = Db.DeleteProductFromMovement(barcode, docMovementId, DocDirection.DocOutIn);
-                if (string.IsNullOrEmpty(delResult.ResultMessage))
+                DbOperationProductResult delResult = null;
+                if (docMovementId == null)
+                {
+                    delResult = Db.DeleteLastProductFromMovement(barcode, EndPointInfo.PlaceId, Shared.PersonId, DocDirection.DocOutIn);
+                }
+                else
+                {
+                    delResult = Db.DeleteProductFromMovement(barcode, (Guid)docMovementId, DocDirection.DocOutIn);
+                }
+                if (delResult != null & string.IsNullOrEmpty(delResult.ResultMessage))
                 {
                     if (offlineProduct != null) offlineProduct.Unloaded = true;
-                    var product = AcceptedProducts.FirstOrDefault(p => p.Barcode == barcode || p.Number == barcode);
-                    if (product != null)
+                    var barcodesItem = Barcodes.FirstOrDefault(p => p.Barcode == barcode);// || p.Number == barcode);
+                    if (barcodesItem != null)
                     {
                         if (delResult.DocIsConfirmed)
                         {
-                            product.DocIsConfirmed = true;
+                            //delResult.DocIsConfirmed = true;
                             MessageBox.Show(
                                 @"Перемещение уже подтверждено. Удалять продукт из подтвержденного перемещения нельзя",
                                 @"Ошибка удаления", MessageBoxButtons.OK, MessageBoxIcon.Asterisk,
@@ -331,9 +445,8 @@ namespace gamma_mob
                         Invoke((UpdateGridInvoker)(UpdateGrid),
                                new object[]
                                    {
-                                       product.NomenclatureName, product.Number, product.Quantity
-                                       , false, product.Barcode, product.SourcePlace, product.ProductId,
-                                       product.DocMovementId, product.Date, @""
+                                       delResult.Product.NomenclatureId, delResult.Product.CharacteristicId, delResult.Product.QualityId, delResult.Product.NomenclatureName, delResult.Product.ShortNomenclatureName, delResult.PlaceZoneId, delResult.Product.Quantity
+                                       , false, barcodesItem.Barcode, barcodesItem.ProductKindId
                                    });
                     }
                 }
@@ -355,12 +468,16 @@ namespace gamma_mob
         /// </summary>
         private void UnloadOfflineProducts()
         {
-            Invoke((ConnectStateChangeInvoker) (ShowConnection), new object[] {ConnectState.NoConInProgress});
+            UIServices.SetBusyState(this);
+            Invoke((ConnectStateChangeInvoker)(ShowConnection), new object[] { ConnectState.NoConInProgress });
             string message = "";
             string resultMessage = "";
             foreach (OfflineProduct offlineProduct in OfflineProducts.ToList())
             {
-                AddProductByBarcode(offlineProduct.Barcode, true);
+                if (offlineProduct.NomenclatureId == null || offlineProduct.NomenclatureId == Guid.Empty)
+                    AddProductByBarcode(offlineProduct.Barcode, true);
+                else
+                    AddProductByBarcode(offlineProduct.Barcode, true, offlineProduct.NomenclatureId, offlineProduct.CharacteristicId, offlineProduct.QualityId, (int?)offlineProduct.Quantity);
             }
             List<OfflineProduct> tempList = OfflineProducts.Where(p => p.Unloaded).ToList();
             int unloaded = tempList.Count(p => p.ResultMessage == string.Empty);
@@ -389,6 +506,7 @@ namespace gamma_mob
             if (OfflineProducts.Count > 0)
                 ConnectionState.StartChecker();
             SaveToXml(OfflineProducts);
+            UIServices.SetNormalState(this);
         }
 
         protected override void FormLoad(object sender, EventArgs e)
@@ -397,7 +515,9 @@ namespace gamma_mob
             ImgList = Shared.ImgList;
             tbrMain.ImageList = ImgList;
             btnBack.ImageIndex = (int) Images.Back;
-            btnUpload.ImageIndex = (int) Images.UploadToDb;
+            btnInspect.ImageIndex = (int)Images.Inspect;
+            btnRefresh.ImageIndex = (int)Images.Refresh;
+            btnUpload.ImageIndex = (int)Images.UploadToDb;
             btnInfoProduct.ImageIndex = (int)Images.InfoProduct;
             BarcodeFunc = BarcodeReaction;
 
@@ -427,29 +547,103 @@ namespace gamma_mob
             AddProductByBarcode(barcode, false);
         }
 
-        private void UpdateGrid(string nomenclatureName, string number, decimal quantity, bool add, string barcode,
-                                string sourcePlace, Guid productId, Guid docMovementId, DateTime date, string numberAndInPlaceZone)
+        private bool DeleteProductByBarcode(string barcode, string outPlace, Guid docMovementId, bool showWarningMessage)
         {
+            bool result = false;
+            DialogResult dlgresult = MessageBox.Show(@"Вы хотите отменить последнее перемещение продукта с шк: " + barcode+@" и вернуть на передел "+ outPlace +"?",
+                                                     @"Операция с продуктом",
+                                                     MessageBoxButtons.YesNo, MessageBoxIcon.Question,
+                                                     MessageBoxDefaultButton.Button1);
+            if (dlgresult == DialogResult.Yes)
+            {
+                var deleteResult = Db.DeleteProductFromMovement(barcode, docMovementId, DocDirection.DocOutIn);
+                if (deleteResult == null) return false;
+                if (string.IsNullOrEmpty(deleteResult.ResultMessage) && Shared.LastQueryCompleted)
+                {
+                    result = true;
+                    //Barcodes.Remove(barcode);
+                    Barcodes.RemoveAll(b => b.Barcode == barcode);
+
+                    var product = deleteResult.Product;
+                    //var product = AcceptedProducts.FirstOrDefault(p => p.Barcode == barcode || p.Number == barcode);
+                    
+                    if (product != null)
+                    {
+                        if (deleteResult.DocIsConfirmed)
+                        {
+                            //product.DocIsConfirmed = true;
+                            MessageBox.Show(
+                                @"Перемещение уже подтверждено. Удалять продукт из подтвержденного перемещения нельзя",
+                                @"Ошибка удаления", MessageBoxButtons.OK, MessageBoxIcon.Asterisk,
+                                MessageBoxDefaultButton.Button1);
+                            return true;
+                        }
+                        Invoke((UpdateGridInvoker) (UpdateGrid),
+                               new object[]
+                                   {
+                                       product.NomenclatureId, product.CharacteristicId, product.QualityId, product.NomenclatureName, product.ShortNomenclatureName, deleteResult.PlaceZoneId, product.Quantity
+                                       , false, barcode, deleteResult.ProductKindId
+                                   });
+                    }
+                }                
+            }
+            else result = true;
+            return result;
+        }
+
+        private void UpdateGrid(Guid nomenclatureId, Guid characteristicId, Guid qualityId, string nomenclatureName, string shortNomenclatureName, Guid? placeZoneId, decimal quantity, bool add, string barcode,
+                                int? productKindId)
+        {
+            MovementProduct good = null;
+            good = AcceptedProducts.FirstOrDefault(
+                    g => g.NomenclatureId == nomenclatureId && g.CharacteristicId == characteristicId && g.QualityId == qualityId && g.PlaceZoneId == placeZoneId);
+            if (good == null)
+            {
+                good = new MovementProduct
+                {
+                    NomenclatureId = nomenclatureId,
+                    CharacteristicId = characteristicId,
+                    QualityId = qualityId,
+                    NomenclatureName = nomenclatureName,
+                    ShortNomenclatureName = shortNomenclatureName,
+                    PlaceZoneId = placeZoneId,
+                    CollectedQuantity = 0,
+                    CoefficientPackage = null,
+                    CoefficientPallet = null
+                };
+                AcceptedProducts.Add(good);
+                BSource.DataSource = AcceptedProducts;
+            }
             if (!add)
             {
-                AcceptedProducts.Remove(AcceptedProducts.FirstOrDefault(p => p.Number == number));
-                Collected--;
+                good.CollectedQuantity -= quantity;
+                if (productKindId == null || productKindId != 3)
+                {
+                    Collected--;
+                    Barcodes.RemoveAll(b => b.Barcode == barcode);
+                }
+                if (good.CollectedQuantity == 0)
+                    AcceptedProducts.Remove(good);
             }
             else
             {
-                AcceptedProducts.Insert(0, new MovementProduct
+                good.CollectedQuantity += quantity;
+                if (productKindId == null || productKindId != 3) 
                 {
-                    NomenclatureName = nomenclatureName,
-                    Number = number,
-                    Quantity = quantity,
-                    Barcode = barcode,
-                    SourcePlace = sourcePlace,
-                    ProductId = productId,
-                    DocMovementId = docMovementId,
-                    Date = date,
-                    NumberAndInPlaceZone = numberAndInPlaceZone
-                });
-                Collected++;
+                    Collected++;
+                    Barcodes.Add(new Barcodes
+                    {
+                        Barcode = barcode,
+                        ProductKindId = productKindId
+                    });
+                }
+            }
+            gridDocAccept.UnselectAll();
+            int index = AcceptedProducts.IndexOf(good);
+            if (index > 0)
+            {
+                gridDocAccept.CurrentRowIndex = index;
+                gridDocAccept.Select(index);
             }
             Activate();
         }
@@ -462,10 +656,16 @@ namespace gamma_mob
                     Close();
                     break;
                 case 1:
+                    OpenDetails();
+                    break;
+                case 2:
+                    RefreshDocMovementProducts(new Guid());
+                    break;
+                case 3:
                     if (OfflineProducts.Count > 0)
                         UnloadOfflineProducts();
                     break;
-                case 2:
+                case 4:
                     var InfoProduct = new InfoProductForm(this);
                     BarcodeFunc = null;
                     DialogResult result = InfoProduct.ShowDialog();
@@ -474,10 +674,40 @@ namespace gamma_mob
             }
         }
 
+        private void gridDocAccept_DoubleClick(object sender, EventArgs e)
+        {
+            OpenDetails();
+        }
+
+        private void OpenDetails()
+        {
+            if (!ConnectionState.CheckConnection())
+            {
+                MessageBox.Show(@"Нет связи с сервером" + Environment.NewLine + ConnectionState.GetConnectionState());
+                return;
+            }
+            var good = AcceptedProducts[gridDocAccept.CurrentRowIndex];
+            var form = new DocMovementProductsForm(EndPointInfo.PlaceId, Shared.PersonId, good.NomenclatureId, good.NomenclatureName, good.CharacteristicId, good.QualityId, good.PlaceZoneId, this, new RefreshDocProductDelegate(RefreshDocMovementProducts));
+            if (!form.IsDisposed)
+            {
+                form.Show();
+                if (form.Enabled)
+                    Hide();
+            }
+        }
+
+        private void RefreshDocMovementProducts(Guid docId)
+        {
+            if (!GetLastMovementProducts())
+            {
+                MessageBox.Show(@"Не удалось получить информацию о документе");
+                Close();
+                return;
+            }
+        }
         private delegate void ConnectStateChangeInvoker(ConnectState state);
 
-        private delegate void UpdateGridInvoker(string nomenclatureName, string number
-                                                , decimal quantity, bool add, string barcode, string sourcePlace, Guid productId,
-                                                Guid docMovementId, DateTime date, string numberAndInPlaceZone);
+        private delegate void UpdateGridInvoker(Guid nomenclatureId, Guid characteristicId, Guid qualityId, string nomenclatureName, string shortNomenclatureName, Guid? placeZoneId, 
+                                                decimal quantity, bool add, string barcode, int? productKindId);
     }
 }

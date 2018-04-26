@@ -10,5 +10,7 @@ namespace gamma_mob.Models
         public string ShortNomenclatureName { get; set; }
         public decimal Quantity { get; set; }
         public string ResultMessage { get; set; }
+        public Guid? QualityId { get; set; }
+        
     }
 }

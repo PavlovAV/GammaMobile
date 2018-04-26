@@ -11,6 +11,7 @@ using System.Xml.Serialization;
 using OpenNETCF.Windows.Forms;
 using gamma_mob.Common;
 using gamma_mob.Models;
+using gamma_mob.Dialogs;
 
 namespace gamma_mob
 {
@@ -61,9 +62,7 @@ namespace gamma_mob
                     Width = 50
                 });
             gridInventarisation.TableStyles.Add(tableStyle);
-
-            Barcodes = Db.CurrentInventarisationBarcodes(DocInventarisationId);
-            Collected = Barcodes.Count;
+            Barcodes1C = Db.GetBarcodes1C();
         }
 
         private int Collected
@@ -81,12 +80,15 @@ namespace gamma_mob
         private bool RefreshProducts(Guid docInventarisationId)
         {
             BindingList<DocNomenclatureItem> list = Db.InventarisationProducts(docInventarisationId);
-            if (!Shared.LastQueryCompleted || list == null)
+            if (!Shared.LastQueryCompleted)// || list == null)
             {
                 // MessageBox.Show(@"Не удалось получить информацию о текущем документе");
                 return false;
             }
-            NomenclatureList = list;
+            if (list != null)
+                NomenclatureList = list;
+            else
+                NomenclatureList = new BindingList<DocNomenclatureItem>();
             if (BSource == null)
                 BSource = new BindingSource { DataSource = NomenclatureList };
             else
@@ -94,6 +96,20 @@ namespace gamma_mob
                 BSource.DataSource = NomenclatureList;
             }
             gridInventarisation.DataSource = BSource;
+
+            Barcodes = Db.GetCurrentInventarisationBarcodes(DocInventarisationId);
+            //Barcodes = Db.CurrentInventarisationBarcodes(DocInventarisationId);
+            //Collected = Barcodes.Count;
+            Collected = 0;
+            if (Barcodes != null)
+            {
+                foreach (Barcodes item in Barcodes)
+                {
+                    Collected += (item.ProductKindId == 3) ? 0 : 1;
+                }
+            }
+            else
+                Barcodes = new List<Barcodes>();
             return true;
         }
 
@@ -233,7 +249,13 @@ namespace gamma_mob
             }
         }
 
+
         private void AddProductByBarcode(string barcode, bool fromBuffer)
+        {
+            AddProductByBarcode(barcode, fromBuffer, new Guid(), new Guid(), new Guid(), null);
+        }
+        
+        private void AddProductByBarcode(string barcode, bool fromBuffer, Guid nomenclatureId, Guid characteristicId, Guid qualityId, int? quantity)
         {
             var offlineProduct = OfflineProducts.FirstOrDefault(p => p.Barcode == barcode);
             if (!ConnectionState.CheckConnection())
@@ -242,7 +264,7 @@ namespace gamma_mob
                     AddOfflineBarcode(barcode);
                 return;
             }
-            if (Barcodes.Contains(barcode))
+            if (Barcodes.Any(b => b.Barcode == barcode & (b.ProductKindId == null || b.ProductKindId != 3)))
             {
                 if (offlineProduct == null)
                     MessageBox.Show(@"Данный продукт уже отмечен");
@@ -253,7 +275,74 @@ namespace gamma_mob
                 };
                 return;
             }
-            var addResult = Db.AddProductToInventarisation(DocInventarisationId, barcode);
+            DbProductIdFromBarcodeResult getProductResult = Db.GetProductIdFromBarcodeOrNumber(barcode);
+            if (getProductResult == null)
+            {
+                if (!fromBuffer)
+                    AddOfflineBarcode(barcode);
+                return;
+            }
+            if (getProductResult.ProductKindId == null || (getProductResult.ProductKindId != 3 && (getProductResult.ProductId == null || getProductResult.ProductId == Guid.Empty)))
+            {
+                MessageBox.Show(@"Продукция не найдена по ШК!", @"Продукция не найдена",
+                                MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
+                if (offlineProduct != null && fromBuffer)
+                {
+                    offlineProduct.ResultMessage = @"Продукция не найдена по ШК!";
+                    offlineProduct.Unloaded = true;
+                }
+                return;
+            }
+            if (getProductResult.ProductKindId == 3 && (getProductResult.ProductId == null || getProductResult.ProductId == Guid.Empty))
+            {
+                if (!(nomenclatureId == null || nomenclatureId == Guid.Empty || characteristicId == null || characteristicId == Guid.Empty || qualityId == null || qualityId == Guid.Empty || quantity == null))
+                {
+                    getProductResult.NomenclatureId = nomenclatureId;
+                    getProductResult.CharacteristicId = characteristicId;
+                    getProductResult.QualityId = qualityId;
+                    getProductResult.CountProducts = (int)quantity;
+                }
+                else
+                {
+                    if (getProductResult.NomenclatureId == null || getProductResult.NomenclatureId == Guid.Empty || getProductResult.CharacteristicId == null || getProductResult.CharacteristicId == Guid.Empty || getProductResult.QualityId == null || getProductResult.QualityId == Guid.Empty)
+                    {
+                        using (var form = new ChooseNomenclatureCharacteristicDialog(barcode, Barcodes1C))
+                        {
+                            DialogResult result = form.ShowDialog();
+                            Invoke((MethodInvoker)Activate);
+                            if (result != DialogResult.OK || form.NomenclatureId == null || form.CharacteristicId == null || form.QualityId == null)
+                            {
+                                MessageBox.Show(@"Не выбран продукт. Продукт не добавлен!", @"Продукт не добавлен",
+                                                MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
+                                return;
+                            }
+                            else
+                            {
+                                getProductResult.NomenclatureId = form.NomenclatureId;
+                                getProductResult.CharacteristicId = form.CharacteristicId;
+                                getProductResult.QualityId = form.QualityId;
+                            }
+                        }
+                    }
+                    using (var form = new SetCountProductsDialog())
+                    {
+                        DialogResult result = form.ShowDialog();
+                        Invoke((MethodInvoker)Activate);
+                        if (result != DialogResult.OK || form.Quantity == null)
+                        {
+                            MessageBox.Show(@"Не указано количество продукта. Продукт не добавлен!", @"Продукт не добавлен",
+                                            MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
+                            return;
+                        }
+                        else
+                        {
+                            getProductResult.CountProducts = form.Quantity;
+                        }
+                    }
+                }
+            }
+            //var addResult = Db.AddProductToInventarisation(DocInventarisationId, barcode);
+            var addResult = Db.AddProductIdToInventarisation(DocInventarisationId, getProductResult.ProductId, getProductResult.ProductKindId, getProductResult.NomenclatureId, getProductResult.CharacteristicId, getProductResult.QualityId, getProductResult.CountProducts);
             if (addResult == null)
             {
                 if (!fromBuffer)
@@ -280,11 +369,16 @@ namespace gamma_mob
             if (addResult.ResultMessage == string.Empty && !addResult.AlreadyMadeChanges)
             {
                 var product = addResult.Product;
-                Barcodes.Add(barcode);
+                //Barcodes.Add(barcode);
+                Barcodes.Add(new Barcodes
+                {
+                    Barcode = barcode,
+                    ProductKindId = getProductResult.ProductKindId
+                });
                 if (product != null)
                     Invoke((UpdateInventarisationGridInvoker)(UpdateGrid),
-                           new object[] { product.NomenclatureId, product.CharacteristicId, product.NomenclatureName,
-                               product.ShortNomenclatureName, product.Quantity });
+                           new object[] { product.NomenclatureId, product.CharacteristicId, product.QualityId, product.NomenclatureName,
+                               product.ShortNomenclatureName, product.Quantity, getProductResult.ProductKindId });
             }
             else
             {
@@ -297,18 +391,19 @@ namespace gamma_mob
             offlineProduct.Unloaded = true;
         }
 
-        private void UpdateGrid(Guid nomenclatureId, Guid characteristicId, string nomenclatureName,
-                string shortNomenclatureName, decimal quantity)
+        private void UpdateGrid(Guid nomenclatureId, Guid characteristicId, Guid qualityId, string nomenclatureName,
+                string shortNomenclatureName, decimal quantity, int? productKindId)
         {
             DocNomenclatureItem good =
                 NomenclatureList.FirstOrDefault(
-                    g => g.NomenclatureId == nomenclatureId && g.CharacteristicId == characteristicId);
+                    g => g.NomenclatureId == nomenclatureId && g.CharacteristicId == characteristicId && g.QualityId == qualityId);
             if (good == null)
             {
                 good = new DocNomenclatureItem
                 {
                     NomenclatureId = nomenclatureId,
                     CharacteristicId = characteristicId,
+                    QualityId = qualityId,
                     NomenclatureName = nomenclatureName,
                     ShortNomenclatureName = shortNomenclatureName,
                     CollectedQuantity = 0
@@ -317,7 +412,7 @@ namespace gamma_mob
                 BSource.DataSource = NomenclatureList;
             }
             good.CollectedQuantity += quantity;
-            Collected++;
+            if (productKindId == null || productKindId != 3) Collected++;
             gridInventarisation.UnselectAll();
             int index = NomenclatureList.IndexOf(good);
             gridInventarisation.CurrentRowIndex = index;
@@ -348,8 +443,11 @@ namespace gamma_mob
             }
         }
 
-        private List<string> Barcodes { get; set; }
+        //private List<string> Barcodes { get; set; }
+        private List<Barcodes> Barcodes { get; set; }
         private List<OfflineProduct> OfflineProducts { get; set; }
+        private List<Barcodes1C> OfflineBarcodes1C { get; set; }
+        private BindingList<ChooseNomenclatureItem> Barcodes1C { get; set; }
 
         private void tbrMain_ButtonClick(object sender, ToolBarButtonClickEventArgs e)
         {
@@ -389,14 +487,24 @@ namespace gamma_mob
             if (row >= 0)
             {
                 var good = NomenclatureList[row];
-                var form = new DocInventarisationNomenclatureProductsForm(DocInventarisationId, good.NomenclatureId, good.NomenclatureName,
-                                                           good.CharacteristicId, this);
+                //var form = new DocInventarisationNomenclatureProductsForm(DocInventarisationId, good.NomenclatureId, good.NomenclatureName, good.CharacteristicId, good.QualityId, this);
+                var form = new DocInventarisationProductsForm(DocInventarisationId, good.NomenclatureId, good.NomenclatureName, good.CharacteristicId, good.QualityId, this, new RefreshDocProductDelegate(RefreshDocInventarisation));
                 if (!form.IsDisposed)
                 {
                     form.Show();
                     if (form.Enabled)
                         Hide();
                 }
+            }
+        }
+
+        private void RefreshDocInventarisation(Guid docId)
+        {
+            if (!RefreshProducts(docId))
+            {
+                MessageBox.Show(@"Не удалось получить информацию о документе");
+                Close();
+                return;
             }
         }
 

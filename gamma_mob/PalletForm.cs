@@ -158,24 +158,25 @@ namespace gamma_mob
             {
                 if (result != null)
                 Invoke((UpdateInventarisationGridInvoker)(UpdateGrid),
-                           new object[] { result.NomenclatureId, result.CharacteristicId, result.NomenclatureName, 
-                                result.ShortNomenclatureName, result.Quantity});
+                           new object[] { result.NomenclatureId, result.CharacteristicId, result.QualityId, result.NomenclatureName, 
+                                result.ShortNomenclatureName, result.Quantity, null});
             }
             UIServices.SetNormalState(this);
         }
 
-        private void UpdateGrid(Guid nomenclatureId, Guid characteristicId, string nomenclatureName,
-                string shortNomenclatureName, decimal quantity)
+        private void UpdateGrid(Guid nomenclatureId, Guid characteristicId, Guid qualityId, string nomenclatureName,
+                string shortNomenclatureName, decimal quantity, int? productKindId)
         {
             DocNomenclatureItem item =
                 Items.FirstOrDefault(
-                    g => g.NomenclatureId == nomenclatureId && g.CharacteristicId == characteristicId);
+                    g => g.NomenclatureId == nomenclatureId && g.CharacteristicId == characteristicId && g.QualityId == qualityId);
             if (item == null)
             {
                 item = new DocNomenclatureItem
                 {
                     NomenclatureId = nomenclatureId,
                     CharacteristicId = characteristicId,
+                    QualityId = qualityId,
                     NomenclatureName = nomenclatureName,
                     ShortNomenclatureName = shortNomenclatureName,
                     CollectedQuantity = 0,

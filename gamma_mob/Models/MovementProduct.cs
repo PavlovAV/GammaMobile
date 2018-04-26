@@ -1,19 +1,45 @@
 ﻿using System;
+using System.ComponentModel;
 
 namespace gamma_mob.Models
 {
     public class MovementProduct
     {
-        public string Number { get; set; }
+        private decimal _collectedQuantity;
+        public Guid NomenclatureId { get; set; }
+        public Guid CharacteristicId { get; set; }
+        public Guid QualityId { get; set; }
         public string NomenclatureName { get; set; }
-        public decimal Quantity { get; set; }
-        public string SourcePlace { get; set; }
-        public string PlaceTo { get; set; }
-        public string Barcode { get; set; }
-        public Guid ProductId { get; set; }
-        public Guid DocMovementId { get; set; }
-        public DateTime? Date { get; set; }
-        public bool? DocIsConfirmed { get; set; }
-        public string NumberAndInPlaceZone { get; set; }
+        public string ShortNomenclatureName { get; set; }
+        public Guid? PlaceZoneId { get; set; }
+        public int? ProductKindId { get; set; }
+        public int? CoefficientPackage { get; set; }
+        public int? CoefficientPallet { get; set; }
+        public string CollectedQuantityComputedColumn { get; set; }
+        public decimal CollectedQuantity
+        {
+            get { return _collectedQuantity; }
+            set
+            {
+                _collectedQuantity = value;
+                //количество, пересчитанное в групповые упаковки для СГИ
+                CollectedQuantityComputedColumn = ((CoefficientPackage == null || CoefficientPackage == 0) ? Convert.ToDecimal(value) : (Convert.ToDecimal(value) / Convert.ToInt32(CoefficientPackage))).ToString("0.###");
+                //NotifyPropertyChanged("CollectedQuantity");
+                NotifyPropertyChanged("CollectedQuantityComputedColumn");
+            }
+        }
+        #region Члены INotifyPropertyChanged
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void NotifyPropertyChanged(String info)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(info));
+            }
+        }
+
+        #endregion
     }
 }

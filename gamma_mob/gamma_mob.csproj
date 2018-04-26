@@ -94,6 +94,52 @@
     <Compile Include="Common\ButtonGuidId.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Common\DocProductsBaseForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Common\DocProductsBaseForm.Designer.cs">
+      <DependentUpon>DocProductsBaseForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DocMovementProductsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DocMovementProductsForm.Designer.cs">
+      <DependentUpon>DocMovementProductsForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DocMovementGoodProductsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DocMovementGoodProductsForm.Designer.cs">
+      <DependentUpon>DocMovementGoodProductsForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DocShipmentProductsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DocShipmentProductsForm.Designer.cs">
+      <DependentUpon>DocShipmentProductsForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="CustomDataGrid\DataGridFormatCellEventArgs.cs" />
+    <Compile Include="CustomDataGrid\FormattableTextBoxColumn.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Dialogs\ChooseNomenclatureCharacteristicDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\ChooseNomenclatureCharacteristicDialog.Designer.cs">
+      <DependentUpon>ChooseNomenclatureCharacteristicDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\SetCountProductsDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\SetCountProductsDialog.Designer.cs">
+      <DependentUpon>SetCountProductsDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DocInventarisationProductsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DocInventarisationProductsForm.Designer.cs">
+      <DependentUpon>DocInventarisationProductsForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="InfoProductForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -193,6 +239,10 @@
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Models\AddPalletItemResult.cs" />
+    <Compile Include="Models\Barcodes.cs" />
+    <Compile Include="Models\ChooseNomenclatureItem.cs" />
+    <Compile Include="Models\Barcodes1C.cs" />
+    <Compile Include="Models\DbProductIdFromBarcodeResult.cs" />
     <Compile Include="Models\DocInventarisation.cs" />
     <Compile Include="Models\MoveProductResult.cs" />
     <Compile Include="Models\DbOperationProductResult.cs" />
@@ -252,6 +302,22 @@
   <ItemGroup>
     <EmbeddedResource Include="Common\BaseForm.resx">
       <DependentUpon>BaseForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Common\DocProductsBaseForm.resx">
+      <DependentUpon>DocProductsBaseForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DocMovementGoodProductsForm.resx">
+      <DependentUpon>DocMovementGoodProductsForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\ChooseNomenclatureCharacteristicDialog.resx">
+      <DependentUpon>ChooseNomenclatureCharacteristicDialog.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\SetCountProductsDialog.resx">
+      <DependentUpon>SetCountProductsDialog.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="InfoProductForm.resx">

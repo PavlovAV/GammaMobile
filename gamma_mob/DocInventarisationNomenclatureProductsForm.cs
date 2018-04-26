@@ -28,11 +28,12 @@ namespace gamma_mob
         }
 
         public DocInventarisationNomenclatureProductsForm(Guid docInventarisationId, Guid nomenclatureId, string nomenclatureName
-            , Guid characteristicId, Form parentForm) : this()
+            , Guid characteristicId, Guid qualityId, Form parentForm)
+            : this()
         {
             lblNomenclature.Text = nomenclatureName;
             ParentForm = parentForm;
-            DataTable table = Db.DocInventarisationNomenclatureProducts(docInventarisationId, nomenclatureId, characteristicId);
+            DataTable table = Db.DocInventarisationNomenclatureProducts(docInventarisationId, nomenclatureId, characteristicId, qualityId);
             if (!Shared.LastQueryCompleted)
             {
                 MessageBox.Show(@"Не удалось получить информацию о продукции");

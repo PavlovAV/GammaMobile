@@ -10,6 +10,7 @@ namespace gamma_mob.Models
         public int CountProductSpoolsWithBreak { get; set; }
         public Guid NomenclatureId { get; set; }
         public Guid CharacteristicId { get; set; }
+        public Guid QualityId { get; set; }
         public string NomenclatureName { get; set; }
         public string ShortNomenclatureName { get; set; }
         public int LineNumber { get; set; }
@@ -17,6 +18,10 @@ namespace gamma_mob.Models
         public int? CoefficientPallet { get; set; }
         public string CollectedQuantityComputedColumn { get; set; }
         public decimal SpoolWithBreakPercentColumn { get; set; }
+        /// <summary>
+        ///     Признак превышения собранного количества для подсветки
+        /// </summary> 
+        public bool IsPercentCollectedExcess { get; set; }
 
         /// <summary>
         ///     Количество для сбора(может быть LoadToTop)
@@ -32,6 +37,14 @@ namespace gamma_mob.Models
                 //количество, пересчитанное в групповые упаковки для СГИ
                 CollectedQuantityComputedColumn = ((CoefficientPackage == null || CoefficientPackage == 0) ? Convert.ToDecimal(value) : (Convert.ToDecimal(value) / Convert.ToInt32(CoefficientPackage))).ToString("0.###");
                 SpoolWithBreakPercentColumn = (CountProductSpools == null || CountProductSpools == 0) ? 0 : (100 * Convert.ToDecimal(CountProductSpoolsWithBreak) / Convert.ToDecimal(CountProductSpools));
+                try
+                {
+                    IsPercentCollectedExcess = (Convert.ToDecimal(CollectedQuantityComputedColumn) > Convert.ToDecimal(Quantity));
+                }
+                catch
+                {
+                    IsPercentCollectedExcess = false;
+                }
                 //NotifyPropertyChanged("CollectedQuantity");
                 NotifyPropertyChanged("CollectedQuantityComputedColumn");
             }

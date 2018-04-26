@@ -12,6 +12,8 @@ using System.Drawing;
 using OpenNETCF.Windows.Forms;
 using gamma_mob.Common;
 using gamma_mob.Models;
+using gamma_mob.Dialogs;
+using gamma_mob.CustomDataGrid;
 
 namespace gamma_mob
 {
@@ -85,31 +87,40 @@ namespace gamma_mob
                     Format = "0.###"
                 });
              */
-            tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
+            FormattableTextBoxColumn CollectedQuantityComputedColumn = new FormattableTextBoxColumn
             {
                 HeaderText = "Собр",
                 MappingName = "CollectedQuantityComputedColumn",
                 Width = 37
-            });
+            };
+            tableStyle.GridColumnStyles.Add(CollectedQuantityComputedColumn);
+            CollectedQuantityComputedColumn.SetCellFormat += new FormatCellEventHandler(ColumnSetCellFormat);
+            /*tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
+            {
+                HeaderText = "Собр",
+                MappingName = "CollectedQuantityComputedColumn",
+                Width = 37
+            });*/
             tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
             {
                 HeaderText = "% обр",
                 MappingName = "SpoolWithBreakPercentColumn",
                 Width = 30,
-                Format = "0.#"
+                Format = "0.#",
+                NullText = ""
             });
             gridDocOrder.TableStyles.Add(tableStyle);
 
             MaxAllowedPercentBreak = maxAllowedPercentBreak;
 
-            Barcodes = Db.CurrentBarcodes(DocOrderId, DocDirection);
-            Collected = Barcodes.Count;
-            
-            CountNomenclatureExceedingMaxPercentWithBreak = 0;
-            foreach (DocNomenclatureItem item in NomenclatureList)
-            {
-                CountNomenclatureExceedingMaxPercentWithBreak += (item.SpoolWithBreakPercentColumn > Convert.ToDecimal(MaxAllowedPercentBreak)) ? 1 : 0;
-            }
+            Barcodes1C = Db.GetBarcodes1C();
+        }
+
+        // Устанавливаем цвет фона для ячейки Собрано при превышении собранного количества над требуемым!
+        private void ColumnSetCellFormat(object sender, DataGridFormatCellEventArgs e)
+        {
+            if ((e.Source.List[e.Row] as DocNomenclatureItem).IsPercentCollectedExcess)
+                e.BackBrush = new SolidBrush(Color.Red);
         }
 
         private OrderType OrderType { get; set; }
@@ -120,10 +131,14 @@ namespace gamma_mob
 
         private BindingList<DocNomenclatureItem> NomenclatureList { get; set; }
 
-        private List<string> Barcodes { get; set; }
+        //private List<string> Barcodes { get; set; }
+        private List<Barcodes> Barcodes { get; set; }
         private List<OfflineProduct> OfflineProducts { get; set; }
+        private List<Barcodes1C> OfflineBarcodes1C { get; set; }
+        private BindingList<ChooseNomenclatureItem> Barcodes1C { get; set; }
 
         private int MaxAllowedPercentBreak { get; set; }
+        public bool IsRefreshQuantity = false;
 
         /// <summary>
         ///     ID документа, по которому идет работа (основание)
@@ -198,6 +213,17 @@ namespace gamma_mob
             ConnectionState.StartChecker();
         }
 
+        /// <summary>
+        ///     Добавление шк россыпи к буферу
+        /// </summary>
+        /// <param name="barCode">Штрихкод</param>
+        private void AddOfflineBarcode(string barCode, Guid nomenclatureId, Guid characteristicId, Guid qualityId, int quantity)
+        {
+            AddOfflineProduct(barCode, nomenclatureId, characteristicId, qualityId, quantity);
+            Invoke((ConnectStateChangeInvoker)(ShowConnection), new object[] { ConnectState.NoConnection });
+            ConnectionState.StartChecker();
+        }
+        
         /*
                 /// <summary>
                 /// ID текущего документа Gamma
@@ -260,7 +286,7 @@ namespace gamma_mob
                         return;
                     }
                     var nomenclatureItem = NomenclatureList[gridDocOrder.CurrentRowIndex];
-                    var resultMessage = Db.FindDocOrderNomenclatureStoragePlaces(DocOrderId, nomenclatureItem.NomenclatureId, nomenclatureItem.CharacteristicId)
+                    var resultMessage = Db.FindDocOrderNomenclatureStoragePlaces(DocOrderId, nomenclatureItem.NomenclatureId, nomenclatureItem.CharacteristicId, nomenclatureItem.QualityId)
                                         ?? "Не удалось получить информацию о расположении продукции";
                     MessageBox.Show(resultMessage, @"Расположение продукции", MessageBoxButtons.OK,
                                     MessageBoxIcon.Question,
@@ -296,8 +322,8 @@ namespace gamma_mob
                 return;
             }
             var good = NomenclatureList[gridDocOrder.CurrentRowIndex];
-            var form = new DocShipmentGoodProductsForm(DocOrderId, good.NomenclatureId, good.NomenclatureName,
-                                                       good.CharacteristicId, this, DocDirection);
+            //var form = new DocShipmentGoodProductsForm(DocOrderId, good.NomenclatureId, good.NomenclatureName, good.CharacteristicId, good.QualityId, this, DocDirection, new RefreshDocOrderDelegate(RefreshDocOrder));
+            var form = new DocShipmentProductsForm(DocOrderId, good.NomenclatureId, good.NomenclatureName, good.CharacteristicId, good.QualityId, this, DocDirection, new RefreshDocProductDelegate(RefreshDocOrder));
             if (!form.IsDisposed)
             {
                 form.Show();
@@ -306,16 +332,28 @@ namespace gamma_mob
             }
         }
 
+        private void RefreshDocOrder(Guid docId)
+        {
+            if (!RefreshDocOrderGoods(docId))
+            {
+                MessageBox.Show(@"Не удалось получить информацию о документе");
+                Close();
+                return;
+            }
+        }
 
         private bool RefreshDocOrderGoods(Guid docId)
         {
             BindingList<DocNomenclatureItem> list = Db.DocNomenclatureItems(docId, OrderType, DocDirection);
-            if (!Shared.LastQueryCompleted || list == null)
+            if (!Shared.LastQueryCompleted)// || list == null)
             {
                // MessageBox.Show(@"Не удалось получить информацию о текущем документе");
                 return false;
             }
-            NomenclatureList = list;
+            if (list != null)
+                NomenclatureList = list;
+            else
+                NomenclatureList = new BindingList<DocNomenclatureItem>();
             if (BSource == null)
                 BSource = new BindingSource {DataSource = NomenclatureList};
             else
@@ -323,6 +361,28 @@ namespace gamma_mob
                 BSource.DataSource = NomenclatureList;
             }
             gridDocOrder.DataSource = BSource;
+            
+            Barcodes = Db.GetCurrentBarcodes(DocOrderId, DocDirection);
+            //Barcodes = Db.CurrentBarcodes(DocOrderId, DocDirection);
+            //Collected = Barcodes.Count;
+            Collected = 0;
+            if (Barcodes != null)
+            {
+                foreach (Barcodes item in Barcodes)
+                {
+                    Collected += (item.ProductKindId == 3) ? 0 : 1;
+                }
+            }
+            else
+                Barcodes = new List<Barcodes>();
+            CountNomenclatureExceedingMaxPercentWithBreak = 0;
+            if (NomenclatureList != null)
+            {
+                foreach (DocNomenclatureItem item in NomenclatureList)
+                {
+                    CountNomenclatureExceedingMaxPercentWithBreak += (item.SpoolWithBreakPercentColumn > Convert.ToDecimal(MaxAllowedPercentBreak)) ? 1 : 0;
+                }
+            }
             return true;
         }
 
@@ -336,6 +396,14 @@ namespace gamma_mob
 
         private void AddProductByBarcode(string barcode, bool fromBuffer)
         {
+            //Guid nomenclatureId = new Guid();
+            //Guid characteristicId = new Guid();
+            //Guid qualityId = new Guid();
+            AddProductByBarcode(barcode, fromBuffer, new Guid(), new Guid(), new Guid(), null);
+        }
+
+        private void AddProductByBarcode(string barcode, bool fromBuffer, Guid nomenclatureId, Guid characteristicId, Guid qualityId, int? quantity)
+        {
             var offlineProduct = OfflineProducts.FirstOrDefault(p => p.Barcode == barcode);
             if (!ConnectionState.CheckConnection())
             {
@@ -343,7 +411,8 @@ namespace gamma_mob
                     AddOfflineBarcode(barcode);
                 return;
             }
-            if (Barcodes.Contains(barcode))
+            //if (Barcodes.Contains(barcode))
+            if (Barcodes.Any(b => b.Barcode == barcode & (b.ProductKindId == null || b.ProductKindId != 3)))
             {
                 if (DeleteProductByBarcode(barcode) && fromBuffer)
                 {
@@ -352,11 +421,78 @@ namespace gamma_mob
                 }
                 return;
             }
-            var addResult = Db.AddProductToOrder(DocOrderId, OrderType, Shared.PersonId, barcode, DocDirection);
+            DbProductIdFromBarcodeResult getProductResult = Db.GetProductIdFromBarcodeOrNumber(barcode);
+            if (getProductResult == null)
+            {
+                if (!fromBuffer)
+                    AddOfflineBarcode(barcode);
+                return;
+            }
+            if (getProductResult.ProductKindId == null || (getProductResult.ProductKindId != 3 && (getProductResult.ProductId == null || getProductResult.ProductId == Guid.Empty)))
+            {
+                MessageBox.Show(@"Продукция не найдена по ШК!", @"Продукция не найдена",
+                                MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
+                if (offlineProduct != null && fromBuffer)
+                {
+                    offlineProduct.ResultMessage = @"Продукция не найдена по ШК!";
+                    offlineProduct.Unloaded = true;
+                }
+                return;
+            }
+            if (getProductResult.ProductKindId == 3 && (getProductResult.ProductId == null || getProductResult.ProductId == Guid.Empty))
+            {
+                if (!(nomenclatureId == null || nomenclatureId == Guid.Empty || characteristicId == null || characteristicId == Guid.Empty || qualityId == null || qualityId == Guid.Empty || quantity == null))
+                {
+                    getProductResult.NomenclatureId = nomenclatureId;
+                    getProductResult.CharacteristicId = characteristicId;
+                    getProductResult.QualityId = qualityId;
+                    getProductResult.CountProducts = (int) quantity;
+                }
+                else
+                {
+                    if (getProductResult.NomenclatureId == null || getProductResult.NomenclatureId == Guid.Empty || getProductResult.CharacteristicId == null || getProductResult.CharacteristicId == Guid.Empty || getProductResult.QualityId == null || getProductResult.QualityId == Guid.Empty)
+                    {
+                        using (var form = new ChooseNomenclatureCharacteristicDialog(barcode, Barcodes1C))
+                        {
+                            DialogResult result = form.ShowDialog();
+                            Invoke((MethodInvoker)Activate);
+                            if (result != DialogResult.OK || form.NomenclatureId == null || form.CharacteristicId == null || form.QualityId == null)
+                            {
+                                MessageBox.Show(@"Не выбран продукт. Продукт не добавлен!", @"Продукт не добавлен",
+                                                MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
+                                return;
+                            }
+                            else
+                            {
+                                getProductResult.NomenclatureId = form.NomenclatureId;
+                                getProductResult.CharacteristicId = form.CharacteristicId;
+                                getProductResult.QualityId = form.QualityId;
+                            }
+                        }
+                    }
+                    using (var form = new SetCountProductsDialog())
+                    {
+                        DialogResult result = form.ShowDialog();
+                        Invoke((MethodInvoker)Activate);
+                        if (result != DialogResult.OK || form.Quantity == null)
+                        {
+                            MessageBox.Show(@"Не указано количество продукта. Продукт не добавлен!", @"Продукт не добавлен",
+                                            MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
+                            return;
+                        }
+                        else
+                        {
+                            getProductResult.CountProducts = form.Quantity;
+                        }
+                    }
+                }
+            }
+            //var addResult = Db.AddProductToOrder(DocOrderId, OrderType, Shared.PersonId, barcode, DocDirection);
+            var addResult = Db.AddProductIdToOrder(DocOrderId, OrderType, Shared.PersonId, getProductResult.ProductId, DocDirection, getProductResult.ProductKindId, getProductResult.NomenclatureId, getProductResult.CharacteristicId, getProductResult.QualityId, getProductResult.CountProducts);
             if (addResult == null)
             {
-                if (!fromBuffer) 
-                    AddOfflineBarcode(barcode);
+                if (!fromBuffer)
+                    AddOfflineBarcode(barcode, getProductResult.NomenclatureId, getProductResult.CharacteristicId, getProductResult.QualityId, getProductResult.CountProducts);
                 return;
             }
             if (addResult.AlreadyMadeChanges)
@@ -372,17 +508,24 @@ namespace gamma_mob
             if (!Shared.LastQueryCompleted)
             {
                 if (!fromBuffer)
-                    AddOfflineBarcode(barcode);
+                    AddOfflineBarcode(barcode, getProductResult.NomenclatureId, getProductResult.CharacteristicId, getProductResult.QualityId, getProductResult.CountProducts);
                 return;
             }
             if (addResult.ResultMessage == string.Empty)
             {
                 var product = addResult.Product;
-                Barcodes.Add(barcode);
+                //if (getProductResult.ProductKindId == null || getProductResult.ProductKindId != 3)
+                //    Barcodes.Add(barcode);
+                Barcodes.Add(new Barcodes
+                {
+                    Barcode = barcode,
+                    ProductKindId = getProductResult.ProductKindId
+                });
+ 
                 if (product != null)
                     Invoke((UpdateOrderGridInvoker)(UpdateGrid),
-                           new object[] { product.NomenclatureId, product.CharacteristicId, product.NomenclatureName, 
-                                product.ShortNomenclatureName, product.Quantity, true, product.CountProductSpools, product.CountProductSpoolsWithBreak });                
+                           new object[] { product.NomenclatureId, product.CharacteristicId, product.QualityId, product.NomenclatureName, 
+                                product.ShortNomenclatureName, product.Quantity, true, product.CountProductSpools, product.CountProductSpoolsWithBreak, getProductResult.ProductKindId });                
             }
             else
             {
@@ -410,16 +553,18 @@ namespace gamma_mob
                 if (deleteResult.ResultMessage == "" && Shared.LastQueryCompleted)
                 {
                     result = true;
-                    Barcodes.Remove(barcode);
+                    //Barcodes.Remove(barcode);
+                    Barcodes.RemoveAll(b => b.Barcode == barcode);
+
                     var product = deleteResult.Product;
                     if (product != null)
                     {
                         Invoke((UpdateOrderGridInvoker) (UpdateGrid),
                                new object[]
                                    {
-                                       product.NomenclatureId, product.CharacteristicId, product.NomenclatureName, product.ShortNomenclatureName,
+                                       product.NomenclatureId, product.CharacteristicId, product.QualityId, product.NomenclatureName, product.ShortNomenclatureName,
                                             product.Quantity, 
-                                       false, product.CountProductSpools, product.CountProductSpoolsWithBreak
+                                       false, product.CountProductSpools, product.CountProductSpoolsWithBreak, null
                                    });
                     }
                 }                
@@ -428,18 +573,19 @@ namespace gamma_mob
             return result;
         }
 
-        private void UpdateGrid(Guid nomenclatureId, Guid characteristicId, string nomenclatureName,
-                string shortNomenclatureName, decimal quantity, bool add, int countProductSpools, int countProductSpoolsWithBreak)
+        private void UpdateGrid(Guid nomenclatureId, Guid characteristicId, Guid qualityId, string nomenclatureName,
+                string shortNomenclatureName, decimal quantity, bool add, int countProductSpools, int countProductSpoolsWithBreak, int? productKindId)
         {
             DocNomenclatureItem good =
                 NomenclatureList.FirstOrDefault(
-                    g => g.NomenclatureId == nomenclatureId && g.CharacteristicId == characteristicId);
+                    g => g.NomenclatureId == nomenclatureId && g.CharacteristicId == characteristicId && g.QualityId == qualityId);
             if (good == null)
             {
                 good = new DocNomenclatureItem
                     {
                         NomenclatureId = nomenclatureId,
                         CharacteristicId = characteristicId,
+                        QualityId = qualityId,
                         NomenclatureName = nomenclatureName,
                         ShortNomenclatureName = shortNomenclatureName,
                         CollectedQuantity = 0,
@@ -457,14 +603,14 @@ namespace gamma_mob
                 good.CountProductSpools += countProductSpools;
                 good.CountProductSpoolsWithBreak += countProductSpoolsWithBreak;
                 good.CollectedQuantity += quantity;
-                Collected++;
+                if (productKindId == null || productKindId != 3) Collected++;
             }
             else
             {
                 good.CountProductSpools -= countProductSpools;
                 good.CountProductSpoolsWithBreak -= countProductSpoolsWithBreak;
                 good.CollectedQuantity -= quantity;
-                Collected--;
+                if (productKindId == null || productKindId != 3) Collected--;
             }
             CountNomenclatureExceedingMaxPercentWithBreak = 0;
             foreach (DocNomenclatureItem item in NomenclatureList)
@@ -498,7 +644,28 @@ namespace gamma_mob
                 (MethodInvoker)
                 (() => lblBufferCount.Text = OfflineProducts.Count(p => p.DocId == DocOrderId)
                                                             .ToString(CultureInfo.InvariantCulture)));
-            SaveToXml(OfflineProducts);
+            SaveToXml(OfflineProducts,FileName);
+        }
+
+        private void AddOfflineProduct(string barcode, Guid nomenclatureId, Guid characteristicId, Guid qualityId, int quantity)
+        {
+            if (OfflineProducts == null) OfflineProducts = new List<OfflineProduct>();
+            OfflineProducts.Add(new OfflineProduct
+            {
+                DocId = DocOrderId,
+                Barcode = barcode,
+                PersonId = Shared.PersonId,
+                NomenclatureId = nomenclatureId,
+                CharacteristicId = characteristicId,
+                QualityId = qualityId,
+                Quantity = quantity,
+                ResultMessage = "Не выгружено"
+            });
+            Invoke(
+                (MethodInvoker)
+                (() => lblBufferCount.Text = OfflineProducts.Count(p => p.DocId == DocOrderId)
+                                                            .ToString(CultureInfo.InvariantCulture)));
+            SaveToXml(OfflineProducts, FileName);
         }
 
         /// <summary>
@@ -514,7 +681,10 @@ namespace gamma_mob
                 OfflineProduct offlineProduct in
                     OfflineProducts.Where(p => p.DocId == DocOrderId).ToList())
             {
-                AddProductByBarcode(offlineProduct.Barcode, true);
+                if (offlineProduct.NomenclatureId == null || offlineProduct.NomenclatureId == Guid.Empty)
+                    AddProductByBarcode(offlineProduct.Barcode, true);
+                else
+                    AddProductByBarcode(offlineProduct.Barcode, true, offlineProduct.NomenclatureId, offlineProduct.CharacteristicId, offlineProduct.QualityId, (int?)offlineProduct.Quantity);
             }
             List<OfflineProduct> tempList = OfflineProducts.Where(p => p.Unloaded
                                                                        && p.DocId == DocOrderId)
@@ -547,18 +717,18 @@ namespace gamma_mob
             {
                 ConnectionState.StartChecker();
             }
-            SaveToXml(OfflineProducts);
+            SaveToXml(OfflineProducts,FileName);
             UIServices.SetNormalState(this);
         }
 
-        private void SaveToXml(ICollection offlineProducts)
+        private void SaveToXml<T>(ICollection<T> saveData, string fileName)
         {
-            var ser = new XmlSerializer(typeof (List<OfflineProduct>));
-            using (var stream = new FileStream(FileName, FileMode.Create))
+            var ser = new XmlSerializer(typeof(List<T>));
+            using (var stream = new FileStream(fileName, FileMode.Create))
             {
                 try
                 {
-                    ser.Serialize(stream, offlineProducts);
+                    ser.Serialize(stream, saveData);
                 }
                 catch (InvalidOperationException ex)
                 {
@@ -569,7 +739,7 @@ namespace gamma_mob
 
         private void gridDocOrder_CurrentCellChanged(object sender, EventArgs e)
         {
-            gridDocOrder.Select(gridDocOrder.CurrentRowIndex);
+            //gridDocOrder.Select(gridDocOrder.CurrentRowIndex);
         }
 
         

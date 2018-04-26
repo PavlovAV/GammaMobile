@@ -12,5 +12,7 @@ namespace gamma_mob.Models
         /// Признак того, что документ, с которым проводилась операция, уже подтвержден
         /// </summary>
         public bool DocIsConfirmed { get; set; }
+        public int? ProductKindId { get; set; }
+        public Guid? PlaceZoneId { get; set; }
     }
 }

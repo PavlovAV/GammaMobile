@@ -1,6 +1,6 @@
 ﻿namespace gamma_mob
 {
-    partial class DocShipmentGoodProductsForm
+    partial class DocProductsBaseForm
     {
         /// <summary>
         /// Требуется переменная конструктора.

@@ -6,9 +6,9 @@ using gamma_mob.Dialogs;
 
 namespace gamma_mob
 {
-    public partial class DocShipmentGoodProductsForm : BaseForm
+    public partial class DocProductsBaseForm : BaseForm
     {
-        protected DocShipmentGoodProductsForm()
+        protected DocProductsBaseForm()
         {
             InitializeComponent();
             var tableStyle = new DataGridTableStyle();
@@ -36,9 +36,9 @@ namespace gamma_mob
             gridProducts.TableStyles.Add(tableStyle);
         }
 
-        private RefreshDocOrderDelegate RefreshDocOrder;
-
-        public DocShipmentGoodProductsForm(Guid docShipmentOrderId, Guid nomenclatureId, string nomenclatureName
+        private RefreshDocProductDelegate RefreshDocOrder;
+        /*
+        public DocProductsBaseForm(Guid docShipmentOrderId, Guid nomenclatureId, string nomenclatureName
             , Guid characteristicId, Guid qualityId, Form parentForm)
             : this()
         {
@@ -55,9 +55,9 @@ namespace gamma_mob
                 return;
             }
         }
-
-        public DocShipmentGoodProductsForm(Guid docShipmentOrderId, Guid nomenclatureId, string nomenclatureName
-            , Guid characteristicId, Guid qualityId, Form parentForm, RefreshDocOrderDelegate refreshDocOrder)
+        */
+        public DocProductsBaseForm(Guid docShipmentOrderId, Guid nomenclatureId, string nomenclatureName
+            , Guid characteristicId, Guid qualityId, Form parentForm, RefreshDocProductDelegate refreshDocOrder)
             : this()
         {
             lblNomenclature.Text = nomenclatureName;
@@ -75,8 +75,8 @@ namespace gamma_mob
             }
         }
         
-        public DocShipmentGoodProductsForm(Guid docShipmentOrderId, Guid nomenclatureId, string nomenclatureName
-            , Guid characteristicId, Guid qualityId, Form parentForm, DocDirection docDirection, RefreshDocOrderDelegate refreshDocOrder)
+        public DocProductsBaseForm(Guid docShipmentOrderId, Guid nomenclatureId, string nomenclatureName
+            , Guid characteristicId, Guid qualityId, Form parentForm, DocDirection docDirection, RefreshDocProductDelegate refreshDocOrder)
             : this()
         {
             lblNomenclature.Text = nomenclatureName;
@@ -96,25 +96,48 @@ namespace gamma_mob
         }
 
 
+        public DocProductsBaseForm(int placeId, Guid personId, Guid nomenclatureId, string nomenclatureName
+            , Guid characteristicId, Guid qualityId, Guid? placeZoneId, Form parentForm, RefreshDocProductDelegate refreshDocOrder)
+            : this()
+        {
+            lblNomenclature.Text = nomenclatureName;
+            ParentForm = parentForm;
+            PlaceId = placeId;
+            PersonId = personId;
+            NomenclatureId = nomenclatureId;
+            CharacteristicId = characteristicId;
+            QualityId = qualityId;
+            PlaceZoneId = placeZoneId;
+            RefreshDocOrder = refreshDocOrder;
+            if (!RefreshDatGrid())
+            {
+                MessageBox.Show(@"Не удалось получить информацию");
+                Close();
+                return;
+            }
+        }
 
+        protected int PlaceId { get; set; } 
+        protected Guid PersonId { get; set; }
         protected Guid DocShipmentOrderId { get; set; }
         protected Guid NomenclatureId { get; set; }
         protected Guid CharacteristicId { get; set; }
         protected Guid QualityId { get; set; }
         protected DocDirection DocDirections { get; set; }
+        protected Guid? PlaceZoneId { get; set; }
         public bool IsRefreshQuantity = false;
         protected decimal Quantity { get; set; } 
 
         protected virtual DataTable GetProducts()
         {
-            return Db.DocShipmentOrderGoodProducts(DocShipmentOrderId, NomenclatureId, CharacteristicId, QualityId, DocDirections);
+            return (DataTable)null; //Db.DocShipmentOrderGoodProducts(DocShipmentOrderId, NomenclatureId, CharacteristicId, QualityId, DocDirections);
         }
 
         protected virtual DataTable RemovalRProducts()
         {
-            return Db.RemoveProductRFromOrder(DocShipmentOrderId, NomenclatureId, CharacteristicId, QualityId, Quantity);
+            return (DataTable)null; //Db.RemoveProductRFromOrder(DocShipmentOrderId, NomenclatureId, CharacteristicId, QualityId, Quantity);
         }
-
+        
         private bool RefreshDatGrid()
         {
             DataTable table = GetProducts();//Db.DocShipmentOrderGoodProducts(DocShipmentOrderId, NomenclatureId, CharacteristicId, QualityId, DocDirections);

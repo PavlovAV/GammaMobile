@@ -321,7 +321,7 @@ namespace gamma_mob
                     new object[]
                                {
                                     acceptResult.NomenclatureId, acceptResult.CharacteristicId, acceptResult.QualityId, acceptResult.NomenclatureName, acceptResult.ShortNomenclatureName, acceptResult.PlaceZoneId,  acceptResult.Quantity
-                                   , true, barcode, getProductResult.ProductKindId
+                                   , true, barcode, getProductResult.ProductKindId, acceptResult.CoefficientPackage, acceptResult.CoefficientPallet
                                });
             }
             else
@@ -446,7 +446,7 @@ namespace gamma_mob
                                new object[]
                                    {
                                        delResult.Product.NomenclatureId, delResult.Product.CharacteristicId, delResult.Product.QualityId, delResult.Product.NomenclatureName, delResult.Product.ShortNomenclatureName, delResult.PlaceZoneId, delResult.Product.Quantity
-                                       , false, barcodesItem.Barcode, barcodesItem.ProductKindId
+                                       , false, barcodesItem.Barcode, barcodesItem.ProductKindId, null, null
                                    });
                     }
                 }
@@ -582,7 +582,7 @@ namespace gamma_mob
                                new object[]
                                    {
                                        product.NomenclatureId, product.CharacteristicId, product.QualityId, product.NomenclatureName, product.ShortNomenclatureName, deleteResult.PlaceZoneId, product.Quantity
-                                       , false, barcode, deleteResult.ProductKindId
+                                       , false, barcode, deleteResult.ProductKindId, null, null
                                    });
                     }
                 }                
@@ -592,7 +592,7 @@ namespace gamma_mob
         }
 
         private void UpdateGrid(Guid nomenclatureId, Guid characteristicId, Guid qualityId, string nomenclatureName, string shortNomenclatureName, Guid? placeZoneId, decimal quantity, bool add, string barcode,
-                                int? productKindId)
+                                int? productKindId, int? coefficientPackage, int? coefficientPallet)
         {
             MovementProduct good = null;
             good = AcceptedProducts.FirstOrDefault(
@@ -608,8 +608,8 @@ namespace gamma_mob
                     ShortNomenclatureName = shortNomenclatureName,
                     PlaceZoneId = placeZoneId,
                     CollectedQuantity = 0,
-                    CoefficientPackage = null,
-                    CoefficientPallet = null
+                    CoefficientPackage = coefficientPackage,
+                    CoefficientPallet = coefficientPallet
                 };
                 AcceptedProducts.Add(good);
                 BSource.DataSource = AcceptedProducts;
@@ -708,6 +708,6 @@ namespace gamma_mob
         private delegate void ConnectStateChangeInvoker(ConnectState state);
 
         private delegate void UpdateGridInvoker(Guid nomenclatureId, Guid characteristicId, Guid qualityId, string nomenclatureName, string shortNomenclatureName, Guid? placeZoneId, 
-                                                decimal quantity, bool add, string barcode, int? productKindId);
+                                                decimal quantity, bool add, string barcode, int? productKindId, int? CoefficientPackage, int? CoefficientPallet);
     }
 }

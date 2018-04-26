@@ -323,7 +323,7 @@ namespace gamma_mob
                             QualityId = new Guid(row["1CQualityID"].ToString()),
                             NomenclatureName = row["NomenclatureName"].ToString(),
                             ShortNomenclatureName = row["ShortNomenclatureName"].ToString(),
-                            PlaceZoneId = table.Rows[0].IsNull("PlaceZoneID") ? new Guid() : new Guid(table.Rows[0]["PlaceZoneID"].ToString()),
+                            PlaceZoneId = row.IsNull("PlaceZoneID") ? new Guid() : new Guid(row["PlaceZoneID"].ToString()),
                             CoefficientPackage = row.IsNull("CoefficientPackage") ? (int?)null : Convert.ToInt32(row["CoefficientPackage"]),
                             CoefficientPallet = row.IsNull("CoefficientPallet") ? (int?)null : Convert.ToInt32(row["CoefficientPallet"]),
                             //количество, пересчитанное в групповые упаковки для СГИ
@@ -807,6 +807,8 @@ namespace gamma_mob
                         acceptProductResult.Quantity = table.Rows[0].IsNull("Quantity") ? 0 : Convert.ToDecimal(table.Rows[0]["Quantity"]);
                         acceptProductResult.NomenclatureName = table.Rows[0].IsNull("NomenclatureName") ? "" : table.Rows[0]["NomenclatureName"].ToString();
                         acceptProductResult.ShortNomenclatureName = table.Rows[0].IsNull("ShortNomenclatureName") ? "" : table.Rows[0]["ShortNomenclatureName"].ToString();
+                        acceptProductResult.CoefficientPackage = table.Rows[0].IsNull("CoefficientPackage") ? (int?)null : Convert.ToInt32(table.Rows[0]["CoefficientPackage"]);
+                        acceptProductResult.CoefficientPallet = table.Rows[0].IsNull("CoefficientPallet") ? (int?)null : Convert.ToInt32(table.Rows[0]["CoefficientPallet"]);
                     };
                 }
             }

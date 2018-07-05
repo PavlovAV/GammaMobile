@@ -39,7 +39,7 @@ namespace gamma_mob
         public DocInventarisationForm(Guid docInventarisationId, Form parentForm, string docNumber)
             : this(parentForm)
         {
-            FileName = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase) + "inventarisation.xml";
+            FileName = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase) + "\DocInventarisationBarcodes.xml";
             DocInventarisationId = docInventarisationId;
             if (!RefreshProducts(docInventarisationId))
             {
@@ -257,7 +257,7 @@ namespace gamma_mob
         
         private void AddProductByBarcode(string barcode, bool fromBuffer, Guid nomenclatureId, Guid characteristicId, Guid qualityId, int? quantity)
         {
-            var offlineProduct = OfflineProducts.FirstOrDefault(p => p.Barcode == barcode);
+            var offlineProduct = OfflineProducts.FirstOrDefault(p => p.Barcode == barcode && p.DocId == DocInventarisationId);
             if (!ConnectionState.CheckConnection())
             {
                 if (!fromBuffer)

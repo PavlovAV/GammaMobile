@@ -39,7 +39,7 @@ namespace gamma_mob
         public DocInventarisationForm(Guid docInventarisationId, Form parentForm, string docNumber)
             : this(parentForm)
         {
-            FileName = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase) + "\DocInventarisationBarcodes.xml";
+            FileName = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase) + @"\DocInventarisationBarcodes.xml";
             DocInventarisationId = docInventarisationId;
             if (!RefreshProducts(docInventarisationId))
             {

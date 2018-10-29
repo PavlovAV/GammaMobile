@@ -5,7 +5,8 @@ using Datalogic.API;
 using OpenNETCF.Threading;
 using OpenNETCF.Windows.Forms;
 using gamma_mob.Common;
-
+using System.IO;
+using System.Reflection;
 
 namespace gamma_mob
 {
@@ -31,6 +32,17 @@ namespace gamma_mob
             // создаем таймер
             System.Threading.Timer timer = new System.Threading.Timer(tm, num, 2000, 300000);
 #endif
+            try
+            {
+                string[] files = Directory.GetFiles(Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase), "doc*.xml");
+                foreach (string file in files)
+                {
+                    File.Delete(file);
+                }
+            }
+            catch
+            {
+            }
             var loginForm = new LoginForm();
             if (loginForm.ShowDialog() == DialogResult.OK)
             {

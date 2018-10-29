@@ -46,7 +46,7 @@ namespace gamma_mob
             : this(parentForm)
         {
             OrderType = orderType;
-            FileName = FileName = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase) + fileName;
+            FileName = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase) + fileName;
             DocOrderId = docOrderId;
             DocDirection = docDirection;
             

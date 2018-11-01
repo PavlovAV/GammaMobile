@@ -28,29 +28,17 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.lblMessage = new System.Windows.Forms.Label();
             this.btnHelp = new System.Windows.Forms.Button();
             this.btnTestWiFi = new System.Windows.Forms.Button();
             this.btnTestPing = new System.Windows.Forms.Button();
             this.btnTestSQL = new System.Windows.Forms.Button();
             this.btnExecRDP = new System.Windows.Forms.Button();
+            this.lblMessage = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
-            // 
-            // lblMessage
-            // 
-            this.lblMessage.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
-            this.lblMessage.Font = new System.Drawing.Font("Tahoma", 14F, System.Drawing.FontStyle.Regular);
-            this.lblMessage.Location = new System.Drawing.Point(0, 96);
-            this.lblMessage.Name = "lblMessage";
-            this.lblMessage.Size = new System.Drawing.Size(238, 199);
-            this.lblMessage.Text = "Просканируйте \r\nсвой штрих-код";
-            this.lblMessage.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // btnHelp
             // 
-            this.btnHelp.Location = new System.Drawing.Point(78, 5);
+            this.btnHelp.Location = new System.Drawing.Point(83, 5);
             this.btnHelp.Name = "btnHelp";
             this.btnHelp.Size = new System.Drawing.Size(63, 20);
             this.btnHelp.TabIndex = 1;
@@ -69,7 +57,7 @@
             // 
             // btnTestPing
             // 
-            this.btnTestPing.Location = new System.Drawing.Point(113, 38);
+            this.btnTestPing.Location = new System.Drawing.Point(123, 38);
             this.btnTestPing.Name = "btnTestPing";
             this.btnTestPing.Size = new System.Drawing.Size(98, 20);
             this.btnTestPing.TabIndex = 4;
@@ -89,7 +77,7 @@
             // 
             // btnExecRDP
             // 
-            this.btnExecRDP.Location = new System.Drawing.Point(113, 64);
+            this.btnExecRDP.Location = new System.Drawing.Point(123, 64);
             this.btnExecRDP.Name = "btnExecRDP";
             this.btnExecRDP.Size = new System.Drawing.Size(98, 20);
             this.btnExecRDP.TabIndex = 6;
@@ -97,17 +85,31 @@
             this.btnExecRDP.Visible = false;
             this.btnExecRDP.Click += new System.EventHandler(this.btnExecRDP_Click);
             // 
+            // lblMessage
+            // 
+            this.lblMessage.BackColor = System.Drawing.SystemColors.Control;
+            this.lblMessage.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.lblMessage.Font = new System.Drawing.Font("Tahoma", 14F, System.Drawing.FontStyle.Regular);
+            this.lblMessage.Location = new System.Drawing.Point(13, 90);
+            this.lblMessage.Multiline = true;
+            this.lblMessage.Name = "lblMessage";
+            this.lblMessage.ReadOnly = true;
+            this.lblMessage.Size = new System.Drawing.Size(210, 169);
+            this.lblMessage.TabIndex = 8;
+            this.lblMessage.Text = "Просканируйте свой штрих-код";
+            this.lblMessage.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
             // LoginForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(238, 295);
+            this.Controls.Add(this.lblMessage);
             this.Controls.Add(this.btnExecRDP);
             this.Controls.Add(this.btnTestSQL);
             this.Controls.Add(this.btnTestPing);
             this.Controls.Add(this.btnTestWiFi);
             this.Controls.Add(this.btnHelp);
-            this.Controls.Add(this.lblMessage);
             this.Name = "LoginForm";
             this.Text = "Авторизация";
             this.ResumeLayout(false);
@@ -116,11 +118,11 @@
 
         #endregion
 
-        private System.Windows.Forms.Label lblMessage;
         private System.Windows.Forms.Button btnHelp;
         private System.Windows.Forms.Button btnTestWiFi;
         private System.Windows.Forms.Button btnTestPing;
         private System.Windows.Forms.Button btnTestSQL;
         private System.Windows.Forms.Button btnExecRDP;
+        private System.Windows.Forms.TextBox lblMessage;
     }
 }

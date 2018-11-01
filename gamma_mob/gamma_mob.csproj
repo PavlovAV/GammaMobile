@@ -256,6 +256,7 @@
     <Compile Include="Models\Person.cs" />
     <Compile Include="Models\PlaceZone.cs" />
     <Compile Include="Models\Product.cs" />
+    <Compile Include="Models\SystemTime.cs" />
     <Compile Include="Models\Warehouse.cs" />
     <Compile Include="Models\MovementProduct.cs" />
     <Compile Include="PalletForm.cs">

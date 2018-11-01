@@ -10,9 +10,12 @@ using System.Reflection;
 using Datalogic.API;
 using OpenNETCF.Net.NetworkInformation;
 using Microsoft.Win32;
+using System.Net;
+using System.Runtime.InteropServices;
 
 namespace gamma_mob
 {
+    
     public partial class LoginForm : BaseForm
     {
         public LoginForm()
@@ -23,20 +26,66 @@ namespace gamma_mob
             WrongUserPass();
         }
 
+
+        [DllImport("coredll.dll", SetLastError = true)]
+        private extern static uint SetSystemTime(ref SystemTime lpSystemTime);
+
+        /*private struct SYSTEMTIME
+        {
+            public ushort wYear;
+            public ushort wMonth;
+            public ushort wDayOfWeek;
+            public ushort wDay;
+            public ushort wHour;
+            public ushort wMinute;
+            public ushort wSecond;
+            public ushort wMilliseconds;
+        }
+        */
+        protected static void SetSystemDateTime(DateTime dt)
+        {
+            SystemTime systime = new SystemTime
+            {
+                wYear = (ushort)dt.Year,
+                wMonth = (ushort)dt.Month,
+                wDay = (ushort)dt.Day,
+                wHour = (ushort)dt.Hour,
+                wMinute = (ushort)dt.Minute,
+                wSecond = (ushort)dt.Second,
+                wMilliseconds = (ushort)dt.Millisecond,
+                wDayOfWeek = (ushort)dt.DayOfWeek
+            };
+            SetSystemTime(ref systime);
+        }
+
         protected override void FormLoad(object sender, EventArgs e)
         {
             base.FormLoad(sender, e);
             BarcodeFunc = AuthorizeByBarcode;
-            var cerdispProcess = GetProcessRunning(@"cerdisp");
-            if (cerdispProcess != null)
+            try
             {
-                btnExecRDP.Text = "Останов RDP";
-            }
-            else
-            {
-                btnExecRDP.Text = "Запуск RDP";
-            }
+                var cerdispProcess = GetProcessRunning(@"cerdisp");
+                if (cerdispProcess != null)
+                {
+                    btnExecRDP.Text = "Останов RDP";
+                }
+                else
+                {
+                    btnExecRDP.Text = "Запуск RDP";
+                }
 
+                if (Db.CheckSqlConnection() != 1)
+                {
+                    DateTime serverDateTime = Db.GetServerDateTime();
+                    if (serverDateTime != null)
+                    {
+                        SetSystemDateTime(serverDateTime);
+                    }
+                }
+            }
+            catch
+            {
+            }
         }
 
         private void AuthorizeByBarcode(string barcode)
@@ -149,6 +198,23 @@ namespace gamma_mob
                 btnTestPing.Visible = true;
                 btnTestSQL.Visible = true;
                 btnTestWiFi.Visible = true;
+                try
+                {
+                    var strHostName = Dns.GetHostName();
+                    lblMessage.Text = lblMessage.Text + Environment.NewLine + "Имя ТСД: " + strHostName;
+
+                    IPHostEntry ipEntry = Dns.GetHostByName(strHostName);
+                    IPAddress[] addr = ipEntry.AddressList;
+
+                    for (int i = 0; i < addr.Length; i++)
+                    {
+                        lblMessage.Text = lblMessage.Text + Environment.NewLine + "IP адрес " + i.ToString() + ": " + addr[i].ToString();
+                    }
+                }
+                catch
+                {
+                    lblMessage.Text = lblMessage.Text + Environment.NewLine + "Ошибка при определении IP адреса";
+                }
             }
             else
             {

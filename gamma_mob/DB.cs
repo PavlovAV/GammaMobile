@@ -50,6 +50,22 @@ namespace gamma_mob
             return 0;
         }
 
+        public static DateTime GetServerDateTime()
+        {
+            DateTime serverDateTime = new DateTime();
+            const string sql = "SELECT GETUTCDATE() AS ServerDateTime";
+            var parameters = new List<SqlParameter>();
+            using (DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.Text))
+            {
+                if (table != null && table.Rows.Count > 0)
+                {
+                    DataRow row = table.Rows[0];
+                    serverDateTime = Convert.ToDateTime(row["ServerDateTime"]);
+                }
+            }
+            return serverDateTime;
+        }
+
         public static Person PersonByBarcode(string barcode)
         {
             Person person = null;

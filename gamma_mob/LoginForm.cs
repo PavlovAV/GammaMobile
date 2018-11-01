@@ -1,9 +1,15 @@
 ﻿using System;
 using System.Threading;
 using System.Windows.Forms;
+using System.Diagnostics;
 using OpenNETCF.Windows.Forms;
 using gamma_mob.Common;
 using gamma_mob.Models;
+using System.IO;
+using System.Reflection;
+using Datalogic.API;
+using OpenNETCF.Net.NetworkInformation;
+using Microsoft.Win32;
 
 namespace gamma_mob
 {
@@ -21,6 +27,16 @@ namespace gamma_mob
         {
             base.FormLoad(sender, e);
             BarcodeFunc = AuthorizeByBarcode;
+            var cerdispProcess = GetProcessRunning(@"cerdisp");
+            if (cerdispProcess != null)
+            {
+                btnExecRDP.Text = "Останов RDP";
+            }
+            else
+            {
+                btnExecRDP.Text = "Запуск RDP";
+            }
+
         }
 
         private void AuthorizeByBarcode(string barcode)
@@ -55,6 +71,186 @@ namespace gamma_mob
             MessageBox.Show(@"Неверно указан логин или пароль в настройках. Обратитесь к администратору приложения"
                             , @"Ошибка связи с БД",
                             MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
+        }
+
+        private void btnExecRDP_Click(object sender, EventArgs e)
+        {
+            //var processes = OpenNETCF.ToolHelp.ProcessEntry.GetProcesses();
+            /*var processIsRunning = false;
+            OpenNETCF.ToolHelp.ProcessEntry cerdispProcess = null;
+            foreach (OpenNETCF.ToolHelp.ProcessEntry clsProcess in OpenNETCF.ToolHelp.ProcessEntry.GetProcesses())
+            {
+                if (!processIsRunning && clsProcess.ExeFile.Contains(@"cerdisp"))
+                {
+                    cerdispProcess = clsProcess;
+                    processIsRunning = true;
+                }
+            }*/
+            var cerdispProcess = GetProcessRunning(@"cerdisp");
+            if (cerdispProcess == null)
+            {
+                //[HKEY_LOCAL_MACHINE\SOFTWARE\CERDISP]
+                //"Hostname"="192.168.95.7"
+
+                RegistryKey reg = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\CERDISP", true);
+                var serverIP = ConnectionState.GetServerIp();
+                var hostname = (string)reg.GetValue("Hostname", "");
+                if (serverIP != "" && (string)reg.GetValue("Hostname", "") != serverIP)
+                {
+                    // set value of "CDInsert" to 1
+                    reg.SetValue("Hostname", serverIP, RegistryValueKind.String);
+                }
+                // get value of "CDInsert"; return 0 if value not found
+                //int value = (int)reg.GetValue("CDInsert", 0);
+                var hostname1 = (string)reg.GetValue("Hostname", "");
+                
+                System.Diagnostics.Process.Start(Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase) +
+                           @"\cerdisp.exe", "-c");
+                lblMessage.Text = "RDP запущен по адресу " + serverIP;
+                btnExecRDP.Text = "Останов RDP";
+            }
+            else
+            {
+                cerdispProcess.Kill();
+                lblMessage.Text = "RDP остановлен";
+                btnExecRDP.Text = "Запуск RDP";
+            }
+        }
+
+        private static OpenNETCF.ToolHelp.ProcessEntry GetProcessRunning(string processsName)
+        {
+            try
+            {
+                OpenNETCF.ToolHelp.ProcessEntry cerdispProcess = null;
+                foreach (OpenNETCF.ToolHelp.ProcessEntry clsProcess in OpenNETCF.ToolHelp.ProcessEntry.GetProcesses())
+                {
+                    if (cerdispProcess == null && clsProcess.ExeFile.Contains(processsName))
+                    {
+                        cerdispProcess = clsProcess;
+                    }
+                }
+                return cerdispProcess;
+            }
+            catch
+            {
+                return null;
+            }
+
+        }
+
+        private void btnHelp_Click(object sender, EventArgs e)
+        {
+            if (btnHelp.Text == "Сеть")
+            {
+                btnHelp.Text = "Скрыть";
+                lblMessage.Font = new System.Drawing.Font("Tahoma", 10, System.Drawing.FontStyle.Regular);
+                lblMessage.Text = "Сервер: " + Settings.ServerIP + Environment.NewLine + "База данных: " + Settings.Database + Environment.NewLine + "Логин: " + Settings.UserName;
+                btnExecRDP.Visible = true;
+                btnTestPing.Visible = true;
+                btnTestSQL.Visible = true;
+                btnTestWiFi.Visible = true;
+            }
+            else
+            {
+                btnHelp.Text = "Сеть";
+                lblMessage.Font = new System.Drawing.Font("Tahoma", 14, System.Drawing.FontStyle.Regular);
+                lblMessage.Text = "Просканируйте \r\nсвой штрих-код";
+                btnExecRDP.Visible = false;
+                btnTestPing.Visible = false;
+                btnTestSQL.Visible = false;
+                btnTestWiFi.Visible = false;
+            }
+        }
+
+        private void btnTestWiFi_Click(object sender, EventArgs e)
+        {
+            if (Device.GetWiFiPowerStatus())
+            {
+                uint quality;
+                if (Device.WiFiGetSignalQuality(out quality))
+                {
+                    lblMessage.Text = "WiFi уровень сигнала " + quality.ToString();
+                    if (quality < 3)
+                    {
+                        lblMessage.Text = lblMessage.Text + " (низкий)";
+                    }
+                }
+                else
+                {
+                    lblMessage.Text = "WiFi ошибка при проверке уровня сигнала";
+                }
+            }
+            else
+            {
+                lblMessage.Text = "WiFi сигнал отсутствует";
+            }
+        }
+
+        private void btnTestPing_Click(object sender, EventArgs e)
+        {
+            lblMessage.Text = "";
+            var ServerIp = ConnectionState.GetServerIp();
+            if (ServerIp == "")
+            {
+                lblMessage.Text = "Не определен IP сервера";
+            }
+            else
+            {
+                using (var pinger = new Ping())
+                {
+                    try
+                    {
+                        PingReply reply = pinger.Send(ServerIp, 200);
+                        if (reply.Status != IPStatus.Success)
+                        {
+                            lblMessage.Text = "Сервер "+ServerIp+" не пингуется c таймаутом 200 мс";
+                            reply = pinger.Send(ServerIp, 400);
+                            if (reply.Status != IPStatus.Success)
+                            {
+                                lblMessage.Text = lblMessage.Text + Environment.NewLine + "Сервер " + ServerIp + " не пингуется c таймаутом 400 мс";
+                                reply = pinger.Send(ServerIp, 800);
+                                if (reply.Status != IPStatus.Success)
+                                {
+                                    lblMessage.Text = lblMessage.Text + Environment.NewLine + "Сервер " + ServerIp + " не пингуется c таймаутом 800 мс";
+                                }
+                            }
+                        }
+                        if (reply.Status == IPStatus.Success)
+                        {
+                            lblMessage.Text = lblMessage.Text + Environment.NewLine + "Сервер " + ServerIp + " пингуется "+reply.ToString();
+                        }
+                    }
+                    catch (Exception ex) 
+                    {
+                        lblMessage.Text = lblMessage.Text + Environment.NewLine + "Ошибка при пинге сервера " + ServerIp + ": " + ex.ToString();
+                    }
+                }
+            }
+        }
+
+        private void btnTestSQL_Click(object sender, EventArgs e)
+        {
+            Cursor.Current = Cursors.WaitCursor;
+            if (ConnectionState.CheckConnection())
+            {
+                switch (Db.CheckSqlConnection())
+                {
+                    case 2:
+                        lblMessage.Text = "Нет связи с БД " + Settings.ServerIP + Environment.NewLine + ConnectionState.GetConnectionState();
+                        break;
+                    case 1:
+                        lblMessage.Text = "Неверно указан логин или пароль к БД " + Settings.ServerIP + Environment.NewLine + ConnectionState.GetConnectionState();
+                        break;
+                    default:
+                        lblMessage.Text = "Соединение с БД " + Settings.ServerIP + " установлено" + Environment.NewLine + ConnectionState.GetConnectionState();
+                        break;
+                }
+            }
+            else
+            {
+                lblMessage.Text = "Нет связи с БД " + Settings.ServerIP + ". Повторите попытку в зоне покрытия WiFi" + Environment.NewLine + ConnectionState.GetConnectionState();
+            }
+            Cursor.Current = Cursors.Default;
         }
     }
 }

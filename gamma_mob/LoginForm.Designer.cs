@@ -29,6 +29,11 @@
         private void InitializeComponent()
         {
             this.lblMessage = new System.Windows.Forms.Label();
+            this.btnHelp = new System.Windows.Forms.Button();
+            this.btnTestWiFi = new System.Windows.Forms.Button();
+            this.btnTestPing = new System.Windows.Forms.Button();
+            this.btnTestSQL = new System.Windows.Forms.Button();
+            this.btnExecRDP = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // lblMessage
@@ -39,17 +44,70 @@
             this.lblMessage.Font = new System.Drawing.Font("Tahoma", 14F, System.Drawing.FontStyle.Regular);
             this.lblMessage.Location = new System.Drawing.Point(0, 96);
             this.lblMessage.Name = "lblMessage";
-            this.lblMessage.Size = new System.Drawing.Size(638, 359);
+            this.lblMessage.Size = new System.Drawing.Size(238, 199);
             this.lblMessage.Text = "Просканируйте \r\nсвой штрих-код";
             this.lblMessage.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            // 
+            // btnHelp
+            // 
+            this.btnHelp.Location = new System.Drawing.Point(78, 5);
+            this.btnHelp.Name = "btnHelp";
+            this.btnHelp.Size = new System.Drawing.Size(63, 20);
+            this.btnHelp.TabIndex = 1;
+            this.btnHelp.Text = "Сеть";
+            this.btnHelp.Click += new System.EventHandler(this.btnHelp_Click);
+            // 
+            // btnTestWiFi
+            // 
+            this.btnTestWiFi.Location = new System.Drawing.Point(13, 38);
+            this.btnTestWiFi.Name = "btnTestWiFi";
+            this.btnTestWiFi.Size = new System.Drawing.Size(94, 20);
+            this.btnTestWiFi.TabIndex = 3;
+            this.btnTestWiFi.Text = "Тест WiFi";
+            this.btnTestWiFi.Visible = false;
+            this.btnTestWiFi.Click += new System.EventHandler(this.btnTestWiFi_Click);
+            // 
+            // btnTestPing
+            // 
+            this.btnTestPing.Location = new System.Drawing.Point(113, 38);
+            this.btnTestPing.Name = "btnTestPing";
+            this.btnTestPing.Size = new System.Drawing.Size(98, 20);
+            this.btnTestPing.TabIndex = 4;
+            this.btnTestPing.Text = "Тест ping";
+            this.btnTestPing.Visible = false;
+            this.btnTestPing.Click += new System.EventHandler(this.btnTestPing_Click);
+            // 
+            // btnTestSQL
+            // 
+            this.btnTestSQL.Location = new System.Drawing.Point(13, 64);
+            this.btnTestSQL.Name = "btnTestSQL";
+            this.btnTestSQL.Size = new System.Drawing.Size(94, 20);
+            this.btnTestSQL.TabIndex = 5;
+            this.btnTestSQL.Text = "Тест SQL";
+            this.btnTestSQL.Visible = false;
+            this.btnTestSQL.Click += new System.EventHandler(this.btnTestSQL_Click);
+            // 
+            // btnExecRDP
+            // 
+            this.btnExecRDP.Location = new System.Drawing.Point(113, 64);
+            this.btnExecRDP.Name = "btnExecRDP";
+            this.btnExecRDP.Size = new System.Drawing.Size(98, 20);
+            this.btnExecRDP.TabIndex = 6;
+            this.btnExecRDP.Text = "Запуск RDP";
+            this.btnExecRDP.Visible = false;
+            this.btnExecRDP.Click += new System.EventHandler(this.btnExecRDP_Click);
             // 
             // LoginForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.ClientSize = new System.Drawing.Size(638, 455);
+            this.ClientSize = new System.Drawing.Size(238, 295);
+            this.Controls.Add(this.btnExecRDP);
+            this.Controls.Add(this.btnTestSQL);
+            this.Controls.Add(this.btnTestPing);
+            this.Controls.Add(this.btnTestWiFi);
+            this.Controls.Add(this.btnHelp);
             this.Controls.Add(this.lblMessage);
-            this.Location = new System.Drawing.Point(0, 0);
             this.Name = "LoginForm";
             this.Text = "Авторизация";
             this.ResumeLayout(false);
@@ -59,5 +117,10 @@
         #endregion
 
         private System.Windows.Forms.Label lblMessage;
+        private System.Windows.Forms.Button btnHelp;
+        private System.Windows.Forms.Button btnTestWiFi;
+        private System.Windows.Forms.Button btnTestPing;
+        private System.Windows.Forms.Button btnTestSQL;
+        private System.Windows.Forms.Button btnExecRDP;
     }
 }

@@ -103,6 +103,15 @@ namespace gamma_mob
             return false;
         }
 
+        public static string GetServerIp()
+        {
+            if (ServerIp == "")
+            {
+                GetIpFromSettings(Settings.ServerIP);
+            }
+            return ServerIp;
+        }
+
         public static void StartChecker()
         {
             if (_checkerRunning) return;
@@ -143,7 +152,7 @@ namespace gamma_mob
             _checkerRunning = true;
         }
 
-        private static bool GetIpFromSettings(string server)
+        public static bool GetIpFromSettings(string server)
         {
             string ippattern =
                 //@"^(?<ip>((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))(\\.*)?$";

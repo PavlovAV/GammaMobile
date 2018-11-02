@@ -30,18 +30,6 @@ namespace gamma_mob
         [DllImport("coredll.dll", SetLastError = true)]
         private extern static uint SetSystemTime(ref SystemTime lpSystemTime);
 
-        /*private struct SYSTEMTIME
-        {
-            public ushort wYear;
-            public ushort wMonth;
-            public ushort wDayOfWeek;
-            public ushort wDay;
-            public ushort wHour;
-            public ushort wMinute;
-            public ushort wSecond;
-            public ushort wMilliseconds;
-        }
-        */
         protected static void SetSystemDateTime(DateTime dt)
         {
             SystemTime systime = new SystemTime
@@ -124,33 +112,16 @@ namespace gamma_mob
 
         private void btnExecRDP_Click(object sender, EventArgs e)
         {
-            //var processes = OpenNETCF.ToolHelp.ProcessEntry.GetProcesses();
-            /*var processIsRunning = false;
-            OpenNETCF.ToolHelp.ProcessEntry cerdispProcess = null;
-            foreach (OpenNETCF.ToolHelp.ProcessEntry clsProcess in OpenNETCF.ToolHelp.ProcessEntry.GetProcesses())
-            {
-                if (!processIsRunning && clsProcess.ExeFile.Contains(@"cerdisp"))
-                {
-                    cerdispProcess = clsProcess;
-                    processIsRunning = true;
-                }
-            }*/
             var cerdispProcess = GetProcessRunning(@"cerdisp");
             if (cerdispProcess == null)
             {
-                //[HKEY_LOCAL_MACHINE\SOFTWARE\CERDISP]
-                //"Hostname"="192.168.95.7"
-
                 RegistryKey reg = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\CERDISP", true);
                 var serverIP = ConnectionState.GetServerIp();
                 var hostname = (string)reg.GetValue("Hostname", "");
                 if (serverIP != "" && (string)reg.GetValue("Hostname", "") != serverIP)
                 {
-                    // set value of "CDInsert" to 1
                     reg.SetValue("Hostname", serverIP, RegistryValueKind.String);
                 }
-                // get value of "CDInsert"; return 0 if value not found
-                //int value = (int)reg.GetValue("CDInsert", 0);
                 var hostname1 = (string)reg.GetValue("Hostname", "");
                 
                 System.Diagnostics.Process.Start(Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase) +
@@ -225,6 +196,17 @@ namespace gamma_mob
                 btnTestPing.Visible = false;
                 btnTestSQL.Visible = false;
                 btnTestWiFi.Visible = false;
+                try
+                {
+                    var cerdispProcess = GetProcessRunning(@"cerdisp");
+                    if (cerdispProcess != null)
+                    {
+                        cerdispProcess.Kill();
+                    }
+                }
+                catch
+                {
+                }
             }
         }
 

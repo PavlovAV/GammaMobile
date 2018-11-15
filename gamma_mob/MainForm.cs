@@ -174,6 +174,72 @@ namespace gamma_mob
             Cursor.Current = Cursors.Default;
         }
 
+        private int shiftID;
+        private void btnCloseShift_Click(object sender, EventArgs e)
+        {
+            Cursor.Current = Cursors.WaitCursor;
+            if (ConnectionState.CheckConnection())
+            {
+                switch (Db.CheckSqlConnection())
+                {
+                    case 2:
+                        MessageBox.Show(@"Нет связи с БД. Повторите попытку в зоне покрытия WiFi" + Environment.NewLine + ConnectionState.GetConnectionState(),
+                                        @"Отсутствует WiFi", MessageBoxButtons.OK, MessageBoxIcon.Hand,
+                                        MessageBoxDefaultButton.Button1);
+                        break;
+                    case 1:
+                        WrongUserPass();
+                        break;
+                    default:
+                        Cursor.Current = Cursors.Default;
+                        using (var form = new ChooseShiftDialog())
+                        {
+                            DialogResult result = form.ShowDialog();
+                            if (result != DialogResult.OK || form.Quantity == null || form.Quantity < 1)
+                            {
+                                MessageBox.Show(@"Не указан номер смены." + Environment.NewLine + @"Смена не закрыта!", @"Смена не закрыта",
+                                                MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
+                                return;
+                            }
+                            else
+                            {
+                                shiftID = form.Quantity;
+                                var resultMessage = Db.CloseShiftWarehouse(Shared.PersonId, shiftID);
+                                switch (resultMessage)
+                                {
+                                    case 1:
+                                    MessageBox.Show(@"Смена закрыта."+ Environment.NewLine+@"Распечатайте рапорт на компьютере в Гамме.", @"Закрытие смены", MessageBoxButtons.OK,
+                                                MessageBoxIcon.None,
+                                                MessageBoxDefaultButton.Button1);
+                                    break;
+                                    case -1:
+                                    MessageBox.Show(@"Смена не закрыта." + Environment.NewLine + @"Произошла ошибка." + Environment.NewLine + @"Попробуйте снова.", @"Закрытие смены", MessageBoxButtons.OK,
+                                                MessageBoxIcon.Asterisk,
+                                                MessageBoxDefaultButton.Button1);
+                                    break;
+                                    case 0:
+                                    MessageBox.Show(@"Смена не закрыта." + Environment.NewLine + @"Уже есть рапорт за эту смену." + Environment.NewLine + @"Закройте смену в Гамме повторно.", @"Закрытие смены", MessageBoxButtons.OK,
+                                                MessageBoxIcon.Asterisk,
+                                                MessageBoxDefaultButton.Button1);
+                                    break;
+
+
+                                }
+                                
+                            }
+                        }
+                        break;
+                }
+            }
+            else
+            {
+                MessageBox.Show(@"Нет связи с БД. Повторите попытку в зоне покрытия WiFi" + Environment.NewLine + ConnectionState.GetConnectionState(),
+                                @"Отсутствует WiFi", MessageBoxButtons.OK, MessageBoxIcon.Hand,
+                                MessageBoxDefaultButton.Button1);
+            }
+            Cursor.Current = Cursors.Default;
+        }
+
         
     }
 }

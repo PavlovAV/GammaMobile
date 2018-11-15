@@ -1633,5 +1633,31 @@ namespace gamma_mob
             DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure);
             return table;
         }
+
+        public static int? CloseShiftWarehouse(Guid personId, int shiftId)
+        {
+            int? result = null;
+            const string sql = "dbo.mob_CloseShiftWarehouse";
+            var parameters = new List<SqlParameter>
+                {
+                    new SqlParameter("@PersonID", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = personId
+                        },
+                    new SqlParameter("@ShiftID", SqlDbType.Int)
+                        {
+                            Value = shiftId
+                        }
+                };
+            using (DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure))
+            {
+                if (table != null && table.Rows.Count > 0)
+                {
+                    result = table.Rows[0].IsNull("Result") ? null : (int?)Convert.ToInt32(table.Rows[0]["Result"]);
+                }
+            }
+            return result;
+        }
+
     }
 }

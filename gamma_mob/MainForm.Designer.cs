@@ -33,14 +33,15 @@
             this.btnExtAccept = new System.Windows.Forms.Button();
             this.btnInventarisation = new System.Windows.Forms.Button();
             this.btnComplectPallet = new System.Windows.Forms.Button();
+            this.btnCloseShift = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // btnDocOrder
             // 
             this.btnDocOrder.Font = new System.Drawing.Font("Tahoma", 18F, System.Drawing.FontStyle.Bold);
-            this.btnDocOrder.Location = new System.Drawing.Point(3, 9);
+            this.btnDocOrder.Location = new System.Drawing.Point(3, 3);
             this.btnDocOrder.Name = "btnDocOrder";
-            this.btnDocOrder.Size = new System.Drawing.Size(232, 46);
+            this.btnDocOrder.Size = new System.Drawing.Size(232, 45);
             this.btnDocOrder.TabIndex = 0;
             this.btnDocOrder.TabStop = false;
             this.btnDocOrder.Text = "Отгрузки";
@@ -49,9 +50,9 @@
             // btnDocMovement
             // 
             this.btnDocMovement.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Bold);
-            this.btnDocMovement.Location = new System.Drawing.Point(3, 60);
+            this.btnDocMovement.Location = new System.Drawing.Point(3, 54);
             this.btnDocMovement.Name = "btnDocMovement";
-            this.btnDocMovement.Size = new System.Drawing.Size(232, 50);
+            this.btnDocMovement.Size = new System.Drawing.Size(232, 45);
             this.btnDocMovement.TabIndex = 1;
             this.btnDocMovement.TabStop = false;
             this.btnDocMovement.Text = "Перемещение на склад";
@@ -60,9 +61,9 @@
             // btnExtAccept
             // 
             this.btnExtAccept.Font = new System.Drawing.Font("Tahoma", 16F, System.Drawing.FontStyle.Bold);
-            this.btnExtAccept.Location = new System.Drawing.Point(3, 116);
+            this.btnExtAccept.Location = new System.Drawing.Point(3, 105);
             this.btnExtAccept.Name = "btnExtAccept";
-            this.btnExtAccept.Size = new System.Drawing.Size(232, 50);
+            this.btnExtAccept.Size = new System.Drawing.Size(232, 45);
             this.btnExtAccept.TabIndex = 3;
             this.btnExtAccept.TabStop = false;
             this.btnExtAccept.Text = "Приемка";
@@ -71,9 +72,9 @@
             // btnInventarisation
             // 
             this.btnInventarisation.Font = new System.Drawing.Font("Tahoma", 16F, System.Drawing.FontStyle.Bold);
-            this.btnInventarisation.Location = new System.Drawing.Point(3, 172);
+            this.btnInventarisation.Location = new System.Drawing.Point(3, 156);
             this.btnInventarisation.Name = "btnInventarisation";
-            this.btnInventarisation.Size = new System.Drawing.Size(232, 50);
+            this.btnInventarisation.Size = new System.Drawing.Size(232, 45);
             this.btnInventarisation.TabIndex = 4;
             this.btnInventarisation.TabStop = false;
             this.btnInventarisation.Text = "Инвентаризация";
@@ -82,25 +83,36 @@
             // btnComplectPallet
             // 
             this.btnComplectPallet.Font = new System.Drawing.Font("Tahoma", 14F, System.Drawing.FontStyle.Regular);
-            this.btnComplectPallet.Location = new System.Drawing.Point(3, 228);
+            this.btnComplectPallet.Location = new System.Drawing.Point(3, 258);
             this.btnComplectPallet.Name = "btnComplectPallet";
-            this.btnComplectPallet.Size = new System.Drawing.Size(232, 50);
+            this.btnComplectPallet.Size = new System.Drawing.Size(232, 45);
             this.btnComplectPallet.TabIndex = 5;
             this.btnComplectPallet.TabStop = false;
             this.btnComplectPallet.Text = "Комплектация паллеты";
             this.btnComplectPallet.Visible = false;
+            // 
+            // btnCloseShift
+            // 
+            this.btnCloseShift.Font = new System.Drawing.Font("Tahoma", 14F, System.Drawing.FontStyle.Regular);
+            this.btnCloseShift.Location = new System.Drawing.Point(3, 207);
+            this.btnCloseShift.Name = "btnCloseShift";
+            this.btnCloseShift.Size = new System.Drawing.Size(232, 45);
+            this.btnCloseShift.TabIndex = 6;
+            this.btnCloseShift.TabStop = false;
+            this.btnCloseShift.Text = "Закрытие смены";
+            this.btnCloseShift.Click += new System.EventHandler(this.btnCloseShift_Click);
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(638, 455);
+            this.Controls.Add(this.btnCloseShift);
             this.Controls.Add(this.btnComplectPallet);
             this.Controls.Add(this.btnInventarisation);
             this.Controls.Add(this.btnExtAccept);
             this.Controls.Add(this.btnDocMovement);
             this.Controls.Add(this.btnDocOrder);
-            this.Location = new System.Drawing.Point(0, 0);
             this.Name = "MainForm";
             this.Text = "Gamma";
             this.ResumeLayout(false);
@@ -114,6 +126,7 @@
         private System.Windows.Forms.Button btnExtAccept;
         private System.Windows.Forms.Button btnInventarisation;
         private System.Windows.Forms.Button btnComplectPallet;
+        private System.Windows.Forms.Button btnCloseShift;
     }
 }
 

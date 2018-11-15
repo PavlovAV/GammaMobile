@@ -26,6 +26,7 @@ namespace gamma_mob
             WrongUserPass();
         }
 
+        private string barcode;
 
         [DllImport("coredll.dll", SetLastError = true)]
         private extern static uint SetSystemTime(ref SystemTime lpSystemTime);
@@ -299,6 +300,35 @@ namespace gamma_mob
                 lblMessage.Text = "Нет связи с БД " + Settings.ServerIP + ". Повторите попытку в зоне покрытия WiFi" + Environment.NewLine + ConnectionState.GetConnectionState();
             }
             Cursor.Current = Cursors.Default;
+        }
+
+        private void SetBarcode(char keyChar)
+        {
+            if (keyChar == (char)13)
+            {
+                var barcodeLength = barcode.Length;
+                for (int i = 0; i < 14 - barcodeLength; i++)
+                {
+                    barcode = "0" + barcode;
+                }
+                lblMessage.Text = barcode;
+                AuthorizeByBarcode(barcode);
+                barcode = String.Empty;
+            }
+            else
+            {
+                barcode = barcode + keyChar.ToString();
+            }
+        }
+        
+        private void LoginForm_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            SetBarcode(e.KeyChar);
+        }
+
+        private void lblMessage_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            SetBarcode(e.KeyChar);
         }
     }
 }

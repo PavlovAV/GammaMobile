@@ -117,13 +117,20 @@ namespace gamma_mob
             if (cerdispProcess == null)
             {
                 RegistryKey reg = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\CERDISP", true);
+                //RegistryKey reg = Registry.LocalMachine.OpenSubKey(@"SOFTWARE", true);
+                //reg.DeleteSubKey(@"CERDISP");
+                if (reg == null)
+                {
+                    reg = Registry.LocalMachine.OpenSubKey(@"SOFTWARE", true);
+                    reg.CreateSubKey(@"CERDISP");
+                    reg = reg.OpenSubKey(@"CERDISP", true);
+                }
                 var serverIP = ConnectionState.GetServerIp();
                 var hostname = (string)reg.GetValue("Hostname", "");
-                if (serverIP != "" && (string)reg.GetValue("Hostname", "") != serverIP)
+                if (serverIP != "" && hostname != serverIP)
                 {
                     reg.SetValue("Hostname", serverIP, RegistryValueKind.String);
                 }
-                var hostname1 = (string)reg.GetValue("Hostname", "");
                 
                 System.Diagnostics.Process.Start(Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase) +
                            @"\cerdisp.exe", "-c");

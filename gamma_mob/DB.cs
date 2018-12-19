@@ -1659,5 +1659,26 @@ namespace gamma_mob
             return result;
         }
 
+        public static string GetUserNameFromPerson(Guid personId)
+        {
+            string result = String.Empty;
+            const string sql = "dbo.mob_GetUserNameFromPerson";
+            var parameters = new List<SqlParameter>
+                {
+                    new SqlParameter("@PersonID", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = personId
+                        }
+                };
+            using (DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure))
+            {
+                if (table != null && table.Rows.Count > 0)
+                {
+                    result = table.Rows[0]["UserName"].ToString();
+                }
+            }
+            return result;
+        }
+
     }
 }

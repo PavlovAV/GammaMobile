@@ -57,39 +57,43 @@
             // 
             // rdbShift1
             // 
-            this.rdbShift1.Location = new System.Drawing.Point(19, 38);
+            this.rdbShift1.Font = new System.Drawing.Font("Tahoma", 18F, System.Drawing.FontStyle.Regular);
+            this.rdbShift1.Location = new System.Drawing.Point(19, 43);
             this.rdbShift1.Name = "rdbShift1";
-            this.rdbShift1.Size = new System.Drawing.Size(100, 20);
+            this.rdbShift1.Size = new System.Drawing.Size(87, 20);
             this.rdbShift1.TabIndex = 5;
             this.rdbShift1.Tag = "1";
-            this.rdbShift1.Text = "Смена 1";
+            this.rdbShift1.Text = " 1";
             // 
             // rdbShift2
             // 
-            this.rdbShift2.Location = new System.Drawing.Point(19, 64);
+            this.rdbShift2.Font = new System.Drawing.Font("Tahoma", 18F, System.Drawing.FontStyle.Regular);
+            this.rdbShift2.Location = new System.Drawing.Point(19, 98);
             this.rdbShift2.Name = "rdbShift2";
-            this.rdbShift2.Size = new System.Drawing.Size(100, 20);
+            this.rdbShift2.Size = new System.Drawing.Size(87, 20);
             this.rdbShift2.TabIndex = 6;
             this.rdbShift2.Tag = "2";
-            this.rdbShift2.Text = "Смена 2";
+            this.rdbShift2.Text = " 2";
             // 
             // rdbShift3
             // 
-            this.rdbShift3.Location = new System.Drawing.Point(19, 90);
+            this.rdbShift3.Font = new System.Drawing.Font("Tahoma", 18F, System.Drawing.FontStyle.Regular);
+            this.rdbShift3.Location = new System.Drawing.Point(125, 43);
             this.rdbShift3.Name = "rdbShift3";
             this.rdbShift3.Size = new System.Drawing.Size(100, 20);
             this.rdbShift3.TabIndex = 7;
             this.rdbShift3.Tag = "3";
-            this.rdbShift3.Text = "Смена 3";
+            this.rdbShift3.Text = " 3";
             // 
             // rdbShift4
             // 
-            this.rdbShift4.Location = new System.Drawing.Point(19, 116);
+            this.rdbShift4.Font = new System.Drawing.Font("Tahoma", 18F, System.Drawing.FontStyle.Regular);
+            this.rdbShift4.Location = new System.Drawing.Point(125, 98);
             this.rdbShift4.Name = "rdbShift4";
             this.rdbShift4.Size = new System.Drawing.Size(100, 20);
             this.rdbShift4.TabIndex = 8;
             this.rdbShift4.Tag = "4";
-            this.rdbShift4.Text = "Смена 4";
+            this.rdbShift4.Text = " 4";
             // 
             // ChooseShiftDialog
             // 

@@ -12,6 +12,7 @@ using OpenNETCF.Net.NetworkInformation;
 using Microsoft.Win32;
 using System.Net;
 using System.Runtime.InteropServices;
+using gamma_mob.Dialogs;
 
 namespace gamma_mob
 {
@@ -90,10 +91,60 @@ namespace gamma_mob
                 MessageBox.Show(@"Неверный шк или нет связи с базой");
                 return;
             }
+
+            var userName = Db.GetUserNameFromPerson(person.PersonID);
+            if (userName == String.Empty)
+            {
+                MessageBox.Show(@"Не определен логин." + Environment.NewLine + @"Обратитесь в техподдержку Гаммы!", @"Логин не определен",
+                                MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
+                return;
+            }
+
+            if (userName.Contains("0"))
+            {
+                using (var form = new ChooseShiftDialog())
+                {
+                    DialogResult result = form.ShowDialog();
+                    if (result != DialogResult.OK || form.ShiftId < 1)
+                    {
+                        MessageBox.Show(@"Не указан номер смены." + Environment.NewLine + @"Попробуйте еще раз!", @"Смена не выбрана",
+                                        MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
+                        return;
+                    }
+
+                    Settings.UserName = userName.Replace("0", form.ShiftId.ToString());
+                    Settings.Password = "123456";
+                    Shared.ShiftId = form.ShiftId;
+                }
+            }
+            else
+            {
+                using (var form = new ChoosePasswordDialog())
+                {
+                    DialogResult result = form.ShowDialog();
+                    if (result != DialogResult.OK || form.Password == String.Empty)
+                    {
+                        MessageBox.Show(@"Не указан пароль." + Environment.NewLine + @"Попробуйте еще раз!", @"Пароль не введен",
+                                        MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
+                        return;
+                    }
+                    Settings.UserName = userName;
+                    Settings.Password = form.Password;
+                    Shared.ShiftId = 0;
+                }
+            }
+            if (!ConnectionState.CheckConnection()) return;
+            Db.SetConnectionString(Settings.ServerIP, Settings.Database, Settings.UserName, Settings.Password, Settings.TimeOut);
+            if (Db.CheckSqlConnection() == 1)
+            {
+                WrongUserPass();
+                return;
+            }
+
             Shared.PersonId = person.PersonID;
             Invoke(
                 (MethodInvoker)
-                (() => lblMessage.Text = "Вы авторизовались " + Environment.NewLine + "как " + person.Name));
+                (() => lblMessage.Text = "Вы авторизовались " + Environment.NewLine + "как " + person.Name + " (" + Settings.UserName + ")"));
             Thread.Sleep(3000);
             Invoke((MethodInvoker) (CloseForm));
         }

@@ -29,7 +29,7 @@ namespace gamma_mob
             set { _isConnected = value; }
         }
 
-        private static string ServerIp
+        public static string ServerIp
         {
             get { return _serverIp; }
             set { _serverIp = value; }

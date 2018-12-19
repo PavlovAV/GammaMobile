@@ -21,6 +21,8 @@ namespace gamma_mob.Common
 
         public static Guid PersonId { get; set; }
 
+        public static byte ShiftId { get; set; }
+
         public static List<Warehouse> Warehouses
         {
             get

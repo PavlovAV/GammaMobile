@@ -12,6 +12,16 @@ namespace gamma_mob
         public MainForm()
         {
             InitializeComponent();
+            if (Shared.ShiftId > 0)
+            {
+                btnCloseShift.Visible = true;
+                btnInventarisation.Visible = false;
+            }
+            else
+            {
+                btnCloseShift.Visible = false;
+                btnInventarisation.Visible = true;
+            }
  //           var mFilter = new InactivityFilter(100);
             //mFilter.InactivityElapsed += m_filter_InactivityElapsed;
  //           Application2.AddMessageFilter(mFilter);
@@ -174,7 +184,7 @@ namespace gamma_mob
             Cursor.Current = Cursors.Default;
         }
 
-        private int shiftID;
+
         private void btnCloseShift_Click(object sender, EventArgs e)
         {
             Cursor.Current = Cursors.WaitCursor;

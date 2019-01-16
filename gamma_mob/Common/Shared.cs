@@ -23,6 +23,8 @@ namespace gamma_mob.Common
 
         public static byte ShiftId { get; set; }
 
+        public static int PlaceId { get; set; }
+
         public static List<Warehouse> Warehouses
         {
             get
@@ -59,6 +61,22 @@ namespace gamma_mob.Common
             ImgList.Images.Add(Resources.add);
             ImgList.Images.Add(Resources.delete);
             ImgList.Images.Add(Resources.InfoProduct);
+        }
+
+        private const int BS_MULTILINE = 0x00002000;
+        private const int GWL_STYLE = -16;
+
+        [System.Runtime.InteropServices.DllImport("coredll")]
+        private static extern int GetWindowLong(IntPtr hWnd, int nIndex);
+
+        [System.Runtime.InteropServices.DllImport("coredll")]
+        private static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
+
+        public static void MakeButtonMultiline(Button b)
+        {
+            IntPtr hwnd = b.Handle;
+            int currentStyle = GetWindowLong(hwnd, GWL_STYLE);
+            int newStyle = SetWindowLong(hwnd, GWL_STYLE, currentStyle | BS_MULTILINE);
         }
 
     }

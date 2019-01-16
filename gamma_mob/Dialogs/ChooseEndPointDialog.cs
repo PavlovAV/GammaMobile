@@ -21,7 +21,7 @@ namespace gamma_mob.Dialogs
             EndPointInfo = new EndPointInfo
                 {
                     PlaceId = Convert.ToInt32((sender as ButtonIntId).Id),
-                    PlaceName = Convert.ToString((sender as ButtonIntId).Text)
+                    PlaceName = Convert.ToString((sender as ButtonIntId).Text.Replace("\r\n",""))
                 };
             Close();
         }
@@ -36,7 +36,7 @@ namespace gamma_mob.Dialogs
                 return;
             }
 
-            Height = 100 + (Shared.Warehouses.Count - 1)*40;
+            Height = 100 + (Shared.Warehouses.Count - 1)*35;
 
             if (Height > Screen.PrimaryScreen.WorkingArea.Height) Height = Screen.PrimaryScreen.WorkingArea.Height;
             Location = new Point(0, (Screen.PrimaryScreen.WorkingArea.Height - Height) / 2);
@@ -44,11 +44,13 @@ namespace gamma_mob.Dialogs
             {
                 var button = new ButtonIntId(Shared.Warehouses[i].WarehouseId);
                 button.Click += btnOK_Click;
-                button.Text = Shared.Warehouses[i].WarehouseName;
-                button.Width = Convert.ToInt32(GraphFuncs.TextSize(Shared.Warehouses[i].WarehouseName, button.Font).Width + 8);
-                button.Height = 30;
-                button.Left = (Width - button.Width) / 2;
-                button.Top = 10 + 40*i;
+                button.Font = new Font("Tahoma",12,FontStyle.Regular);
+                button.Text = Shared.Warehouses[i].WarehouseName.Length <= 11 ? Shared.Warehouses[i].WarehouseName : Shared.Warehouses[i].WarehouseName.Substring(0, 11) + Environment.NewLine + Shared.Warehouses[i].WarehouseName.Substring(11, Math.Min(11,Shared.Warehouses[i].WarehouseName.Length - 11));
+                button.Width = (Width- 5 - 20) / 2;
+                button.Height = 37;
+                button.Left = 5 + (button.Width + 6) * (i % 2);
+                button.Top = 2 + 38 * Convert.ToInt32(Math.Floor(i / 2));
+                Shared.MakeButtonMultiline(button);
                 Controls.Add(button);
             }
         }

@@ -48,6 +48,7 @@
             // 
             // btnOK
             // 
+            this.btnOK.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular);
             this.btnOK.Location = new System.Drawing.Point(65, 149);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(100, 35);

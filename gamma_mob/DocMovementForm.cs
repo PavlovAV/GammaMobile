@@ -686,13 +686,17 @@ namespace gamma_mob
                 MessageBox.Show(@"Нет связи с сервером" + Environment.NewLine + ConnectionState.GetConnectionState());
                 return;
             }
-            var good = AcceptedProducts[gridDocAccept.CurrentRowIndex];
-            var form = new DocMovementProductsForm(EndPointInfo.PlaceId, Shared.PersonId, good.NomenclatureId, good.NomenclatureName, good.CharacteristicId, good.QualityId, good.PlaceZoneId, this, new RefreshDocProductDelegate(RefreshDocMovementProducts));
-            if (!form.IsDisposed)
+            var row = gridDocAccept.CurrentRowIndex;
+            if (row >= 0)
             {
-                form.Show();
-                if (form.Enabled)
-                    Hide();
+                var good = AcceptedProducts[row];
+                var form = new DocMovementProductsForm(EndPointInfo.PlaceId, Shared.PersonId, good.NomenclatureId, good.NomenclatureName, good.CharacteristicId, good.QualityId, good.PlaceZoneId, this, new RefreshDocProductDelegate(RefreshDocMovementProducts));
+                if (!form.IsDisposed)
+                {
+                    form.Show();
+                    if (form.Enabled)
+                        Hide();
+                }
             }
         }
 

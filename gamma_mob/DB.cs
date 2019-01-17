@@ -728,6 +728,10 @@ namespace gamma_mob
                     new SqlParameter("@QuantityRos", SqlDbType.Int)
                         {
                             Value = quantity
+                        },
+                    new SqlParameter("@ShiftId", SqlDbType.TinyInt)
+                        {
+                            Value = Shared.ShiftId
                         }
                 };
             using (DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure))
@@ -801,6 +805,10 @@ namespace gamma_mob
                     new SqlParameter("@QuantityRos", SqlDbType.Int)
                         {
                             Value = quantity
+                        },
+                    new SqlParameter("@ShiftId", SqlDbType.TinyInt)
+                        {
+                            Value = Shared.ShiftId
                         }
                 };
             using (DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure))
@@ -1183,6 +1191,10 @@ namespace gamma_mob
                     new SqlParameter("@PlaceID", SqlDbType.Int)
                         {
                             Value = placeId
+                        },
+                    new SqlParameter("@ShiftID", SqlDbType.TinyInt)
+                        {
+                            Value = Shared.ShiftId
                         }
                 };
             using (DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure))

@@ -52,7 +52,7 @@ namespace gamma_mob.Dialogs
                 button.Top = 2*(i+1) + 30 * i;
                 */
                 button.Font = new Font("Tahoma", 12, FontStyle.Regular);
-                button.Text = placeZones[i].Name.Length <= 12 ? placeZones[i].Name : placeZones[i].Name.Substring(0, 12) + Environment.NewLine + placeZones[i].Name.Substring(12, Math.Min(12, placeZones[i].Name.Length - 12));
+                button.Text = placeZones[i].Name.Length <= 11 ? placeZones[i].Name : (placeZones[i].Name.Substring(0, 11).Substring(10,1) == " " ? placeZones[i].Name.Substring(0, 10) : placeZones[i].Name.Substring(0, 11)) + Environment.NewLine + placeZones[i].Name.Substring(11, Math.Min(11, placeZones[i].Name.Length - 11));
                 button.Width = (Width - 5 - 20) / 2;
                 button.Height = 37;
                 button.Left = 5 + (button.Width + 6) * (i % 2);

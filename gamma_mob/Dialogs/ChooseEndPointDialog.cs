@@ -45,7 +45,7 @@ namespace gamma_mob.Dialogs
                 var button = new ButtonIntId(Shared.Warehouses[i].WarehouseId);
                 button.Click += btnOK_Click;
                 button.Font = new Font("Tahoma",12,FontStyle.Regular);
-                button.Text = Shared.Warehouses[i].WarehouseName.Length <= 11 ? Shared.Warehouses[i].WarehouseName : Shared.Warehouses[i].WarehouseName.Substring(0, 11) + Environment.NewLine + Shared.Warehouses[i].WarehouseName.Substring(11, Math.Min(11,Shared.Warehouses[i].WarehouseName.Length - 11));
+                button.Text = Shared.Warehouses[i].WarehouseName.Length <= 11 ? Shared.Warehouses[i].WarehouseName : (Shared.Warehouses[i].WarehouseName.Substring(0, 11).Substring(10, 1) == " " ? Shared.Warehouses[i].WarehouseName.Substring(0, 10) : Shared.Warehouses[i].WarehouseName.Substring(0, 11)) + Environment.NewLine + Shared.Warehouses[i].WarehouseName.Substring(11, Math.Min(11, Shared.Warehouses[i].WarehouseName.Length - 11));
                 button.Width = (Width- 5 - 20) / 2;
                 button.Height = 37;
                 button.Left = 5 + (button.Width + 6) * (i % 2);

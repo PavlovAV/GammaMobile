@@ -14,9 +14,9 @@ namespace gamma_mob.Dialogs
         public SetCountProductsDialog(string maxCount)
             : this()
         {
-            lblCount.Text = "Укажите количество" + " (максимально " + Convert.ToDecimal(maxCount).ToString("0.###") + ")";
+            lblCount.Text = "Укажите количество" + " (максимально " + (maxCount.Length == 0  ? "(null)" : Convert.ToDecimal(maxCount).ToString("0.###")) + ")";
             MaxCount = maxCount;
-            edtQuantity.Maximum = Convert.ToDecimal(maxCount);
+            edtQuantity.Maximum = maxCount.Length == 0 ? 0 : Convert.ToDecimal(maxCount);
         }
 
         public int Quantity { get; set; }

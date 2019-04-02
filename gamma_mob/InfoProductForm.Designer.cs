@@ -34,8 +34,11 @@
             this.btnInfoProduct = new System.Windows.Forms.Button();
             this.edtNumber = new System.Windows.Forms.TextBox();
             this.lblMessage = new System.Windows.Forms.Label();
+            this.pnlMessage = new System.Windows.Forms.Panel();
+            this.lblUserInfo = new System.Windows.Forms.Label();
             this.pnlButtons.SuspendLayout();
             this.pnlLabel.SuspendLayout();
+            this.pnlMessage.SuspendLayout();
             this.SuspendLayout();
             // 
             // pnlButtons
@@ -85,24 +88,43 @@
             // 
             this.lblMessage.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lblMessage.Font = new System.Drawing.Font("Tahoma", 11F, System.Drawing.FontStyle.Regular);
-            this.lblMessage.Location = new System.Drawing.Point(0, 32);
+            this.lblMessage.Location = new System.Drawing.Point(0, 0);
             this.lblMessage.Name = "lblMessage";
-            this.lblMessage.Size = new System.Drawing.Size(638, 379);
+            this.lblMessage.Size = new System.Drawing.Size(638, 359);
             this.lblMessage.Text = "Просканируйте \r\nштрих-код продукции";
             this.lblMessage.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            // 
+            // pnlMessage
+            // 
+            this.pnlMessage.Controls.Add(this.lblMessage);
+            this.pnlMessage.Controls.Add(this.lblUserInfo);
+            this.pnlMessage.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pnlMessage.Location = new System.Drawing.Point(0, 32);
+            this.pnlMessage.Name = "pnlMessage";
+            this.pnlMessage.Size = new System.Drawing.Size(638, 379);
+            // 
+            // lblUserInfo
+            // 
+            this.lblUserInfo.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.lblUserInfo.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Regular);
+            this.lblUserInfo.Location = new System.Drawing.Point(0, 359);
+            this.lblUserInfo.Name = "lblUserInfo";
+            this.lblUserInfo.Size = new System.Drawing.Size(638, 20);
+            this.lblUserInfo.Text = "lblUserInfo";
             // 
             // InfoProductForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(638, 455);
-            this.Controls.Add(this.lblMessage);
+            this.Controls.Add(this.pnlMessage);
             this.Controls.Add(this.pnlLabel);
             this.Controls.Add(this.pnlButtons);
             this.Name = "InfoProductForm";
             this.Text = "Информация о продукте";
             this.pnlButtons.ResumeLayout(false);
             this.pnlLabel.ResumeLayout(false);
+            this.pnlMessage.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -115,5 +137,7 @@
         private System.Windows.Forms.Label lblMessage;
         private System.Windows.Forms.Button btnInfoProduct;
         private System.Windows.Forms.TextBox edtNumber;
+        private System.Windows.Forms.Panel pnlMessage;
+        private System.Windows.Forms.Label lblUserInfo;
     }
 }

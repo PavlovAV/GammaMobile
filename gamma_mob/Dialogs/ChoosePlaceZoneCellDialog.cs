@@ -23,6 +23,7 @@ namespace gamma_mob.Dialogs
         private List<PlaceZone> PlaceZoneRows { get; set; }
 
         public Guid PlaceZoneId { get; set; }
+        public String PlaceZoneName { get; set; }
 
         private void ChoosePlaceZoneCellDialog_Load(object sender, EventArgs e)
         {
@@ -68,6 +69,7 @@ namespace gamma_mob.Dialogs
         {
             DialogResult = DialogResult.OK;
             PlaceZoneId = (sender as ButtonGuidId).Id;
+            PlaceZoneName = Convert.ToString((sender as ButtonIntId).Text.Replace("\r\n", ""));
             Close();
         }
     }

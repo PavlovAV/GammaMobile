@@ -444,7 +444,7 @@ namespace gamma_mob
                         }
                         list.Add(new DocNomenclatureItem
                         {
-                            CharacteristicId = new Guid(row["1CCharacteristicID"].ToString()),
+                            CharacteristicId = row.IsNull("1CCharacteristicID") ? new Guid() : new Guid(row["1CCharacteristicID"].ToString()),
                             NomenclatureId = new Guid(row["1CNomenclatureID"].ToString()),
                             QualityId = new Guid(row["1CQualityID"].ToString()),
                             NomenclatureName = row["NomenclatureName"].ToString(),
@@ -749,7 +749,7 @@ namespace gamma_mob
                         {
                             ProductId = new Guid(table.Rows[0]["ProductID"].ToString()),
                             NomenclatureId = new Guid(table.Rows[0]["NomenclatureID"].ToString()),
-                            CharacteristicId = new Guid(table.Rows[0]["CharacteristicID"].ToString()),
+                            CharacteristicId = table.Rows[0].IsNull("CharacteristicID") ? Guid.Empty : new Guid(table.Rows[0]["CharacteristicID"].ToString()),
                             QualityId = new Guid(table.Rows[0]["QualityID"].ToString()),
                             Quantity = Convert.ToDecimal(table.Rows[0]["Quantity"]),
                             NomenclatureName = table.Rows[0]["NomenclatureName"].ToString(),
@@ -1485,7 +1485,7 @@ namespace gamma_mob
                         list.Add(new ChooseNomenclatureItem
                         {
                             NomenclatureId = new Guid(row["1CNomenclatureID"].ToString()),
-                            CharacteristicId = new Guid(row["1CCharacteristicID"].ToString()),
+                            CharacteristicId = row.IsNull("1CCharacteristicID") ? Guid.Empty : new Guid(row["1CCharacteristicID"].ToString()),
                             QualityId = new Guid(row["1CQualityID"].ToString()),
                             Name = row["Name"].ToString(),
                             Barcode = row["Barcode"].ToString()
@@ -1512,9 +1512,44 @@ namespace gamma_mob
                             Barcode = row["Barcode"].ToString(),
                             Name = row["Name"].ToString(),
                             NomenclatureId = new Guid(row["NomenclatureID"].ToString()),
-                            CharacteristicId = new Guid(row["CharacteristicID"].ToString()),
+                            CharacteristicId = row.IsNull("CharacteristicID") ? new Guid() : new Guid(row["CharacteristicID"].ToString()),
                             QualityId = new Guid(row["QualityID"].ToString()),
-                            MeasureUnitId = new Guid(row["MeasureUnitID"].ToString())
+                            MeasureUnitId = new Guid(row["MeasureUnitID"].ToString()),
+                            BarcodeId = new Guid(row["BarcodeID"].ToString())
+                        });
+                    }
+                }
+            }
+            return list;
+        }
+
+        public static BindingList<ChooseNomenclatureItem> GetBarcodes1CChanges(DateTime startDate)
+        {
+            BindingList<ChooseNomenclatureItem> list = null;
+            const string sql = "dbo.mob_GetBarcodes1CChanges";
+            var parameters = new List<SqlParameter>
+                {
+                    new SqlParameter("@StartUTCDate", SqlDbType.DateTime)
+                        {
+                            Value = startDate
+                        }
+                };
+            using (DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure))
+            {
+                if (table != null && table.Rows.Count > 0)
+                {
+                    list = new BindingList<ChooseNomenclatureItem>();
+                    foreach (DataRow row in table.Rows)
+                    {
+                        list.Add(new ChooseNomenclatureItem
+                        {
+                            Barcode = row["Barcode"].ToString(),
+                            Name = row["Name"].ToString(),
+                            NomenclatureId = new Guid(row["NomenclatureID"].ToString()),
+                            CharacteristicId = row.IsNull("CharacteristicID") ? new Guid() : new Guid(row["CharacteristicID"].ToString()),
+                            QualityId = new Guid(row["QualityID"].ToString()),
+                            MeasureUnitId = new Guid(row["MeasureUnitID"].ToString()),
+                            BarcodeId = new Guid(row["BarcodeID"].ToString())
                         });
                     }
                 }

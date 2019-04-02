@@ -23,8 +23,19 @@ namespace gamma_mob
         {
             InitializeComponent();
             if (!ConnectionState.CheckConnection()) return;
-            if (Db.CheckSqlConnection() != 1) return;
+            /*if (Db.CheckSqlConnection() != 1) return;
             WrongUserPass();
+             * */
+            switch (Db.CheckSqlConnection())
+            {
+                case 2:
+                    ConnectionError();
+                    return;
+                case 1:
+                    WrongUserPass();
+                    return;
+            }
+
         }
 
         private string barcode;
@@ -64,7 +75,7 @@ namespace gamma_mob
                     btnExecRDP.Text = "Запуск RDP";
                 }
 
-                if (Db.CheckSqlConnection() != 1)
+                if (Db.CheckSqlConnection() != 0)
                 {
                     DateTime serverDateTime = Db.GetServerDateTime();
                     if (serverDateTime != null)
@@ -80,10 +91,14 @@ namespace gamma_mob
 
         private void AuthorizeByBarcode(string barcode)
         {
-            if (Db.CheckSqlConnection() == 1)
+            switch (Db.CheckSqlConnection())
             {
-                MessageBox.Show(@"Нет связи с базой!" + Environment.NewLine + ConnectionState.GetConnectionState());
-                return;
+                case 2:
+                    ConnectionError();
+                    return;
+                case 1:
+                    WrongUserPass();
+                    return;
             }
             Person person = Db.PersonByBarcode(barcode);
             if (person == null)
@@ -135,17 +150,24 @@ namespace gamma_mob
             }
             if (!ConnectionState.CheckConnection()) return;
             Db.SetConnectionString(Settings.ServerIP, Settings.Database, Settings.UserName, Settings.Password, Settings.TimeOut);
-            if (Db.CheckSqlConnection() == 1)
+            switch (Db.CheckSqlConnection())
             {
-                WrongUserPass();
-                return;
+                case 2:
+                    ConnectionError();
+                    return;
+                case 1:
+                    WrongUserPass();
+                    return;
             }
 
             Shared.PersonId = person.PersonID;
+            Shared.PersonName = person.Name;
             Invoke(
                 (MethodInvoker)
                 (() => lblMessage.Text = "Вы авторизовались " + Environment.NewLine + "как " + person.Name + " (" + Settings.UserName + ")"));
-            Thread.Sleep(3000);
+            Shared.LastTimeBarcodes1C = Db.GetServerDateTime();
+            Shared.Barcodes1C = Db.GetBarcodes1C();
+            //Thread.Sleep(3000);
             Invoke((MethodInvoker) (CloseForm));
         }
 
@@ -153,6 +175,13 @@ namespace gamma_mob
         {
             DialogResult = DialogResult.OK;
             Close();
+        }
+
+        private void ConnectionError()
+        {
+            MessageBox.Show(@"Нет связи с базой данных. Попробуйте еще раз." + Environment.NewLine + ConnectionState.GetConnectionState()
+                            , @"Ошибка связи с БД",
+                            MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
         }
 
         private void WrongUserPass()
@@ -182,11 +211,20 @@ namespace gamma_mob
                 {
                     reg.SetValue("Hostname", serverIP, RegistryValueKind.String);
                 }
-                
-                System.Diagnostics.Process.Start(Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase) +
-                           @"\cerdisp.exe", "-c");
-                lblMessage.Text = "RDP запущен по адресу " + serverIP;
-                btnExecRDP.Text = "Останов RDP";
+
+                if (File.Exists(Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase) +
+                           @"\cerdisp.exe"))
+                {
+                    System.Diagnostics.Process.Start(Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase) +
+                               @"\cerdisp.exe", "-c");
+                    lblMessage.Text = "RDP запущен по адресу " + serverIP;
+                    btnExecRDP.Text = "Останов RDP";
+                }
+                else
+                {
+                    lblMessage.Text = "RDP не запущен. Файл" + Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase) +
+                               @"\cerdisp.exe не найден.";
+                }
             }
             else
             {
@@ -319,6 +357,11 @@ namespace gamma_mob
                                 if (reply.Status != IPStatus.Success)
                                 {
                                     lblMessage.Text = lblMessage.Text + Environment.NewLine + "Сервер " + ServerIp + " не пингуется c таймаутом 800 мс";
+                                    reply = pinger.Send(ServerIp, 1600);
+                                    if (reply.Status != IPStatus.Success)
+                                    {
+                                        lblMessage.Text = lblMessage.Text + Environment.NewLine + "Сервер " + ServerIp + " не пингуется c таймаутом 1600 мс";
+                                    }
                                 }
                             }
                         }

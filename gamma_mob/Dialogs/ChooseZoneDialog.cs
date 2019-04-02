@@ -22,6 +22,7 @@ namespace gamma_mob.Dialogs
         /// Сюда попадет id конечной зоны
         /// </summary>
         public Guid PlaceZoneId { get; set; }
+        public String PlaceZoneName { get; set; }
 
         /// <summary>
         /// 
@@ -65,6 +66,7 @@ namespace gamma_mob.Dialogs
         private void btnOK_Click(object sender, EventArgs e)
         {
             PlaceZoneId = (sender as ButtonGuidId).Id;
+            PlaceZoneName = Convert.ToString((sender as ButtonGuidId).Text.Replace("\r\n", ""));
             var placeZoneRows = Db.GetPlaceZoneChilds(PlaceZoneId);
             if (placeZoneRows != null && placeZoneRows.Count > 0)
             {
@@ -77,6 +79,7 @@ namespace gamma_mob.Dialogs
                         return;
                     }
                     PlaceZoneId = form.PlaceZoneId;
+                    PlaceZoneName = form.PlaceZoneName;
                 }
                 Hide();
             }

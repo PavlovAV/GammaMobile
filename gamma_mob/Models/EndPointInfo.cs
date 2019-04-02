@@ -7,5 +7,7 @@ namespace gamma_mob.Models
         public int PlaceId { get; set; }
         public Guid? PlaceZoneId { get; set; }
         public string PlaceName { get; set; }
+        public string PlaceZoneName { get; set; }
+        public bool IsSetDefaultPlaceZoneId { get; set; }
     }
 }

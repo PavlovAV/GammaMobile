@@ -13,6 +13,7 @@ namespace gamma_mob
         private InfoProductForm()
         {
             InitializeComponent();
+            lblUserInfo.Text = "Логин: " + Settings.UserName + " (" + Shared.PersonName +")";
         }
 
         public InfoProductForm(Form parentForm):this()

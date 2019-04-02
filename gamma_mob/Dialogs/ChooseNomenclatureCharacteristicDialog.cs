@@ -16,7 +16,7 @@ namespace gamma_mob.Dialogs
             InitializeComponent();
         }
 
-        public ChooseNomenclatureCharacteristicDialog(string barcode, BindingList<ChooseNomenclatureItem> barcodes1C)
+        public ChooseNomenclatureCharacteristicDialog(string barcode)
             : this()
         {
             Barcode = barcode;
@@ -28,7 +28,7 @@ namespace gamma_mob.Dialogs
                 // MessageBox.Show(@"Не удалось получить информацию о текущем документе");
                 //list = barcodes1C;
                 if (list == null) list = new BindingList<ChooseNomenclatureItem>();
-                foreach (ChooseNomenclatureItem barcode1c in barcodes1C)
+                foreach (ChooseNomenclatureItem barcode1c in Shared.Barcodes1C)
                 {
                     if (barcode1c.Barcode == barcode)
                         list.Add(barcode1c);

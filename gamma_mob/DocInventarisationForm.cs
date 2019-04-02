@@ -62,7 +62,8 @@ namespace gamma_mob
                     Width = 50
                 });
             gridInventarisation.TableStyles.Add(tableStyle);
-            Barcodes1C = Db.GetBarcodes1C();
+            //Barcodes1C = Db.GetBarcodes1C();
+            Shared.RefreshBarcodes1C();
         }
 
         private int Collected
@@ -306,7 +307,7 @@ namespace gamma_mob
                 {
                     if (getProductResult.NomenclatureId == null || getProductResult.NomenclatureId == Guid.Empty || getProductResult.CharacteristicId == null || getProductResult.CharacteristicId == Guid.Empty || getProductResult.QualityId == null || getProductResult.QualityId == Guid.Empty)
                     {
-                        using (var form = new ChooseNomenclatureCharacteristicDialog(barcode, Barcodes1C))
+                        using (var form = new ChooseNomenclatureCharacteristicDialog(barcode))
                         {
                             DialogResult result = form.ShowDialog();
                             Invoke((MethodInvoker)Activate);
@@ -447,7 +448,7 @@ namespace gamma_mob
         private List<Barcodes> Barcodes { get; set; }
         private List<OfflineProduct> OfflineProducts { get; set; }
         private List<Barcodes1C> OfflineBarcodes1C { get; set; }
-        private BindingList<ChooseNomenclatureItem> Barcodes1C { get; set; }
+        //private BindingList<ChooseNomenclatureItem> Barcodes1C { get; set; }
 
         private void tbrMain_ButtonClick(object sender, ToolBarButtonClickEventArgs e)
         {

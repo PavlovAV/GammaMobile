@@ -36,9 +36,39 @@ namespace gamma_mob
         {
             ParentForm = parentForm;
             EndPointInfo = new EndPointInfo
+            {
+                PlaceId = placeIdTo,
+                IsSetDefaultPlaceZoneId = false
+            };
+            if (Shared.Warehouses.First(w => w.WarehouseId == EndPointInfo.PlaceId).WarehouseZones != null
+                && Shared.Warehouses.First(w => w.WarehouseId == EndPointInfo.PlaceId).WarehouseZones.Count > 0)
+            {
+                var dialogResult = MessageBox.Show("Вы будете указывать зону сейчас?"
+                        , @"Операция с продуктом",
+                        MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
+                if (dialogResult == DialogResult.Yes)
                 {
-                    PlaceId = placeIdTo
-                };
+                    using (var form = new ChooseZoneDialog(EndPointInfo.PlaceId))
+                    {
+                        DialogResult result = form.ShowDialog();
+                        Invoke((MethodInvoker)Activate);
+                        if (result != DialogResult.OK)
+                        {
+                            MessageBox.Show(@"Не выбрана зона склада.", @"Выбор зоны склада",
+                                            MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
+                        }
+                        else
+                        {
+                            EndPointInfo.IsSetDefaultPlaceZoneId = true;
+                            EndPointInfo.PlaceZoneId = form.PlaceZoneId;
+                            EndPointInfo.PlaceZoneName = form.PlaceZoneName;
+                            lblZoneName.Text = "Зона по умолчанию: " + form.PlaceZoneName;
+                            lblZoneName.Visible = true;
+                        }
+                    }
+                }
+            }
+
             AcceptedProducts = new BindingList<MovementProduct>();
 
             GetLastMovementProducts();
@@ -48,7 +78,7 @@ namespace gamma_mob
                 {
                     HeaderText = "Номенклатура",
                     MappingName = "ShortNomenclatureName",
-                    Width = 135
+                    Width = 175
                 });
             tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
                 {
@@ -58,14 +88,15 @@ namespace gamma_mob
                     Format = "0.###"
                 });
             gridDocAccept.TableStyles.Add(tableStyle);
-            Barcodes1C = Db.GetBarcodes1C();
+            //Barcodes1C = Db.GetBarcodes1C();
+            Shared.RefreshBarcodes1C();
+            
         }
 
         private EndPointInfo EndPointInfo { get; set; }
         private List<OfflineProduct> OfflineProducts { get; set; }
         private string FileName { get; set; }
         private BindingList<MovementProduct> AcceptedProducts { get; set; }
-        private BindingList<ChooseNomenclatureItem> Barcodes1C { get; set; }
         private BindingSource BSource { get; set; }
         private List<Barcodes> Barcodes { get; set; }
         private void btnAddProduct_Click(object sender, EventArgs e)
@@ -256,7 +287,7 @@ namespace gamma_mob
                 {
                     if (getProductResult.NomenclatureId == null || getProductResult.NomenclatureId == Guid.Empty || getProductResult.CharacteristicId == null || getProductResult.CharacteristicId == Guid.Empty || getProductResult.QualityId == null || getProductResult.QualityId == Guid.Empty)
                     {
-                        using (var form = new ChooseNomenclatureCharacteristicDialog(barcode, Barcodes1C))
+                        using (var form = new ChooseNomenclatureCharacteristicDialog(barcode))
                         {
                             DialogResult result = form.ShowDialog();
                             Invoke((MethodInvoker)Activate);
@@ -341,8 +372,8 @@ namespace gamma_mob
 
         private bool SetPlaceZoneId(EndPointInfo endPointInfo)
         {
-            if (Shared.Warehouses.First(w => w.WarehouseId == EndPointInfo.PlaceId).WarehouseZones != null
-                && Shared.Warehouses.First(w => w.WarehouseId == EndPointInfo.PlaceId).WarehouseZones.Count > 0)
+            if (!EndPointInfo.IsSetDefaultPlaceZoneId && (Shared.Warehouses.First(w => w.WarehouseId == EndPointInfo.PlaceId).WarehouseZones != null
+                && Shared.Warehouses.First(w => w.WarehouseId == EndPointInfo.PlaceId).WarehouseZones.Count > 0))
             {
                 using (var form = new ChooseZoneDialog(endPointInfo.PlaceId))
                 {

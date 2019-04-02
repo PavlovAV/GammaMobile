@@ -22,6 +22,7 @@ namespace gamma_mob
                 btnCloseShift.Visible = false;
                 btnInventarisation.Visible = true;
             }
+            lblUserInfo.Text = "Логин: " + Settings.UserName + " (" + Shared.PersonName + ")";
  //           var mFilter = new InactivityFilter(100);
             //mFilter.InactivityElapsed += m_filter_InactivityElapsed;
  //           Application2.AddMessageFilter(mFilter);

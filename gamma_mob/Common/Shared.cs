@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel;
 using System.Windows.Forms;
 using gamma_mob.Models;
 using gamma_mob.Properties;
 using System;
+using System.Linq;
 
 namespace gamma_mob.Common
 {
@@ -20,6 +22,7 @@ namespace gamma_mob.Common
         public static ImageList ImgList { get; private set; }
 
         public static Guid PersonId { get; set; }
+        public static String PersonName { get; set; }
 
         public static byte ShiftId { get; set; }
 
@@ -78,6 +81,29 @@ namespace gamma_mob.Common
             int currentStyle = GetWindowLong(hwnd, GWL_STYLE);
             int newStyle = SetWindowLong(hwnd, GWL_STYLE, currentStyle | BS_MULTILINE);
         }
+
+        public static BindingList<ChooseNomenclatureItem> Barcodes1C { get; set; }
+        public static DateTime LastTimeBarcodes1C { get; set; }
+        //private static BindingList<ChooseNomenclatureItem> Barcodes1CChanges { get; set; }
+        
+        public static void RefreshBarcodes1C()
+        {
+            if (Db.CheckSqlConnection() == 0)
+            {
+                var Barcodes1CChanges = Db.GetBarcodes1CChanges(Shared.LastTimeBarcodes1C);
+                if (Barcodes1CChanges != null)
+                {
+                    LastTimeBarcodes1C = Db.GetServerDateTime();
+                    foreach (var item in Barcodes1CChanges)
+                    {
+                        var ItemDel = Barcodes1C.Where(b => b.BarcodeId == item.BarcodeId).FirstOrDefault();
+                        if (ItemDel != null) Barcodes1C.Remove(ItemDel);
+                        Shared.Barcodes1C.Add(item);
+                    }
+                }
+            }
+        }
+
 
     }
 }

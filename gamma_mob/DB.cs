@@ -334,7 +334,7 @@ namespace gamma_mob
                         
                         list.Add(new MovementProduct
                         {
-                            CharacteristicId = new Guid(row["1CCharacteristicID"].ToString()),
+                            CharacteristicId = row.IsNull("1CCharacteristicID") ? new Guid() : new Guid(row["1CCharacteristicID"].ToString()),
                             NomenclatureId = new Guid(row["1CNomenclatureID"].ToString()),
                             QualityId = new Guid(row["1CQualityID"].ToString()),
                             NomenclatureName = row["NomenclatureName"].ToString(),
@@ -826,7 +826,7 @@ namespace gamma_mob
                     if (acceptProductResult != null & !table.Rows[0].IsNull("NomenclatureID"))
                     {
                         acceptProductResult.NomenclatureId = new Guid(table.Rows[0]["NomenclatureID"].ToString());
-                        acceptProductResult.CharacteristicId = new Guid(table.Rows[0]["CharacteristicID"].ToString());
+                        acceptProductResult.CharacteristicId = table.Rows[0].IsNull("CharacteristicID") ? Guid.Empty : new Guid(table.Rows[0]["CharacteristicID"].ToString());
                         acceptProductResult.QualityId = new Guid(table.Rows[0]["QualityID"].ToString());
                         acceptProductResult.Quantity = table.Rows[0].IsNull("Quantity") ? 0 : Convert.ToDecimal(table.Rows[0]["Quantity"]);
                         acceptProductResult.NomenclatureName = table.Rows[0].IsNull("NomenclatureName") ? "" : table.Rows[0]["NomenclatureName"].ToString();

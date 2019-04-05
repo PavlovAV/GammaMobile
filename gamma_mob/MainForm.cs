@@ -14,12 +14,14 @@ namespace gamma_mob
             InitializeComponent();
             if (Shared.ShiftId > 0)
             {
-                btnCloseShift.Visible = true;
+                //btnCloseShift.Visible = true;
+                btnCloseShift.Text = "Закрытие смены";
                 btnInventarisation.Visible = false;
             }
             else
             {
-                btnCloseShift.Visible = false;
+                //btnCloseShift.Visible = true;
+                btnCloseShift.Text = "Информация";
                 btnInventarisation.Visible = true;
             }
             lblUserInfo.Text = "Логин: " + Settings.UserName + " (" + Shared.PersonName + ")";
@@ -188,70 +190,78 @@ namespace gamma_mob
 
         private void btnCloseShift_Click(object sender, EventArgs e)
         {
-            Cursor.Current = Cursors.WaitCursor;
-            if (ConnectionState.CheckConnection())
+            if (Shared.ShiftId > 0)
             {
-                switch (Db.CheckSqlConnection())
+                Cursor.Current = Cursors.WaitCursor;
+                if (ConnectionState.CheckConnection())
                 {
-                    case 2:
-                        MessageBox.Show(@"Нет связи с БД. Повторите попытку в зоне покрытия WiFi" + Environment.NewLine + ConnectionState.GetConnectionState(),
-                                        @"Отсутствует WiFi", MessageBoxButtons.OK, MessageBoxIcon.Hand,
-                                        MessageBoxDefaultButton.Button1);
-                        break;
-                    case 1:
-                        WrongUserPass();
-                        break;
-                    default:
-                        Cursor.Current = Cursors.Default;
-                        using (var form = new ChooseShiftDialog())
-                        {
-                            if (Shared.ShiftId == null || Shared.ShiftId == 0)
+                    switch (Db.CheckSqlConnection())
+                    {
+                        case 2:
+                            MessageBox.Show(@"Нет связи с БД. Повторите попытку в зоне покрытия WiFi" + Environment.NewLine + ConnectionState.GetConnectionState(),
+                                            @"Отсутствует WiFi", MessageBoxButtons.OK, MessageBoxIcon.Hand,
+                                            MessageBoxDefaultButton.Button1);
+                            break;
+                        case 1:
+                            WrongUserPass();
+                            break;
+                        default:
+                            Cursor.Current = Cursors.Default;
+                            using (var form = new ChooseShiftDialog())
                             {
-                                DialogResult result = form.ShowDialog();
-                                if (result != DialogResult.OK || form.ShiftId < 1)
+                                if (Shared.ShiftId == null || Shared.ShiftId == 0)
                                 {
-                                    MessageBox.Show(@"Не указан номер смены." + Environment.NewLine + @"Смена не закрыта!", @"Смена не закрыта",
-                                                    MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
-                                    return;
+                                    DialogResult result = form.ShowDialog();
+                                    if (result != DialogResult.OK || form.ShiftId < 1)
+                                    {
+                                        MessageBox.Show(@"Не указан номер смены." + Environment.NewLine + @"Смена не закрыта!", @"Смена не закрыта",
+                                                        MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
+                                        return;
+                                    }
+                                    Shared.ShiftId = form.ShiftId;
                                 }
-                                Shared.ShiftId = form.ShiftId;
-                            }
-                            else
-                            {
-                                var resultMessage = Db.CloseShiftWarehouse(Shared.PersonId, Shared.ShiftId);
-                                switch (resultMessage)
+                                else
                                 {
-                                    case 1:
-                                        MessageBox.Show(@"Смена закрыта." + Environment.NewLine + @"Распечатайте рапорт на компьютере в Гамме.", @"Закрытие смены", MessageBoxButtons.OK,
-                                                    MessageBoxIcon.None,
-                                                    MessageBoxDefaultButton.Button1);
-                                        break;
-                                    case -1:
-                                        MessageBox.Show(@"Смена не закрыта." + Environment.NewLine + @"Произошла ошибка." + Environment.NewLine + @"Попробуйте снова.", @"Закрытие смены", MessageBoxButtons.OK,
-                                                    MessageBoxIcon.Asterisk,
-                                                    MessageBoxDefaultButton.Button1);
-                                        break;
-                                    case 0:
-                                        MessageBox.Show(@"Смена не закрыта." + Environment.NewLine + @"Уже есть рапорт за эту смену." + Environment.NewLine + @"Закройте смену в Гамме повторно.", @"Закрытие смены", MessageBoxButtons.OK,
-                                                    MessageBoxIcon.Asterisk,
-                                                    MessageBoxDefaultButton.Button1);
-                                        break;
+                                    var resultMessage = Db.CloseShiftWarehouse(Shared.PersonId, Shared.ShiftId);
+                                    switch (resultMessage)
+                                    {
+                                        case 1:
+                                            MessageBox.Show(@"Смена закрыта." + Environment.NewLine + @"Распечатайте рапорт на компьютере в Гамме.", @"Закрытие смены", MessageBoxButtons.OK,
+                                                        MessageBoxIcon.None,
+                                                        MessageBoxDefaultButton.Button1);
+                                            break;
+                                        case -1:
+                                            MessageBox.Show(@"Смена не закрыта." + Environment.NewLine + @"Произошла ошибка." + Environment.NewLine + @"Попробуйте снова.", @"Закрытие смены", MessageBoxButtons.OK,
+                                                        MessageBoxIcon.Asterisk,
+                                                        MessageBoxDefaultButton.Button1);
+                                            break;
+                                        case 0:
+                                            MessageBox.Show(@"Смена не закрыта." + Environment.NewLine + @"Уже есть рапорт за эту смену." + Environment.NewLine + @"Закройте смену в Гамме повторно.", @"Закрытие смены", MessageBoxButtons.OK,
+                                                        MessageBoxIcon.Asterisk,
+                                                        MessageBoxDefaultButton.Button1);
+                                            break;
 
+
+                                    }
 
                                 }
-
                             }
-                        }
-                        break;
+                            break;
+                    }
                 }
+                else
+                {
+                    MessageBox.Show(@"Нет связи с БД. Повторите попытку в зоне покрытия WiFi" + Environment.NewLine + ConnectionState.GetConnectionState(),
+                                    @"Отсутствует WiFi", MessageBoxButtons.OK, MessageBoxIcon.Hand,
+                                    MessageBoxDefaultButton.Button1);
+                }
+                Cursor.Current = Cursors.Default;
             }
             else
             {
-                MessageBox.Show(@"Нет связи с БД. Повторите попытку в зоне покрытия WiFi" + Environment.NewLine + ConnectionState.GetConnectionState(),
-                                @"Отсутствует WiFi", MessageBoxButtons.OK, MessageBoxIcon.Hand,
-                                MessageBoxDefaultButton.Button1);
+                var InfoProduct = new InfoProductForm(this);
+                DialogResult result = InfoProduct.ShowDialog();
             }
-            Cursor.Current = Cursors.Default;
         }
 
         

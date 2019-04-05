@@ -40,25 +40,25 @@ namespace gamma_mob
             {
                 Invoke(
                     (MethodInvoker)
-                    (() => lblMessage.Font = new Font("Tahoma", 14F, System.Drawing.FontStyle.Regular)));
+                    (() => textBox1.Font = new Font("Tahoma", 14F, System.Drawing.FontStyle.Regular)));
                 Invoke(
                     (MethodInvoker)
-                    (() => lblMessage.ForeColor = Color.DarkRed));
+                    (() => textBox1.ForeColor = Color.DarkRed));
                 Invoke(
                     (MethodInvoker)
-                    (() => lblMessage.Text = "Неверный штрих-код"));
+                    (() => textBox1.Text = "Неверный штрих-код"));
             }
             else
             {
                 Invoke(
                     (MethodInvoker)
-                    (() => lblMessage.Font = new Font("Tahoma", 11F, System.Drawing.FontStyle.Regular)));
+                    (() => textBox1.Font = new Font("Tahoma", 11F, System.Drawing.FontStyle.Regular)));
                 Invoke(
                     (MethodInvoker)
-                    (() => lblMessage.ForeColor = Color.Black)); 
+                    (() => textBox1.ForeColor = Color.Black)); 
                 Invoke(
                     (MethodInvoker)
-                    (() => lblMessage.Text = "Продукция: " + Environment.NewLine + infoproduct));
+                    (() => textBox1.Text = "Продукция: " + Environment.NewLine + infoproduct));
             }
         }
 

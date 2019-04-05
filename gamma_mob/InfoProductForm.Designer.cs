@@ -33,12 +33,14 @@
             this.pnlLabel = new System.Windows.Forms.Panel();
             this.btnInfoProduct = new System.Windows.Forms.Button();
             this.edtNumber = new System.Windows.Forms.TextBox();
-            this.lblMessage = new System.Windows.Forms.Label();
             this.pnlMessage = new System.Windows.Forms.Panel();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.textBox1 = new System.Windows.Forms.TextBox();
             this.lblUserInfo = new System.Windows.Forms.Label();
             this.pnlButtons.SuspendLayout();
             this.pnlLabel.SuspendLayout();
             this.pnlMessage.SuspendLayout();
+            this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // pnlButtons
@@ -84,24 +86,35 @@
             this.edtNumber.Size = new System.Drawing.Size(147, 25);
             this.edtNumber.TabIndex = 3;
             // 
-            // lblMessage
-            // 
-            this.lblMessage.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblMessage.Font = new System.Drawing.Font("Tahoma", 11F, System.Drawing.FontStyle.Regular);
-            this.lblMessage.Location = new System.Drawing.Point(0, 0);
-            this.lblMessage.Name = "lblMessage";
-            this.lblMessage.Size = new System.Drawing.Size(638, 359);
-            this.lblMessage.Text = "Просканируйте \r\nштрих-код продукции";
-            this.lblMessage.TextAlign = System.Drawing.ContentAlignment.TopCenter;
-            // 
             // pnlMessage
             // 
-            this.pnlMessage.Controls.Add(this.lblMessage);
+            this.pnlMessage.Controls.Add(this.panel1);
             this.pnlMessage.Controls.Add(this.lblUserInfo);
             this.pnlMessage.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlMessage.Location = new System.Drawing.Point(0, 32);
             this.pnlMessage.Name = "pnlMessage";
             this.pnlMessage.Size = new System.Drawing.Size(638, 379);
+            // 
+            // panel1
+            // 
+            this.panel1.Controls.Add(this.textBox1);
+            this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel1.Location = new System.Drawing.Point(0, 0);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(638, 359);
+            // 
+            // textBox1
+            // 
+            this.textBox1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.textBox1.Location = new System.Drawing.Point(0, 0);
+            this.textBox1.Multiline = true;
+            this.textBox1.Name = "textBox1";
+            this.textBox1.ReadOnly = true;
+            this.textBox1.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.textBox1.Size = new System.Drawing.Size(638, 359);
+            this.textBox1.TabIndex = 3;
+            this.textBox1.Text = "Просканируйте \r\nштрих-код\r\nпродукции";
+            this.textBox1.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // lblUserInfo
             // 
@@ -125,6 +138,7 @@
             this.pnlButtons.ResumeLayout(false);
             this.pnlLabel.ResumeLayout(false);
             this.pnlMessage.ResumeLayout(false);
+            this.panel1.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -134,10 +148,11 @@
         private System.Windows.Forms.Panel pnlButtons;
         private System.Windows.Forms.Button btnClose;
         private System.Windows.Forms.Panel pnlLabel;
-        private System.Windows.Forms.Label lblMessage;
         private System.Windows.Forms.Button btnInfoProduct;
         private System.Windows.Forms.TextBox edtNumber;
         private System.Windows.Forms.Panel pnlMessage;
         private System.Windows.Forms.Label lblUserInfo;
+        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.TextBox textBox1;
     }
 }

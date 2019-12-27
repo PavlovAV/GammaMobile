@@ -12,7 +12,7 @@ namespace gamma_mob.Models
         public string Name { get; set; }
         public string Barcode { get; set; }
         public Guid BarcodeId { get; set; }
-
+        
         #region Члены INotifyPropertyChanged
 
         public event PropertyChangedEventHandler PropertyChanged;

@@ -2,10 +2,10 @@
 
 <configuration>
   <appSettings>
-    <add key="ServerIP" value="192.168.5.97" />
+    <add key="ServerIP" value="192.168.95.77" />
     <add key="Database" value="gammanew" />
     <add key="UserName" value="tsd" />
-    <add key="Password" value="tsdmobile" />
+    <add key="Password" value="mobileuser" />
     <add key="TimeOut" value="30" />
   </appSettings>
 </configuration>

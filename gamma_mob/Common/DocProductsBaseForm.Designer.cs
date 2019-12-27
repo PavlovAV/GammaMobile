@@ -58,6 +58,7 @@
             this.gridProducts.Dock = System.Windows.Forms.DockStyle.Fill;
             this.gridProducts.Location = new System.Drawing.Point(0, 103);
             this.gridProducts.Name = "gridProducts";
+            this.gridProducts.PreferredRowHeight = 32;
             this.gridProducts.RowHeadersVisible = false;
             this.gridProducts.Size = new System.Drawing.Size(238, 192);
             this.gridProducts.TabIndex = 1;
@@ -71,7 +72,7 @@
             this.lblNomenclature.Size = new System.Drawing.Size(238, 79);
             this.lblNomenclature.Text = "label1";
             // 
-            // DocShipmentGoodProductsForm
+            // DocProductsBaseForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
@@ -79,7 +80,7 @@
             this.Controls.Add(this.gridProducts);
             this.Controls.Add(this.lblNomenclature);
             this.Controls.Add(this.tbrMain);
-            this.Name = "DocShipmentGoodProductsForm";
+            this.Name = "DocProductsBaseForm";
             this.Text = "Продукция";
             this.ResumeLayout(false);
 

@@ -4,6 +4,8 @@ using System.Windows.Forms;
 using gamma_mob.Common;
 using gamma_mob.Dialogs;
 using gamma_mob.Models;
+using System.IO;
+using System.Reflection;
 
 namespace gamma_mob
 {
@@ -35,7 +37,6 @@ namespace gamma_mob
             Cursor.Current = Cursors.Default;
         }
 */
-
         private void btnDocOrder_Click(object sender, EventArgs e)
         {
             Cursor.Current = Cursors.WaitCursor;

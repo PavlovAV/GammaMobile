@@ -265,7 +265,7 @@ namespace gamma_mob
                     AddOfflineBarcode(barcode);
                 return;
             }
-            if (Barcodes.Any(b => b.Barcode == barcode & (b.ProductKindId == null || b.ProductKindId != 3)))
+            if (Barcodes.Any(b => b.Barcode == barcode)) //проверка на россыпь не нужна - если по ШК определен продукт, то удалять.  & (b.ProductKindId == null || b.ProductKindId != 3)))
             {
                 if (offlineProduct == null)
                     MessageBox.Show(@"Данный продукт уже отмечен");

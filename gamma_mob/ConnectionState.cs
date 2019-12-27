@@ -66,6 +66,8 @@ namespace gamma_mob
                         return false;
                     }
 
+                    if (Settings.ServerIP.IndexOf(@",") >= 0) 
+                        return true;
                     using (var pinger = new Ping())
                     {
                         try

@@ -32,21 +32,21 @@ namespace gamma_mob
             // создаем таймер
             System.Threading.Timer timer = new System.Threading.Timer(tm, num, 2000, 300000);
 #endif
-            try
-            {
-                string[] files = Directory.GetFiles(Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase), "doc*.xml");
-                foreach (string file in files)
-                {
-                    File.Delete(file);
-                }
-            }
-            catch
-            {
-            }
             var loginForm = new LoginForm();
             if (loginForm.ShowDialog() == DialogResult.OK)
             {
                 Application2.Run(new MainForm());
+                try
+                {
+                    string[] files = Directory.GetFiles(Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase), "doc*.xml");
+                    foreach (string file in files)
+                    {
+                        File.Delete(file);
+                    }
+                }
+                catch
+                {
+                }
             }
             else BarcodeScanner.Scanner.Dispose();
         }

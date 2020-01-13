@@ -17,7 +17,7 @@ namespace gamma_mob
         public static void SetConnectionString(string ipAddress, string database, string user, string password,
                                                string timeout)
         {
-            ConnectionString = "Data Source=" + ipAddress + ";Initial Catalog=" + database + "" +
+            ConnectionString = "Application Name=mob_gamma v" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version + ";Data Source=" + ipAddress + ";Initial Catalog=" + database + "" +
                                ";Persist Security Info=True;User ID=" + user + "" +
                                ";Password=" + password + ";Connect Timeout=" + timeout;
         }

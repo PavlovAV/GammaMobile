@@ -104,6 +104,20 @@ namespace gamma_mob.Common
             }
         }
 
+        private static List<PlaceZone> _placeZones { get; set; }
 
+        public static List<PlaceZone> PlaceZones
+        {
+            get
+            {
+                if (_placeZones == null)
+                {
+                    List<PlaceZone> list = Db.GetPlaceZones();
+                    if (list == null) return null;
+                    _placeZones = list;
+                }
+                return _placeZones;
+            }
+        }
     }
 }

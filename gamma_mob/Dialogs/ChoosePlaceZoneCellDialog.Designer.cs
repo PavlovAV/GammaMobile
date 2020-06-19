@@ -28,7 +28,17 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.label1 = new System.Windows.Forms.Label();
             this.SuspendLayout();
+            // 
+            // label1
+            // 
+            this.label1.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Regular);
+            this.label1.Location = new System.Drawing.Point(2, 2);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(231, 20);
+            this.label1.Text = "Выберите или отсканируйте штрих-код зоны";
+            this.label1.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // ChoosePlaceZoneCellDialog
             // 
@@ -37,6 +47,7 @@
             this.AutoScroll = true;
             this.ClientSize = new System.Drawing.Size(238, 42);
             this.ControlBox = false;
+            this.Controls.Add(this.label1);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "ChoosePlaceZoneCellDialog";
@@ -47,5 +58,7 @@
         }
 
         #endregion
+
+        private System.Windows.Forms.Label label1;
     }
 }

@@ -405,6 +405,7 @@ namespace gamma_mob
 
         private void AddProductByBarcode(string barcode, bool fromBuffer, Guid nomenclatureId, Guid characteristicId, Guid qualityId, int? quantity)
         {
+            Program.SaveToLog(@"AddShip " + barcode + @"; Q-" + quantity + @"; F-" + fromBuffer.ToString());
             var offlineProduct = OfflineProducts.FirstOrDefault(p => p.Barcode == barcode);
             if (!ConnectionState.CheckConnection())
             {

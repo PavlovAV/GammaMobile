@@ -13,6 +13,9 @@ namespace gamma_mob
     internal static class Program
     {
         private static NamedMutex _mutex;
+        private static readonly string _executablePath = Application2.StartupPath + @"\";
+        public static readonly string _logFile = Path.Combine(_executablePath, string.Format("{0:yyyMMdd}.log", DateTime.Now));
+
 
         /// <summary>
         ///     Главная точка входа для приложения.
@@ -32,13 +35,26 @@ namespace gamma_mob
             // создаем таймер
             System.Threading.Timer timer = new System.Threading.Timer(tm, num, 2000, 300000);
 #endif
+            try
+            {
+                if (!File.Exists(_logFile)) // may have to specify path here!
+                {
+                    // may have to specify path here!
+                    File.Create(_logFile).Close();
+                }
+            }
+            catch (Exception err)
+            {
+                MessageBox.Show(err.Message);
+            }
+
             var loginForm = new LoginForm();
             if (loginForm.ShowDialog() == DialogResult.OK)
             {
                 Application2.Run(new MainForm());
                 try
                 {
-                    string[] files = Directory.GetFiles(Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase), "doc*.xml");
+                    string[] files = Directory.GetFiles(Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase), "Doc*.xml");
                     foreach (string file in files)
                     {
                         File.Delete(file);
@@ -49,6 +65,23 @@ namespace gamma_mob
                 }
             }
             else BarcodeScanner.Scanner.Dispose();
+        }
+
+        public static void SaveToLog(string log)
+        {
+            try
+            {
+                TextWriter swFile = new StreamWriter(
+                new FileStream(_logFile,
+                               FileMode.Append),
+                System.Text.Encoding.ASCII);
+                swFile.WriteLine(string.Format(@"{0:yyyy.MM.dd HH:mm:ss} : ", DateTime.Now) + log);
+                swFile.Close();
+            }
+            catch (Exception err)
+            {
+                MessageBox.Show(err.Message);
+            }
         }
     }
 }

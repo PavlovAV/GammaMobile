@@ -16,8 +16,21 @@ namespace gamma_mob
         private static bool _checkerRunning;
         private static string _serverIp = "";
         private static readonly object Locker = new object();
-        
-        private static string stateConnection {get; set;}
+
+        private static string _stateConnection { get; set; }
+        private static string stateConnection 
+        {
+            get
+            {
+                return _stateConnection;
+            }
+            set
+            {
+                _stateConnection = value;
+                if (value != null && value != String.Empty)
+                    Program.SaveToLog(value);
+            }
+        }
 
         static ConnectionState()
         {

@@ -1,11 +1,16 @@
 ﻿using System;
 using System.Windows.Forms;
 using Datalogic.API;
+using System.IO;
+using System.Text;
+using OpenNETCF.Windows.Forms;
+
 
 namespace gamma_mob.Common
 {
     public class BarcodeScanner : IDisposable
     {
+        
         private BarcodeScanner()
         {
             try
@@ -62,6 +67,7 @@ namespace gamma_mob.Common
             dcdData = dcdData.Trim(); // replaceAll("\\p{Cntrl}", "");
             if (BarcodeReceived != null)
             {
+                Program.SaveToLog(dcdData);
                 BarcodeReceived(dcdData);
             }
         }

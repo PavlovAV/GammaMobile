@@ -248,7 +248,9 @@ namespace gamma_mob
 
         public static List<PlaceZone> GetPlaceZoneChilds(Guid placeZoneId)
         {
-            List<PlaceZone> list = null;
+            var placeZones = Shared.PlaceZones.Where(p => p.PlaceZoneParentId == placeZoneId && p.IsValid).ToList();
+            return placeZones;
+            /*List<PlaceZone> list = null;
             const string sql = "dbo.mob_GetPlaceZoneChilds";
             var parameters = new List<SqlParameter>
                 {
@@ -269,7 +271,7 @@ namespace gamma_mob
                             }).ToList();
                 }
             }
-            return list;
+            return list;*/
         }
 
         public static List<Barcodes> GetCurrentMovementBarcodes(int placeId, Guid personId)
@@ -486,6 +488,28 @@ namespace gamma_mob
             return list;
         }
 
+        public static List<PlaceZone> GetPlaceZones()
+        {
+            List<PlaceZone> list = null;
+            const string sql = "SELECT PlaceZoneID, Name, Barcode, PlaceZoneParentID, v FROM vPlaceZones ORDER BY SortOrder";
+            using (DataTable table = ExecuteSelectQuery(sql, new List<SqlParameter>(), CommandType.Text))
+            {
+                if (table != null && table.Rows.Count > 0)
+                {
+                    list = new List<PlaceZone>();
+                    list.AddRange(from DataRow row in table.Rows
+                                  select new PlaceZone
+                                  {
+                                      PlaceZoneId = row.IsNull("PlaceZoneID") ? new Guid() : new Guid(row["PlaceZoneID"].ToString()),
+                                      Name = row["Name"].ToString(),
+                                      Barcode = row["Barcode"].ToString(),
+                                      PlaceZoneParentId = row.IsNull("PlaceZoneParentID") ? new Guid() : new Guid(row["PlaceZoneParentID"].ToString()),
+                                      IsValid = row.IsNull("v") ? false : Convert.ToBoolean(row["v"]),
+                                  });
+                }
+            }
+            return list;
+        }
 
         public static DbOperationProductResult DeleteLastProductFromMovement(string barcode, int placeId, Guid personId, DocDirection docDirection)
         {

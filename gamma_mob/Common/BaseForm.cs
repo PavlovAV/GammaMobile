@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Windows.Forms;
+using OpenNETCF.Windows.Forms;
 
 namespace gamma_mob.Common
 {
@@ -8,8 +9,6 @@ namespace gamma_mob.Common
     [DesignTimeVisible(false)]
     public partial class BaseForm : Form
     {
-        private BarcodeReceivedEventHandler _barcodeFunc;
-
         protected BaseForm()
         {
             InitializeComponent();
@@ -17,10 +16,11 @@ namespace gamma_mob.Common
             Scanner = BarcodeScanner.Scanner;
         }
 
-        protected BarcodeScanner Scanner { get; set; }
+        protected static BarcodeScanner Scanner { get; set; }
 
+        private static BarcodeReceivedEventHandler _barcodeFunc;
 
-        protected BarcodeReceivedEventHandler BarcodeFunc
+        protected static BarcodeReceivedEventHandler BarcodeFunc
         {
             private get { return _barcodeFunc; }
             set
@@ -40,6 +40,7 @@ namespace gamma_mob.Common
         protected virtual void FormLoad(object sender, EventArgs e)
         {
             ImgList = Shared.ImgList;
+            Program.SaveToLog(((Form)sender).Name);
         }
 
         protected virtual void OnFormClosing(object sender, CancelEventArgs e)

@@ -23,6 +23,9 @@ namespace gamma_mob
         {
             InitializeComponent();
             if (!ConnectionState.CheckConnection()) return;
+            var serverDateTime = Db.GetServerDateTime();
+            if (serverDateTime != null)
+                Program.SaveToLog(@"ServerDate-" + string.Format(@"{0:yyyy.MM.dd HH:mm:ss} : ", serverDateTime) + @"; Diff-" + serverDateTime.Subtract(DateTime.Now));
             /*if (Db.CheckSqlConnection() != 1) return;
             WrongUserPass();
              * */
@@ -87,6 +90,10 @@ namespace gamma_mob
             catch
             {
             }
+
+//#if DEBUG
+//            AuthorizeByBarcode("00000000000056");
+//#endif
         }
 
         private void AuthorizeByBarcode(string barcode)
@@ -117,7 +124,7 @@ namespace gamma_mob
 
             if (userName.Contains("0"))
             {
-                using (var form = new ChooseShiftDialog())
+               using (var form = new ChooseShiftDialog())
                 {
                     DialogResult result = form.ShowDialog();
                     if (result != DialogResult.OK || form.ShiftId < 1)
@@ -167,6 +174,7 @@ namespace gamma_mob
                 (() => lblMessage.Text = "Вы авторизовались " + Environment.NewLine + "как " + person.Name + " (" + Settings.UserName + ")"));
             Shared.LastTimeBarcodes1C = Db.GetServerDateTime();
             Shared.Barcodes1C = Db.GetBarcodes1C();
+
             //Thread.Sleep(3000);
             Invoke((MethodInvoker) (CloseForm));
         }

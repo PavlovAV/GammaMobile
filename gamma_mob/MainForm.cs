@@ -6,6 +6,7 @@ using gamma_mob.Dialogs;
 using gamma_mob.Models;
 using System.IO;
 using System.Reflection;
+using OpenNETCF.Windows.Forms;
 
 namespace gamma_mob
 {
@@ -14,6 +15,7 @@ namespace gamma_mob
         public MainForm()
         {
             InitializeComponent();
+            //BarcodeFunc = BarcodeReaction;
             if (Shared.ShiftId > 0)
             {
                 //btnCloseShift.Visible = true;
@@ -37,6 +39,24 @@ namespace gamma_mob
             Cursor.Current = Cursors.Default;
         }
 */
+
+        public void BarcodeReaction(string barcode)
+        {
+            EndPointInfo endPointInfo;
+            using (var form = new ChooseEndPointDialog())
+            {
+                DialogResult result = form.ShowDialog();
+                if (result != DialogResult.OK) return;
+                endPointInfo = form.EndPointInfo;
+            }
+            Cursor.Current = Cursors.WaitCursor;
+            var docMovementForm = new DocMovementForm(this, endPointInfo.PlaceId);
+            docMovementForm.Text = "Перем-е на " + endPointInfo.PlaceName;
+            docMovementForm.Show();
+            if (docMovementForm.Enabled)
+                Invoke((MethodInvoker)Hide);
+        }
+
         private void btnDocOrder_Click(object sender, EventArgs e)
         {
             Cursor.Current = Cursors.WaitCursor;
@@ -208,43 +228,48 @@ namespace gamma_mob
                             break;
                         default:
                             Cursor.Current = Cursors.Default;
-                            using (var form = new ChooseShiftDialog())
+                            if (MessageBox.Show(@"Вы уверены, что хотите закрыть смену?", @"Закрытие смены", MessageBoxButtons.OKCancel,
+                                                        MessageBoxIcon.Asterisk,
+                                                        MessageBoxDefaultButton.Button2) == DialogResult.OK)
                             {
-                                if (Shared.ShiftId == null || Shared.ShiftId == 0)
+                                using (var form = new ChooseShiftDialog())
                                 {
-                                    DialogResult result = form.ShowDialog();
-                                    if (result != DialogResult.OK || form.ShiftId < 1)
+                                    if (Shared.ShiftId == null || Shared.ShiftId == 0)
                                     {
-                                        MessageBox.Show(@"Не указан номер смены." + Environment.NewLine + @"Смена не закрыта!", @"Смена не закрыта",
-                                                        MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
-                                        return;
+                                        DialogResult result = form.ShowDialog();
+                                        if (result != DialogResult.OK || form.ShiftId < 1)
+                                        {
+                                            MessageBox.Show(@"Не указан номер смены." + Environment.NewLine + @"Смена не закрыта!", @"Смена не закрыта",
+                                                            MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
+                                            return;
+                                        }
+                                        Shared.ShiftId = form.ShiftId;
                                     }
-                                    Shared.ShiftId = form.ShiftId;
-                                }
-                                else
-                                {
-                                    var resultMessage = Db.CloseShiftWarehouse(Shared.PersonId, Shared.ShiftId);
-                                    switch (resultMessage)
+                                    else
                                     {
-                                        case 1:
-                                            MessageBox.Show(@"Смена закрыта." + Environment.NewLine + @"Распечатайте рапорт на компьютере в Гамме.", @"Закрытие смены", MessageBoxButtons.OK,
-                                                        MessageBoxIcon.None,
-                                                        MessageBoxDefaultButton.Button1);
-                                            break;
-                                        case -1:
-                                            MessageBox.Show(@"Смена не закрыта." + Environment.NewLine + @"Произошла ошибка." + Environment.NewLine + @"Попробуйте снова.", @"Закрытие смены", MessageBoxButtons.OK,
-                                                        MessageBoxIcon.Asterisk,
-                                                        MessageBoxDefaultButton.Button1);
-                                            break;
-                                        case 0:
-                                            MessageBox.Show(@"Смена не закрыта." + Environment.NewLine + @"Уже есть рапорт за эту смену." + Environment.NewLine + @"Закройте смену в Гамме повторно.", @"Закрытие смены", MessageBoxButtons.OK,
-                                                        MessageBoxIcon.Asterisk,
-                                                        MessageBoxDefaultButton.Button1);
-                                            break;
+                                        var resultMessage = Db.CloseShiftWarehouse(Shared.PersonId, Shared.ShiftId);
+                                        switch (resultMessage)
+                                        {
+                                            case 1:
+                                                MessageBox.Show(@"Смена закрыта." + Environment.NewLine + @"Распечатайте рапорт на компьютере в Гамме.", @"Закрытие смены", MessageBoxButtons.OK,
+                                                            MessageBoxIcon.None,
+                                                            MessageBoxDefaultButton.Button1);
+                                                break;
+                                            case -1:
+                                                MessageBox.Show(@"Смена не закрыта." + Environment.NewLine + @"Произошла ошибка." + Environment.NewLine + @"Попробуйте снова.", @"Закрытие смены", MessageBoxButtons.OK,
+                                                            MessageBoxIcon.Asterisk,
+                                                            MessageBoxDefaultButton.Button1);
+                                                break;
+                                            case 0:
+                                                MessageBox.Show(@"Смена не закрыта." + Environment.NewLine + @"Уже есть рапорт за эту смену." + Environment.NewLine + @"Закройте смену в Гамме повторно.", @"Закрытие смены", MessageBoxButtons.OK,
+                                                            MessageBoxIcon.Asterisk,
+                                                            MessageBoxDefaultButton.Button1);
+                                                break;
 
+
+                                        }
 
                                     }
-
                                 }
                             }
                             break;

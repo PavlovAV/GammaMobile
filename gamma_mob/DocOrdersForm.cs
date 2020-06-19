@@ -58,6 +58,7 @@ namespace gamma_mob
                     Width = -1
                 });
             gridDocShipmentOrders.TableStyles.Add(tableStyle);
+
         }
 
         private void GetDocOrders()

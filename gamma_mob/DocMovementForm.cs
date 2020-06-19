@@ -70,11 +70,12 @@ namespace gamma_mob
                             lblZoneName.Visible = true;
                             var placeZoneRows = Db.GetPlaceZoneChilds(PlaceZoneId);
                             EndPointInfo.IsAvailabilityChildPlaceZoneId = (placeZoneRows != null && placeZoneRows.Count > 0);
-
+                            
                         }
                     }
                 }
             }
+            Program.SaveToLog(@"E.P-" + EndPointInfo.PlaceId + @"; E.Z-" + EndPointInfo.PlaceZoneId);
 
             AcceptedProducts = new BindingList<MovementProduct>();
 
@@ -230,15 +231,23 @@ namespace gamma_mob
         {
             if (GetProductIdFromBarcodeOrNumber(barcode) != null)
             {
-                var endPointInfo = GetPlaceZoneId(EndPointInfo);
-                if (endPointInfo != null)
+                if (EndPointInfo.IsAvailabilityPlaceZoneId)
                 {
-                    isLastScanedBarcodeZone = true;
-                    AddProductByBarcode(barcode, endPointInfo, fromBuffer);
+                    var endPointInfo = GetPlaceZoneId(EndPointInfo);
+                    if (endPointInfo != null)
+                    {
+                        isLastScanedBarcodeZone = true;
+                        AddProductByBarcode(barcode, endPointInfo, fromBuffer);
+                    }
+                    else
+                    {
+                        isLastScanedBarcodeZone = false;
+                    }
                 }
                 else
                 {
-                    isLastScanedBarcodeZone = false;
+                    isLastScanedBarcodeZone = true;
+                    AddProductByBarcode(barcode, EndPointInfo, fromBuffer);
                 }
             }
             else

@@ -4,6 +4,7 @@ namespace gamma_mob.Models
 {
     public class PlaceZone
     {
+        public int PlaceId { get; set; }
         public Guid PlaceZoneId { get; set; }
         public string Name { get; set; }
         public string Barcode { get; set; }

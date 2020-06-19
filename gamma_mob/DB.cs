@@ -491,7 +491,7 @@ namespace gamma_mob
         public static List<PlaceZone> GetPlaceZones()
         {
             List<PlaceZone> list = null;
-            const string sql = "SELECT PlaceZoneID, Name, Barcode, PlaceZoneParentID, v FROM vPlaceZones ORDER BY SortOrder";
+            const string sql = "SELECT PlaceID, PlaceZoneID, Name, Barcode, PlaceZoneParentID, v FROM vPlaceZones ORDER BY SortOrder";
             using (DataTable table = ExecuteSelectQuery(sql, new List<SqlParameter>(), CommandType.Text))
             {
                 if (table != null && table.Rows.Count > 0)
@@ -500,6 +500,7 @@ namespace gamma_mob
                     list.AddRange(from DataRow row in table.Rows
                                   select new PlaceZone
                                   {
+                                      PlaceId = Convert.ToInt32(row["PlaceID"]),
                                       PlaceZoneId = row.IsNull("PlaceZoneID") ? new Guid() : new Guid(row["PlaceZoneID"].ToString()),
                                       Name = row["Name"].ToString(),
                                       Barcode = row["Barcode"].ToString(),

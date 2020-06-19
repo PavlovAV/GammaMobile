@@ -1030,16 +1030,19 @@ namespace gamma_mob
             }
             else
             {
-                IsVisibledPanels = false;
                 var placeZones = Db.GetWarehousePlaceZones(endPointInfo.PlaceId);
-                //Height = 30 + placeZones.Count * 30;
-                var width = Screen.PrimaryScreen.WorkingArea.Width;
-                var height = Screen.PrimaryScreen.WorkingArea.Height;
-                //if (Height > Screen.PrimaryScreen.WorkingArea.Height) Height = Screen.PrimaryScreen.WorkingArea.Height;
-                //Location = new Point(0, (Screen.PrimaryScreen.WorkingArea.Height - Height) / 2);
-                for (int i = 0; i < placeZones.Count; i++)
+                if (placeZones != null && placeZones.Count > 0)
                 {
-                    this.AddButtonDelegatePatternParams(placeZones[i].PlaceZoneId, placeZones[i].Name, i, null, width, null, null);
+                    IsVisibledPanels = false;
+                    //Height = 30 + placeZones.Count * 30;
+                    var width = Screen.PrimaryScreen.WorkingArea.Width;
+                    var height = Screen.PrimaryScreen.WorkingArea.Height;
+                    //if (Height > Screen.PrimaryScreen.WorkingArea.Height) Height = Screen.PrimaryScreen.WorkingArea.Height;
+                    //Location = new Point(0, (Screen.PrimaryScreen.WorkingArea.Height - Height) / 2);
+                    for (int i = 0; i < placeZones.Count; i++)
+                    {
+                        this.AddButtonDelegatePatternParams(placeZones[i].PlaceZoneId, placeZones[i].Name, i, null, width, null, null);
+                    }
                 }
 
             }

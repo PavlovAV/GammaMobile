@@ -252,7 +252,7 @@ namespace gamma_mob
             }
             else
             {
-                isLastScanedBarcodeZone = false;
+                isLastScanedBarcodeZone = true;
                 MessageBox.Show(@"Продукция не найдена по ШК!", @"Продукция не найдена",
                                 MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
             }
@@ -845,9 +845,13 @@ namespace gamma_mob
                 var form = new DocMovementProductsForm(EndPointInfo.PlaceId, Shared.PersonId, good.NomenclatureId, good.NomenclatureName, good.CharacteristicId, good.QualityId, good.PlaceZoneId, this, new RefreshDocProductDelegate(RefreshDocMovementProducts));
                 if (!form.IsDisposed)
                 {
-                    form.Show();
-                    if (form.Enabled)
-                        Hide();
+                    //form.Show();
+                    //if (form.Enabled)
+                    //    Hide();
+                    
+                    BarcodeFunc = null;
+                    DialogResult result = form.ShowDialog();
+                    BarcodeFunc = BarcodeReaction;
                 }
             }
         }

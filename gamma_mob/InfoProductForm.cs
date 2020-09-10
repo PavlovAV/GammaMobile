@@ -46,7 +46,7 @@ namespace gamma_mob
                     (() => textBox1.ForeColor = Color.DarkRed));
                 Invoke(
                     (MethodInvoker)
-                    (() => textBox1.Text = "Неверный штрих-код"));
+                    (() => textBox1.Text = "Ошибка при получении данных!"+ Environment.NewLine +"Попробуйте ещё раз."));
             }
             else
             {

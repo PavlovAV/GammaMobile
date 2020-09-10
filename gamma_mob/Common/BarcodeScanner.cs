@@ -67,7 +67,7 @@ namespace gamma_mob.Common
             dcdData = dcdData.Trim(); // replaceAll("\\p{Cntrl}", "");
             if (BarcodeReceived != null)
             {
-                Program.SaveToLog(dcdData);
+                Shared.SaveToLog(dcdData);
                 BarcodeReceived(dcdData);
             }
         }

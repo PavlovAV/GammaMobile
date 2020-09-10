@@ -53,8 +53,8 @@ namespace gamma_mob.Dialogs
             gridChoose.TableStyles.Add(tableStyle);
             //columnStyle.TextBox.Multiline=true;
             //columnStyle.TextBox.WordWrap = true;
-            
-            for (int i = 0; i < gridChoose.VisibleRowCount; i++)
+
+            for (int i = 0; i < gridChoose.BindingContext[gridChoose.DataSource].Count; i++)
             {
                 SetGridRowHeight(gridChoose, i, (int)gridChoose.Font.Size*3*3);
             }

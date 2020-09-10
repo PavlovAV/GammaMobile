@@ -15,7 +15,6 @@ namespace gamma_mob
         public MainForm()
         {
             InitializeComponent();
-            //BarcodeFunc = BarcodeReaction;
             if (Shared.ShiftId > 0)
             {
                 //btnCloseShift.Visible = true;
@@ -40,23 +39,6 @@ namespace gamma_mob
         }
 */
 
-        public void BarcodeReaction(string barcode)
-        {
-            EndPointInfo endPointInfo;
-            using (var form = new ChooseEndPointDialog())
-            {
-                DialogResult result = form.ShowDialog();
-                if (result != DialogResult.OK) return;
-                endPointInfo = form.EndPointInfo;
-            }
-            Cursor.Current = Cursors.WaitCursor;
-            var docMovementForm = new DocMovementForm(this, endPointInfo.PlaceId);
-            docMovementForm.Text = "Перем-е на " + endPointInfo.PlaceName;
-            docMovementForm.Show();
-            if (docMovementForm.Enabled)
-                Invoke((MethodInvoker)Hide);
-        }
-
         private void btnDocOrder_Click(object sender, EventArgs e)
         {
             Cursor.Current = Cursors.WaitCursor;
@@ -74,9 +56,13 @@ namespace gamma_mob
                         break;
                     default:
                         var docOrders = new DocOrdersForm (this, DocDirection.DocOut);
-                        docOrders.Show();
-                        if (docOrders.Enabled)
-                            Hide();
+                        if (docOrders != null && !docOrders.IsDisposed)
+                        {
+                            DialogResult result = docOrders.ShowDialog();
+                        }
+                        //docOrders.Show();
+                        //if (docOrders.Enabled)
+                        //    Hide();
                         break;
                 }
             }
@@ -119,9 +105,13 @@ namespace gamma_mob
                         break;
                     default:
                         var docOrders = new DocOrdersForm(this, DocDirection.DocIn);
-                        docOrders.Show();
-                        if (docOrders.Enabled)
-                            Hide();
+                        if (docOrders != null && !docOrders.IsDisposed)
+                        {
+                            DialogResult result = docOrders.ShowDialog();
+                        }
+                        //docOrders.Show();
+                        //if (docOrders.Enabled)
+                        //    Hide();
                         break;
                 }
             }
@@ -158,12 +148,15 @@ namespace gamma_mob
                             if (result != DialogResult.OK) return;
                             endPointInfo = form.EndPointInfo;
                         }
-                        Cursor.Current = Cursors.WaitCursor;
                         var docMovementForm = new DocMovementForm(this, endPointInfo.PlaceId);
                         docMovementForm.Text = "Перем-е на " + endPointInfo.PlaceName;
-                        docMovementForm.Show();
-                        if (docMovementForm.Enabled)
-                            Hide();
+                        if (docMovementForm != null && !docMovementForm.IsDisposed)
+                        {
+                            DialogResult result = docMovementForm.ShowDialog();
+                        }
+                        //docMovementForm.Show();
+                        //if (docMovementForm.Enabled)
+                        //    Hide();
                         break;
                 }
             }
@@ -193,9 +186,13 @@ namespace gamma_mob
                         break;
                     default:
                         var form = new DocInventarisationListForm(this);
-                        form.Show();
-                        if (form.Enabled)
-                            Hide();
+                        if (form != null && !form.IsDisposed)
+                        {
+                            DialogResult result = form.ShowDialog();
+                        }
+                        //form.Show();
+                        //if (form.Enabled)
+                        //    Hide();
                         break;
                 }
             }
@@ -248,6 +245,13 @@ namespace gamma_mob
                                     else
                                     {
                                         var resultMessage = Db.CloseShiftWarehouse(Shared.PersonId, Shared.ShiftId);
+                                        if (!Shared.LastQueryCompleted)
+                                        {
+                                            MessageBox.Show(@"Смена не закрыта!" + Environment.NewLine + @"Произошла ошибка." + Environment.NewLine + @"Попробуйте снова.", @"Закрытие смены", MessageBoxButtons.OK,
+                                                            MessageBoxIcon.Asterisk,
+                                                            MessageBoxDefaultButton.Button1);
+                                            return;
+                                        }
                                         switch (resultMessage)
                                         {
                                             case 1:

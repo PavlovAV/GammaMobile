@@ -52,8 +52,8 @@ namespace gamma_mob
             
             if (!RefreshDocOrderGoods(docOrderId))
             {
-                MessageBox.Show(@"Не удалось получить информацию о документе");
-                Close();
+                MessageBox.Show(@"Не удалось получить информацию о документе!/r/nПопробуйте ещё раз обновить!");
+                //Close();
                 return;
             }
             switch (orderType)
@@ -114,7 +114,7 @@ namespace gamma_mob
             MaxAllowedPercentBreak = maxAllowedPercentBreak;
 
             //Barcodes1C = Db.GetBarcodes1C();
-            Shared.RefreshBarcodes1C();
+            //Shared.RefreshBarcodes1C();
         }
 
         // Устанавливаем цвет фона для ячейки Собрано при превышении собранного количества над требуемым!
@@ -289,9 +289,8 @@ namespace gamma_mob
                     var nomenclatureItem = NomenclatureList[gridDocOrder.CurrentRowIndex];
                     var resultMessage = Db.FindDocOrderNomenclatureStoragePlaces(DocOrderId, nomenclatureItem.NomenclatureId, nomenclatureItem.CharacteristicId, nomenclatureItem.QualityId)
                                         ?? "Не удалось получить информацию о расположении продукции";
-                    MessageBox.Show(resultMessage, @"Расположение продукции", MessageBoxButtons.OK,
-                                    MessageBoxIcon.Question,
-                                    MessageBoxDefaultButton.Button1);
+                    if (resultMessage != null)
+                        MessageBox.Show(resultMessage, @"Расположение продукции", MessageBoxButtons.OK,MessageBoxIcon.Question,MessageBoxDefaultButton.Button1);
                     break;
                 case 5:
                     var form = new PalletsForm(this, DocOrderId);
@@ -327,9 +326,9 @@ namespace gamma_mob
             var form = new DocShipmentProductsForm(DocOrderId, good.NomenclatureId, good.NomenclatureName, good.CharacteristicId, good.QualityId, this, DocDirection, new RefreshDocProductDelegate(RefreshDocOrder));
             if (!form.IsDisposed)
             {
-                form.Show();
-                if (form.Enabled)
-                    Hide();
+                BarcodeFunc = null;
+                DialogResult result = form.ShowDialog();
+                BarcodeFunc = BarcodeReaction;
             }
         }
 
@@ -337,8 +336,8 @@ namespace gamma_mob
         {
             if (!RefreshDocOrderGoods(docId))
             {
-                MessageBox.Show(@"Не удалось получить информацию о документе");
-                Close();
+                MessageBox.Show(@"Не удалось получить информацию о документе!/r/nПопробуйте ещё раз обновить!");
+                //Close();
                 return;
             }
         }
@@ -405,7 +404,7 @@ namespace gamma_mob
 
         private void AddProductByBarcode(string barcode, bool fromBuffer, Guid nomenclatureId, Guid characteristicId, Guid qualityId, int? quantity)
         {
-            Program.SaveToLog(@"AddShip " + barcode + @"; Q-" + quantity + @"; F-" + fromBuffer.ToString());
+            Shared.SaveToLog(@"AddShip " + barcode + @"; Q-" + quantity + @"; F-" + fromBuffer.ToString());
             var offlineProduct = OfflineProducts.FirstOrDefault(p => p.Barcode == barcode);
             if (!ConnectionState.CheckConnection())
             {

@@ -11,7 +11,6 @@ using Datalogic.API;
 using OpenNETCF.Net.NetworkInformation;
 using Microsoft.Win32;
 using System.Net;
-using System.Runtime.InteropServices;
 using gamma_mob.Dialogs;
 
 namespace gamma_mob
@@ -23,9 +22,6 @@ namespace gamma_mob
         {
             InitializeComponent();
             if (!ConnectionState.CheckConnection()) return;
-            var serverDateTime = Db.GetServerDateTime();
-            if (serverDateTime != null)
-                Program.SaveToLog(@"ServerDate-" + string.Format(@"{0:yyyy.MM.dd HH:mm:ss} : ", serverDateTime) + @"; Diff-" + serverDateTime.Subtract(DateTime.Now));
             /*if (Db.CheckSqlConnection() != 1) return;
             WrongUserPass();
              * */
@@ -43,24 +39,7 @@ namespace gamma_mob
 
         private string barcode;
 
-        [DllImport("coredll.dll", SetLastError = true)]
-        private extern static uint SetSystemTime(ref SystemTime lpSystemTime);
-
-        protected static void SetSystemDateTime(DateTime dt)
-        {
-            SystemTime systime = new SystemTime
-            {
-                wYear = (ushort)dt.Year,
-                wMonth = (ushort)dt.Month,
-                wDay = (ushort)dt.Day,
-                wHour = (ushort)dt.Hour,
-                wMinute = (ushort)dt.Minute,
-                wSecond = (ushort)dt.Second,
-                wMilliseconds = (ushort)dt.Millisecond,
-                wDayOfWeek = (ushort)dt.DayOfWeek
-            };
-            SetSystemTime(ref systime);
-        }
+        
 
         protected override void FormLoad(object sender, EventArgs e)
         {
@@ -78,14 +57,6 @@ namespace gamma_mob
                     btnExecRDP.Text = "Запуск RDP";
                 }
 
-                if (Db.CheckSqlConnection() != 0)
-                {
-                    DateTime serverDateTime = Db.GetServerDateTime();
-                    if (serverDateTime != null)
-                    {
-                        SetSystemDateTime(serverDateTime);
-                    }
-                }
             }
             catch
             {
@@ -171,10 +142,19 @@ namespace gamma_mob
             Shared.PersonName = person.Name;
             Invoke(
                 (MethodInvoker)
-                (() => lblMessage.Text = "Вы авторизовались " + Environment.NewLine + "как " + person.Name + " (" + Settings.UserName + ")"));
-            Shared.LastTimeBarcodes1C = Db.GetServerDateTime();
-            Shared.Barcodes1C = Db.GetBarcodes1C();
-
+                (() => lblMessage.Text = "Вы авторизовались " + Environment.NewLine + "как " + person.Name + " (" + Settings.UserName + ")" +
+                    "\r\n\r\nИдет загрузка данных..."));
+            //Shared.LastTimeBarcodes1C = Db.GetServerDateTime();
+            //Shared.Barcodes1C = Db.GetBarcodes1C();
+            
+            if (!Shared.IntializationData())                
+            {
+                Invoke(
+                    (MethodInvoker)
+                    (() => lblMessage.Text = "Просканируйте \r\nсвой штрих-код"));
+                ConnectionError();
+                return;
+            }
             //Thread.Sleep(3000);
             Invoke((MethodInvoker) (CloseForm));
         }

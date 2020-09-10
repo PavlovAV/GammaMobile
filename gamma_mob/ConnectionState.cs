@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using Datalogic.API;
 using OpenNETCF.Net.NetworkInformation;
+using gamma_mob.Common;
 
 namespace gamma_mob
 {
@@ -28,7 +29,7 @@ namespace gamma_mob
             {
                 _stateConnection = value;
                 if (value != null && value != String.Empty)
-                    Program.SaveToLog(value);
+                    Shared.SaveToLog(value);
             }
         }
 
@@ -72,15 +73,18 @@ namespace gamma_mob
                 uint quality;
                 if (Device.WiFiGetSignalQuality(out quality))
                 {
-                    if (quality < 3)
+                    if (quality < 8)
                     {
                         stateConnection = @"Низкий уровень сигнала";
                         IsConnected = false;
                         return false;
                     }
 
-                    if (Settings.ServerIP.IndexOf(@",") >= 0) 
+                    if (1==1)//Не пингуем, незачем (Settings.ServerIP.IndexOf(@",") >= 0)
+                    {
+                        IsConnected = true;
                         return true;
+                    }
                     using (var pinger = new Ping())
                     {
                         try

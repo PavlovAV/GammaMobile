@@ -40,7 +40,7 @@ namespace gamma_mob.Common
         protected virtual void FormLoad(object sender, EventArgs e)
         {
             ImgList = Shared.ImgList;
-            Program.SaveToLog(((Form)sender).Name);
+            Shared.SaveToLog(((Form)sender).Name);
         }
 
         protected virtual void OnFormClosing(object sender, CancelEventArgs e)
@@ -52,7 +52,7 @@ namespace gamma_mob.Common
                 ParentForm.Show();
                 ParentForm.Activate();
             }
-                
+
         }
 
     }

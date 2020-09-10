@@ -21,7 +21,7 @@ namespace gamma_mob
 
         private DocInventarisationForm()
         {
-            InitializeComponent();
+            InitializeComponent(); 
         }
 
         private DocInventarisationForm(Form parentForm): this()
@@ -258,7 +258,7 @@ namespace gamma_mob
         
         private void AddProductByBarcode(string barcode, bool fromBuffer, Guid nomenclatureId, Guid characteristicId, Guid qualityId, int? quantity)
         {
-            Program.SaveToLog(@"AddInv " + barcode + @"; Q-" + quantity + @"; F-" + fromBuffer.ToString());
+            Shared.SaveToLog(@"AddInv " + barcode + @"; Q-" + quantity + @"; F-" + fromBuffer.ToString());
             var offlineProduct = OfflineProducts.FirstOrDefault(p => p.Barcode == barcode && p.DocId == DocInventarisationId);
             if (!ConnectionState.CheckConnection())
             {

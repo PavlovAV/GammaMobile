@@ -75,7 +75,7 @@ namespace gamma_mob
                     }
                 }
             }
-            Program.SaveToLog(@"E.P-" + EndPointInfo.PlaceId + @"; E.Z-" + EndPointInfo.PlaceZoneId);
+            Shared.SaveToLog(@"E.P-" + EndPointInfo.PlaceId + @"; E.Z-" + EndPointInfo.PlaceZoneId);
 
             AcceptedProducts = new BindingList<MovementProduct>();
 
@@ -289,7 +289,7 @@ namespace gamma_mob
 
         private void AddProductByBarcode(string barcode, EndPointInfo endPointInfo, bool fromBuffer, Guid nomenclatureId, Guid characteristicId, Guid qualityId, int? quantity)
         {
-            Program.SaveToLog(@"AddMov " + barcode + @"; P-" + endPointInfo.PlaceId + @"; Z-" + endPointInfo.PlaceZoneBarcode + @"; Q-" + quantity + @"; F-" + fromBuffer.ToString());
+            Shared.SaveToLog(@"AddMov " + barcode + @"; P-" + endPointInfo.PlaceId + @"; Z-" + endPointInfo.PlaceZoneBarcode + @"; Q-" + quantity + @"; F-" + fromBuffer.ToString());
             OfflineProduct offlineProduct = null;
             if (fromBuffer)
                 offlineProduct = OfflineProducts.FirstOrDefault(p => p.Barcode == barcode);
@@ -491,6 +491,11 @@ namespace gamma_mob
             BindingList<MovementProduct> list = Db.GetMovementProductsList(EndPointInfo.PlaceId, Shared.PersonId);
             if (!Shared.LastQueryCompleted )//|| list == null)
             {
+                if (AcceptedProducts == null)
+                    AcceptedProducts = new BindingList<MovementProduct>();
+                if (BSource == null)
+                    BSource = new BindingSource { DataSource = AcceptedProducts };
+            
                 // MessageBox.Show(@"Не удалось получить информацию о текущем документе");
                 return false;
             }
@@ -860,8 +865,8 @@ namespace gamma_mob
         {
             if (!GetLastMovementProducts())
             {
-                MessageBox.Show(@"Не удалось получить информацию о документе");
-                Close();
+                MessageBox.Show(@"Не удалось получить информацию о документе!" + Environment.NewLine + @"Попробуйте ещё раз обновить!");
+                //Close();
                 return;
             }
         }

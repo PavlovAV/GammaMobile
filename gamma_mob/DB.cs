@@ -36,6 +36,14 @@ namespace gamma_mob
                 try
                 {
                     connection.Open();
+                    if (!Shared.IsLocalDateTimeUpdated)
+                    {
+                        DateTime serverDateTime = Db.GetServerDateTime();
+                        if (serverDateTime != null)
+                        {
+                            Shared.SetSystemDateTime(serverDateTime);
+                        }
+                    }
                     connection.Close();
                 }
                 catch (SqlException ex)
@@ -47,6 +55,7 @@ namespace gamma_mob
                     return 1;
                 }
             }
+            
             return 0;
         }
 
@@ -71,9 +80,9 @@ namespace gamma_mob
             Person person = null;
             const string sql = "SELECT PersonID, Name FROM Persons WHERE Barcode = @Barcode";
             var parameters = new List<SqlParameter>
-                {
-                    new SqlParameter("@BarCode", SqlDbType.VarChar)
-                };
+            {
+                new SqlParameter("@BarCode", SqlDbType.VarChar)
+            };
             parameters[0].Value = barcode;
             using (DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.Text))
             {
@@ -88,6 +97,7 @@ namespace gamma_mob
                 }
             }
             return person;
+            
         }
 
         public static DataTable DocShipmentOrderGoodProducts(Guid docShipmentOrderId, Guid nomenclatureId,
@@ -223,7 +233,9 @@ namespace gamma_mob
 
         public static List<PlaceZone> GetWarehousePlaceZones(int placeId)
         {
-            List<PlaceZone> list = null;
+            var placeZones = Shared.PlaceZones.Where(p => p.PlaceId == placeId && p.PlaceZoneParentId == Guid.Empty && p.IsValid).ToList();
+            return placeZones;
+            /*List<PlaceZone> list = null;
             const string sql = "dbo.mob_GetWarehousePlaceZones";
             var parameters = new List<SqlParameter>
                 {
@@ -243,7 +255,7 @@ namespace gamma_mob
                                 }).ToList();
                 }
             }
-            return list;
+            return list;*/
         }
 
         public static List<PlaceZone> GetPlaceZoneChilds(Guid placeZoneId)
@@ -950,7 +962,7 @@ namespace gamma_mob
 
         public static string GetProgramSettings(string NameSetting)
         {
-            var valueSetting = "";
+            string valueSetting = null;
             const string sql = "GetProgramSettings";
             var parameters = new List<SqlParameter>
                 {
@@ -1480,11 +1492,16 @@ namespace gamma_mob
                 };
             using (DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure))
             {
-                if (table != null && table.Rows.Count > 0)
-                {
-                    DataRow row = table.Rows[0];
-                    infoproduct = row["Name"].ToString();
-                }
+                if (table != null )
+                    if (table.Rows.Count == 0)
+                    {
+                        infoproduct = @"Неверный штрих-код";
+                    }
+                    else
+                    {
+                        DataRow row = table.Rows[0];
+                        infoproduct = row["Name"].ToString();
+                    }
             }
             return infoproduct;
         }

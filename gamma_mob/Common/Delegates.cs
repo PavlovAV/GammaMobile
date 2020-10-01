@@ -4,6 +4,8 @@ namespace gamma_mob.Common
 {
     public delegate void ConnectStateChangeInvoker(ConnectState state);
 
+    public delegate void LoginStateChangeInvoker(ConnectState state, string message);
+    
     public delegate void UpdateOrderGridInvoker(Guid nomenclatureId, Guid characteristicId, Guid qualityId, string nomenclatureName,
                     string shortNomenclatureName, decimal quantity, bool add, int CountProductSpools, int CountProductSpoolsWithBreak, int? productKindId);
 
@@ -12,7 +14,7 @@ namespace gamma_mob.Common
 
     public delegate void RefreshDocOrderDelegate(Guid docId);
 
-    public delegate void RefreshDocProductDelegate(Guid docId);
+    public delegate void RefreshDocProductDelegate(Guid docId, bool showMessage);
     
 
 }

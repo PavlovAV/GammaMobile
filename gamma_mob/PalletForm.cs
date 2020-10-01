@@ -30,7 +30,7 @@ namespace gamma_mob
             DocOrderId = pallet.DocOrderId;
             ProductId = pallet.ProductId;
             var list = pallet.Items;
-            if (!Shared.LastQueryCompleted || list == null)
+            if (Shared.LastQueryCompleted == false || list == null)
             {
                 MessageBox.Show(@"Не удалось получить информацию о текущем документе");
                 Close();
@@ -144,7 +144,7 @@ namespace gamma_mob
                 quantity = form.Quantity;
             }
             var result = Db.AddItemToPallet(ProductId, DocOrderId, barcode, quantity);
-            if (!Shared.LastQueryCompleted)
+            if (Shared.LastQueryCompleted == false)
             {
                 MessageBox.Show(@"Нет связи с базой", @"Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Hand,
                                 MessageBoxDefaultButton.Button1);

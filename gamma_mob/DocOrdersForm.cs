@@ -56,7 +56,7 @@ namespace gamma_mob
                     Width = -1
                 });
             gridDocShipmentOrders.TableStyles.Add(tableStyle);
-            Shared.RefreshBarcodes1C();
+            //Shared.RefreshBarcodes1C();
         }
 
         private void GetDocOrders()

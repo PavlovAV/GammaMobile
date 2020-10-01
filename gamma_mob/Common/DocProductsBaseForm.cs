@@ -3,6 +3,11 @@ using System.Data;
 using System.Windows.Forms;
 using gamma_mob.Common;
 using gamma_mob.Dialogs;
+using System.Collections.Generic;
+using gamma_mob.Models;
+using OpenNETCF.Windows.Forms;
+using gamma_mob.CustomDataGrid;
+using System.ComponentModel;
 
 namespace gamma_mob
 {
@@ -11,29 +16,6 @@ namespace gamma_mob
         protected DocProductsBaseForm()
         {
             InitializeComponent();
-            var tableStyle = new DataGridTableStyle();
-            tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
-                {
-                    MappingName = "Number",
-                    HeaderText = @"Дата\Номер",
-                    Width = 110
-                });
-            tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
-                {
-                    MappingName = "Quantity",
-                    HeaderText = @"Кол\Обрыв",
-                    Width = 33,
-                    Format = "0.###"
-                });
-            tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
-            {
-                MappingName = "OutPlace",
-                HeaderText = @"Склад\Зона",
-                Width = 77,
-                NullText = ""
-                //Format = "0.#"
-            });
-            gridProducts.TableStyles.Add(tableStyle);
         }
 
         private RefreshDocProductDelegate RefreshDocOrder;
@@ -74,7 +56,7 @@ namespace gamma_mob
                 return;
             }
         }
-        
+
         public DocProductsBaseForm(Guid docShipmentOrderId, Guid nomenclatureId, string nomenclatureName
             , Guid characteristicId, Guid qualityId, Form parentForm, DocDirection docDirection, RefreshDocProductDelegate refreshDocOrder)
             : this()
@@ -97,7 +79,7 @@ namespace gamma_mob
 
 
         public DocProductsBaseForm(int placeId, Guid personId, Guid nomenclatureId, string nomenclatureName
-            , Guid characteristicId, Guid qualityId, Guid? placeZoneId, Form parentForm, RefreshDocProductDelegate refreshDocOrder)
+            , Guid characteristicId, Guid qualityId, Guid? placeZoneId, Form parentForm)
             : this()
         {
             lblNomenclature.Text = nomenclatureName;
@@ -108,16 +90,18 @@ namespace gamma_mob
             CharacteristicId = characteristicId;
             QualityId = qualityId;
             PlaceZoneId = placeZoneId;
-            RefreshDocOrder = refreshDocOrder;
+            //RefreshDocOrder = refreshDocOrder;
             if (!RefreshDatGrid())
             {
                 MessageBox.Show(@"Не удалось получить информацию");
                 Close();
                 return;
             }
+
+            
         }
 
-        protected int PlaceId { get; set; } 
+        protected int PlaceId { get; set; }
         protected Guid PersonId { get; set; }
         protected Guid DocShipmentOrderId { get; set; }
         protected Guid NomenclatureId { get; set; }
@@ -126,37 +110,72 @@ namespace gamma_mob
         protected DocDirection DocDirections { get; set; }
         protected Guid? PlaceZoneId { get; set; }
         public bool IsRefreshQuantity = false;
-        protected decimal Quantity { get; set; } 
+        protected decimal Quantity { get; set; }
 
-        protected virtual DataTable GetProducts()
+        private BindingList<ProductBase> AcceptedProducts { get; set; }
+        //private BindingSource BSource { get; set; }
+
+        private delegate void UpdateGridInvoker(ProductBase t);
+
+
+        protected virtual BindingList<ProductBase> GetProducts()
         {
-            return (DataTable)null; //Db.DocShipmentOrderGoodProducts(DocShipmentOrderId, NomenclatureId, CharacteristicId, QualityId, DocDirections);
+            return (BindingList<ProductBase>)null; //Db.DocShipmentOrderGoodProducts(DocShipmentOrderId, NomenclatureId, CharacteristicId, QualityId, DocDirections);
         }
 
         protected virtual DataTable RemovalRProducts()
         {
             return (DataTable)null; //Db.RemoveProductRFromOrder(DocShipmentOrderId, NomenclatureId, CharacteristicId, QualityId, Quantity);
         }
+
         
         private bool RefreshDatGrid()
         {
-            DataTable table = GetProducts();//Db.DocShipmentOrderGoodProducts(DocShipmentOrderId, NomenclatureId, CharacteristicId, QualityId, DocDirections);
-            if (!Shared.LastQueryCompleted)
+            BindingList<ProductBase> list = GetProducts();
+            if (Shared.LastQueryCompleted == false)//|| list == null)
             {
-                //MessageBox.Show(@"Не удалось получить информацию о продукции");
-                //Close();
+                if (AcceptedProducts == null)
+                    AcceptedProducts = new BindingList<ProductBase>();
                 return false;
             }
-            if (table != null)
+            AcceptedProducts = list ?? new BindingList<ProductBase>();
+            gridProducts.DataSource = AcceptedProducts;
+
+            var tableStyle = new DataGridTableStyle { MappingName = gridProducts.DataSource.GetType().Name };
+            tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
             {
-                gridProducts.DataSource = table;
-                DataRow[] rows = table.Select("IsProductR = 1");
-                if (rows.Length > 0)
-                {
-                    btnRemoval.Visible = true;
-                    btnRemoval.Tag = rows[0]["Quantity"].ToString();
-                }
-            }
+                MappingName = "Number",
+                HeaderText = @"Дата\Номер",
+                Width = 110
+            });
+            tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
+            {
+                MappingName = "Quantity",
+                HeaderText = @"Кол\Обрыв",
+                Width = 33,
+                Format = "0.###"
+            });
+            tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
+            {
+                MappingName = "OutPlace",
+                HeaderText = @"Откуда",
+                Width = 77,
+                NullText = ""
+                //Format = "0.#"
+            });
+            tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
+            {
+                MappingName = "InPlace",
+                HeaderText = @"Куда",
+                Width = 77,
+                NullText = ""
+                //Format = "0.#"
+            });
+            gridProducts.TableStyles.Clear();
+            gridProducts.TableStyles.Add(tableStyle);
+
+            gridProducts.UnselectAll();
+
             return true;
         }
 
@@ -168,7 +187,8 @@ namespace gamma_mob
                     Close();
                     break;
                 case 2:
-                    SetQuantityProductRemoval();
+                    //SetQuantityProductRemoval();
+                    DeleteMovementProduct();
                     break;
             }
         }
@@ -177,41 +197,105 @@ namespace gamma_mob
         {
             base.FormLoad(sender, e);
             tbrMain.ImageList = ImgList;
-            btnBack.ImageIndex = (int) Images.Back;
+            btnBack.ImageIndex = (int)Images.Back;
             btnRemoval.ImageIndex = (int)Images.Remove;
+            BarcodeFunc = BarcodeReaction;
+
         }
 
-        private void SetQuantityProductRemoval()
+        private void DeleteMovementProduct()
         {
-            //string MaxCount = btnRemoval.Tag.ToString();
-            using (var form = new SetCountProductsDialog(btnRemoval.Tag.ToString()))
+            if (!ConnectionState.CheckConnection())
             {
-                DialogResult result = form.ShowDialog();
-                if (result != DialogResult.OK || form.Quantity == null)
+                MessageBox.Show(@"Нет связи с сервером" + Environment.NewLine + ConnectionState.GetConnectionState());
+                return;
+            }
+            var rowIndex = gridProducts.CurrentRowIndex;
+            if (rowIndex >= 0)
+            {
+                if (AcceptedProducts[rowIndex].MovementId == null) //((DataTable)gridProducts.DataSource).Rows[rowIndex]["MovementID"] == null)
                 {
-                    MessageBox.Show(@"Не указано количество продукта. Количество продукта не изменено!", @"Продукт не удален",
-                                    MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
-                    
+                    MessageBox.Show("Ошибка при удалении.");
                 }
                 else
                 {
-                    Quantity = form.Quantity;
-                    DataTable table = RemovalRProducts();// Db.RemoveProductRFromOrder(DocShipmentOrderId, NomenclatureId, CharacteristicId, QualityId, Quantity);
-                    if (!Shared.LastQueryCompleted)
+                    var t = AcceptedProducts[rowIndex];//((DataTable)gridProducts.DataSource).Rows[rowIndex];
+                    if (t != null)
                     {
-                        MessageBox.Show(@"Не удалось удалить продукт!");
+                        Invoke((UpdateGridInvoker)(CancelLastMovement),
+                           new object[] { t });
+                            return;
+                        
                     }
-                    if (!RefreshDatGrid())
-                    {
-                        MessageBox.Show(@"Не удалось обновить информацию");
-                        Close();
-                        return;
-                    }
-                    IsRefreshQuantity = true;
-                    RefreshDocOrder(DocShipmentOrderId);
-                    //getProductResult.CountProducts = form.Quantity;
                 }
             }
         }
+
+        private void CancelLastMovement(ProductBase t)
+        {
+
+            var dialogResult = MessageBox.Show("Отменить перемещение " + t.Number + Environment.NewLine + "и вернуть продукт на передел " + t.OutPlace + "?"
+                            , @"Операция с продуктом",
+                            MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
+            if (dialogResult == DialogResult.Yes)
+            {
+                var scanId = t.MovementId;
+                DbOperationProductResult delResult = null;
+                delResult = Db.DeleteProductFromMovementOnMovementID(scanId);
+
+                if (delResult == null)
+                    MessageBox.Show(@"Связь с сервером потеряна, не удалось отменить перемещение", @"Ошибка связи");
+                else
+                    if (string.IsNullOrEmpty(delResult.ResultMessage))
+                    {
+                        Shared.ScannedBarcodes.DeletedScan(scanId);
+                        AcceptedProducts.Remove(t);
+                        IsRefreshQuantity = true;
+                    }
+                    else
+                    {
+                        MessageBox.Show(@"Не удалось удалить перемещение. " + delResult.ResultMessage, @"Ошибка");
+                    }
+            }
+        }
+
+        private void BarcodeReaction(string barcode)
+        {
+#if DEBUG
+            barcode = "2200801410800055";
+#endif
+            int rowIndex = -1;
+            var count = AcceptedProducts.Count;
+            bool isFound = false;
+            int i = 0;
+            while (!isFound && i < count)
+                {
+                    var item = (AcceptedProducts[i] as ProductBase);
+                    if (item.Barcode == barcode)
+                    {
+                        isFound = true;
+                        rowIndex = i;
+                    }
+                    i++;
+                }
+            
+            
+            if (rowIndex < 0)
+                MessageBox.Show("Перемещение по ШК " + barcode + " не найдено!");
+            else
+            {
+                var t = AcceptedProducts[rowIndex];//((DataTable)gridProducts.DataSource).Rows[rowIndex];
+                if (t != null)
+                {
+                    Invoke((UpdateGridInvoker) (CancelLastMovement),
+                               new object[]
+                                   {t});
+                    return;
+
+                } 
+                return;
+            }
+        }
+
     }
 }

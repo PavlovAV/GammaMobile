@@ -48,10 +48,6 @@
             // 
             this.Separator1.Style = System.Windows.Forms.ToolBarButtonStyle.Separator;
             // 
-            // btnRemoval
-            // 
-            this.btnRemoval.Visible = false;
-            // 
             // gridProducts
             // 
             this.gridProducts.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));

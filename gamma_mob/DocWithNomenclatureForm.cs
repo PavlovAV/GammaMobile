@@ -332,11 +332,11 @@ namespace gamma_mob
             }
         }
 
-        private void RefreshDocOrder(Guid docId)
+        private void RefreshDocOrder(Guid docId, bool showMessage)
         {
             if (!RefreshDocOrderGoods(docId))
             {
-                MessageBox.Show(@"Не удалось получить информацию о документе!/r/nПопробуйте ещё раз обновить!");
+                if (showMessage) MessageBox.Show(@"Не удалось получить информацию о документе!/r/nПопробуйте ещё раз обновить!");
                 //Close();
                 return;
             }
@@ -345,7 +345,7 @@ namespace gamma_mob
         private bool RefreshDocOrderGoods(Guid docId)
         {
             BindingList<DocNomenclatureItem> list = Db.DocNomenclatureItems(docId, OrderType, DocDirection);
-            if (!Shared.LastQueryCompleted)// || list == null)
+            if (Shared.LastQueryCompleted == false)// || list == null)
             {
                // MessageBox.Show(@"Не удалось получить информацию о текущем документе");
                 return false;
@@ -422,7 +422,8 @@ namespace gamma_mob
                 }
                 return;
             }
-            DbProductIdFromBarcodeResult getProductResult = Db.GetProductIdFromBarcodeOrNumber(barcode);
+            //DbProductIdFromBarcodeResult getProductResult = Db.GetProductIdFromBarcodeOrNumber(barcode);
+            DbProductIdFromBarcodeResult getProductResult = Shared.Barcodes1C.GetProductFromBarcodeOrNumberInBarcodes(barcode);
             if (getProductResult == null)
             {
                 if (!fromBuffer)
@@ -506,7 +507,7 @@ namespace gamma_mob
                 }
                 return;
             }
-            if (!Shared.LastQueryCompleted)
+            if (Shared.LastQueryCompleted == false)
             {
                 if (!fromBuffer)
                     AddOfflineBarcode(barcode, getProductResult.NomenclatureId, getProductResult.CharacteristicId, getProductResult.QualityId, getProductResult.CountProducts);
@@ -551,7 +552,7 @@ namespace gamma_mob
             {
                 DbOperationProductResult deleteResult = Db.DeleteProductFromOrder(barcode, DocOrderId, DocDirection);
                 if (deleteResult == null) return false;
-                if (deleteResult.ResultMessage == "" && Shared.LastQueryCompleted)
+                if (deleteResult.ResultMessage == "" && Shared.LastQueryCompleted == true)
                 {
                     result = true;
                     //Barcodes.Remove(barcode);

@@ -34,7 +34,7 @@ namespace gamma_mob
             lblNomenclature.Text = nomenclatureName;
             ParentForm = parentForm;
             DataTable table = Db.DocInventarisationNomenclatureProducts(docInventarisationId, nomenclatureId, characteristicId, qualityId);
-            if (!Shared.LastQueryCompleted)
+            if (Shared.LastQueryCompleted == false)
             {
                 MessageBox.Show(@"Не удалось получить информацию о продукции");
                 Close();

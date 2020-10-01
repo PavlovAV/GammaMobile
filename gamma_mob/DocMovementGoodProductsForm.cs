@@ -118,7 +118,7 @@ namespace gamma_mob
         private bool RefreshDatGrid()
         {
             DataTable table = GetProducts();//Db.DocShipmentOrderGoodProducts(DocShipmentOrderId, NomenclatureId, CharacteristicId, QualityId, DocDirections);
-            if (!Shared.LastQueryCompleted)
+            if (Shared.LastQueryCompleted == false)
             {
                 //MessageBox.Show(@"Не удалось получить информацию о продукции");
                 //Close();
@@ -174,7 +174,7 @@ namespace gamma_mob
                 {
                     Quantity = form.Quantity;
                     DataTable table = RemovalRProducts();// Db.RemoveProductRFromOrder(DocShipmentOrderId, NomenclatureId, CharacteristicId, QualityId, Quantity);
-                    if (!Shared.LastQueryCompleted)
+                    if (Shared.LastQueryCompleted == false)
                     {
                         MessageBox.Show(@"Не удалось удалить продукт!");
                     }

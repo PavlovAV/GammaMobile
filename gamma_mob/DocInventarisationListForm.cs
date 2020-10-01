@@ -13,10 +13,14 @@ namespace gamma_mob
             InitializeComponent();
         }
 
-        public DocInventarisationListForm(Form parentForm) : this()
+        public DocInventarisationListForm(Form parentForm, DocDirection docDirection) : this()
         {
             ParentForm = parentForm;
+            DocDirection = docDirection;
+
         }
+
+        private DocDirection DocDirection { get; set; }
 
         private void tbrMain_ButtonClick(object sender, ToolBarButtonClickEventArgs e)
         {

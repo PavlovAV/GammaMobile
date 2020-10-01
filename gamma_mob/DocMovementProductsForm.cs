@@ -2,6 +2,8 @@
 using System.Data;
 using System.Windows.Forms;
 using gamma_mob.Common;
+using gamma_mob.Models;
+using System.ComponentModel;
 
 namespace gamma_mob
 {
@@ -13,21 +15,17 @@ namespace gamma_mob
         }
 
         public DocMovementProductsForm(int placeId, Guid personId, Guid nomenclatureId, string nomenclatureName
-            , Guid characteristicId, Guid qualityId, Guid? placeZoneId, Form parentForm, RefreshDocProductDelegate refreshDocOrder)
+            , Guid characteristicId, Guid qualityId, Guid? placeZoneId, Form parentForm)
             : base(placeId, personId, nomenclatureId, nomenclatureName
-            , characteristicId, qualityId, placeZoneId, parentForm, refreshDocOrder)
+            , characteristicId, qualityId, placeZoneId, parentForm)
         {
             
         }
 
-        protected override DataTable GetProducts()
+        protected override BindingList<ProductBase> GetProducts()
         {
             return Db.GetMovementGoodProducts(PlaceId, PersonId, NomenclatureId, CharacteristicId, QualityId, PlaceZoneId);
         }
 
-        protected override DataTable RemovalRProducts()
-        {
-            return Db.RemoveProductRFromMovement(PlaceId, PersonId, NomenclatureId, CharacteristicId, QualityId, PlaceZoneId, Quantity);
-        }
     }
 }

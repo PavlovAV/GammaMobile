@@ -63,7 +63,7 @@ namespace gamma_mob
                 });
             gridInventarisation.TableStyles.Add(tableStyle);
             //Barcodes1C = Db.GetBarcodes1C();
-            Shared.RefreshBarcodes1C();
+            //Shared.RefreshBarcodes1C();
         }
 
         private int Collected
@@ -81,7 +81,7 @@ namespace gamma_mob
         private bool RefreshProducts(Guid docInventarisationId)
         {
             BindingList<DocNomenclatureItem> list = Db.InventarisationProducts(docInventarisationId);
-            if (!Shared.LastQueryCompleted)// || list == null)
+            if (Shared.LastQueryCompleted == false)// || list == null)
             {
                 // MessageBox.Show(@"Не удалось получить информацию о текущем документе");
                 return false;
@@ -277,7 +277,8 @@ namespace gamma_mob
                 };
                 return;
             }
-            DbProductIdFromBarcodeResult getProductResult = Db.GetProductIdFromBarcodeOrNumber(barcode);
+            //DbProductIdFromBarcodeResult getProductResult = Db.GetProductIdFromBarcodeOrNumber(barcode);
+            DbProductIdFromBarcodeResult getProductResult = Shared.Barcodes1C.GetProductFromBarcodeOrNumberInBarcodes(barcode);
             if (getProductResult == null)
             {
                 if (!fromBuffer)
@@ -362,7 +363,7 @@ namespace gamma_mob
                 };
                 return;
             }
-            if (!Shared.LastQueryCompleted)
+            if (Shared.LastQueryCompleted == false)
             {
                 if (!fromBuffer)
                     AddOfflineBarcode(barcode);
@@ -500,11 +501,11 @@ namespace gamma_mob
             }
         }
 
-        private void RefreshDocInventarisation(Guid docId)
+        private void RefreshDocInventarisation(Guid docId, bool showMessage)
         {
             if (!RefreshProducts(docId))
             {
-                MessageBox.Show(@"Не удалось получить информацию о документе");
+                if (showMessage) MessageBox.Show(@"Не удалось получить информацию о документе");
                 Close();
                 return;
             }

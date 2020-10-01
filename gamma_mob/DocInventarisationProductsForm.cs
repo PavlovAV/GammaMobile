@@ -20,10 +20,10 @@ namespace gamma_mob
             
         }
 
-        protected override DataTable GetProducts()
-        {
-            return Db.DocInventarisationNomenclatureProducts(DocShipmentOrderId, NomenclatureId, CharacteristicId, QualityId);
-        }
+        //protected override DataTable GetProducts()
+        //{
+        //    return Db.DocInventarisationNomenclatureProducts(DocShipmentOrderId, NomenclatureId, CharacteristicId, QualityId);
+        //}
 
         protected override DataTable RemovalRProducts()
         {

@@ -21,8 +21,9 @@ namespace gamma_mob.Dialogs
         {
             Barcode = barcode;
 
-            
-            BindingList<ChooseNomenclatureItem> list = Db.GetNomenclatureCharacteristicQualityFromBarcode(barcode);
+            //BindingList<ChooseNomenclatureItem> list = Db.GetBarcodes1C(barcode);
+            List<ChooseNomenclatureItem> list = Shared.Barcodes1C.GetNomenclaturesFromBarcodeInBarcodes(barcode);
+            /*BindingList<ChooseNomenclatureItem> list = Db.GetNomenclatureCharacteristicQualityFromBarcode(barcode);
             if (!Shared.LastQueryCompleted || list == null)
             {
                 // MessageBox.Show(@"Не удалось получить информацию о текущем документе");
@@ -34,7 +35,7 @@ namespace gamma_mob.Dialogs
                         list.Add(barcode1c);
                 }
                 //return;
-            }
+            }*/
             ChooseNomenclatureList = list;
             if (BSource == null)
                 BSource = new BindingSource { DataSource = ChooseNomenclatureList };
@@ -74,7 +75,7 @@ namespace gamma_mob.Dialogs
         private string Barcode { get; set; }
 
         private BindingSource BSource { get; set; }
-        private BindingList<ChooseNomenclatureItem> ChooseNomenclatureList { get; set; }
+        private List<ChooseNomenclatureItem> ChooseNomenclatureList { get; set; }
 
         private bool setProductId()
         {

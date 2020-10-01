@@ -27,7 +27,8 @@
     {
         ConInProgress,
         NoConInProgress,
-        NoConnection
+        NoConnection,
+        ConnectionRestore
     }
 
    
@@ -62,9 +63,13 @@
         /// </summary>
         InternalOrder,
         /// <summary>
-        /// внутреннее перемещение(на данный момент пока отказались)
+        /// внутреннее перемещение 
         /// </summary>
-        MovementOrder
+        MovementOrder,
+        /// <summary>
+        /// инвентаризация
+        /// </summary>
+        Inventarisation
     }
 
 
@@ -72,6 +77,7 @@
     {
         DocOut,
         DocIn,
-        DocOutIn
+        DocOutIn,
+        DocInventarisation
     }
 }

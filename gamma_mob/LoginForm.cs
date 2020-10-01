@@ -12,6 +12,7 @@ using OpenNETCF.Net.NetworkInformation;
 using Microsoft.Win32;
 using System.Net;
 using gamma_mob.Dialogs;
+using System.Collections.Generic;
 
 namespace gamma_mob
 {
@@ -21,19 +22,23 @@ namespace gamma_mob
         public LoginForm()
         {
             InitializeComponent();
-            if (!ConnectionState.CheckConnection()) return;
-            /*if (Db.CheckSqlConnection() != 1) return;
-            WrongUserPass();
-             * */
-            switch (Db.CheckSqlConnection())
-            {
-                case 2:
-                    ConnectionError();
-                    return;
-                case 1:
-                    WrongUserPass();
-                    return;
-            }
+
+           
+
+            //if (!ConnectionState.CheckConnection()) return;
+            ///*if (Db.CheckSqlConnection() != 1) return;
+            //WrongUserPass();
+            // * */
+            //switch (Db.CheckSqlConnection())
+            //{
+            //    case 2:
+            //        ConnectionError();
+            //        return;
+            //    case 1:
+            //        WrongUserPass();
+            //        return;
+            //}
+
 
         }
 
@@ -62,13 +67,74 @@ namespace gamma_mob
             {
             }
 
+            //Подписка на событие восстановления связи
+            ConnectionState.OnConnectionRestored += ConnectionRestored;//UnloadOfflineProducts;
+            //Подписка на событие потери связи
+            ConnectionState.OnConnectionLost += ConnectionLost;
+
+
 //#if DEBUG
 //            AuthorizeByBarcode("00000000000056");
 //#endif
         }
 
+        private void ConnectionLost()
+        {
+            ConnectionLost(string.Empty);
+        }
+
+        private void ConnectionRestored()
+        {
+            ConnectionRestored(string.Empty);            
+        }
+
+        private void ConnectionLost(string message)
+        {
+            Invoke((LoginStateChangeInvoker)(ShowConnection), new object[] { ConnectState.NoConnection, message });
+        }
+
+        private void ConnectionRestored(string message)
+        {
+            Invoke((LoginStateChangeInvoker)(ShowConnection), new object[] { ConnectState.ConnectionRestore, message });
+            //Invoke(new EventHandler(ConnectionRestored));
+        }
+
+        private void ShowConnection(ConnectState conState, string message)
+        {
+            switch (conState)
+            {
+                //case ConnectState.ConInProgress:
+                //    imgConnection.Image = ImgList.Images[(int)Images.NetworkTransmitReceive];
+                //    break;
+                //case ConnectState.NoConInProgress:
+                //    imgConnection.Image = null;
+                //    break;
+                case ConnectState.NoConnection:
+                    lblMessage.Text = message == string.Empty ? "Связь потеряна! \r\n\r\nНайдите зону с устойчивой связью" : message ;
+                    break;
+                case ConnectState.ConnectionRestore:
+                    lblMessage.Text = message == string.Empty ? "Связь восстановлена! \r\n\r\nПросканируйте \r\nсвой штрих-код" : message;
+                    //ConnectionRestored();
+                    break;
+            }
+        }
+
         private void AuthorizeByBarcode(string barcode)
         {
+            Invoke(
+                (MethodInvoker)
+                (() => lblMessage.Text = barcode + Environment.NewLine +
+                    "\r\n\r\nИдет проверка сети..."));
+            if (!ConnectionState.CheckConnection())
+            {
+                ConnectionError();
+                return;
+            }
+            if (!ConnectionState.GetServerPortEnabled)
+            {
+                ConnectionLost();
+                return;
+            }
             switch (Db.CheckSqlConnection())
             {
                 case 2:
@@ -78,34 +144,37 @@ namespace gamma_mob
                     WrongUserPass();
                     return;
             }
+            
             Person person = Db.PersonByBarcode(barcode);
             if (person == null)
             {
-                MessageBox.Show(@"Неверный шк или нет связи с базой");
+                //MessageBox.Show(@"Неверный шк или нет связи с базой");
+                ConnectionLost(@"Неверный шк или нет связи с базой");
                 return;
             }
 
-            var userName = Db.GetUserNameFromPerson(person.PersonID);
-            if (userName == String.Empty)
+            if (person.UserName == String.Empty)
             {
-                MessageBox.Show(@"Не определен логин." + Environment.NewLine + @"Обратитесь в техподдержку Гаммы!", @"Логин не определен",
-                                MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
+                //MessageBox.Show(@"Не определен логин." + Environment.NewLine + @"Обратитесь в техподдержку Гаммы!", @"Логин не определен",
+                //                MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
+                ConnectionLost(@"Не определен логин." + Environment.NewLine + @"Обратитесь в техподдержку Гаммы!");
                 return;
             }
 
-            if (userName.Contains("0"))
+            if (person.UserName.Contains("0"))
             {
                using (var form = new ChooseShiftDialog())
                 {
                     DialogResult result = form.ShowDialog();
                     if (result != DialogResult.OK || form.ShiftId < 1)
                     {
-                        MessageBox.Show(@"Не указан номер смены." + Environment.NewLine + @"Попробуйте еще раз!", @"Смена не выбрана",
-                                        MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
+                        //MessageBox.Show(@"Не указан номер смены." + Environment.NewLine + @"Попробуйте еще раз!", @"Смена не выбрана",
+                        //                MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
+                        ConnectionLost(@"Не указан номер смены." + Environment.NewLine + @"Попробуйте еще раз!");
                         return;
                     }
 
-                    Settings.UserName = userName.Replace("0", form.ShiftId.ToString());
+                    Settings.UserName = person.UserName.Replace("0", form.ShiftId.ToString());
                     Settings.Password = "123456";
                     Shared.ShiftId = form.ShiftId;
                 }
@@ -117,11 +186,12 @@ namespace gamma_mob
                     DialogResult result = form.ShowDialog();
                     if (result != DialogResult.OK || form.Password == String.Empty)
                     {
-                        MessageBox.Show(@"Не указан пароль." + Environment.NewLine + @"Попробуйте еще раз!", @"Пароль не введен",
-                                        MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
+                        //MessageBox.Show(@"Не указан пароль." + Environment.NewLine + @"Попробуйте еще раз!", @"Пароль не введен",
+                        //                MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
+                        ConnectionLost(@"Не указан пароль." + Environment.NewLine + @"Попробуйте еще раз!");
                         return;
                     }
-                    Settings.UserName = userName;
+                    Settings.UserName = person.UserName;
                     Settings.Password = form.Password;
                     Shared.ShiftId = 0;
                 }
@@ -136,6 +206,9 @@ namespace gamma_mob
                 case 1:
                     WrongUserPass();
                     return;
+                case 0:
+                    ConnectionState.IsConnected = true;
+                    break;
             }
 
             Shared.PersonId = person.PersonID;
@@ -147,7 +220,7 @@ namespace gamma_mob
             //Shared.LastTimeBarcodes1C = Db.GetServerDateTime();
             //Shared.Barcodes1C = Db.GetBarcodes1C();
             
-            if (!Shared.IntializationData())                
+            if (!Shared.InitializationData())                
             {
                 Invoke(
                     (MethodInvoker)
@@ -167,16 +240,18 @@ namespace gamma_mob
 
         private void ConnectionError()
         {
-            MessageBox.Show(@"Нет связи с базой данных. Попробуйте еще раз." + Environment.NewLine + ConnectionState.GetConnectionState()
-                            , @"Ошибка связи с БД",
-                            MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
+            //MessageBox.Show(@"Нет связи с базой данных. Попробуйте еще раз." + Environment.NewLine + ConnectionState.GetConnectionState()
+            //                , @"Ошибка связи с БД",
+            //                MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
+            ConnectionLost(@"Нет связи с базой данных. Попробуйте еще раз." + Environment.NewLine + ConnectionState.GetConnectionState());
         }
 
         private void WrongUserPass()
         {
-            MessageBox.Show(@"Неверно указан логин или пароль в настройках. Обратитесь к администратору приложения"
-                            , @"Ошибка связи с БД",
-                            MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
+            //MessageBox.Show(@"Неверно указан логин или пароль в настройках. Обратитесь к администратору приложения"
+            //                , @"Ошибка связи с БД",
+            //                MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
+            ConnectionLost(@"Неверно указан логин или пароль в настройках. Обратитесь к администратору приложения");
         }
 
         private void btnExecRDP_Click(object sender, EventArgs e)
@@ -393,8 +468,10 @@ namespace gamma_mob
 
         private void SetBarcode(char keyChar)
         {
+            if (barcode == null) barcode = "";
             if (keyChar == (char)13)
             {
+               
                 var barcodeLength = barcode.Length;
                 for (int i = 0; i < 14 - barcodeLength; i++)
                 {

@@ -127,19 +127,19 @@ namespace gamma_mob
         private void btnDocMovement_Click(object sender, EventArgs e)
         {
             Cursor.Current = Cursors.WaitCursor;
-            if (ConnectionState.CheckConnection())
-            {
-                switch (Db.CheckSqlConnection())
-                {
-                    case 2:
-                        MessageBox.Show(@"Нет связи с БД. Повторите попытку в зоне покрытия WiFi" + Environment.NewLine + ConnectionState.GetConnectionState(),
-                                        @"Отсутствует WiFi", MessageBoxButtons.OK, MessageBoxIcon.Hand,
-                                        MessageBoxDefaultButton.Button1);
-                        break;
-                    case 1:
-                        WrongUserPass();
-                        break;
-                    default:
+            //if (ConnectionState.CheckConnection())
+            //{
+                //switch (Db.CheckSqlConnection())
+                //{
+                //    case 2:
+                //        MessageBox.Show(@"Нет связи с БД. Повторите попытку в зоне покрытия WiFi" + Environment.NewLine + ConnectionState.GetConnectionState(),
+                //                        @"Отсутствует WiFi", MessageBoxButtons.OK, MessageBoxIcon.Hand,
+                //                        MessageBoxDefaultButton.Button1);
+                //        break;
+                //    case 1:
+                //        WrongUserPass();
+                //        break;
+                //    default:
                         Cursor.Current = Cursors.Default;
                         EndPointInfo endPointInfo;
                         using (var form = new ChooseEndPointDialog())
@@ -148,24 +148,24 @@ namespace gamma_mob
                             if (result != DialogResult.OK) return;
                             endPointInfo = form.EndPointInfo;
                         }
-                        var docMovementForm = new DocMovementForm(this, endPointInfo.PlaceId);
+                        var docMovementForm = new DocMovementForm(this, DocDirection.DocOutIn, endPointInfo.PlaceId);
                         docMovementForm.Text = "Перем-е на " + endPointInfo.PlaceName;
                         if (docMovementForm != null && !docMovementForm.IsDisposed)
                         {
                             DialogResult result = docMovementForm.ShowDialog();
                         }
-                        //docMovementForm.Show();
-                        //if (docMovementForm.Enabled)
-                        //    Hide();
-                        break;
-                }
-            }
-            else
-            {
-                MessageBox.Show(@"Нет связи с БД. Повторите попытку в зоне покрытия WiFi" + Environment.NewLine + ConnectionState.GetConnectionState(),
-                                @"Отсутствует WiFi", MessageBoxButtons.OK, MessageBoxIcon.Hand,
-                                MessageBoxDefaultButton.Button1);
-            }
+                        ////docMovementForm.Show();
+                        ////if (docMovementForm.Enabled)
+                        ////    Hide();
+                        //break;
+            //    }
+            //}
+            //else
+            //{
+            //    MessageBox.Show(@"Нет связи с БД. Повторите попытку в зоне покрытия WiFi" + Environment.NewLine + ConnectionState.GetConnectionState(),
+            //                    @"Отсутствует WiFi", MessageBoxButtons.OK, MessageBoxIcon.Hand,
+            //                    MessageBoxDefaultButton.Button1);
+            //}
             Cursor.Current = Cursors.Default;
         }
 
@@ -185,7 +185,7 @@ namespace gamma_mob
                         WrongUserPass();
                         break;
                     default:
-                        var form = new DocInventarisationListForm(this);
+                        var form = new DocInventarisationListForm(this,DocDirection.DocInventarisation);
                         if (form != null && !form.IsDisposed)
                         {
                             DialogResult result = form.ShowDialog();
@@ -245,7 +245,7 @@ namespace gamma_mob
                                     else
                                     {
                                         var resultMessage = Db.CloseShiftWarehouse(Shared.PersonId, Shared.ShiftId);
-                                        if (!Shared.LastQueryCompleted)
+                                        if (Shared.LastQueryCompleted == false)
                                         {
                                             MessageBox.Show(@"Смена не закрыта!" + Environment.NewLine + @"Произошла ошибка." + Environment.NewLine + @"Попробуйте снова.", @"Закрытие смены", MessageBoxButtons.OK,
                                                             MessageBoxIcon.Asterisk,

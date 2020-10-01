@@ -73,6 +73,7 @@
     <Reference Include="System.Data.SqlClient, Version=3.0.3600.0, Culture=neutral, PublicKeyToken=3be235df1c8d2ad3, processorArchitecture=MSIL">
       <Private>False</Private>
     </Reference>
+    <Reference Include="System.Data.SqlServerCe, Version=3.5.0.0, Culture=neutral, PublicKeyToken=3be235df1c8d2ad3, processorArchitecture=MSIL" />
     <Reference Include="System.Deployment, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.Serialization" />
@@ -254,6 +255,11 @@
     <Compile Include="Models\Barcodes.cs" />
     <Compile Include="Models\ChooseNomenclatureItem.cs" />
     <Compile Include="Models\Barcodes1C.cs" />
+    <Compile Include="Models\CashedBarcodes.cs" />
+    <Compile Include="Models\CashedBarcode.cs" />
+    <Compile Include="Models\ProductBase.cs" />
+    <Compile Include="Models\ScannedBarcodes.cs" />
+    <Compile Include="Models\ScannedBarcode.cs" />
     <Compile Include="Models\DbProductIdFromBarcodeResult.cs" />
     <Compile Include="Models\DocInventarisation.cs" />
     <Compile Include="Models\MoveProductResult.cs" />

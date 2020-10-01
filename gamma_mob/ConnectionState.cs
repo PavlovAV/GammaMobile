@@ -6,6 +6,7 @@ using System.Threading;
 using Datalogic.API;
 using OpenNETCF.Net.NetworkInformation;
 using gamma_mob.Common;
+using System.Data.SqlClient;
 
 namespace gamma_mob
 {
@@ -15,7 +16,11 @@ namespace gamma_mob
 
         private static bool _isConnected;
         private static bool _checkerRunning;
+        public static bool GetCheckerRunning
+        { get { return _checkerRunning; } }
+
         private static string _serverIp = "";
+        private static string _serverPort = "1433";
         private static readonly object Locker = new object();
 
         private static string _stateConnection { get; set; }
@@ -37,10 +42,25 @@ namespace gamma_mob
         {
         }
 
-        private static bool IsConnected
+        public static bool IsConnected
         {
             get { return _isConnected; }
-            set { _isConnected = value; }
+            set 
+            {
+                if (ipAddress == null && value && !_isConnected)
+                {
+                    try
+                    {
+                        //IPHostEntry ipHostEntry = Dns.Resolve(ServerIp);
+                        ipAddress = IPAddress.Parse(ServerIp); //ipHostEntry.AddressList[0];
+                        iPEndPoint = new IPEndPoint(ipAddress, Convert.ToInt32(ServerPort));
+                    }
+                    catch (Exception)
+                    { }
+                }
+                _isConnected = value;
+                
+            }
         }
 
         public static string ServerIp
@@ -49,12 +69,19 @@ namespace gamma_mob
             set { _serverIp = value; }
         }
 
+        public static string ServerPort
+        {
+            get { return _serverPort; }
+            set { _serverPort = value; }
+        }
         public static string GetConnectionState()
         {
             return stateConnection;
         }
 
         public static event MethodContainer OnConnectionRestored;
+        public static event MethodContainer OnConnectionLost;
+
 
         //        static private DateTime TimePingChecked = new DateTime();
         
@@ -65,10 +92,16 @@ namespace gamma_mob
                 if (!GetIpFromSettings(Settings.ServerIP))
                 {
                     stateConnection = @"Не определен IP сервера";
+                    IsConnected = false;
                     return false;
                 }
             }
-            if (Device.GetWiFiPowerStatus())
+            if (!Device.GetWiFiPowerStatus())
+            {
+                IsConnected = false; 
+                return false;
+            }
+            else
             {
                 uint quality;
                 if (Device.WiFiGetSignalQuality(out quality))
@@ -79,10 +112,11 @@ namespace gamma_mob
                         IsConnected = false;
                         return false;
                     }
-
-                    if (1==1)//Не пингуем, незачем (Settings.ServerIP.IndexOf(@",") >= 0)
+                    //Не пингуем, незачем
+                    return true;
+                    if (Settings.ServerIP.IndexOf(@",") >= 0)
                     {
-                        IsConnected = true;
+                        //IsConnected = true;
                         return true;
                     }
                     using (var pinger = new Ping())
@@ -135,44 +169,85 @@ namespace gamma_mob
             return ServerIp;
         }
 
+        private static IPAddress ipAddress { get; set; }
+        private static IPEndPoint iPEndPoint { get; set; }
+
+        public static bool GetServerPortEnabled
+        {
+            get
+            {
+                try
+                {
+                    TcpClient TcpClient = new TcpClient();
+                    var client = TcpClient.Client;
+                    var result = client.BeginConnect(iPEndPoint, null, client);
+
+                    var success = result.AsyncWaitHandle.WaitOne(1000, false);
+
+                    if (!success)
+                    {
+                        throw new Exception("Failed to connect.");
+                    }
+
+                    // we have connected
+                    client.EndConnect(result);
+                    return true;
+                }
+                catch (Exception)
+                {
+                    Shared.LastQueryCompleted = false;
+                    return false;
+                }
+            }
+        }
+
         public static void StartChecker()
         {
+            System.Diagnostics.Debug.Write(DateTime.Now.ToString() + " !!!!!StartChecker(" + _checkerRunning.ToString() + ")!"+Environment.NewLine);
             if (_checkerRunning) return;
+
             WaitCallback continuousPing = delegate
+            {
+                bool isWorking = true;
+                while (isWorking)
                 {
-                    var newPinger = new Ping();
-                    bool isWorking = true;
-                    while (isWorking)
+                    using (var connection = new SqlConnection(Db.GetConnectionString()))
                     {
                         try
                         {
-                            PingReply reply = newPinger.Send(ServerIp, 200);
-                            if (reply.Status == IPStatus.Success && !_isConnected)
+                            System.Diagnostics.Debug.Write("Connection!" + Environment.NewLine);
+                            connection.Open();
+                            connection.Close();
+                            
+                            
+
+                            if (!IsConnected)
                             {
                                 lock (Locker) IsConnected = true;
-                                if (OnConnectionRestored != null) OnConnectionRestored();
-                                isWorking = false;
                             }
-                            else if (reply.Status != IPStatus.Success && _isConnected)
-                            {
-                                lock (Locker) IsConnected = false;
-                            }
+                            isWorking = false;
+                            if (OnConnectionRestored != null) OnConnectionRestored();
+                            
                         }
-                        catch (PingException)
+                        catch (Exception ex)
                         {
+                            System.Diagnostics.Debug.Write("Exception!" + Environment.NewLine);
                             if (IsConnected)
                             {
                                 lock (Locker) IsConnected = false;
+                                if (OnConnectionLost != null) OnConnectionLost();
                             }
                         }
-                        Thread.Sleep(0);
                     }
-                    lock (Locker) _checkerRunning = false;
-                };
+                    Thread.Sleep(0);
+                }
+                lock (Locker) _checkerRunning = false;
+            };
             ThreadPool.QueueUserWorkItem(continuousPing);
             //var pinger = new Thread(new ThreadStart(continuousPing)) {IsBackground = true};
             //pinger.Start();
             _checkerRunning = true;
+
         }
 
         public static bool GetIpFromSettings(string server)
@@ -185,6 +260,7 @@ namespace gamma_mob
             if (match.Success)
             {
                 ServerIp = match.Groups["ip"].Value;
+                ServerPort = match.Groups["port"].Value == "" ? "1433" : match.Groups["port"].Value.Replace(",","");
                 Db.SetConnectionString(server, Settings.Database, Settings.UserName, Settings.Password, Settings.TimeOut);
             }
             else
@@ -211,6 +287,8 @@ namespace gamma_mob
                     return false;
                 }
             }
+            ipAddress = IPAddress.Parse(ServerIp); //ipHostEntry.AddressList[0];
+            iPEndPoint = new IPEndPoint(ipAddress, Convert.ToInt32(ServerPort));        
             return true;
         }
     }

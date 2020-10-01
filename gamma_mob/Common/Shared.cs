@@ -7,7 +7,7 @@ using System;
 using System.Linq;
 using System.IO;
 using OpenNETCF.Windows.Forms;
-
+using System.Threading;
 using System.Runtime.InteropServices;
 
 namespace gamma_mob.Common
@@ -21,8 +21,28 @@ namespace gamma_mob.Common
             LoadImages();
         }
 
-        public static bool LastQueryCompleted { get; set; }
-
+        private static bool? _lastQueryCompleted { get; set; }
+        public static bool? LastQueryCompleted 
+        {
+            get
+            {
+                return _lastQueryCompleted;
+            }
+            set
+            {
+                if (value != _lastQueryCompleted)
+                {
+                    _lastQueryCompleted = value;
+                    if (value == false)
+                    {
+                        ConnectionState.StartChecker();
+                    }
+                }
+            }
+        }
+        public static bool LastCeQueryCompleted { get; set; }
+        
+        
         public static ImageList ImgList { get; private set; }
 
         public static Guid PersonId { get; set; }
@@ -60,7 +80,52 @@ namespace gamma_mob.Common
                 return _maxAllowedPercentBreak;
             }
         }
-        
+
+        private static int? _timerPeriodForUnloadOfflineProducts { get; set; }
+        public static int TimerPeriodForUnloadOfflineProducts
+        {
+            get
+            {
+                if (_timerPeriodForUnloadOfflineProducts == null)
+                {
+                    var timerPeriodForUnloadOfflineProducts = Db.GetProgramSettings("TimerPeriodForUnloadOfflineProducts");
+                    if (timerPeriodForUnloadOfflineProducts != null) 
+                        _timerPeriodForUnloadOfflineProducts = Convert.ToInt32(timerPeriodForUnloadOfflineProducts);
+                }
+                return _timerPeriodForUnloadOfflineProducts ?? 36000;//5 мин;
+            }
+        }
+
+        private static int? _timerPeriodForBarcodesUpdate { get; set; }
+        public static int TimerPeriodForBarcodesUpdate
+        {
+            get
+            {
+                if (_timerPeriodForBarcodesUpdate == null)
+                {
+                    var timerPeriodForBarcodesUpdate = Db.GetProgramSettings("TimerPeriodForBarcodesUpdate");
+                    if (timerPeriodForBarcodesUpdate != null) 
+                        _timerPeriodForBarcodesUpdate = Convert.ToInt32(timerPeriodForBarcodesUpdate);
+                }
+                return _timerPeriodForBarcodesUpdate ?? 36000;//5 мин;
+            }
+        }
+
+        private static ScannedBarcodes _scannedBarcodes { get; set; }
+        public static ScannedBarcodes ScannedBarcodes 
+        {
+            get
+            {
+                if (_scannedBarcodes == null)
+                {
+                    ScannedBarcodes list = new ScannedBarcodes();
+                    if (list == null) return null;
+                    _scannedBarcodes = list;
+                }
+                return _scannedBarcodes;
+            }
+        }
+
         private static void LoadImages()
         {
             ImgList = new ImageList();
@@ -101,43 +166,94 @@ namespace gamma_mob.Common
             int newStyle = SetWindowLong(hwnd, GWL_STYLE, currentStyle | BS_MULTILINE);
         }
 
-        private static BindingList<ChooseNomenclatureItem> _barcodes1C { get; set; }
+        private static /*BindingList<ChooseNomenclatureItem>*/ CashedBarcodes _barcodes1C { get; set; }
 
-        public static BindingList<ChooseNomenclatureItem> Barcodes1C 
+        public static /*BindingList<ChooseNomenclatureItem>*/ CashedBarcodes Barcodes1C 
         { 
             get
             {
                 if (_barcodes1C == null)
                 {
-                    var lastTimeBarcodes1C = Db.GetServerDateTime();
-                    var list = Db.GetBarcodes1C();
+                    //var lastTimeBarcodes1C = Db.GetServerDateTime();
+                    //var list = Db.GetBarcodes1C();
+                    var list = new CashedBarcodes();
                     if (list == null) return null;
-                    LastTimeBarcodes1C = lastTimeBarcodes1C;
+                    //LastUpdatedTimeBarcodes = lastTimeBarcodes1C;
                     _barcodes1C = list;
                 }
                 return _barcodes1C;
             } 
         }
 
-        private static DateTime LastTimeBarcodes1C { get; set; }
+        //private static DateTime _lastUpdatedTimeBarcodes { get; set; }
+        //private static DateTime LastUpdatedTimeBarcodes 
+        //{
+        //    get
+        //    {
+        //       return _lastUpdatedTimeBarcodes ;
+        //    }
+
+        //    set
+        //    {
+        //       if (Db.UpdateLastUpdatedTimeBarcodes(value))
+        //           _lastUpdatedTimeBarcodes = value;
+        //    }
+        //}
         //private static BindingList<ChooseNomenclatureItem> Barcodes1CChanges { get; set; }
-        
+
+        private static bool _refreshBarcodes1CRunning;
+
+        public static void RefreshBarcodes1CFromTimer(object obj)
+        {
+            var n = DateTime.Now.ToString();
+            System.Diagnostics.Debug.Write(n + " !!!!!RefreshBarcodes1CFromTimer(" + _refreshBarcodes1CRunning.ToString() + ")!" + Environment.NewLine);
+            if (_refreshBarcodes1CRunning) return;
+            lock (lockerForBarcodesUpdate)
+            {
+                _refreshBarcodes1CRunning = true;
+                System.Diagnostics.Debug.Write(n + " !!!!!Barcodes1C.UpdateBarcodes(" + _refreshBarcodes1CRunning.ToString() + ")!" + Environment.NewLine);
+                Barcodes1C.UpdateBarcodes(false);
+            }
+            _refreshBarcodes1CRunning = false;
+        }
+        /*
         public static void RefreshBarcodes1C()
         {
-            if (Db.CheckSqlConnection() == 0)
+            Barcodes1C.UpdateBarcodes();
+
+
+            //if (Db.CheckSqlConnection() == 0)
+            //{
+            //    var Barcodes1CChanges = Db.GetBarcodes1CChanges(Shared.LastTimeBarcodes1C);
+            //    if (Barcodes1CChanges != null)
+            //    {
+            //        LastTimeBarcodes1C = Db.GetServerDateTime();
+            //        foreach (var item in Barcodes1CChanges)
+            //        {
+            //            var ItemDel = Barcodes1C.Where(b => b.BarcodeId == item.BarcodeId).FirstOrDefault();
+            //            if (ItemDel != null) Barcodes1C.Remove(ItemDel);
+            //            Shared.Barcodes1C.Add(item);
+            //        }
+            //    }
+            //}
+        }*/
+
+        public static bool IsExistsUnloadOfflineProducts { get; set; }
+
+        private static bool _unloadOfflineProductsRunning;
+
+        public static void UnloadOfflineProductsFromTimer(object obj)
+        {
+            var n = DateTime.Now.ToString();
+            System.Diagnostics.Debug.Write(n + " !!!!!UnloadOfflineProductsFromTimer(" + _unloadOfflineProductsRunning.ToString() + ")!" + Environment.NewLine);
+            if (!Shared.IsExistsUnloadOfflineProducts || _unloadOfflineProductsRunning || !ConnectionState.IsConnected) return;
+            lock (lockerForUnloadOfflineProducts)
             {
-                var Barcodes1CChanges = Db.GetBarcodes1CChanges(Shared.LastTimeBarcodes1C);
-                if (Barcodes1CChanges != null)
-                {
-                    LastTimeBarcodes1C = Db.GetServerDateTime();
-                    foreach (var item in Barcodes1CChanges)
-                    {
-                        var ItemDel = Barcodes1C.Where(b => b.BarcodeId == item.BarcodeId).FirstOrDefault();
-                        if (ItemDel != null) Barcodes1C.Remove(ItemDel);
-                        Shared.Barcodes1C.Add(item);
-                    }
-                }
+                _unloadOfflineProductsRunning = true;
+                System.Diagnostics.Debug.Write(n + " !!!!!UnloadOfflineProducts(" + _unloadOfflineProductsRunning.ToString() + ")!" + Environment.NewLine);
+                ScannedBarcodes.UnloadOfflineProducts(false);
             }
+            _unloadOfflineProductsRunning = false;
         }
 
         private static List<PlaceZone> _placeZones { get; set; }
@@ -156,9 +272,12 @@ namespace gamma_mob.Common
             }
         }
 
-        public static bool IntializationData()
+        public static bool InitializationData()
         {
-            return !(Shared.Barcodes1C == null || Shared.Warehouses == null || Shared.PlaceZones == null || Shared.MaxAllowedPercentBreak == null);
+            Shared.DeleteOldUploadedToServerLogs();
+            return !(Shared.Barcodes1C == null || Shared.PlaceZones == null || Shared.Warehouses == null || Shared.PlaceZones == null
+                || Shared.MaxAllowedPercentBreak == null || Shared.TimerPeriodForBarcodesUpdate == null || Shared.TimerPeriodForUnloadOfflineProducts == null 
+                || Shared.ScannedBarcodes == null || Shared.TimerForBarcodesUpdate == null);
         }
 
         public static string _logFile { get; private set; }
@@ -292,22 +411,127 @@ namespace gamma_mob.Common
             
         }
 
-        public static void SaveToLog(string log)
+        public static void SaveToLog(Guid scanId, DateTime dateScanned, string barcode, int placeId, Guid? placeZoneId, int docTypeId, Guid? docId, bool isUploaded, Guid? productId, int? productKindId, Guid? nomenclatureId, Guid? characteristicId, Guid? qualityId, int? quantity)
+        {
+
+            try
+            {
+                Db.AddMessageToLog(scanId, dateScanned, barcode, placeId, placeZoneId, docTypeId, docId, isUploaded, productId, productKindId, nomenclatureId, characteristicId, qualityId, quantity);
+            }
+            catch (Exception err)
+            {
+                //MessageBox.Show(err.Message);
+            }
+        }
+
+        public static void SaveToLog(Guid scanId, bool isUploaded, string log)
+        {
+
+            try
+            {
+                Db.AddMessageToLog(scanId, isUploaded, log);
+            }
+            catch (Exception err)
+            {
+               // MessageBox.Show(err.Message);
+            }
+        }
+
+        public static void SaveToLog(Guid scanId, bool isUploaded, bool isDeleted, string log)
+        {
+
+            try
+            {
+                Db.AddMessageToLog(scanId, isUploaded, isDeleted, log);
+            }
+            catch (Exception err)
+            {
+                //MessageBox.Show(err.Message);
+            }
+        }
+        /*public static void SaveToLog(Guid scanId, DateTime dateScanned, string barcode, int placeId, Guid? placeZoneId, int docTypeId, Guid? docId, bool isUploaded)
         {
             
             try
             {
-                if (!IsLocalDateTimeUpdated) 
-                    _logFile = Application2.StartupPath + @"\_NoDate.log";
-                TextWriter swFile = new StreamWriter(new FileStream(_logFile,
-                               FileMode.Append),System.Text.Encoding.ASCII);
-                swFile.WriteLine(string.Format(@"{0:yyyy.MM.dd HH:mm:ss} : ", DateTime.Now) + log);
-                swFile.Close();
+                Db.AddMessageToLog(scanId, dateScanned, barcode, placeId, placeZoneId, docTypeId, docId, isUploaded);
+                
             }
             catch (Exception err)
             {
                 MessageBox.Show(err.Message);
             }
         }
+*/
+        public static void SaveToLog(string log)
+        {
+
+            try
+            {
+                Db.AddMessageToLog(log);
+            }
+            catch (Exception err)
+            {
+               // MessageBox.Show(err.Message);
+            }
+        }
+
+        public static void DeleteOldUploadedToServerLogs()
+        {
+
+            try
+            {
+                Db.DeleteOldUploadedToServerLogs();
+            }
+            catch (Exception err)
+            {
+               // MessageBox.Show(err.Message);
+            }
+        }
+
+        public static List<ScannedBarcode> LoadFromLogBarcodesForCurrentUser()
+        {
+            return Db.GetBarcodesForCurrentUser() ?? new List<ScannedBarcode>();
+        }
+
+        public static object lockerForBarcodesUpdate = new object();
+
+        private static System.Threading.Timer _timerForBarcodesUpdate { get; set; }
+        private static System.Threading.Timer TimerForBarcodesUpdate
+        {
+            get
+            {
+                if (_timerForBarcodesUpdate == null)
+                {
+                    int num = 0;
+                    TimerCallback tm = new TimerCallback(Shared.RefreshBarcodes1CFromTimer);
+                    // создаем таймер
+                    _timerForBarcodesUpdate = new System.Threading.Timer(tm, num, 0, Shared.TimerPeriodForBarcodesUpdate);
+                }
+                return _timerForBarcodesUpdate;
+            }
+
+        }
+
+        public static object lockerForUnloadOfflineProducts = new object();
+
+        private static System.Threading.Timer _timerForUnloadOfflineProducts { get; set; }
+        public static System.Threading.Timer TimerForUnloadOfflineProducts
+        {
+            get
+            {
+                if (_timerForUnloadOfflineProducts == null)
+                {
+                    int num = 0;
+                    TimerCallback tm = new TimerCallback(Shared.UnloadOfflineProductsFromTimer);
+                    // создаем таймер
+                    _timerForUnloadOfflineProducts = new System.Threading.Timer(tm, num, 0, Shared.TimerPeriodForUnloadOfflineProducts);
+                }
+                return _timerForUnloadOfflineProducts;
+            }
+
+        }
+
+        
     }
 }

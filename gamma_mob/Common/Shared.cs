@@ -67,17 +67,17 @@ namespace gamma_mob.Common
         }
 
         private static int? _maxAllowedPercentBreak {get; set;}
-        public static int? MaxAllowedPercentBreak 
+        public static int MaxAllowedPercentBreak 
         { 
             get
             {
                 if (_maxAllowedPercentBreak == null)
                 {
                     var maxAllowedPercentBreak = Db.GetProgramSettings("MaxAllowedPercentBreakInDocOrder");
-                    if (maxAllowedPercentBreak == null) return null;
-                    _maxAllowedPercentBreak = Convert.ToInt32(maxAllowedPercentBreak);
+                    if (maxAllowedPercentBreak != null) 
+                        _maxAllowedPercentBreak = Convert.ToInt32(maxAllowedPercentBreak);
                 }
-                return _maxAllowedPercentBreak;
+                return _maxAllowedPercentBreak ?? 0;
             }
         }
 
@@ -108,6 +108,22 @@ namespace gamma_mob.Common
                         _timerPeriodForBarcodesUpdate = Convert.ToInt32(timerPeriodForBarcodesUpdate);
                 }
                 return _timerPeriodForBarcodesUpdate ?? 36000;//5 мин;
+            }
+        }
+
+
+        private static int? _minLengthProductBarcode { get; set; }
+        public static int MinLengthProductBarcode
+        {
+            get
+            {
+                if (_minLengthProductBarcode == null)
+                {
+                    var minLengthProductBarcode = Db.GetProgramSettings("MinLengthProductBarcode");
+                    if (minLengthProductBarcode != null)
+                        _minLengthProductBarcode = Convert.ToInt32(minLengthProductBarcode);
+                }
+                return _minLengthProductBarcode ?? 5;//5 символов;
             }
         }
 

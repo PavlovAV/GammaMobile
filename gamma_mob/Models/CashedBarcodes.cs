@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using gamma_mob.Common;
+using System.Windows.Forms;
 
 namespace gamma_mob.Models
 {
@@ -47,6 +49,14 @@ namespace gamma_mob.Models
             }
         }
 
+        public DateTime GetLastUpdatedTimeBarcodes
+        {
+            get
+            {
+                return lastUpdatedTimeBarcodes;
+            }
+        }
+
         public bool UpdateBarcodes(DateTime date, bool IsFirst)
         {
             Db.UploadLogToServer();
@@ -84,41 +94,49 @@ namespace gamma_mob.Models
                 return true;
         }
         */
-        public DbProductIdFromBarcodeResult GetProductFromBarcodeOrNumberInBarcodes(string barcode)
+        public DbProductIdFromBarcodeResult GetProductFromBarcodeOrNumberInBarcodes(string barcode, bool IsFirstFindInLocalDB)
         {
+
+            DbProductIdFromBarcodeResult getProductResult = null;
             
-            DbProductIdFromBarcodeResult getProductResult = Db.GetProductIdFromBarcodeOrNumber(barcode);
-#if !DEBUG            
-            if (getProductResult == null)
-#endif
             {
-                getProductResult = Db.GetFirstProductFromCashedBarcodes(barcode);
+                if (IsFirstFindInLocalDB) getProductResult = Db.GetFirstProductFromCashedBarcodes(barcode);
                 if (getProductResult == null)
                 {
-                    var list = Db.GetAllNomenclatureFromCashedBarcodes(barcode);
-                    if (list == null)
+                    getProductResult = Db.GetProductIdFromBarcodeOrNumber(barcode);
+#if !DEBUG            
+                if (getProductResult == null)
+#endif
                     {
-                        getProductResult = null;
-                    }
-                    else
-                    {
-                        if (list.Count == 1)
+                        if (!IsFirstFindInLocalDB) getProductResult = Db.GetFirstProductFromCashedBarcodes(barcode);
+                        if (getProductResult == null)
                         {
-                            getProductResult = list[0];
-                            getProductResult.ProductKindId = 3;
-                        }
-                        else
-                        {//Россыпь, но кол-во найденных номенклатур больше 1, поэтому нельзя однозначно определить номенклатуру
-                            getProductResult = new DbProductIdFromBarcodeResult()
+                            var list = Db.GetAllNomenclatureFromCashedBarcodes(barcode);
+                            if (list == null)
                             {
-                                ProductKindId = 3,
-                                ProductId = new Guid(),
-                                NomenclatureId = new Guid(),
-                                CharacteristicId = new Guid(),
-                                QualityId = new Guid(),
-                                MeasureUnitId = new Guid(),
-                                CountProducts = 0
-                            };
+                                getProductResult = null;
+                            }
+                            else
+                            {
+                                if (list.Count == 1)
+                                {
+                                    getProductResult = list[0];
+                                    getProductResult.ProductKindId = 3;
+                                }
+                                else
+                                {//Россыпь, но кол-во найденных номенклатур больше 1, поэтому нельзя однозначно определить номенклатуру
+                                    getProductResult = new DbProductIdFromBarcodeResult()
+                                    {
+                                        ProductKindId = 3,
+                                        ProductId = new Guid(),
+                                        NomenclatureId = new Guid(),
+                                        CharacteristicId = new Guid(),
+                                        QualityId = new Guid(),
+                                        MeasureUnitId = new Guid(),
+                                        CountProducts = 0
+                                    };
+                                }
+                            }
                         }
                     }
                 }

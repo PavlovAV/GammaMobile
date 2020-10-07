@@ -12,6 +12,9 @@ namespace gamma_mob.Common
     public delegate void UpdateInventarisationGridInvoker(Guid nomenclatureId, Guid characteristicId, Guid qualityId, string nomenclatureName,
                     string shortNomenclatureName, decimal quantity, int? productKindId);
 
+    public delegate void UpdateMovementGridInvoker(Guid nomenclatureId, Guid characteristicId, Guid qualityId, string nomenclatureName, string shortNomenclatureName, Guid? placeZoneId,
+                                                decimal quantity, bool add, string barcode, int? productKindId, int? CoefficientPackage, int? CoefficientPallet);
+
     public delegate void RefreshDocOrderDelegate(Guid docId);
 
     public delegate void RefreshDocProductDelegate(Guid docId, bool showMessage);

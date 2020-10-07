@@ -15,7 +15,7 @@ namespace gamma_mob.Models
         public int? ProductKindId { get; set; }
         public int? CoefficientPackage { get; set; }
         public int? CoefficientPallet { get; set; }
-        public int QuantityUnits { get; set; }
+        public int CollectedQuantityUnits { get; set; }
         public string CollectedQuantityComputedColumn { get; set; }
         public decimal CollectedQuantity
         {

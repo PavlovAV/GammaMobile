@@ -119,12 +119,6 @@
     <Compile Include="DocMovementProductsForm.Designer.cs">
       <DependentUpon>DocMovementProductsForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="DocMovementGoodProductsForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="DocMovementGoodProductsForm.Designer.cs">
-      <DependentUpon>DocMovementGoodProductsForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="DocShipmentProductsForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -189,12 +183,6 @@
     <Compile Include="DocInventarisationListForm.Designer.cs">
       <DependentUpon>DocInventarisationListForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="DocInventarisationNomenclatureProductsForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="DocInventarisationNomenclatureProductsForm.Designer.cs">
-      <DependentUpon>DocInventarisationNomenclatureProductsForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="DocWithNomenclatureForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -226,12 +214,6 @@
     </Compile>
     <Compile Include="DocMovementForm.Designer.cs">
       <DependentUpon>DocMovementForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="DocShipmentGoodProductsForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="DocShipmentGoodProductsForm.Designer.cs">
-      <DependentUpon>DocShipmentGoodProductsForm.cs</DependentUpon>
     </Compile>
     <Compile Include="DocOrdersForm.cs">
       <SubType>Form</SubType>
@@ -335,10 +317,6 @@
       <DependentUpon>ChoosePasswordDialog.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="DocMovementGoodProductsForm.resx">
-      <DependentUpon>DocMovementGoodProductsForm.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\ChooseNomenclatureCharacteristicDialog.resx">
       <DependentUpon>ChooseNomenclatureCharacteristicDialog.cs</DependentUpon>
       <SubType>Designer</SubType>
@@ -371,10 +349,6 @@
       <DependentUpon>DocInventarisationListForm.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="DocInventarisationNomenclatureProductsForm.resx">
-      <DependentUpon>DocInventarisationNomenclatureProductsForm.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
     <EmbeddedResource Include="DocWithNomenclatureForm.resx">
       <DependentUpon>DocWithNomenclatureForm.cs</DependentUpon>
       <SubType>Designer</SubType>
@@ -385,10 +359,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="DocMovementForm.resx">
       <DependentUpon>DocMovementForm.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="DocShipmentGoodProductsForm.resx">
-      <DependentUpon>DocShipmentGoodProductsForm.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="DocOrdersForm.resx">

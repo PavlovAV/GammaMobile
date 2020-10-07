@@ -44,22 +44,36 @@
             this.btnRefresh = new System.Windows.Forms.ToolBarButton();
             this.btnUpload = new System.Windows.Forms.ToolBarButton();
             this.btnInfoProduct = new System.Windows.Forms.ToolBarButton();
+            this.pnlZone = new System.Windows.Forms.Panel();
+            this.lblZoneName = new System.Windows.Forms.Label();
             this.pnlSearch.SuspendLayout();
             this.pnlInfo.SuspendLayout();
+            this.pnlZone.SuspendLayout();
             this.SuspendLayout();
             // 
             // gridInventarisation
             // 
             this.gridInventarisation.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
             this.gridInventarisation.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.gridInventarisation.Location = new System.Drawing.Point(0, 54);
+            this.gridInventarisation.Location = new System.Drawing.Point(0, 22);//245);
             this.gridInventarisation.Name = "gridInventarisation";
             this.gridInventarisation.PreferredRowHeight = 32;
             this.gridInventarisation.RowHeadersVisible = false;
-            this.gridInventarisation.Size = new System.Drawing.Size(638, 341);
+            this.gridInventarisation.Size = new System.Drawing.Size(638, 150);
             this.gridInventarisation.TabIndex = 8;
             this.gridInventarisation.DoubleClick += new System.EventHandler(this.gridInventarisation_DoubleClick);
             this.gridInventarisation.CurrentCellChanged += new System.EventHandler(this.gridInventarisation_CurrentCellChanged);
+            // 
+            // gridDocAccept
+            // 
+            //this.gridDocAccept.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
+            //this.gridDocAccept.Dock = System.Windows.Forms.DockStyle.Fill;
+            //this.gridDocAccept.Location = new System.Drawing.Point(0, 22);
+            //this.gridDocAccept.Name = "gridDocAccept";
+            //this.gridDocAccept.PreferredRowHeight = 32;
+            //this.gridDocAccept.RowHeadersVisible = false;
+            //this.gridDocAccept.Size = new System.Drawing.Size(638, 319);
+            //this.gridDocAccept.TabIndex = 7;
             // 
             // pnlSearch
             // 
@@ -142,12 +156,33 @@
             this.tbrMain.Name = "tbrMain";
             this.tbrMain.ButtonClick += new System.Windows.Forms.ToolBarButtonClickEventHandler(this.tbrMain_ButtonClick);
             // 
+            // pnlZone
+            // 
+            this.pnlZone.Controls.Add(this.gridInventarisation);
+            this.pnlZone.Controls.Add(this.lblZoneName);
+            this.pnlZone.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pnlZone.Location = new System.Drawing.Point(0, 54);
+            this.pnlZone.Name = "pnlZone";
+            this.pnlZone.Size = new System.Drawing.Size(638, 341);
+            // 
+            // lblZoneName
+            // 
+            this.lblZoneName.Dock = System.Windows.Forms.DockStyle.Top;
+            this.lblZoneName.Font = new System.Drawing.Font("Tahoma", 8F, System.Drawing.FontStyle.Bold);
+            this.lblZoneName.ForeColor = System.Drawing.Color.DarkRed;
+            this.lblZoneName.Location = new System.Drawing.Point(0, 0);
+            this.lblZoneName.Name = "lblZoneName";
+            this.lblZoneName.Size = new System.Drawing.Size(638, 22);
+            this.lblZoneName.Text = "lblZoneName";
+            this.lblZoneName.Visible = false;
+            // 
             // DocInventarisationForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(638, 455);
-            this.Controls.Add(this.gridInventarisation);
+            this.Controls.Add(this.pnlZone);
+            //this.Controls.Add(this.gridInventarisation);
             this.Controls.Add(this.pnlSearch);
             this.Controls.Add(this.pnlInfo);
             this.Controls.Add(this.tbrMain);
@@ -155,27 +190,30 @@
             this.Text = "DocInventarisationForm";
             this.pnlSearch.ResumeLayout(false);
             this.pnlInfo.ResumeLayout(false);
+            this.pnlZone.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
 
         #endregion
 
-        private System.Windows.Forms.DataGrid gridInventarisation;
-        private System.Windows.Forms.Panel pnlSearch;
-        private System.Windows.Forms.Button btnAddProduct;
-        private System.Windows.Forms.PictureBox imgConnection;
-        private System.Windows.Forms.TextBox edtNumber;
-        private System.Windows.Forms.Panel pnlInfo;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Label lblCollected;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Label lblBufferCount;
         private System.Windows.Forms.ToolBar tbrMain;
         private System.Windows.Forms.ToolBarButton btnBack;
         private System.Windows.Forms.ToolBarButton btnRefresh;
         private System.Windows.Forms.ToolBarButton btnUpload;
         private System.Windows.Forms.ToolBarButton btnInspect;
         private System.Windows.Forms.ToolBarButton btnInfoProduct;
+        private System.Windows.Forms.DataGrid gridInventarisation;
+        private System.Windows.Forms.Panel pnlInfo;
+        private System.Windows.Forms.Panel pnlSearch;
+        private System.Windows.Forms.Panel pnlZone;
+        private System.Windows.Forms.Button btnAddProduct;
+        private System.Windows.Forms.TextBox edtNumber;
+        private System.Windows.Forms.PictureBox imgConnection;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label lblCollected;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label lblBufferCount;
+        private System.Windows.Forms.Label lblZoneName;
     }
 }

@@ -27,5 +27,16 @@ namespace gamma_mob
             return Db.GetMovementGoodProducts(PlaceId, PersonId, NomenclatureId, CharacteristicId, QualityId, PlaceZoneId);
         }
 
+        protected override DbOperationProductResult RemovalProduct(Guid scanId)
+        {
+            return Db.DeleteProductFromMovementOnMovementID(scanId);
+        }
+        
+        protected override DialogResult GetDialogResult(string number, string place)
+        {
+            return MessageBox.Show("Удалить перемещение продукта " + number + Environment.NewLine + "и вернуть продукт на передел " + place + "?"
+                           , @"Операция с продуктом",
+                           MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
+        }
     }
 }

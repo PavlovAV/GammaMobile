@@ -83,7 +83,7 @@ namespace gamma_mob
             var id = new Guid(gridDocShipmentOrders[row, 0].ToString());
             var orderType = (OrderType) Convert.ToInt32(gridDocShipmentOrders[row, 3]);
             var docOrderForm = new DocWithNomenclatureForm(id, this, gridDocShipmentOrders[row, 1].ToString(),
-                orderType, "DocOrderBarcodes.xml", DocDirection, (Shared.MaxAllowedPercentBreak ?? 0));
+                orderType, DocDirection, Shared.MaxAllowedPercentBreak);
             docOrderForm.Show();
             if (!docOrderForm.IsDisposed && docOrderForm.Enabled)
                 Hide();

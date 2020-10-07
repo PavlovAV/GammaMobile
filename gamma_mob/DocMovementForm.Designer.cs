@@ -185,22 +185,22 @@
         #endregion
 
         private System.Windows.Forms.ToolBar tbrMain;
-        private System.Windows.Forms.ToolBarButton btnBack;
-        private System.Windows.Forms.TextBox edtNumber;
-        private System.Windows.Forms.Button btnAddProduct;
-        private System.Windows.Forms.PictureBox imgConnection;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Label lblBufferCount;
         private System.Windows.Forms.ToolBarButton btnUpload;
-        private System.Windows.Forms.Panel pnlInfo;
-        private System.Windows.Forms.Panel pnlSearch;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Label lblCollected;
         private System.Windows.Forms.ToolBarButton btnInfoProduct;
         private System.Windows.Forms.ToolBarButton btnInspect;
         private System.Windows.Forms.ToolBarButton btnRefresh;
-        private System.Windows.Forms.Panel pnlZone;
-        private System.Windows.Forms.Label lblZoneName;
+        private System.Windows.Forms.ToolBarButton btnBack;
         private System.Windows.Forms.DataGrid gridDocAccept;
+        private System.Windows.Forms.Panel pnlInfo;
+        private System.Windows.Forms.Panel pnlSearch;
+        private System.Windows.Forms.Panel pnlZone;
+        private System.Windows.Forms.Button btnAddProduct;
+        private System.Windows.Forms.TextBox edtNumber;
+        private System.Windows.Forms.PictureBox imgConnection;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label lblBufferCount;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label lblCollected;
+        private System.Windows.Forms.Label lblZoneName;
     }
 }

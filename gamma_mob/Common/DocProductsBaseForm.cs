@@ -39,7 +39,7 @@ namespace gamma_mob
         }
         */
         public DocProductsBaseForm(Guid docShipmentOrderId, Guid nomenclatureId, string nomenclatureName
-            , Guid characteristicId, Guid qualityId, Form parentForm, RefreshDocProductDelegate refreshDocOrder)
+            , Guid characteristicId, Guid qualityId, Form parentForm)
             : this()
         {
             lblNomenclature.Text = nomenclatureName;
@@ -48,7 +48,7 @@ namespace gamma_mob
             NomenclatureId = nomenclatureId;
             CharacteristicId = characteristicId;
             QualityId = qualityId;
-            RefreshDocOrder = refreshDocOrder;
+            //RefreshDocOrder = refreshDocOrder;
             if (!RefreshDatGrid())
             {
                 MessageBox.Show(@"Не удалось получить информацию");
@@ -123,11 +123,15 @@ namespace gamma_mob
             return (BindingList<ProductBase>)null; //Db.DocShipmentOrderGoodProducts(DocShipmentOrderId, NomenclatureId, CharacteristicId, QualityId, DocDirections);
         }
 
-        protected virtual DataTable RemovalRProducts()
+        protected virtual DbOperationProductResult RemovalProduct(Guid scanId)
         {
-            return (DataTable)null; //Db.RemoveProductRFromOrder(DocShipmentOrderId, NomenclatureId, CharacteristicId, QualityId, Quantity);
+            return (DbOperationProductResult)null; //Db.RemoveProductRFromOrder(DocShipmentOrderId, NomenclatureId, CharacteristicId, QualityId, Quantity);
         }
 
+        protected virtual DialogResult GetDialogResult(string number, string place) 
+        {
+            return DialogResult.Cancel; 
+        }
         
         private bool RefreshDatGrid()
         {
@@ -234,17 +238,18 @@ namespace gamma_mob
         private void CancelLastMovement(ProductBase t)
         {
 
-            var dialogResult = MessageBox.Show("Отменить перемещение " + t.Number + Environment.NewLine + "и вернуть продукт на передел " + t.OutPlace + "?"
-                            , @"Операция с продуктом",
-                            MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
+            //var dialogResult = MessageBox.Show("Отменить перемещение " + t.Number + Environment.NewLine + "и вернуть продукт на передел " + t.OutPlace + "?"
+            //                , @"Операция с продуктом",
+            //                MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
+            var dialogResult = GetDialogResult(t.Number,t.OutPlace);
             if (dialogResult == DialogResult.Yes)
             {
                 var scanId = t.MovementId;
                 DbOperationProductResult delResult = null;
-                delResult = Db.DeleteProductFromMovementOnMovementID(scanId);
+                delResult = RemovalProduct(scanId);
 
                 if (delResult == null)
-                    MessageBox.Show(@"Связь с сервером потеряна, не удалось отменить перемещение", @"Ошибка связи");
+                    MessageBox.Show(@"Связь с сервером потеряна, не удалось отменить операцию.", @"Ошибка связи");
                 else
                     if (string.IsNullOrEmpty(delResult.ResultMessage))
                     {
@@ -254,16 +259,13 @@ namespace gamma_mob
                     }
                     else
                     {
-                        MessageBox.Show(@"Не удалось удалить перемещение. " + delResult.ResultMessage, @"Ошибка");
+                        MessageBox.Show(@"Не удалось отменить операцию. " + delResult.ResultMessage, @"Ошибка");
                     }
             }
         }
 
         private void BarcodeReaction(string barcode)
         {
-#if DEBUG
-            barcode = "2200801410800055";
-#endif
             int rowIndex = -1;
             var count = AcceptedProducts.Count;
             bool isFound = false;

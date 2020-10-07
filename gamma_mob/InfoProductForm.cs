@@ -5,6 +5,7 @@ using OpenNETCF.Windows.Forms;
 using gamma_mob.Common;
 using gamma_mob.Models;
 using System.Drawing;
+using System.Globalization;
 
 namespace gamma_mob
 {
@@ -14,6 +15,7 @@ namespace gamma_mob
         {
             InitializeComponent();
             lblUserInfo.Text = "Логин: " + Settings.UserName + " (" + Shared.PersonName +")";
+            textBox1.Text = "Последнее обновление данных: " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodes.AddHours(3).ToString(CultureInfo.InvariantCulture) + Environment.NewLine + Environment.NewLine + Environment.NewLine + "Просканируйте \r\nштрих-код\r\nпродукции";
         }
 
         public InfoProductForm(Form parentForm):this()

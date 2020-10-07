@@ -47,17 +47,17 @@
             // 
             this.pnlButtons.Controls.Add(this.btnClose);
             this.pnlButtons.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.pnlButtons.Location = new System.Drawing.Point(0, 411);
+            this.pnlButtons.Location = new System.Drawing.Point(0, 420);
             this.pnlButtons.Name = "pnlButtons";
-            this.pnlButtons.Size = new System.Drawing.Size(638, 44);
+            this.pnlButtons.Size = new System.Drawing.Size(638, 35);
             // 
             // btnClose
             // 
             this.btnClose.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.btnClose.Font = new System.Drawing.Font("Tahoma", 14F, System.Drawing.FontStyle.Regular);
-            this.btnClose.Location = new System.Drawing.Point(43, 5);
+            this.btnClose.Location = new System.Drawing.Point(43, 4);
             this.btnClose.Name = "btnClose";
-            this.btnClose.Size = new System.Drawing.Size(159, 34);
+            this.btnClose.Size = new System.Drawing.Size(159, 28);
             this.btnClose.TabIndex = 2;
             this.btnClose.Text = "Закрыть";
             // 
@@ -93,7 +93,7 @@
             this.pnlMessage.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlMessage.Location = new System.Drawing.Point(0, 32);
             this.pnlMessage.Name = "pnlMessage";
-            this.pnlMessage.Size = new System.Drawing.Size(638, 379);
+            this.pnlMessage.Size = new System.Drawing.Size(638, 388);
             // 
             // panel1
             // 
@@ -101,7 +101,7 @@
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(638, 359);
+            this.panel1.Size = new System.Drawing.Size(638, 370);
             // 
             // textBox1
             // 
@@ -111,7 +111,7 @@
             this.textBox1.Name = "textBox1";
             this.textBox1.ReadOnly = true;
             this.textBox1.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBox1.Size = new System.Drawing.Size(638, 359);
+            this.textBox1.Size = new System.Drawing.Size(638, 370);
             this.textBox1.TabIndex = 3;
             this.textBox1.Text = "Просканируйте \r\nштрих-код\r\nпродукции";
             this.textBox1.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
@@ -120,9 +120,9 @@
             // 
             this.lblUserInfo.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.lblUserInfo.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Regular);
-            this.lblUserInfo.Location = new System.Drawing.Point(0, 359);
+            this.lblUserInfo.Location = new System.Drawing.Point(0, 370);
             this.lblUserInfo.Name = "lblUserInfo";
-            this.lblUserInfo.Size = new System.Drawing.Size(638, 20);
+            this.lblUserInfo.Size = new System.Drawing.Size(638, 18);
             this.lblUserInfo.Text = "lblUserInfo";
             // 
             // InfoProductForm

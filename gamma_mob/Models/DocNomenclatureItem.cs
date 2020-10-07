@@ -16,6 +16,7 @@ namespace gamma_mob.Models
         public int LineNumber { get; set; }
         public int? CoefficientPackage { get; set; }
         public int? CoefficientPallet { get; set; }
+        public int CollectedQuantityUnits { get; set; }
         public string CollectedQuantityComputedColumn { get; set; }
         public decimal SpoolWithBreakPercentColumn { get; set; }
         /// <summary>

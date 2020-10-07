@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Windows.Forms;
 using System.Diagnostics;
+using System.ComponentModel;
 using OpenNETCF.Windows.Forms;
 using gamma_mob.Common;
 using gamma_mob.Models;
@@ -76,6 +77,13 @@ namespace gamma_mob
 //#if DEBUG
 //            AuthorizeByBarcode("00000000000056");
 //#endif
+        }
+
+        protected override void OnFormClosing(object sender, CancelEventArgs e)
+        {
+            base.OnFormClosing(sender, e);
+            ConnectionState.OnConnectionRestored -= ConnectionRestored;
+            ConnectionState.OnConnectionLost -= ConnectionLost;
         }
 
         private void ConnectionLost()

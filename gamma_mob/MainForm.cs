@@ -19,13 +19,13 @@ namespace gamma_mob
             {
                 //btnCloseShift.Visible = true;
                 btnCloseShift.Text = "Закрытие смены";
-                btnInventarisation.Visible = false;
+                //btnInventarisation.Visible = false;
             }
             else
             {
                 //btnCloseShift.Visible = true;
                 btnCloseShift.Text = "Информация";
-                btnInventarisation.Visible = true;
+                //btnInventarisation.Visible = true;
             }
             lblUserInfo.Text = "Логин: " + Settings.UserName + " (" + Shared.PersonName + ")";
  //           var mFilter = new InactivityFilter(100);

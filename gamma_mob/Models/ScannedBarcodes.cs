@@ -16,7 +16,8 @@ namespace gamma_mob.Models
         public delegate void MethodContainer();
         public static event MethodContainer OnUpdateBarcodesIsNotUploaded;
         public static event MethodContainer OnUnloadOfflineProducts;
-        
+
+        private static ScannedBarcode lastScannedBarcode { get; set; }
 
         public Guid? AddScannedBarcode(string barcode, EndPointInfo endPointInfo, DocDirection docTypeId, Guid? docId, DbProductIdFromBarcodeResult getProductResult)
         {
@@ -25,6 +26,7 @@ namespace gamma_mob.Models
             {
                 Barcodes.Add(item);
                 Shared.SaveToLog(item.ScanId, item.DateScanned, item.Barcode, item.PlaceId, item.PlaceZoneId, item.DocTypeId, item.DocId, item.IsUploaded, item.ProductId, item.ProductKindId, item.NomenclatureId, item.CharacteristicId, item.QualityId, item.Quantity);
+                lastScannedBarcode = item;
                 if (OnUpdateBarcodesIsNotUploaded != null) OnUpdateBarcodesIsNotUploaded();
                 return item.ScanId;
             }
@@ -71,10 +73,10 @@ namespace gamma_mob.Models
                 return false;
         }
 
-        public List<ScannedBarcode> BarcodesIsNotUploaded 
+        public List<ScannedBarcode> BarcodesIsNotUploaded(DocDirection docTypeId) 
         {
-            get
-            {
+            
+            
                 if (Barcodes == null)
                     return null;
                 else
@@ -83,7 +85,7 @@ namespace gamma_mob.Models
                     Barcodes.FindAll(
                         delegate(ScannedBarcode sb)
                         {
-                            return sb.IsUploaded == false || (sb.ToDelete == true && sb.IsDeleted == false);
+                            return sb.DocTypeId == (int)docTypeId && (sb.IsUploaded == false || (sb.ToDelete == true && sb.IsDeleted == false));
                         })
                         ;
                     b.Sort(
@@ -93,20 +95,20 @@ namespace gamma_mob.Models
                         });
                     return b;
                 }
-            }
+            
         }
 
-        public int BarcodesCollectedCount(int placeId)
+        /*public int BarcodesCollectedCount(int placeId, DocDirection docTypeId)
         {
             {
                 return (Barcodes == null) ? 0 :
                 Barcodes.FindAll(
                     delegate(ScannedBarcode sb)
                     {//удаленный в тсд, но еще не удаленный в БД одновременно попадает и в количество собранных и в количество невыгруженных
-                        return sb.IsUploaded == true && (sb.ToDelete == false || (sb.ToDelete == true && sb.IsDeleted == false)) && sb.ProductKindId != 3 && sb.PlaceId == placeId;
+                        return sb.DocTypeId == (int)docTypeId && sb.IsUploaded == true && (sb.ToDelete == false || (sb.ToDelete == true && sb.IsDeleted == false)) && sb.ProductKindId != 3 && sb.PlaceId == placeId;
                     }).Count;
             }
-        }
+        }*/
 
         public bool DeletedScan(Guid? scanId)
         {
@@ -144,6 +146,34 @@ namespace gamma_mob.Models
             //    System.Diagnostics.Debug.Write(DateTime.Now.ToString() + " !!!!!UpdateBarcodes(date)!" + Environment.NewLine);
             //    return UpdateBarcodes(date, isFirst);
             //}
+        }
+
+        public bool CheckIsLastBarcode(string barcode, DocDirection docTypeId, Guid? docId, int? placeId, Guid? placeZoneId)
+        {
+            if (Barcodes == null)
+                return false;
+            else
+            {
+                if (lastScannedBarcode == null)
+                    return false;
+                else
+                    switch (docTypeId)
+                    {
+                        case DocDirection.DocOut:
+                        case DocDirection.DocIn:
+                            return (lastScannedBarcode.Barcode == barcode && lastScannedBarcode.DocTypeId == (int)docTypeId && lastScannedBarcode.DocId == docId);
+                            break;
+                        case DocDirection.DocOutIn:
+                        case DocDirection.DocInventarisation:
+                            if (placeZoneId == null)
+                                return (lastScannedBarcode.Barcode == barcode && lastScannedBarcode.DocTypeId == (int)docTypeId && lastScannedBarcode.PlaceId == placeId && lastScannedBarcode.PlaceZoneId == null);
+                            else
+                                return (lastScannedBarcode.Barcode == barcode && lastScannedBarcode.DocTypeId == (int)docTypeId && lastScannedBarcode.PlaceId == placeId && lastScannedBarcode.PlaceZoneId == placeZoneId);
+                            break;
+                        default:
+                            return false;
+                    }
+            }
         }
     }
 }

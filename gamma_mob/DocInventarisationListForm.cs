@@ -76,7 +76,19 @@ namespace gamma_mob
             {
                 HeaderText = "Номер",
                 MappingName = "Number",
+                Width = 50
+            });
+            tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
+            {
+                HeaderText = "Склад",
+                MappingName = "PlaceName",
                 Width = 120
+            });
+            tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
+            {
+                HeaderText = "СкладНомер",
+                MappingName = "PlaceID",
+                Width = 0
             });
             gridInventarisations.TableStyles.Add(tableStyle);
         }
@@ -96,8 +108,8 @@ namespace gamma_mob
             Cursor.Current = Cursors.WaitCursor;
             int row = gridInventarisations.CurrentRowIndex;
             var id = new Guid(gridInventarisations[row, 0].ToString());
-            var form = new DocInventarisationForm(id, this, 
-                gridInventarisations[row, 2] == null ? "" : gridInventarisations[row,2].ToString());
+            var form = new DocInventarisationForm(id, this,
+                gridInventarisations[row, 2] == null ? "" : gridInventarisations[row, 2].ToString(), DocDirection.DocInventarisation, gridInventarisations[row, 4] == null ? 0 : Convert.ToInt32(gridInventarisations[row, 4]));
             form.Show();
             if (!form.IsDisposed && form.Enabled)
                 Hide();
@@ -132,10 +144,12 @@ namespace gamma_mob
                 Cursor.Current = Cursors.Default;
                 return;
             }
-            var inventarisationform = new DocInventarisationForm(doc.DocInventarisationId, this, doc.Number);
-            inventarisationform.Show();
-            if (!inventarisationform.IsDisposed && inventarisationform.Enabled)
-                Hide();
+            var inventarisationForm = new DocInventarisationForm(doc.DocInventarisationId, this, doc.Number, DocDirection.DocInventarisation, endPointInfo.PlaceId);
+            //inventarisationform.Show();
+            //if (!inventarisationform.IsDisposed && inventarisationform.Enabled)
+            //    Hide();
+            DialogResult resultInventarisationForm = inventarisationForm.ShowDialog();
+            
             Cursor.Current = Cursors.Default;
         }
 

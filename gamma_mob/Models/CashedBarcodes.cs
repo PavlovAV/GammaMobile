@@ -10,13 +10,26 @@ namespace gamma_mob.Models
 
         public CashedBarcodes()
         {
-            lastUpdatedTimeBarcodes = Db.GetLastUpdatedTimeBarcodes();
+            var lastUpdate = Db.GetLastUpdatedTimeBarcodes();
+            if (lastUpdate < Convert.ToDateTime("2020/10/12"))
+            {
+                Shared.SaveToLog("lastUpdatedTimeBarcodes < 20201012 => " + lastUpdatedTimeBarcodes.ToString());
+                lastUpdatedTimeBarcodes = Convert.ToDateTime("2020/10/12");
+            }
+#if DEBUG
+            lastUpdatedTimeBarcodes = Convert.ToDateTime("2020/10/11");
+#endif
             UpdateBarcodes(true);
         }
 
         public CashedBarcodes(DateTime date)
         {
-            lastUpdatedTimeBarcodes = Db.GetLastUpdatedTimeBarcodes();
+            var lastUpdate = Db.GetLastUpdatedTimeBarcodes();
+            if (lastUpdate < Convert.ToDateTime("2020/10/12"))
+            {
+                Shared.SaveToLog("lastUpdatedTimeBarcodes < 20201012 => " + lastUpdatedTimeBarcodes.ToString());
+                lastUpdatedTimeBarcodes = Convert.ToDateTime("2020/10/12");
+            }
             UpdateBarcodes(date, true);
         }
 

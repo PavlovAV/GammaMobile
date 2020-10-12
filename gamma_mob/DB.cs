@@ -9,7 +9,9 @@ using gamma_mob.Common;
 using gamma_mob.Models;
 using System.Data.SqlServerCe;
 using System.IO;
+using System.Net;
 using OpenNETCF.Windows.Forms;
+using OpenNETCF.ComponentModel;
 
 namespace gamma_mob
 {
@@ -17,12 +19,55 @@ namespace gamma_mob
     {
         private static string ConnectionString { get; set; }
 
+        private static string _deviceName  { get; set; }
+        private static string deviceName
+        {
+            get
+            {
+                if (_deviceName == null || _deviceName == String.Empty)
+                {
+                    try
+                    {
+                        _deviceName = Datalogic.API.Device.GetSerialNumber();
+                    }
+                    catch
+                    {
+                        _deviceName = "Error";
+                    }
+                }
+                return _deviceName;
+            }
+        }
+
+        private static string _deviceIP { get; set; }
+        private static string deviceIP
+        {
+            get
+            {
+                if (_deviceIP == null || _deviceIP == String.Empty)
+                {
+                    try
+                    {
+                        IPHostEntry ipEntry = Dns.GetHostByName(Dns.GetHostName());
+                        IPAddress[] addr = ipEntry.AddressList;
+
+                        _deviceIP = addr[0].ToString();
+                    }
+                    catch
+                    {
+                        _deviceIP =  "000.000.000.000";
+                    }
+                }
+                return _deviceIP;
+            }
+        }
+
         private static bool IsNotFirstGetConnectionCeString { get; set; }
         private static string ConnectionCeString 
         {
             get
             {
-                var dbFile = Application2.StartupPath + @"\GammaDB.sdf";
+                var dbFile = @"\GammaDB.sdf";//Application2.StartupPath + @"\GammaDB.sdf";
                 if (!IsNotFirstGetConnectionCeString)
                 {
                     if (!File.Exists(dbFile))
@@ -594,9 +639,17 @@ namespace gamma_mob
                 {
                     foreach (DataRow row in table.Rows)
                     {
-                        const string sql = "INSERT INTO LogFromMobileDevices(UserName,PersonId,LogId,LogDate,Log,Barcode,PlaceId,DocTypeId,IsUploaded,DocId,PlaceZoneId,ToDelete,IsDeleted,ProductId,ProductKindId,NomenclatureId,CharacteristicId,QualityId,Quantity) VALUES(@UserName,@PersonId,@LogId,@LogDate,@Log,@Barcode,@PlaceId,@DocTypeId,@IsUploaded,@DocId,@PlaceZoneId,@ToDelete,@IsDeleted,@ProductId,@ProductKindId,@NomenclatureId,@CharacteristicId,@QualityId,@Quantity)";
+                        const string sql = "INSERT INTO LogFromMobileDevices(DeviceName, DeviceIP, UserName,PersonId,LogId,LogDate,Log,Barcode,PlaceId,DocTypeId,IsUploaded,DocId,PlaceZoneId,ToDelete,IsDeleted,ProductId,ProductKindId,NomenclatureId,CharacteristicId,QualityId,Quantity) VALUES(@DeviceName, @DeviceIP, @UserName,@PersonId,@LogId,@LogDate,@Log,@Barcode,@PlaceId,@DocTypeId,@IsUploaded,@DocId,@PlaceZoneId,@ToDelete,@IsDeleted,@ProductId,@ProductKindId,@NomenclatureId,@CharacteristicId,@QualityId,@Quantity)";
                         var parameters = new List<SqlParameter>
                         {
+                            new SqlParameter("@DeviceName", SqlDbType.Text)
+                                {
+                                    Value = deviceName,//.ToString(),
+                                },
+                            new SqlParameter("@DeviceIP", SqlDbType.Text)
+                                {
+                                    Value = deviceIP,//.ToString(),
+                                },
                             new SqlParameter("@UserName", SqlDbType.Text)
                                 {
                                     Value = row["UserName"],//.ToString(),
@@ -2936,7 +2989,7 @@ namespace gamma_mob
             }
             return list;
         }
-
+        
 
         public static BindingList<ChooseNomenclatureItem> GetBarcodes1C()
         {
@@ -2979,6 +3032,59 @@ namespace gamma_mob
             return list;
         }
 
+        public static void UpdateCashedBarcodesProgress(object sender, DoWorkEventArgs e)
+        {
+            var worker = (BackgroundWorker)sender;
+            var table = (DataTable)e.Argument;
+            int index = 0;
+            int count = table.Rows.Count;
+            //int percent = 0;
+            DateTime ret = Convert.ToDateTime("2020/10/01");
+            DateTime previousDate = ret;
+            try
+            {
+                foreach (DataRow row in table.Rows)
+                {
+                    var percent = Convert.ToInt32((index * 100) / count);
+                    worker.ReportProgress(percent);
+                    if (UpdateBarcodes1C(
+                         new CashedBarcode
+                         {
+                             DateChange = Convert.ToDateTime(row["DateChange"]),
+                             TypeChange = Convert.ToInt32(row["TypeChange"]),
+                             Barcode = row["Barcode"].ToString(),
+                             Name = row["Name"].ToString(),
+                             NomenclatureId = row.IsNull("NomenclatureID") ? new Guid() : new Guid(row["NomenclatureID"].ToString()),
+                             CharacteristicId = row.IsNull("CharacteristicID") ? new Guid() : new Guid(row["CharacteristicID"].ToString()),
+                             QualityId = row.IsNull("QualityID") ? new Guid() : new Guid(row["QualityID"].ToString()),
+                             MeasureUnitId = row.IsNull("MeasureUnitID") ? new Guid() : new Guid(row["MeasureUnitID"].ToString()),
+                             BarcodeId = new Guid(row["BarcodeID"].ToString()),
+                             Number = row["Number"].ToString(),
+                             KindId = row.IsNull("KindID") ? null : (int?)Convert.ToInt32(row["KindID"])
+                         }))
+                    {
+                        if (previousDate != Convert.ToDateTime(row["DateChange"]))
+                        {
+                            ret = previousDate;//возвращаем время последней удачно записанной строки с предыдущим временем (чтобы если несколько изменений в один момент и произойдет сбой, то все эти записи этого момента кешировались повторно) 
+                            previousDate = Convert.ToDateTime(row["DateChange"]);
+                        }
+                    }
+                    else
+                        break; ;//ошибка при обновлении текущей строки - дата последнего обновления есть дата предыдущей строки с дытой, отличной от текущей
+                    index++;
+                }
+            }
+            finally
+            {
+                if (worker.WorkerSupportsCancellation == true)
+                {
+                    // Cancel the asynchronous operation.
+                    worker.CancelAsync();
+                }
+            }
+        }
+
+
         public static DateTime UpdateCashedBarcodes(DateTime startDate, DateTime endDate, bool IsFirst)
         {
             //BindingList<ChooseNomenclatureItem> list = null;
@@ -3004,6 +3110,21 @@ namespace gamma_mob
                     if (table.Rows.Count > 0)
                     {
                         //list = new BindingList<ChooseNomenclatureItem>();
+                        int index = 0;
+                        if (IsFirst)
+                        {
+                            var form = new ProgressBarForm(startDate, endDate, table);
+                            if (form != null)
+                            {
+                                var r = form.ShowDialog();
+                                endDate = form.ret;
+
+                                //form.bkgndWorker.DoWork += new DoWorkEventHandler(UpdateCashedBarcodesProgress);
+                                //form.bkgndWorker.WorkerReportsProgress = true;
+                                //form.bkgndWorker.RunWorkerAsync(table);
+                            }
+                        }
+                        else
                         foreach (DataRow row in table.Rows)
                         {
                             if (UpdateBarcodes1C(
@@ -3029,7 +3150,8 @@ namespace gamma_mob
                                 }
                             }
                             else
-                                return ret;//ошибка при обновлении текущей строки - дата последнего обновления есть дата предыдущей строки с дытой, отличной от текущей
+                            { endDate = ret; break; }
+                                //return ret;//ошибка при обновлении текущей строки - дата последнего обновления есть дата предыдущей строки с дытой, отличной от текущей
                         }
                         ret = endDate;//все обновлено корректно - дата последнего обновления есть дата окончания запрошенного периода
                     }
@@ -3042,7 +3164,7 @@ namespace gamma_mob
             return ret;
         }
 
-        public static List<ChooseNomenclatureItem> GetBarcodes1C1()
+       /* public static List<ChooseNomenclatureItem> GetBarcodes1C1()
         {
             List<ChooseNomenclatureItem> list = null;
             const string sql = "dbo.mob_GetBarcodes1C";
@@ -3064,7 +3186,7 @@ namespace gamma_mob
             }
             return list;
         }
-
+        */
         public static DataTable RemoveProductRFromOrder(Guid docShipmentOrderId, Guid nomenclatureId,
                                                              Guid characteristicId, Guid qualityId, decimal quantity)
         {

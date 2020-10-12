@@ -281,7 +281,7 @@ namespace gamma_mob
                         using (SqlConnection connection = new SqlConnection(connectionString))
                         {
                             connection.Open();
-                            string sql = "SELECT FileID, DirName, FileName, Title, MD5, Action FROM vRepositoryOfProgramFiles WHERE ProgramName = @Program";
+                            string sql = "SELECT FileID, DirName, FileName, Title, MD5, Action, CommandTimeOut FROM vRepositoryOfProgramFiles WHERE ProgramName = @Program";
                             SqlCommand command = new SqlCommand(sql, connection);
                             command.Parameters.Add("@Program", SqlDbType.NVarChar, 50);
                             command.Parameters["@Program"].Value = program;
@@ -298,6 +298,7 @@ namespace gamma_mob
                                         byte[] image = (byte[])null; //(byte?[])reader.GetValue(4);
                                         string md5 = reader.GetString(4);
                                         bool action = (bool)reader.GetValue(5);
+                                        string timeout = reader.GetString(6);
 
                                         FileOfRepositary file = new FileOfRepositary(id, dirname, filename, title, image, md5, action);
                                         //LoadFile(file);
@@ -306,9 +307,10 @@ namespace gamma_mob
                                             if (file.Action)
                                             using (SqlConnection connection_image = new SqlConnection(connectionString))
                                             {
-                                              connection_image.Open();
+                                                connection_image.Open();
                                                 string sql_image = "SELECT Image FROM vRepositoryOfProgramFiles WHERE FileID = @FileID";
                                                 SqlCommand command_image = new SqlCommand(sql_image, connection_image);
+                                                command_image.CommandTimeout = Convert.ToInt32(timeout);
                                                 command_image.Parameters.Add("@FileID", SqlDbType.Int);
                                                 command_image.Parameters["@FileID"].Value = file.Id;
                                                 SqlDataReader reader_image = command_image.ExecuteReader();
@@ -319,6 +321,7 @@ namespace gamma_mob
                                                 reader_image.Close();
                                             }
                                             SaveFile(file);
+                                            MessageBox.Show("Файл успешно скачан для обновления с БД! " + file_name);
                                         }
 
                                     }
@@ -331,7 +334,7 @@ namespace gamma_mob
                                 }
                         }
                     }
-                    catch
+                    catch (Exception ex)
                     {
                         //Console.WriteLine("Ошибка при получении данных с БД!");
                         //MessageBox.Show("Ошибка при получении данных с БД!");

@@ -15,7 +15,10 @@ namespace gamma_mob
         {
             InitializeComponent();
             lblUserInfo.Text = "Логин: " + Settings.UserName + " (" + Shared.PersonName +")";
-            textBox1.Text = "Последнее обновление данных: " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodes.AddHours(3).ToString(CultureInfo.InvariantCulture) + Environment.NewLine + Environment.NewLine + Environment.NewLine + "Просканируйте \r\nштрих-код\r\nпродукции";
+            textBox1.Text = "Последнее обновление данных: " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodes.AddHours(3).ToString(CultureInfo.InvariantCulture)
+                + Environment.NewLine + Shared.Barcodes1C.GetCountBarcodes
+                + Environment.NewLine + Environment.NewLine + Environment.NewLine 
+                + "Просканируйте \r\nштрих-код\r\nпродукции";
         }
 
         public InfoProductForm(Form parentForm):this()

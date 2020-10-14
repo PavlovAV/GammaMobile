@@ -10,8 +10,8 @@ namespace gamma_mob.Models
 
         public CashedBarcodes()
         {
-            var lastUpdate = Db.GetLastUpdatedTimeBarcodes();
-            if (lastUpdate < Convert.ToDateTime("2020/10/12"))
+            lastUpdatedTimeBarcodes = Db.GetLastUpdatedTimeBarcodes();
+            if (lastUpdatedTimeBarcodes < Convert.ToDateTime("2020/10/12"))
             {
                 Shared.SaveToLog("lastUpdatedTimeBarcodes < 20201012 => " + lastUpdatedTimeBarcodes.ToString());
                 lastUpdatedTimeBarcodes = Convert.ToDateTime("2020/10/12");
@@ -24,8 +24,8 @@ namespace gamma_mob.Models
 
         public CashedBarcodes(DateTime date)
         {
-            var lastUpdate = Db.GetLastUpdatedTimeBarcodes();
-            if (lastUpdate < Convert.ToDateTime("2020/10/12"))
+            lastUpdatedTimeBarcodes = Db.GetLastUpdatedTimeBarcodes();
+            if (lastUpdatedTimeBarcodes < Convert.ToDateTime("2020/10/12"))
             {
                 Shared.SaveToLog("lastUpdatedTimeBarcodes < 20201012 => " + lastUpdatedTimeBarcodes.ToString());
                 lastUpdatedTimeBarcodes = Convert.ToDateTime("2020/10/12");
@@ -67,6 +67,14 @@ namespace gamma_mob.Models
             get
             {
                 return lastUpdatedTimeBarcodes;
+            }
+        }
+
+        public string GetCountBarcodes
+        {
+            get
+            {
+                return Db.GetCountBarcodes();
             }
         }
 
@@ -117,9 +125,9 @@ namespace gamma_mob.Models
                 if (getProductResult == null)
                 {
                     getProductResult = Db.GetProductIdFromBarcodeOrNumber(barcode);
-#if !DEBUG            
+//#if !DEBUG            
                 if (getProductResult == null)
-#endif
+//#endif
                     {
                         if (!IsFirstFindInLocalDB) getProductResult = Db.GetFirstProductFromCashedBarcodes(barcode);
                         if (getProductResult == null)

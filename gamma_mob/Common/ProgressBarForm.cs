@@ -17,6 +17,7 @@ namespace gamma_mob.Common
             StartDate = startDate;
             EndDate = endDate;
             Table = table;
+            this.label0.Text = @"Идет загрузка данных(" + Table.Rows.Count.ToString() + @")...";
             bkgndWorker = new BackgroundWorker();
             bkgndWorker.DoWork += new DoWorkEventHandler(bkgndWorker_DoWork);
             bkgndWorker.ProgressChanged += new ProgressChangedEventHandler(bkgndWorker_ProgressChanged);

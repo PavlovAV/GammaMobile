@@ -321,7 +321,7 @@ namespace gamma_mob
                                                 reader_image.Close();
                                             }
                                             SaveFile(file);
-                                            MessageBox.Show("Файл успешно скачан для обновления с БД! " + file_name);
+                                            //MessageBox.Show("Файл успешно скачан для обновления с БД! " + file_name);
                                         }
 
                                     }

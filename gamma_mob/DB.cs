@@ -92,7 +92,7 @@ namespace gamma_mob
                         strQuery = "CREATE TABLE Settings (LastUpdatedTimeBarcodes DateTime)";
                         empCom.CommandText = strQuery;
                         empCom.ExecuteNonQuery();
-                        strQuery = "INSERT INTO Settings (LastUpdatedTimeBarcodes) VALUES (DATEADD(DAY,-1,GETDATE()))";
+                        strQuery = "INSERT INTO Settings (LastUpdatedTimeBarcodes) VALUES (DATEADD(HOUR,-1,GETDATE()))";
                         empCom.CommandText = strQuery;
                         empCom.ExecuteNonQuery();
                     }
@@ -116,6 +116,10 @@ namespace gamma_mob
                         strQuery = "CREATE INDEX IX_Barcode ON Barcodes (Barcode ASC)";
                         empCom.CommandText = strQuery;
                         empCom.ExecuteNonQuery();
+                        strQuery = "CREATE INDEX IX_BarcodeId ON Barcodes (BarcodeId)";
+                        empCom.CommandText = strQuery;
+                        empCom.ExecuteNonQuery();
+                        
                         //Db.GetBarcodes1C();
                     }
 
@@ -2363,7 +2367,7 @@ namespace gamma_mob
             try
             {
                 bool ret = false;
-                Cursor.Current = Cursors.WaitCursor;
+                //Cursor.Current = Cursors.WaitCursor;
                 using (var connection = new SqlCeConnection(ConnectionCeString))
                 {
                     connection.Open();
@@ -2955,6 +2959,25 @@ namespace gamma_mob
             return list;
         }
 
+        public static string GetCountBarcodes()
+        {
+            string ret;
+            const string sql = "SELECT Count(*) AS CountBarcodes, Sum(Case When KindId is null Then 1 Else 0 End) AS CountNomenclatures, Sum(Case When KindId is not null Then 1 Else 0 End) AS CountProducts FROM Barcodes ";
+            using (DataTable table = ExecuteCeSelectQuery(sql, new List<SqlCeParameter>(), CommandType.Text))
+            {
+                if (table != null && table.Rows.Count > 0)
+                {
+                    ret = table.Rows[0]["CountBarcodes"].ToString() + "/" + table.Rows[0]["CountNomenclatures"].ToString() + "/" + table.Rows[0]["CountProducts"].ToString();
+                }
+                else
+                {
+                    ret = "0/0/0";
+                }
+
+            }
+            return ret;
+        }
+
         public static List<ChooseNomenclatureItem> GetBarcodes1C(string barcode)
         {
             List<ChooseNomenclatureItem> list = null;
@@ -2965,9 +2988,22 @@ namespace gamma_mob
             p.Value = barcode;
             var parameters = new List<SqlCeParameter>();
             parameters.Add(p);
-            
-            using (DataTable table = ExecuteCeSelectQuery(sql, parameters, CommandType.Text))
+            DataTable table = null;
+            table = ExecuteCeSelectQuery(sql, parameters, CommandType.Text);
             {
+                if (table == null || table.Rows.Count == 0)
+                {
+                    Shared.SaveToLog(@"Не найден в локальной БД " + barcode + " (Посл.обн.кэша " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodes.ToString(System.Globalization.CultureInfo.InvariantCulture) + ")");
+                    const string sqlDB = "dbo.mob_GetNomenclatureCharacteristicQualityFromBarcode";
+                    var parametersDB = new List<SqlParameter>
+                    {
+                    new SqlParameter("@Barcode", SqlDbType.VarChar)
+                        {
+                            Value = barcode
+                        }
+                    };
+                    table = ExecuteSilentlySelectQuery(sqlDB, parametersDB, CommandType.StoredProcedure);
+                }
                 if (table != null && table.Rows.Count > 0)
                 {
                     list = new List<ChooseNomenclatureItem>();
@@ -2980,12 +3016,15 @@ namespace gamma_mob
                                       Name = row["Name"].ToString(),
                                       NomenclatureId = new Guid(row["NomenclatureID"].ToString()),
                                       CharacteristicId = row.IsNull("CharacteristicID") ? new Guid() : new Guid(row["CharacteristicID"].ToString()),
-                                      QualityId = new Guid(row["QualityID"].ToString()),
-                                      MeasureUnitId = new Guid(row["MeasureUnitID"].ToString()),
+                                      QualityId = row.IsNull("QualityID") ? new Guid() : new Guid(row["QualityID"].ToString()),
+                                      MeasureUnitId = row.IsNull("MeasureUnitID") ? new Guid() : new Guid(row["MeasureUnitID"].ToString()),
                                       BarcodeId = new Guid(row["BarcodeID"].ToString())
                                   });
                     }
                 }
+
+                
+
             }
             return list;
         }

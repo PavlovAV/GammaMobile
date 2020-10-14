@@ -366,7 +366,7 @@ namespace gamma_mob
                     {
                         if (getProductResult == null || getProductResult.ProductKindId == null || (getProductResult.ProductKindId != 3 && (getProductResult.ProductId == null || getProductResult.ProductId == Guid.Empty)))
                         {
-                            Shared.SaveToLog(@"Продукция не найдена по ШК! " + barcode);
+                            Shared.SaveToLog(@"Продукция не найдена по ШК! " + barcode + " (Посл.обн.кэша " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodes.ToString(CultureInfo.InvariantCulture) + ")");
                             MessageBox.Show(@"Продукция не найдена по ШК!", @"Продукция не найдена",
                                             MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
                         }

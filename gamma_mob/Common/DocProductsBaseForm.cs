@@ -253,6 +253,7 @@ namespace gamma_mob
                 else
                     if (string.IsNullOrEmpty(delResult.ResultMessage))
                     {
+                        Shared.ScannedBarcodes.ClearLastBarcode();
                         Shared.ScannedBarcodes.DeletedScan(scanId);
                         AcceptedProducts.Remove(t);
                         IsRefreshQuantity = true;

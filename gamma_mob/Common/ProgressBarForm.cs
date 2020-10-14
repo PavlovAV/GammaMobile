@@ -11,13 +11,13 @@ namespace gamma_mob.Common
 {
     public partial class ProgressBarForm : Form
     {
-        public ProgressBarForm(DateTime startDate, DateTime endDate, DataTable table)
+        public ProgressBarForm(DateTime startDate, DateTime endDate, DataTable table, string text)
         {
             InitializeComponent();
             StartDate = startDate;
             EndDate = endDate;
             Table = table;
-            this.label0.Text = @"Идет загрузка данных(" + Table.Rows.Count.ToString() + @")...";
+            this.label0.Text = text + @"(" + Table.Rows.Count.ToString() + @")...";
             bkgndWorker = new BackgroundWorker();
             bkgndWorker.DoWork += new DoWorkEventHandler(bkgndWorker_DoWork);
             bkgndWorker.ProgressChanged += new ProgressChangedEventHandler(bkgndWorker_ProgressChanged);

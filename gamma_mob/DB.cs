@@ -105,6 +105,10 @@ namespace gamma_mob
                         strQuery = "CREATE INDEX IX_LogId ON Logs (LogId ASC)";
                         empCom.CommandText = strQuery;
                         empCom.ExecuteNonQuery();
+                        strQuery = "INSERT INTO Logs (Log) VALUES(@Log)";
+                        empCom.CommandText = strQuery;
+                        empCom.Parameters.Add("@Log", DbType.String).Value = @"Создана " + dbFile;
+                        empCom.ExecuteNonQuery();
                         
                     }
 
@@ -2978,6 +2982,25 @@ namespace gamma_mob
             return ret;
         }
 
+        public static int GetCountNomenclatureBarcodes()
+        {
+            int ret;
+            const string sql = "SELECT Count(*) AS CountNomenclatures FROM Barcodes WHERE KindId is null ";
+            using (DataTable table = ExecuteCeSelectQuery(sql, new List<SqlCeParameter>(), CommandType.Text))
+            {
+                if (table != null && table.Rows.Count > 0)
+                {
+                    ret = Convert.ToInt32(table.Rows[0]["CountNomenclatures"]);
+                }
+                else
+                {
+                    ret = 0;
+                }
+
+            }
+            return ret;
+        }
+
         public static List<ChooseNomenclatureItem> GetBarcodes1C(string barcode)
         {
             List<ChooseNomenclatureItem> list = null;
@@ -3030,20 +3053,34 @@ namespace gamma_mob
         }
         
 
-        public static BindingList<ChooseNomenclatureItem> GetBarcodes1C()
+        public static bool GetBarcodes1C(DateTime date)
         {
-            BindingList<ChooseNomenclatureItem> list = null;
+            bool list = false;
             const string sql = "dbo.mob_GetBarcodes1C";
             using (DataTable table = ExecuteSelectQuery(sql, new List<SqlParameter>(), CommandType.StoredProcedure))
             {
                 if (table != null && table.Rows.Count > 0)
                 {
-                    list = new BindingList<ChooseNomenclatureItem>();
-                    foreach (DataRow row in table.Rows)
+                    list = true;
+                    var form = new ProgressBarForm(date, date, table, @"Идет загрузка номенклатур");
+                            if (form != null)
+                            {
+                                if (ExecuteCeNonQuery("DELETE Barcodes WHERE KindId is null", new List<SqlCeParameter>(), CommandType.Text))
+                                {
+                                    var r = form.ShowDialog();
+                                    var endDate = form.ret;
+                                }
+                                //form.bkgndWorker.DoWork += new DoWorkEventHandler(UpdateCashedBarcodesProgress);
+                                //form.bkgndWorker.WorkerReportsProgress = true;
+                                //form.bkgndWorker.RunWorkerAsync(table);
+                            }
+                    /*foreach (DataRow row in table.Rows)
                     {
                         UpdateBarcodes1C(
                             new CashedBarcode
                             {
+                                DateChange = date,
+                                TypeChange = 0,
                                 Barcode = row["Barcode"].ToString(),
                                 Name = row["Name"].ToString(),
                                 NomenclatureId = row.IsNull("NomenclatureID") ? new Guid() : new Guid(row["NomenclatureID"].ToString()),
@@ -3065,7 +3102,7 @@ namespace gamma_mob
                         //    MeasureUnitId = new Guid(row["MeasureUnitID"].ToString()),
                         //    BarcodeId = new Guid(row["BarcodeID"].ToString())
                         //});
-                    }
+                    }*/
                 }
             }
             return list;
@@ -3152,7 +3189,7 @@ namespace gamma_mob
                         int index = 0;
                         if (IsFirst)
                         {
-                            var form = new ProgressBarForm(startDate, endDate, table);
+                            var form = new ProgressBarForm(startDate, endDate, table, @"Идет загрузка штрих-кодов");
                             if (form != null)
                             {
                                 var r = form.ShowDialog();

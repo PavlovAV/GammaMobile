@@ -17,7 +17,7 @@ namespace gamma_mob.Models
                 lastUpdatedTimeBarcodes = Convert.ToDateTime("2020/10/12");
             }
 #if DEBUG
-            lastUpdatedTimeBarcodes = Convert.ToDateTime("2020/10/11");
+            lastUpdatedTimeBarcodes = Convert.ToDateTime("2020/10/14 12:00:00");
 #endif
             UpdateBarcodes(true);
         }
@@ -88,8 +88,14 @@ namespace gamma_mob.Models
                 {
                     if (lastUpdatedTimeBarcodes != _lastDate)
                         lastUpdatedTimeBarcodes = _lastDate;
+                    if (IsFirst)
+                    {
+                        if (Db.GetCountNomenclatureBarcodes() < 1000)
+                            Db.GetBarcodes1C(lastUpdatedTimeBarcodes);
+                    }
                     return true;
                 }
+                
             }
             return false;
         }

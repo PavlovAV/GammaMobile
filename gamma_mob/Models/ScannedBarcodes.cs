@@ -175,5 +175,20 @@ namespace gamma_mob.Models
                     }
             }
         }
+
+        public void ClearLastBarcode()
+        {
+            if (Barcodes == null)
+                return;
+            else
+            {
+                if (lastScannedBarcode == null)
+                    return;
+                else
+                {
+                    lastScannedBarcode = null;
+                }
+            }
+        }
     }
 }

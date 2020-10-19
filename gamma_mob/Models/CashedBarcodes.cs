@@ -16,9 +16,9 @@ namespace gamma_mob.Models
                 Shared.SaveToLog("lastUpdatedTimeBarcodes < 20201012 => " + lastUpdatedTimeBarcodes.ToString());
                 lastUpdatedTimeBarcodes = Convert.ToDateTime("2020/10/12");
             }
-#if DEBUG
-            lastUpdatedTimeBarcodes = Convert.ToDateTime("2020/10/14 12:00:00");
-#endif
+//#if DEBUG
+//            lastUpdatedTimeBarcodes = Convert.ToDateTime("2020/10/14 12:00:00");
+//#endif
             UpdateBarcodes(true);
         }
 
@@ -70,11 +70,53 @@ namespace gamma_mob.Models
             }
         }
 
+        private static int? countBarcodeNomenclatures { get; set; }
+        private static int? countBarcodeProducts { get; set; }
+
+        public void AddedBarcode(int? kindId)
+        {
+            if (kindId == null)
+                countBarcodeNomenclatures = countBarcodeNomenclatures + 1;
+            else
+                countBarcodeProducts = countBarcodeProducts + 1;
+        }
+        public void RemovedBarcode(int? kindId)
+        {
+            if (kindId == null)
+                countBarcodeNomenclatures = countBarcodeNomenclatures - 1;
+            else
+                countBarcodeProducts = countBarcodeProducts -1;
+        }
+
+        public bool InitCountBarcodes()
+        {
+            if (countBarcodeNomenclatures == null && countBarcodeProducts == null)
+            {
+                var countTable = Db.GetCountBarcodes();
+                if (countTable != null && countTable.Rows.Count > 0)
+                //    {
+                //        ret = table.Rows[0]["CountBarcodes"].ToString() + "/" + table.Rows[0]["CountNomenclatures"].ToString() + "/" + table.Rows[0]["CountProducts"].ToString();
+                //    }
+                {
+                    countBarcodeNomenclatures = countTable.Rows[0].IsNull("CountNomenclatures") ? 0 : Convert.ToInt32(countTable.Rows[0]["CountNomenclatures"]);
+                    countBarcodeProducts = countTable.Rows[0].IsNull("CountProducts") ? 0 : Convert.ToInt32(countTable.Rows[0]["CountProducts"]);
+                    if (countBarcodeNomenclatures < 1000)
+                        countBarcodeNomenclatures = Db.GetBarcodes1C(lastUpdatedTimeBarcodes);
+                }
+                else
+                {
+                    countBarcodeNomenclatures = 0;
+                    countBarcodeProducts = 0;
+                }
+            }
+                return true;
+        }
+
         public string GetCountBarcodes
         {
             get
             {
-                return Db.GetCountBarcodes();
+                return Convert.ToString((countBarcodeNomenclatures ?? 0) + (countBarcodeProducts ?? 0)) + "/" + (countBarcodeNomenclatures ?? 0).ToString() + "/" + (countBarcodeProducts ?? 0).ToString();// Db.GetCountBarcodes();
             }
         }
 
@@ -88,11 +130,11 @@ namespace gamma_mob.Models
                 {
                     if (lastUpdatedTimeBarcodes != _lastDate)
                         lastUpdatedTimeBarcodes = _lastDate;
-                    if (IsFirst)
-                    {
-                        if (Db.GetCountNomenclatureBarcodes() < 1000)
-                            Db.GetBarcodes1C(lastUpdatedTimeBarcodes);
-                    }
+                    //if (IsFirst)
+                    //{
+                    //    if (Db.GetCountNomenclatureBarcodes() < 1000)
+                    //        Db.GetBarcodes1C(lastUpdatedTimeBarcodes);
+                    //}
                     return true;
                 }
                 
@@ -132,7 +174,7 @@ namespace gamma_mob.Models
                 {
                     getProductResult = Db.GetProductIdFromBarcodeOrNumber(barcode);
 //#if !DEBUG            
-                if (getProductResult == null)
+                    if (getProductResult == null || getProductResult.ProductKindId == null)
 //#endif
                     {
                         if (!IsFirstFindInLocalDB) getProductResult = Db.GetFirstProductFromCashedBarcodes(barcode);

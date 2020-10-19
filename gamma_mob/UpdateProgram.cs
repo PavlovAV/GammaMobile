@@ -16,7 +16,9 @@ namespace gamma_mob
     {
         private static readonly string program = @"gamma_mob";
         private static readonly string executablePath = Application2.StartupPath + @"\";
-        private static readonly string updatePath = executablePath + @"update\";
+        private static readonly string updatePath = @"\Temp\GammaUpdate\"; //executablePath + @"update\";
+
+        private static bool isNeededRebootingProgram { get; set; }
 
         private static string ComputeMD5Checksum(string path)
         {
@@ -422,10 +424,15 @@ namespace gamma_mob
             if (Directory.Exists(updatePath))
             {
                 ApplyUpdateFiles(updatePath);
+                isNeededRebootingProgram = true;
+                //MessageBox.Show(
+                //    "Есть обновление, перезапустите программу!",
+                //    "Внимание!");
+            }
+            if (isNeededRebootingProgram)
                 MessageBox.Show(
                     "Есть обновление, перезапустите программу!",
                     "Внимание!");
-            }
         }
     }
 }

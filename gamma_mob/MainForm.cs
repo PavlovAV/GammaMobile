@@ -28,6 +28,8 @@ namespace gamma_mob
                 //btnInventarisation.Visible = true;
             }
             lblUserInfo.Text = "Логин: " + Settings.UserName + " (" + Shared.PersonName + ")";
+            Shared.SaveToLog(@" Локальные база ШК " + Shared.Barcodes1C.GetCountBarcodes + "; посл.обн " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodes.ToString(System.Globalization.CultureInfo.InvariantCulture));
+                        
  //           var mFilter = new InactivityFilter(100);
             //mFilter.InactivityElapsed += m_filter_InactivityElapsed;
  //           Application2.AddMessageFilter(mFilter);

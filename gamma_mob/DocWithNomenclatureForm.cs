@@ -381,7 +381,7 @@ namespace gamma_mob
 
                     if (getProductResult == null || getProductResult.ProductKindId == null || (getProductResult.ProductKindId != 3 && (getProductResult.ProductId == null || getProductResult.ProductId == Guid.Empty)))
                     {
-                        Shared.SaveToLog(@"Продукция не найдена по ШК! " + barcode + " (Посл.обн.кэша "+Shared.Barcodes1C.GetLastUpdatedTimeBarcodes.ToString(CultureInfo.InvariantCulture)+")");
+                        Shared.SaveToLog(@"Продукция не найдена по ШК! " + barcode + " (Локальные база ШК " + Shared.Barcodes1C.GetCountBarcodes + "; посл.обн " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodes.ToString(System.Globalization.CultureInfo.InvariantCulture) + ")");
                         MessageBox.Show(@"Продукция не найдена по ШК!", @"Продукция не найдена",
                                         MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
                     }
@@ -441,7 +441,7 @@ namespace gamma_mob
             AddProductByBarcode(scanId, barcode, fromBuffer, getProductResult, DocOrderId);
         }
 
-        private bool AddProductByBarcode(Guid? scanId, string barcode, bool fromBuffer, DbProductIdFromBarcodeResult getProductResult, Guid docOrderId)
+        private bool? AddProductByBarcode(Guid? scanId, string barcode, bool fromBuffer, DbProductIdFromBarcodeResult getProductResult, Guid docOrderId)
         {
             Shared.SaveToLog(@"AddShip " + barcode + @"; Q-" + getProductResult.CountProducts + @"; F-" + fromBuffer.ToString());
             Cursor.Current = Cursors.WaitCursor;
@@ -449,16 +449,17 @@ namespace gamma_mob
             var addResult = Db.AddProductIdToOrder(scanId, DocOrderId, OrderType, Shared.PersonId, getProductResult.ProductId, DocDirection, getProductResult.ProductKindId, getProductResult.NomenclatureId, getProductResult.CharacteristicId, getProductResult.QualityId, getProductResult.CountProducts);
             if (Shared.LastQueryCompleted == false)
             {
-                return false;
+                return null;
             }
             if (addResult == null)
             {
                 MessageBox.Show(@"Не удалось добавить продукт" + Environment.NewLine + barcode + " в приказ!");
+                Shared.ScannedBarcodes.ClearLastBarcode();
                 return false;
             }
             if (addResult.ResultMessage == string.Empty)
             {
-                Shared.ScannedBarcodes.UploadedScan(scanId);
+                Shared.ScannedBarcodes.UploadedScan(scanId, addResult.Product == null ? (Guid?)null : addResult.Product.ProductId);
                 if (docOrderId == DocOrderId)
                     Invoke((UpdateOrderGridInvoker)(UpdateGrid),
                            new object[] { addResult.Product.NomenclatureId, addResult.Product.CharacteristicId, addResult.Product.QualityId, addResult.Product.NomenclatureName, 
@@ -466,9 +467,12 @@ namespace gamma_mob
             }
             else
             {
-                Shared.ScannedBarcodes.UploadedScanWithError(scanId, addResult.ResultMessage);
+                Shared.ScannedBarcodes.UploadedScanWithError(scanId, addResult.ResultMessage, addResult.Product == null ? (Guid?)null : addResult.Product.ProductId);
                 if (docOrderId == DocOrderId)
-                    MessageBox.Show(fromBuffer?@"Ошибка при загрузке на сервер невыгруженного" + Environment.NewLine+ @" продукта: ":@"Продукт: " + barcode + Environment.NewLine + addResult.ResultMessage);
+                {
+                    MessageBox.Show(fromBuffer ? @"Ошибка при загрузке на сервер невыгруженного" + Environment.NewLine + @" продукта: " : @"Продукт: " + barcode + Environment.NewLine + addResult.ResultMessage);
+                    Shared.ScannedBarcodes.ClearLastBarcode();
+                }
             }
             return true;
         }
@@ -600,11 +604,11 @@ namespace gamma_mob
                 if (offlineProduct.DocId == null)
                 {
                     MessageBox.Show(@"Ошибка! Не указан документ инвентаризации, куда выгрузить продукт " + offlineProduct.Barcode, @"Информация о выгрузке");
-                    Shared.ScannedBarcodes.UploadedScanWithError(offlineProduct.ScanId, @"Ошибка! Не указан документ инвентаризации, куда выгрузить продукт ");
+                    Shared.ScannedBarcodes.UploadedScanWithError(offlineProduct.ScanId, @"Ошибка! Не указан документ инвентаризации, куда выгрузить продукт ", offlineProduct.ProductId);
                 }
                 else
                 {
-                    if (!AddProductByBarcode(offlineProduct.ScanId, offlineProduct.Barcode, true, new DbProductIdFromBarcodeResult() { ProductId = offlineProduct.ProductId ?? new Guid(), ProductKindId = offlineProduct.ProductKindId, NomenclatureId = offlineProduct.NomenclatureId ?? new Guid(), CharacteristicId = offlineProduct.CharacteristicId ?? new Guid(), QualityId = offlineProduct.QualityId ?? new Guid(), CountProducts = offlineProduct.Quantity ?? 0 }, (Guid)offlineProduct.DocId))
+                    if (AddProductByBarcode(offlineProduct.ScanId, offlineProduct.Barcode, true, new DbProductIdFromBarcodeResult() { ProductId = offlineProduct.ProductId ?? new Guid(), ProductKindId = offlineProduct.ProductKindId, NomenclatureId = offlineProduct.NomenclatureId ?? new Guid(), CharacteristicId = offlineProduct.CharacteristicId ?? new Guid(), QualityId = offlineProduct.QualityId ?? new Guid(), CountProducts = offlineProduct.Quantity ?? 0 }, (Guid)offlineProduct.DocId) == null)
                         break;
                 }
             }

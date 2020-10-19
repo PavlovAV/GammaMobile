@@ -80,4 +80,10 @@
         DocOutIn,
         DocInventarisation
     }
+
+    public enum ConnectServerCe
+    {
+        LogServer,
+        BarcodesServer
+    }
 }

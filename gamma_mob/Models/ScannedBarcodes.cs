@@ -26,7 +26,10 @@ namespace gamma_mob.Models
             {
                 Barcodes.Add(item);
                 Shared.SaveToLog(item.ScanId, item.DateScanned, item.Barcode, item.PlaceId, item.PlaceZoneId, item.DocTypeId, item.DocId, item.IsUploaded, item.ProductId, item.ProductKindId, item.NomenclatureId, item.CharacteristicId, item.QualityId, item.Quantity);
-                lastScannedBarcode = item;
+                if (getProductResult.ProductId == null || getProductResult.ProductId == Guid.Empty)
+                    lastScannedBarcode = null;
+                else
+                    lastScannedBarcode = item;
                 if (OnUpdateBarcodesIsNotUploaded != null) OnUpdateBarcodesIsNotUploaded();
                 return item.ScanId;
             }
@@ -34,7 +37,7 @@ namespace gamma_mob.Models
                 return null;
         }
 
-        public bool UploadedScan(Guid? scanId)
+        public bool UploadedScan(Guid? scanId, Guid? productId)
         {
             var item = Barcodes.FindLast(
                 delegate(ScannedBarcode sb)
@@ -44,6 +47,9 @@ namespace gamma_mob.Models
             if (item != null)
             {
                 item.IsUploaded = true;
+                if (item.ProductId != productId)
+                    Shared.SaveToLog("Change ProductId from " + item.ProductId + " to " + (productId == null ? "" : productId.ToString()) + " ON Barcode " + item.Barcode + " | ScanId " + item.ScanId.ToString());
+                item.ProductId = productId;
                 Shared.SaveToLog("Set IsUploaded => True ON Barcode " + item.Barcode + " | ScanId " + item.ScanId.ToString());
                 Shared.SaveToLog(item.ScanId, item.IsUploaded, null);
                 if (OnUpdateBarcodesIsNotUploaded != null) OnUpdateBarcodesIsNotUploaded();
@@ -53,7 +59,7 @@ namespace gamma_mob.Models
                 return false;
         }
 
-        public bool UploadedScanWithError(Guid? scanId, string errorLog)
+        public bool UploadedScanWithError(Guid? scanId, string errorLog, Guid? productId)
         {
             var item = Barcodes.FindLast(
                 delegate(ScannedBarcode sb)
@@ -64,6 +70,9 @@ namespace gamma_mob.Models
             {
                 item.IsUploaded = true;
                 item.UploadResult = errorLog;
+                if (item.ProductId != productId)
+                    Shared.SaveToLog("Change ProductId from " + item.ProductId + " to " + (productId == null ? "" : productId.ToString()) + " ON Barcode " + item.Barcode + " | ScanId " + item.ScanId.ToString());
+                item.ProductId = productId;
                 Shared.SaveToLog("Set IsUploadedWithError => True | " + errorLog + " ON Barcode " + item.Barcode + " | ScanId " + item.ScanId.ToString());
                 Shared.SaveToLog(item.ScanId, item.IsUploaded, errorLog);
                 if (OnUpdateBarcodesIsNotUploaded != null) OnUpdateBarcodesIsNotUploaded();

@@ -30,6 +30,7 @@ namespace gamma_mob.Common
         private DateTime EndDate { get; set; }
         private DataTable Table { get; set; }
         public DateTime ret { get; private set; }
+        public int retCount { get; private set; }
 
         private void bkgndWorker_ProgressChanged(object sender,
             ProgressChangedEventArgs e)
@@ -43,7 +44,8 @@ namespace gamma_mob.Common
             var worker = (BackgroundWorker)sender;
             int index = 0;
             int count = Table.Rows.Count;
-            
+
+            retCount = 0;
             ret = StartDate;
             DateTime previousDate = ret;
             worker.ReportProgress(0);
@@ -76,6 +78,7 @@ namespace gamma_mob.Common
                              KindId = row.IsNull("KindID") ? null : (int?)Convert.ToInt32(row["KindID"])
                          }))
                     {
+                        retCount = index;
                         if (previousDate != Convert.ToDateTime(row["DateChange"]))
                         {
                             ret = previousDate;//возвращаем время последней удачно записанной строки с предыдущим временем (чтобы если несколько изменений в один момент и произойдет сбой, то все эти записи этого момента кешировались повторно) 

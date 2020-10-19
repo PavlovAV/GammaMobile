@@ -63,66 +63,169 @@ namespace gamma_mob
         }
 
         private static bool IsNotFirstGetConnectionCeString { get; set; }
-        private static string ConnectionCeString 
+        private static bool IsInitializationFirstConnectionCeString { get; set; }
+        private static string ConnectionCeString (ConnectServerCe serverCe) 
         {
-            get
             {
-                var dbFile = @"\GammaDB.sdf";//Application2.StartupPath + @"\GammaDB.sdf";
-                if (!IsNotFirstGetConnectionCeString)
+                var dbFileLog = Application2.StartupPath + @"\..\GammaDBLog.sdf";
+                var dbFileBarcodes = Application2.StartupPath + @"\..\GammaDBBarcodes.sdf";
+                
+                var dbFile = serverCe == ConnectServerCe.LogServer ? dbFileLog : serverCe == ConnectServerCe.BarcodesServer ? dbFileBarcodes : Application2.StartupPath + @"\GammaDBLocal.sdf";
+                if (!IsNotFirstGetConnectionCeString && !IsInitializationFirstConnectionCeString)
                 {
-                    if (!File.Exists(dbFile))
+                    IsInitializationFirstConnectionCeString = true;
+                    bool isCreateDatabaseLog = false;
+                    bool isCreateDatabaseBarcodes = false;
+                    bool isCopyDatabaseLog = false;
+                    bool isCopyDatabaseBarcodes = false;
+                    bool IsDeletedDbFileLog = false;
+                    bool IsErrorDbFileLog = false;
+                    bool IsDeletedDbFileBarcodes = false;
+                    bool IsErrorDbFileBarcodes = false;
+                    bool isDbFileLogToDelete = false;
+                    bool isDbFileBarcodesToDelete = false;
+                    SqlCeConnection empConLog;
+                    SqlCeCommand empComLog;
+                    SqlCeConnection empConBarcodes;
+                    SqlCeCommand empComBarcodes;
+                    try
                     {
-                        SqlCeEngine empEngine = new SqlCeEngine(@"Data Source = " + dbFile);
-                        empEngine.CreateDatabase();
+                        empConLog = new SqlCeConnection(@"Data Source = " + dbFileLog);
+                        empConLog.Open();
+                        empComLog = empConLog.CreateCommand();
+                        empConLog.Close();
                     }
-                    SqlCeConnection empCon;
-                    SqlCeCommand empCom;
-                    empCon = new SqlCeConnection(@"Data Source = " + dbFile);
-                    empCon.Open();
-                    empCom = empCon.CreateCommand();
-                    string strQuery;
-                    if (TableCeExists(empCon, "ScannedBarcodes"))
+                    catch
                     {
-                        strQuery = "DROP TABLE ScannedBarcodes";
-                        empCom.CommandText = strQuery;
-                        empCom.ExecuteNonQuery();
-                    }
-                    if (!TableCeExists(empCon, "Settings"))
-                    {
-                        strQuery = "CREATE TABLE Settings (LastUpdatedTimeBarcodes DateTime)";
-                        empCom.CommandText = strQuery;
-                        empCom.ExecuteNonQuery();
-                        strQuery = "INSERT INTO Settings (LastUpdatedTimeBarcodes) VALUES (DATEADD(HOUR,-1,GETDATE()))";
-                        empCom.CommandText = strQuery;
-                        empCom.ExecuteNonQuery();
+                        IsErrorDbFileLog = true;
                     }
 
-                    if (!TableCeExists(empCon, "Logs"))
+                    try
+                    {
+                        empConBarcodes = new SqlCeConnection(@"Data Source = " + dbFileBarcodes);
+                        empConBarcodes.Open();
+                        empComBarcodes = empConBarcodes.CreateCommand();
+                    }
+                    catch
+                    {
+                        IsErrorDbFileBarcodes = true;
+                    }
+
+                    if (File.Exists(dbFileLog))
+                    {
+                        isDbFileLogToDelete = true;
+                        if (IsErrorDbFileLog)
+                            try
+                            {
+                                File.Delete(dbFileLog);
+                                IsDeletedDbFileLog = true;
+                            }
+                            catch
+                            {
+                                IsDeletedDbFileLog = false;
+                            }
+                    }
+                    if (File.Exists(dbFileBarcodes))
+                    {
+                        isDbFileBarcodesToDelete = true;
+                        if (IsErrorDbFileBarcodes)
+                            try
+                            {
+                                File.Delete(dbFileBarcodes);
+                                IsDeletedDbFileBarcodes = true;
+                            }
+                            catch
+                            {
+                                IsDeletedDbFileBarcodes = false;
+                            }
+                    }
+                    if (!File.Exists(dbFileLog))
+                    {
+                        SqlCeEngine empEngine = new SqlCeEngine(@"Data Source = " + dbFileLog);
+                            empEngine.CreateDatabase();
+                            isCreateDatabaseLog = true;
+                    }
+                    if (!File.Exists(dbFileBarcodes))
+                    {
+#if DEBUG
+                        string startupPath = @"\FlashDisk\gamma_mob";
+#else
+                        string startupPath = Application2.StartupPath;
+#endif
+                        if (File.Exists(startupPath + @"\GammaDBBarcodes.sdf"))
+                        {
+                            try
+                            {
+                                isCopyDatabaseBarcodes = true;
+                                File.Copy(startupPath + @"\GammaDBBarcodes.sdf", dbFileBarcodes);
+                            }
+                            catch
+                            {//Скопировать не получилось - надо создать
+                                isCreateDatabaseBarcodes = true;
+                            }
+                        }
+                        else
+                            isCreateDatabaseBarcodes = true;
+                        if (isCreateDatabaseBarcodes)
+                        {
+                            SqlCeEngine empEngine = new SqlCeEngine(@"Data Source = " + dbFileBarcodes);
+                            empEngine.CreateDatabase();
+                            isCreateDatabaseBarcodes = true;
+                        }
+                    }
+
+                    empConLog = new SqlCeConnection(@"Data Source = " + dbFileLog);
+                    empConLog.Open();
+                    empComLog = empConLog.CreateCommand();
+                    empConBarcodes = new SqlCeConnection(@"Data Source = " + dbFileBarcodes);
+                    empConBarcodes.Open();
+                    empComBarcodes = empConBarcodes.CreateCommand();
+                    string strQuery;
+                    if (TableCeExists(empConLog, "ScannedBarcodes"))
+                    {
+                        strQuery = "DROP TABLE ScannedBarcodes";
+                        empComLog.CommandText = strQuery;
+                        empComLog.ExecuteNonQuery();
+                    }
+                    if (!TableCeExists(empConBarcodes, "Settings"))
+                    {
+                        strQuery = "CREATE TABLE Settings (LastUpdatedTimeBarcodes DateTime)";
+                        empComBarcodes.CommandText = strQuery;
+                        empComBarcodes.ExecuteNonQuery();
+                        strQuery = "INSERT INTO Settings (LastUpdatedTimeBarcodes) VALUES (DATEADD(HOUR,-8,GETDATE()))";
+                        empComBarcodes.CommandText = strQuery;
+                        empComBarcodes.ExecuteNonQuery();
+                    }
+
+                    if (!TableCeExists(empConLog, "Logs"))
                     {
                         strQuery = "CREATE TABLE Logs (LogId uniqueidentifier default newid() PRIMARY KEY,LogDate DateTime default GetDate(),Log nvarchar(1000),Barcode nvarchar(100), UserName nvarchar(250), PersonId uniqueidentifier, PlaceId int, DocTypeId int, IsUploaded bit, DocId uniqueidentifier, PlaceZoneId uniqueidentifier, ToDelete bit default (0), IsDeleted bit default (0), ProductId uniqueidentifier, ProductKindId int, NomenclatureId uniqueidentifier, CharacteristicId uniqueidentifier, QualityId uniqueidentifier, Quantity int, IsUploadedToServer bit default (0))";
-                        empCom.CommandText = strQuery;
-                        empCom.ExecuteNonQuery();
+                        empComLog.CommandText = strQuery;
+                        empComLog.ExecuteNonQuery();
                         strQuery = "CREATE INDEX IX_LogId ON Logs (LogId ASC)";
-                        empCom.CommandText = strQuery;
-                        empCom.ExecuteNonQuery();
+                        empComLog.CommandText = strQuery;
+                        empComLog.ExecuteNonQuery();
                         strQuery = "INSERT INTO Logs (Log) VALUES(@Log)";
-                        empCom.CommandText = strQuery;
-                        empCom.Parameters.Add("@Log", DbType.String).Value = @"Создана " + dbFile;
-                        empCom.ExecuteNonQuery();
+                        empComLog.CommandText = strQuery;
+                        empComLog.Parameters.Clear();
+                        empComLog.Parameters.Add("@Log", DbType.String).Value = @"Create table Logs ";
+                        empComLog.ExecuteNonQuery();
+
+                        
                         
                     }
 
-                    if (!TableCeExists(empCon, "Barcodes"))
+                    if (!TableCeExists(empConBarcodes, "Barcodes"))
                     {
                         strQuery = "CREATE TABLE Barcodes (Barcode nvarchar(100), Name nvarchar(600), NomenclatureID uniqueidentifier, CharacteristicID uniqueidentifier, QualityID uniqueidentifier, MeasureUnitID uniqueidentifier, BarcodeID uniqueidentifier, Number nvarchar(50), KindId tinyint)";
-                        empCom.CommandText = strQuery;
-                        empCom.ExecuteNonQuery();
+                        empComBarcodes.CommandText = strQuery;
+                        empComBarcodes.ExecuteNonQuery();
                         strQuery = "CREATE INDEX IX_Barcode ON Barcodes (Barcode ASC)";
-                        empCom.CommandText = strQuery;
-                        empCom.ExecuteNonQuery();
+                        empComBarcodes.CommandText = strQuery;
+                        empComBarcodes.ExecuteNonQuery();
                         strQuery = "CREATE INDEX IX_BarcodeId ON Barcodes (BarcodeId)";
-                        empCom.CommandText = strQuery;
-                        empCom.ExecuteNonQuery();
+                        empComBarcodes.CommandText = strQuery;
+                        empComBarcodes.ExecuteNonQuery();
                         
                         //Db.GetBarcodes1C();
                     }
@@ -137,7 +240,71 @@ namespace gamma_mob
                     //empCom.CommandText = strQuery;
                     //empCom.Parameters.AddWithValue("@Barcode", @"1234567");
                     //empCom.ExecuteNonQuery();
-                    empCon.Close();
+                    
+                    empConLog.Close();
+                    empConBarcodes.Close();
+                    empConLog.Open();
+                    if (IsErrorDbFileLog)
+                    {
+                        strQuery = "INSERT INTO Logs (Log) VALUES(@Log)";
+                        empComLog.CommandText = strQuery;
+                        empComLog.Parameters.Clear();
+                        if (!isDbFileLogToDelete)
+                            empComLog.Parameters.Add("@Log", DbType.String).Value = @"Error database " + dbFileLog + @" - Database not exist";
+                        else if (IsDeletedDbFileLog)
+                            empComLog.Parameters.Add("@Log", DbType.String).Value = @"Error database " + dbFileLog + @" - Database deleted";
+                        else
+                            empComLog.Parameters.Add("@Log", DbType.String).Value = @"error database " + dbFileLog + @" - Error database deleted";
+                        empComLog.ExecuteNonQuery();
+                    }
+                    
+                    if (IsErrorDbFileBarcodes)
+                    {
+                        strQuery = "INSERT INTO Logs (Log) VALUES(@Log)";
+                        empComLog.CommandText = strQuery;
+                        empComLog.Parameters.Clear();
+                        if (!isDbFileBarcodesToDelete)
+                            empComLog.Parameters.Add("@Log", DbType.String).Value = @"Error database " + dbFileBarcodes + @" - Database not exist";
+                        else if (IsDeletedDbFileBarcodes)
+                            empComLog.Parameters.Add("@Log", DbType.String).Value = @"Error database " + dbFileBarcodes + @" - Database deleted";
+                        else
+                            empComLog.Parameters.Add("@Log", DbType.String).Value = @"error database " + dbFileBarcodes + @" - Error database deleted";
+                        empComLog.ExecuteNonQuery();
+                    }
+                    
+                    if (isCopyDatabaseLog)
+                    {
+                        strQuery = "INSERT INTO Logs (Log) VALUES(@Log)";
+                        empComLog.CommandText = strQuery;
+                        empComLog.Parameters.Clear();
+                        empComLog.Parameters.Add("@Log", DbType.String).Value = @"Copy database " + dbFileLog;
+                        empComLog.ExecuteNonQuery();
+                    }
+                    if (isCreateDatabaseLog)
+                    {
+                        strQuery = "INSERT INTO Logs (Log) VALUES(@Log)";
+                        empComLog.CommandText = strQuery;
+                        empComLog.Parameters.Clear();
+                        empComLog.Parameters.Add("@Log", DbType.String).Value = @"Create database " + dbFileLog;
+                        empComLog.ExecuteNonQuery();
+                    }
+                    if (isCopyDatabaseBarcodes)
+                    {
+                        strQuery = "INSERT INTO Logs (Log) VALUES(@Log)";
+                        empComLog.CommandText = strQuery;
+                        empComLog.Parameters.Clear();
+                        empComLog.Parameters.Add("@Log", DbType.String).Value = @"Copy database " + dbFileBarcodes;
+                        empComLog.ExecuteNonQuery();
+                    }
+                    if (isCreateDatabaseBarcodes)
+                    {
+                        strQuery = "INSERT INTO Logs (Log) VALUES(@Log)";
+                        empComLog.CommandText = strQuery;
+                        empComLog.Parameters.Clear();
+                        empComLog.Parameters.Add("@Log", DbType.String).Value = @"Create database " + dbFileBarcodes;
+                        empComLog.ExecuteNonQuery();
+                    }
+                    empConLog.Close();
                     IsNotFirstGetConnectionCeString = true;
                 }
                 return @"Data Source = " + dbFile;
@@ -148,7 +315,7 @@ namespace gamma_mob
         public static void SetConnectionString(string ipAddress, string database, string user, string password,
                                                string timeout)
         {
-            ConnectionString = "Application Name=mob_gamma v" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version + ";Data Source=" + ipAddress + ";Initial Catalog=" + database + "" +
+            ConnectionString = "Application Name=mob_gamma v" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version + " / " + deviceName + ";Data Source=" + ipAddress + ";Initial Catalog=" + database + "" +
                                ";Persist Security Info=True;User ID=" + user + "" +
                                ";Password=" + password + ";Connect Timeout=" + timeout;
         }
@@ -223,7 +390,7 @@ namespace gamma_mob
             DateTime lastDateTime = new DateTime();
             const string sql = "SELECT LastUpdatedTimeBarcodes FROM Settings";
             var parameters = new List<SqlCeParameter>();
-            using (DataTable table = ExecuteCeSelectQuery(sql, parameters, CommandType.Text))
+            using (DataTable table = ExecuteCeSelectQuery(sql, parameters, CommandType.Text, ConnectServerCe.BarcodesServer))
             {
                 if (table != null && table.Rows.Count > 0)
                 {
@@ -245,7 +412,7 @@ namespace gamma_mob
             p.Value = date;
             parameters.Add(p);
             
-            return ExecuteCeNonQuery(sql, parameters, CommandType.Text);
+            return ExecuteCeNonQuery(sql, parameters, CommandType.Text, ConnectServerCe.BarcodesServer);
         }
 
 
@@ -264,9 +431,8 @@ namespace gamma_mob
                         p26.SqlDbType = SqlDbType.UniqueIdentifier;
                         p26.Value = item.BarcodeId;
                         parameters2.Add(p26);
-
                         string sql2 = "DELETE Barcodes WHERE BarcodeId = @BarcodeID";
-                        return ExecuteCeNonQuery(sql2, parameters2, CommandType.Text);
+                        return ExecuteCeNonQuery(sql2, parameters2, CommandType.Text, ConnectServerCe.BarcodesServer);
 
                         break;
                     case 0:
@@ -320,7 +486,7 @@ namespace gamma_mob
                         parameters0.Add(p08);
                         string sql0 = "INSERT INTO Barcodes (Barcode, Name, NomenclatureID, CharacteristicID, QualityID, MeasureUnitID, BarcodeID, Number, KindId) VALUES (@Barcode, @Name, @NomenclatureID, @CharacteristicID, @QualityID, @MeasureUnitID, @BarcodeID, @Number, @KindID)";
 
-                        return ExecuteCeNonQuery(sql0, parameters0, CommandType.Text);
+                        return ExecuteCeNonQuery(sql0, parameters0, CommandType.Text, ConnectServerCe.BarcodesServer);
                         break;
                     case 1:
 
@@ -373,7 +539,7 @@ namespace gamma_mob
                         parameters1.Add(p8);
                         string sql1 = "UPDATE Barcodes SET Barcode = @Barcode, Name = @Name, NomenclatureID = @NomenclatureID, CharacteristicID = @CharacteristicID, QualityID = @QualityID, MeasureUnitID = @MeasureUnitID, BarcodeID = @BarcodeID, Number = @Number, KindId = @KindID  WHERE BarcodeId = @BarcodeID";
 
-                        return ExecuteCeNonQuery(sql1, parameters1, CommandType.Text);
+                        return ExecuteCeNonQuery(sql1, parameters1, CommandType.Text, ConnectServerCe.BarcodesServer);
                         break;
                 }
 
@@ -456,7 +622,7 @@ namespace gamma_mob
 
                 };
             
-            return ExecuteCeNonQuery(sql, parameters, CommandType.Text);
+            return ExecuteCeNonQuery(sql, parameters, CommandType.Text, ConnectServerCe.LogServer);
         }
 
         public static bool AddMessageToLog(Guid scanId, bool isUploaded, string log)
@@ -491,7 +657,7 @@ namespace gamma_mob
 
                 };
 
-            return ExecuteCeNonQuery(sql, parameters, CommandType.Text);
+            return ExecuteCeNonQuery(sql, parameters, CommandType.Text, ConnectServerCe.LogServer);
         }
 
         public static bool AddMessageToLog(Guid scanId, bool isUploaded, bool isDeleted, string log)
@@ -530,7 +696,7 @@ namespace gamma_mob
 
                 };
 
-            return ExecuteCeNonQuery(sql, parameters, CommandType.Text);
+            return ExecuteCeNonQuery(sql, parameters, CommandType.Text, ConnectServerCe.LogServer);
         }
 
         public static bool AddMessageToLog(string log)
@@ -554,7 +720,7 @@ namespace gamma_mob
                     
 
                 };
-            return ExecuteCeNonQuery(sql, parameters, CommandType.Text);
+            return ExecuteCeNonQuery(sql, parameters, CommandType.Text, ConnectServerCe.LogServer);
         }
 
         public static List<ScannedBarcode> GetBarcodesForCurrentUser()
@@ -570,7 +736,7 @@ namespace gamma_mob
                         }
                 };
 
-            using (DataTable table = ExecuteCeSelectQuery(sql, parameters, CommandType.Text))
+            using (DataTable table = ExecuteCeSelectQuery(sql, parameters, CommandType.Text, ConnectServerCe.LogServer))
             {
                 if (table != null && table.Rows.Count > 0)
                 {
@@ -626,7 +792,7 @@ namespace gamma_mob
         public static bool DeleteOldUploadedToServerLogs()
         {
             const string sql = "DELETE Logs WHERE IsUploadedToServer = 1 AND LogDate < DATEADD(DAY,-4,GETDATE())";
-            return ExecuteCeNonQuery(sql, new List<SqlCeParameter>(), CommandType.Text);
+            return ExecuteCeNonQuery(sql, new List<SqlCeParameter>(), CommandType.Text, ConnectServerCe.LogServer);
         }
         
         public static void UploadLogToServer()
@@ -641,7 +807,7 @@ namespace gamma_mob
                 //        }
                 //};
 
-            using (DataTable table = ExecuteCeSelectQuery(sqlCE, parametersCE, CommandType.Text))
+            using (DataTable table = ExecuteCeSelectQuery(sqlCE, parametersCE, CommandType.Text, ConnectServerCe.LogServer))
             {
                 if (table != null && table.Rows.Count > 0)
                 {
@@ -739,7 +905,7 @@ namespace gamma_mob
                             {
                                 var g = row.IsNull("LogId") ? "" : new Guid(row["LogId"].ToString()).ToString();
                                 var sqlCEUpdate = "UPDATE Logs SET IsUploadedToServer = 1 WHERE LogId = '"+g+"'";
-                                var r = ExecuteCeNonQuery(sqlCEUpdate, new List<SqlCeParameter>(), CommandType.Text);
+                                var r = ExecuteCeNonQuery(sqlCEUpdate, new List<SqlCeParameter>(), CommandType.Text, ConnectServerCe.LogServer);
                             };
                     }
                 }
@@ -770,7 +936,7 @@ namespace gamma_mob
                             Value = (Shared.PersonId as object) ?? DBNull.Value
                         } 
                 }; 
-            return ExecuteCeNonQuery(sql, parameters, CommandType.Text);
+            return ExecuteCeNonQuery(sql, parameters, CommandType.Text, ConnectServerCe.LogServer);
         }
 
         public static bool AddScannedBarcode(string barcode, Guid scanId)
@@ -800,7 +966,7 @@ namespace gamma_mob
                             Value = (Shared.PersonId as object) ?? DBNull.Value
                         } 
                 };
-            return ExecuteCeNonQuery(sql, parameters, CommandType.Text);
+            return ExecuteCeNonQuery(sql, parameters, CommandType.Text, ConnectServerCe.LogServer);
         }
 
         public static bool ExistsMessageLogFromLogId(Guid logId)
@@ -816,7 +982,7 @@ namespace gamma_mob
                             Value = logId
                         }
                 };
-            using (DataTable table = ExecuteCeSelectQuery(sql, parameters, CommandType.Text))
+            using (DataTable table = ExecuteCeSelectQuery(sql, parameters, CommandType.Text, ConnectServerCe.LogServer))
             {
                 if (table != null && table.Rows.Count > 0)
                 {
@@ -864,7 +1030,7 @@ namespace gamma_mob
         {
             List<string> list = null;
             const string sql = "SELECT LogId, Log, LogDate, UserId, PersonId FROM Logs ORDER BY LogDate";
-            using (DataTable table = ExecuteCeSelectQuery(sql, new List<SqlCeParameter>(), CommandType.Text))
+            using (DataTable table = ExecuteCeSelectQuery(sql, new List<SqlCeParameter>(), CommandType.Text, ConnectServerCe.LogServer))
             {
                 if (table != null && table.Rows.Count > 0)
                 {
@@ -1697,7 +1863,7 @@ namespace gamma_mob
                             Value = barcode
                         }
                 };
-            using (DataTable table = ExecuteCeSelectQuery(sql, parameters, CommandType.Text))
+            using (DataTable table = ExecuteCeSelectQuery(sql, parameters, CommandType.Text, ConnectServerCe.BarcodesServer))
             {
                 if (table != null && table.Rows.Count > 0)
                 {
@@ -1732,7 +1898,7 @@ namespace gamma_mob
                             Value = barcode
                         }
                 };
-            using (DataTable table = ExecuteCeSelectQuery(sql, parameters, CommandType.Text))
+            using (DataTable table = ExecuteCeSelectQuery(sql, parameters, CommandType.Text, ConnectServerCe.BarcodesServer))
             {
                 if (table != null && table.Rows.Count > 0)
                 {
@@ -1767,7 +1933,7 @@ namespace gamma_mob
                             Value = barcode
                         }
                 };
-            using (DataTable table = ExecuteCeSelectQuery(sql, parameters, CommandType.Text))
+            using (DataTable table = ExecuteCeSelectQuery(sql, parameters, CommandType.Text, ConnectServerCe.BarcodesServer))
             {
                 if (table != null && table.Rows.Count > 0)
                 {
@@ -2317,7 +2483,7 @@ namespace gamma_mob
         }
 
         private static DataTable ExecuteCeSelectQuery(string sql, IEnumerable<SqlCeParameter> parameters,
-                                                    CommandType commandType)
+                                                    CommandType commandType, ConnectServerCe serverCe)
         {
             try
             {
@@ -2326,7 +2492,7 @@ namespace gamma_mob
                 Shared.LastCeQueryCompleted = false;
                 using (var command = new SqlCeCommand(sql))
                 {
-                    command.Connection = new SqlCeConnection(ConnectionCeString);
+                    command.Connection = new SqlCeConnection(ConnectionCeString(serverCe));
                     command.CommandType = commandType;
                     foreach (SqlCeParameter parameter in parameters)
                     {
@@ -2366,13 +2532,13 @@ namespace gamma_mob
         }
 
         private static bool ExecuteCeNonQuery(string sql, IEnumerable<SqlCeParameter> parameters,
-                                                    CommandType commandType)
+                                                    CommandType commandType, ConnectServerCe serverCe)
         {
             try
             {
                 bool ret = false;
                 //Cursor.Current = Cursors.WaitCursor;
-                using (var connection = new SqlCeConnection(ConnectionCeString))
+                using (var connection = new SqlCeConnection(ConnectionCeString(serverCe)))
                 {
                     connection.Open();
                     using (var command = new SqlCeCommand(sql))
@@ -2963,22 +3129,23 @@ namespace gamma_mob
             return list;
         }
 
-        public static string GetCountBarcodes()
+        public static DataTable GetCountBarcodes()
         {
-            string ret;
+            DataTable ret;
             const string sql = "SELECT Count(*) AS CountBarcodes, Sum(Case When KindId is null Then 1 Else 0 End) AS CountNomenclatures, Sum(Case When KindId is not null Then 1 Else 0 End) AS CountProducts FROM Barcodes ";
-            using (DataTable table = ExecuteCeSelectQuery(sql, new List<SqlCeParameter>(), CommandType.Text))
-            {
-                if (table != null && table.Rows.Count > 0)
-                {
-                    ret = table.Rows[0]["CountBarcodes"].ToString() + "/" + table.Rows[0]["CountNomenclatures"].ToString() + "/" + table.Rows[0]["CountProducts"].ToString();
-                }
-                else
-                {
-                    ret = "0/0/0";
-                }
+            //using (DataTable table = ExecuteCeSelectQuery(sql, new List<SqlCeParameter>(), CommandType.Text, ConnectServerCe.BarcodesServer))
+            //{
+            //    if (table != null && table.Rows.Count > 0)
+            //    {
+            //        ret = table.Rows[0]["CountBarcodes"].ToString() + "/" + table.Rows[0]["CountNomenclatures"].ToString() + "/" + table.Rows[0]["CountProducts"].ToString();
+            //    }
+            //    else
+            //    {
+            //        ret = "0/0/0";
+            //    }
 
-            }
+            //}
+            ret = ExecuteCeSelectQuery(sql, new List<SqlCeParameter>(), CommandType.Text, ConnectServerCe.BarcodesServer);
             return ret;
         }
 
@@ -2986,7 +3153,7 @@ namespace gamma_mob
         {
             int ret;
             const string sql = "SELECT Count(*) AS CountNomenclatures FROM Barcodes WHERE KindId is null ";
-            using (DataTable table = ExecuteCeSelectQuery(sql, new List<SqlCeParameter>(), CommandType.Text))
+            using (DataTable table = ExecuteCeSelectQuery(sql, new List<SqlCeParameter>(), CommandType.Text, ConnectServerCe.BarcodesServer))
             {
                 if (table != null && table.Rows.Count > 0)
                 {
@@ -3012,11 +3179,14 @@ namespace gamma_mob
             var parameters = new List<SqlCeParameter>();
             parameters.Add(p);
             DataTable table = null;
-            table = ExecuteCeSelectQuery(sql, parameters, CommandType.Text);
+            table = ExecuteCeSelectQuery(sql, parameters, CommandType.Text, ConnectServerCe.BarcodesServer);
             {
                 if (table == null || table.Rows.Count == 0)
                 {
-                    Shared.SaveToLog(@"Не найден в локальной БД " + barcode + " (Посл.обн.кэша " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodes.ToString(System.Globalization.CultureInfo.InvariantCulture) + ")");
+                    if (!Shared.LastCeQueryCompleted)
+                        Shared.SaveToLog(@"Ошибка при поиске в локальной БД " + barcode + " (Локальные база ШК " + Shared.Barcodes1C.GetCountBarcodes + "; посл.обн " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodes.ToString(System.Globalization.CultureInfo.InvariantCulture) + ")");
+                    else
+                        Shared.SaveToLog(@"Не найден в локальной БД " + barcode + " (Локальные база ШК "+ Shared.Barcodes1C.GetCountBarcodes +  "; посл.обн " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodes.ToString(System.Globalization.CultureInfo.InvariantCulture) + ")");
                     const string sqlDB = "dbo.mob_GetNomenclatureCharacteristicQualityFromBarcode";
                     var parametersDB = new List<SqlParameter>
                     {
@@ -3025,7 +3195,14 @@ namespace gamma_mob
                             Value = barcode
                         }
                     };
-                    table = ExecuteSilentlySelectQuery(sqlDB, parametersDB, CommandType.StoredProcedure);
+                    table = ExecuteSelectQuery(sqlDB, parametersDB, CommandType.StoredProcedure);
+                    if (table == null || table.Rows.Count == 0)
+                    {
+                        if (!Shared.LastCeQueryCompleted)
+                            Shared.SaveToLog(@"Ошибка при поиске в серверной БД " + barcode + " (Локальные база ШК " + Shared.Barcodes1C.GetCountBarcodes + "; посл.обн " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodes.ToString(System.Globalization.CultureInfo.InvariantCulture) + ")");
+                        else
+                            Shared.SaveToLog(@"Не найден в серверной БД " + barcode + " (Локальные база ШК " + Shared.Barcodes1C.GetCountBarcodes + "; посл.обн " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodes.ToString(System.Globalization.CultureInfo.InvariantCulture) + ")");
+                    }
                 }
                 if (table != null && table.Rows.Count > 0)
                 {
@@ -3053,22 +3230,23 @@ namespace gamma_mob
         }
         
 
-        public static bool GetBarcodes1C(DateTime date)
+        public static int? GetBarcodes1C(DateTime date)
         {
-            bool list = false;
+            int? list = null;
             const string sql = "dbo.mob_GetBarcodes1C";
             using (DataTable table = ExecuteSelectQuery(sql, new List<SqlParameter>(), CommandType.StoredProcedure))
             {
                 if (table != null && table.Rows.Count > 0)
                 {
-                    list = true;
+                    list = 0;
                     var form = new ProgressBarForm(date, date, table, @"Идет загрузка номенклатур");
                             if (form != null)
                             {
-                                if (ExecuteCeNonQuery("DELETE Barcodes WHERE KindId is null", new List<SqlCeParameter>(), CommandType.Text))
+                                if (ExecuteCeNonQuery("DELETE Barcodes WHERE KindId is null", new List<SqlCeParameter>(), CommandType.Text, ConnectServerCe.BarcodesServer))
                                 {
                                     var r = form.ShowDialog();
                                     var endDate = form.ret;
+                                    list = form.retCount;
                                 }
                                 //form.bkgndWorker.DoWork += new DoWorkEventHandler(UpdateCashedBarcodesProgress);
                                 //form.bkgndWorker.WorkerReportsProgress = true;
@@ -3160,7 +3338,6 @@ namespace gamma_mob
             }
         }
 
-
         public static DateTime UpdateCashedBarcodes(DateTime startDate, DateTime endDate, bool IsFirst)
         {
             //BindingList<ChooseNomenclatureItem> list = null;
@@ -3219,6 +3396,15 @@ namespace gamma_mob
                                      KindId = row.IsNull("KindID") ? null : (int?)Convert.ToInt32(row["KindID"])
                                  }))
                             {
+                                switch (Convert.ToInt32(row["TypeChange"]))
+                                {
+                                    case 2:
+                                        Shared.Barcodes1C.RemovedBarcode(row.IsNull("KindID") ? null : (int?)Convert.ToInt32(row["KindID"]));
+                                        break;
+                                    case 0:
+                                        Shared.Barcodes1C.AddedBarcode(row.IsNull("KindID") ? null : (int?)Convert.ToInt32(row["KindID"]));
+                                        break;
+                                }
                                 if (previousDate != Convert.ToDateTime(row["DateChange"]))
                                 {
                                     ret = previousDate;//возвращаем время последней удачно записанной строки с предыдущим временем (чтобы если несколько изменений в один момент и произойдет сбой, то все эти записи этого момента кешировались повторно) 

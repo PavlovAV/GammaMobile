@@ -292,8 +292,8 @@ namespace gamma_mob.Common
         {
             Shared.DeleteOldUploadedToServerLogs();
             return !(Shared.Barcodes1C == null || Shared.PlaceZones == null || Shared.Warehouses == null || Shared.PlaceZones == null
-                || Shared.MaxAllowedPercentBreak == null || Shared.TimerPeriodForBarcodesUpdate == null || Shared.TimerPeriodForUnloadOfflineProducts == null 
-                || Shared.ScannedBarcodes == null || Shared.TimerForBarcodesUpdate == null);
+                || Shared.MaxAllowedPercentBreak == null || Shared.TimerPeriodForBarcodesUpdate == null || Shared.TimerPeriodForUnloadOfflineProducts == null
+                || Shared.Barcodes1C.InitCountBarcodes() == null || Shared.ScannedBarcodes == null || Shared.TimerForBarcodesUpdate == null);
         }
 
         public static string _logFile { get; private set; }

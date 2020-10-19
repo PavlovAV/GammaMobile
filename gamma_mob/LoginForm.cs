@@ -53,6 +53,20 @@ namespace gamma_mob
             BarcodeFunc = AuthorizeByBarcode;
             try
             {
+                Shared.SaveToLog("Version " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version);
+                Shared.SaveToLog("Model " + Datalogic.API.Device.GetModel().ToString());
+                var strHostName = Dns.GetHostName();
+                Shared.SaveToLog("HostName " + strHostName);
+
+                IPHostEntry ipEntry = Dns.GetHostByName(strHostName);
+                IPAddress[] addr = ipEntry.AddressList;
+                string ipAdress = "";
+                for (int i = 0; i < addr.Length; i++)
+                {
+                    ipAdress = ipAdress+ "   " + i.ToString() + ": " + addr[i].ToString();
+                }
+                Shared.SaveToLog("IpAdress " + ipAdress);
+
                 var cerdispProcess = GetProcessRunning(@"cerdisp");
                 if (cerdispProcess != null)
                 {
@@ -62,7 +76,7 @@ namespace gamma_mob
                 {
                     btnExecRDP.Text = "Запуск RDP";
                 }
-
+                
             }
             catch
             {

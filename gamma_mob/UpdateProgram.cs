@@ -9,6 +9,7 @@ using System.Data;
 using System.Windows.Forms;
 using OpenNETCF.Windows.Forms;
 using System.Threading;
+using System.Runtime.InteropServices;
 
 namespace gamma_mob
 {
@@ -16,7 +17,30 @@ namespace gamma_mob
     {
         private static readonly string program = @"gamma_mob";
         private static readonly string executablePath = Application2.StartupPath + @"\";
-        private static readonly string updatePath = @"\Temp\GammaUpdate\"; //executablePath + @"update\";
+        private static readonly string updateRootPath = @"\Temp\";
+        private static readonly string updatePath = updateRootPath + @"GammaUpdate\"; //executablePath + @"update\";
+
+        private static string errorMessage { get; set; }
+        public static string ErrorMessage
+        {
+            get
+            {
+                return errorMessage;
+            }
+            set
+            {
+                errorMessage = value;
+                try
+                {
+                    Db.AddMessageToLog(value);
+                }
+                catch (Exception err)
+                {
+                    // MessageBox.Show(err.Message);
+                }
+                                                
+            }
+        }
 
         private static bool isNeededRebootingProgram { get; set; }
 
@@ -270,9 +294,17 @@ namespace gamma_mob
                 //Console.WriteLine("Ошибка! Файл '{0}' не обработан!", file.Title);
             }
         }
+        [DllImport("coredll.dll", SetLastError = true, CharSet = CharSet.Auto)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        static extern bool GetDiskFreeSpaceEx(string lpDirectoryName,
+        out ulong lpFreeBytesAvailable,
+        out ulong lpTotalNumberOfBytes,
+        out ulong lpTotalNumberOfFreeBytes);
 
         public static void LoadUpdate(object obj)
         {
+            
+            
             if (!CheckAndCreateFlagUpdateLoading())
             {
                 if (ConnectionState.CheckConnection() && Db.CheckSqlConnection() == 0)
@@ -283,7 +315,7 @@ namespace gamma_mob
                         using (SqlConnection connection = new SqlConnection(connectionString))
                         {
                             connection.Open();
-                            string sql = "SELECT FileID, DirName, FileName, Title, MD5, Action, CommandTimeOut FROM vRepositoryOfProgramFiles WHERE ProgramName = @Program";
+                            string sql = "SELECT FileID, DirName, FileName, Title, MD5, Action, CommandTimeOut, FileSize FROM vRepositoryOfProgramFiles WHERE ProgramName = @Program";
                             SqlCommand command = new SqlCommand(sql, connection);
                             command.Parameters.Add("@Program", SqlDbType.NVarChar, 50);
                             command.Parameters["@Program"].Value = program;
@@ -301,31 +333,59 @@ namespace gamma_mob
                                         string md5 = reader.GetString(4);
                                         bool action = (bool)reader.GetValue(5);
                                         string timeout = reader.GetString(6);
-
-                                        FileOfRepositary file = new FileOfRepositary(id, dirname, filename, title, image, md5, action);
-                                        //LoadFile(file);
-                                        if (CheckFile(file))
+                                        Int32 fileSize = (Int32)reader.GetValue(7);
+                                        bool isFreeSpace = true;
+                                        try
                                         {
-                                            if (file.Action)
-                                            using (SqlConnection connection_image = new SqlConnection(connectionString))
+                                            UInt64 userFreeBytes, totalDiskBytes, totalFreeBytesExecutable, totalFreeBytesUpdatable;
+                                        
+                                            GetDiskFreeSpaceEx(executablePath, out userFreeBytes, out totalDiskBytes, out totalFreeBytesExecutable);
+                                            GetDiskFreeSpaceEx(updateRootPath, out userFreeBytes, out totalDiskBytes, out totalFreeBytesUpdatable);
+                                            if (totalFreeBytesExecutable <= (ulong)fileSize || totalFreeBytesUpdatable <= (ulong)fileSize)
                                             {
-                                                connection_image.Open();
-                                                string sql_image = "SELECT Image FROM vRepositoryOfProgramFiles WHERE FileID = @FileID";
-                                                SqlCommand command_image = new SqlCommand(sql_image, connection_image);
-                                                command_image.CommandTimeout = Convert.ToInt32(timeout);
-                                                command_image.Parameters.Add("@FileID", SqlDbType.Int);
-                                                command_image.Parameters["@FileID"].Value = file.Id;
-                                                SqlDataReader reader_image = command_image.ExecuteReader();
-                                                if (reader_image.Read())
-                                                {
-                                                    file.Image = (byte[])reader_image.GetValue(0);
-                                                }
-                                                reader_image.Close();
+                                            //MessageBox.Show("Нет места для обновления " + Environment.NewLine +
+                                            //    filename + Environment.NewLine + "Требуется " + fileSize.ToString() +
+                                            //    Environment.NewLine + "Доступно " + totalFreeBytesExecutable.ToString() + "/" +
+                                            //    totalFreeBytesUpdatable.ToString());
+                                                ErrorMessage = "Нет места для обновления " + 
+                                                filename +  " Требуется " + fileSize.ToString() +
+                                                 " Доступно " + totalFreeBytesExecutable.ToString() + "/" +
+                                                totalFreeBytesUpdatable.ToString();
+                                                isFreeSpace = false;
                                             }
-                                            SaveFile(file);
-                                            //MessageBox.Show("Файл успешно скачан для обновления с БД! " + file_name);
+                                        }
+                                        catch
+                                        {
+
                                         }
 
+                                        if (isFreeSpace)
+                                        {
+                                            FileOfRepositary file = new FileOfRepositary(id, dirname, filename, title, image, md5, action);
+
+                                            //LoadFile(file);
+                                            if (CheckFile(file))
+                                            {
+                                                if (file.Action)
+                                                    using (SqlConnection connection_image = new SqlConnection(connectionString))
+                                                    {
+                                                        connection_image.Open();
+                                                        string sql_image = "SELECT Image FROM vRepositoryOfProgramFiles WHERE FileID = @FileID";
+                                                        SqlCommand command_image = new SqlCommand(sql_image, connection_image);
+                                                        command_image.CommandTimeout = Convert.ToInt32(timeout);
+                                                        command_image.Parameters.Add("@FileID", SqlDbType.Int);
+                                                        command_image.Parameters["@FileID"].Value = file.Id;
+                                                        SqlDataReader reader_image = command_image.ExecuteReader();
+                                                        if (reader_image.Read())
+                                                        {
+                                                            file.Image = (byte[])reader_image.GetValue(0);
+                                                        }
+                                                        reader_image.Close();
+                                                    }
+                                                SaveFile(file);
+                                                //MessageBox.Show("Файл успешно скачан для обновления с БД! " + file_name);
+                                            }
+                                        }
                                     }
                                     catch (Exception ex)
                                     {

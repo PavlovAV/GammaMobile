@@ -291,12 +291,12 @@ namespace gamma_mob.Common
         public static bool InitializationData()
         {
             Shared.DeleteOldUploadedToServerLogs();
-            return !(Shared.Barcodes1C == null || Shared.PlaceZones == null || Shared.Warehouses == null || Shared.PlaceZones == null
+            return !(Shared.Barcodes1C == null || Shared.PlaceZones == null || Shared.Warehouses == null || Shared.PlaceZones == null || Shared.Barcodes1C.UpdateBarcodes(true) == null/*Shared.Barcodes1C.InitCountBarcodes() == null ||*/
                 || Shared.MaxAllowedPercentBreak == null || Shared.TimerPeriodForBarcodesUpdate == null || Shared.TimerPeriodForUnloadOfflineProducts == null
-                || Shared.Barcodes1C.InitCountBarcodes() == null || Shared.ScannedBarcodes == null || Shared.TimerForBarcodesUpdate == null);
+                || Shared.ScannedBarcodes == null );// // Shared.TimerForBarcodesUpdate == null);
         }
 
-        public static string _logFile { get; private set; }
+        //public static string _logFile { get; private set; }
 
         public static bool IsLocalDateTimeUpdated { get; private set; }
 
@@ -411,7 +411,7 @@ namespace gamma_mob.Common
             SetSystemTime(ref systime);
 
             IsLocalDateTimeUpdated = true;
-            _logFile = Path.Combine(Application2.StartupPath + @"\", string.Format("{0:yyyMMdd}.log", DateTime.Now));
+            /*_logFile = Path.Combine(Application2.StartupPath + @"\", string.Format("{0:yyyMMdd}.log", DateTime.Now));
             try
             {
                 if (!File.Exists(_logFile)) // may have to specify path here!
@@ -423,7 +423,7 @@ namespace gamma_mob.Common
             catch (Exception err)
             {
                 MessageBox.Show(err.Message);
-            }
+            }*/
             
         }
 
@@ -513,7 +513,7 @@ namespace gamma_mob.Common
         public static object lockerForBarcodesUpdate = new object();
 
         private static System.Threading.Timer _timerForBarcodesUpdate { get; set; }
-        private static System.Threading.Timer TimerForBarcodesUpdate
+        public static System.Threading.Timer TimerForBarcodesUpdate
         {
             get
             {

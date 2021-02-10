@@ -28,7 +28,12 @@ namespace gamma_mob
                 //btnInventarisation.Visible = true;
             }
             lblUserInfo.Text = "Логин: " + Settings.UserName + " (" + Shared.PersonName + ")";
-            Shared.SaveToLog(@" Локальные база ШК " + Shared.Barcodes1C.GetCountBarcodes + "; посл.обн " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodes.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            if (Shared.TimerForBarcodesUpdate == null)
+            {
+                MessageBox.Show(@"Внимание! Не запущена автоматическая" + Environment.NewLine + @"загрузка штрих-кодов.");
+                Shared.SaveToLog(@"Внимание! Не запущена автоматическая загрузка штрих-кодов.");
+            }
+            Shared.SaveToLog(@"Локальные база ШК " + Shared.Barcodes1C.GetCountBarcodes + "; посл.обн " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodesMoscowTimeZone.ToString(System.Globalization.CultureInfo.InvariantCulture));
                         
  //           var mFilter = new InactivityFilter(100);
             //mFilter.InactivityElapsed += m_filter_InactivityElapsed;
@@ -151,10 +156,13 @@ namespace gamma_mob
                             endPointInfo = form.EndPointInfo;
                         }
                         var docMovementForm = new DocMovementForm(this, DocDirection.DocOutIn, endPointInfo.PlaceId);
-                        docMovementForm.Text = "Перем-е на " + endPointInfo.PlaceName;
-                        if (docMovementForm != null && !docMovementForm.IsDisposed)
+                        if (docMovementForm.Text != "Ошибка при обновлении с сервера!")
                         {
-                            DialogResult result = docMovementForm.ShowDialog();
+                            docMovementForm.Text = "Перем-е на " + endPointInfo.PlaceName;
+                            if (docMovementForm != null && !docMovementForm.IsDisposed)
+                            {
+                                DialogResult result = docMovementForm.ShowDialog();
+                            }
                         }
                         ////docMovementForm.Show();
                         ////if (docMovementForm.Enabled)
@@ -294,6 +302,42 @@ namespace gamma_mob
                 var InfoProduct = new InfoProductForm(this);
                 DialogResult result = InfoProduct.ShowDialog();
             }
+        }
+
+        private void btnDocTransfer_Click(object sender, EventArgs e)
+        {
+            Cursor.Current = Cursors.WaitCursor;
+            if (ConnectionState.CheckConnection())
+            {
+                switch (Db.CheckSqlConnection())
+                {
+                    case 2:
+                        MessageBox.Show(@"Нет связи с БД. Повторите попытку в зоне покрытия WiFi" + Environment.NewLine + ConnectionState.GetConnectionState(),
+                                        @"Отсутствует WiFi", MessageBoxButtons.OK, MessageBoxIcon.Hand,
+                                        MessageBoxDefaultButton.Button1);
+                        break;
+                    case 1:
+                        WrongUserPass();
+                        break;
+                    default:
+                        var docOrders = new DocOrdersForm(this, DocDirection.DocOutIn);
+                        if (docOrders != null && !docOrders.IsDisposed)
+                        {
+                            DialogResult result = docOrders.ShowDialog();
+                        }
+                        //docOrders.Show();
+                        //if (docOrders.Enabled)
+                        //    Hide();
+                        break;
+                }
+            }
+            else
+            {
+                MessageBox.Show(@"Нет связи с БД. Повторите попытку в зоне покрытия WiFi" + Environment.NewLine + ConnectionState.GetConnectionState(),
+                                @"Отсутствует WiFi", MessageBoxButtons.OK, MessageBoxIcon.Hand,
+                                MessageBoxDefaultButton.Button1);
+            }
+            Cursor.Current = Cursors.Default;
         }
 
         

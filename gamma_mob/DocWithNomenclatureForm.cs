@@ -60,7 +60,10 @@ namespace gamma_mob
                     Text = "Приказ № " + orderNumber;
                     break;
                 case OrderType.InternalOrder:
-                    Text = "Внутренний заказ № " + orderNumber;
+                    Text = "Внутрен. заказ № " + orderNumber;
+                    break;
+                case OrderType.MovementOrder:
+                    Text = "Заказ на перем.№ " + orderNumber;
                     break;
             }
             var tableStyle = new DataGridTableStyle {MappingName = BSource.GetListName(null)};
@@ -381,7 +384,7 @@ namespace gamma_mob
 
                     if (getProductResult == null || getProductResult.ProductKindId == null || (getProductResult.ProductKindId != 3 && (getProductResult.ProductId == null || getProductResult.ProductId == Guid.Empty)))
                     {
-                        Shared.SaveToLog(@"Продукция не найдена по ШК! " + barcode + " (Локальные база ШК " + Shared.Barcodes1C.GetCountBarcodes + "; посл.обн " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodes.ToString(System.Globalization.CultureInfo.InvariantCulture) + ")");
+                        Shared.SaveToLog(@"Продукция не найдена по ШК! " + barcode + " (Локальные база ШК " + Shared.Barcodes1C.GetCountBarcodes + "; посл.обн " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodesMoscowTimeZone.ToString(System.Globalization.CultureInfo.InvariantCulture) + ")");
                         MessageBox.Show(@"Продукция не найдена по ШК!", @"Продукция не найдена",
                                         MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
                     }

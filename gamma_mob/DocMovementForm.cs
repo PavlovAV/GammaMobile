@@ -79,27 +79,34 @@ namespace gamma_mob
             AcceptedProducts = new BindingList<MovementProduct>();
 
             GetLastMovementProducts();
-
-            var tableStyle = new DataGridTableStyle {MappingName = BSource.GetListName(null)};
-            tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
+                var tableStyle = new DataGridTableStyle { MappingName = BSource.GetListName(null) };
+                tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
+                    {
+                        HeaderText = "Номенклатура",
+                        MappingName = "ShortNomenclatureName",
+                        Width = 175
+                    });
+                tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
+                    {
+                        HeaderText = "Кол-во",
+                        MappingName = "CollectedQuantityComputedColumn",
+                        Width = 38,
+                        Format = "0.###"
+                    });
+                gridDocAccept.TableStyles.Add(tableStyle);
+                //Barcodes1C = Db.GetBarcodes1C();
+                //Shared.RefreshBarcodes1C();
+                if (BSource == null)
                 {
-                    HeaderText = "Номенклатура",
-                    MappingName = "ShortNomenclatureName",
-                    Width = 175
-                });
-            tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
+                    MessageBox.Show(@"Внимание! Ошибка при обновлении с сервера." + Environment.NewLine + @"Попробуйте еще раз.");
+                    Text = "Ошибка при обновлении с сервера!";
+                }
+                else
                 {
-                    HeaderText = "Кол-во",
-                    MappingName = "CollectedQuantityComputedColumn",
-                    Width = 38,
-                    Format = "0.###"
-                });
-            gridDocAccept.TableStyles.Add(tableStyle);
-            //Barcodes1C = Db.GetBarcodes1C();
-            //Shared.RefreshBarcodes1C();
-            if (!Shared.InitializationData()) MessageBox.Show(@"Внимание! Не обновлены" + Environment.NewLine + @" данные с сервера.");
-            if (Shared.TimerForUnloadOfflineProducts == null) MessageBox.Show(@"Внимание! Не запущена автоматическая" + Environment.NewLine + @"выгрузка на сервер.");
-            OnUpdateBarcodesIsNotUploaded();
+                    if (!Shared.InitializationData()) MessageBox.Show(@"Внимание! Не обновлены" + Environment.NewLine + @" данные с сервера.");
+                    if (Shared.TimerForUnloadOfflineProducts == null) MessageBox.Show(@"Внимание! Не запущена автоматическая" + Environment.NewLine + @"выгрузка на сервер.");
+                    OnUpdateBarcodesIsNotUploaded();
+                }
         }
 
         private DocDirection DocDirection { get; set; }
@@ -244,7 +251,7 @@ namespace gamma_mob
                     if (getProductResult == null || getProductResult.ProductKindId == null || (getProductResult.ProductKindId != 3 && (getProductResult.ProductId == null || getProductResult.ProductId == Guid.Empty)))
                     {
                         SetIsLastScanedBarcodeZone(true, null);
-                        Shared.SaveToLog(@"Продукция не найдена по ШК! " + barcode + " (Локальные база ШК " + Shared.Barcodes1C.GetCountBarcodes + "; посл.обн " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodes.ToString(System.Globalization.CultureInfo.InvariantCulture) + ")");
+                        Shared.SaveToLog(@"Продукция не найдена по ШК! " + barcode + " (Локальные база ШК " + Shared.Barcodes1C.GetCountBarcodes + "; посл.обн " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodesMoscowTimeZone.ToString(System.Globalization.CultureInfo.InvariantCulture) + ")");
                         MessageBox.Show(@"Продукция не найдена по ШК!", @"Продукция не найдена",
                                         MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
                     }

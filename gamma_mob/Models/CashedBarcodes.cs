@@ -11,27 +11,29 @@ namespace gamma_mob.Models
         public CashedBarcodes()
         {
             lastUpdatedTimeBarcodes = Db.GetLastUpdatedTimeBarcodes();
-            if (lastUpdatedTimeBarcodes < Convert.ToDateTime("2020/10/12"))
+            if (lastUpdatedTimeBarcodes < Convert.ToDateTime("2021/02/10"))
             {
-                Shared.SaveToLog("lastUpdatedTimeBarcodes < 20201012 => " + lastUpdatedTimeBarcodes.ToString());
-                lastUpdatedTimeBarcodes = Convert.ToDateTime("2020/10/12");
+                Shared.SaveToLog("lastUpdatedTimeBarcodes < 20210210 => " + lastUpdatedTimeBarcodes.ToString());
+                lastUpdatedTimeBarcodes = Convert.ToDateTime("2021/02/10");
             }
 //#if DEBUG
-//            lastUpdatedTimeBarcodes = Convert.ToDateTime("2020/10/14 12:00:00");
+//            lastUpdatedTimeBarcodes = Convert.ToDateTime("2021/02/10 09:00:00");
 //#endif
-            UpdateBarcodes(true);
+            //InitCountBarcodes();
+            //UpdateBarcodes(true);
         }
 
-        public CashedBarcodes(DateTime date)
-        {
-            lastUpdatedTimeBarcodes = Db.GetLastUpdatedTimeBarcodes();
-            if (lastUpdatedTimeBarcodes < Convert.ToDateTime("2020/10/12"))
-            {
-                Shared.SaveToLog("lastUpdatedTimeBarcodes < 20201012 => " + lastUpdatedTimeBarcodes.ToString());
-                lastUpdatedTimeBarcodes = Convert.ToDateTime("2020/10/12");
-            }
-            UpdateBarcodes(date, true);
-        }
+        //public CashedBarcodes(DateTime date)
+        //{
+        //    lastUpdatedTimeBarcodes = Db.GetLastUpdatedTimeBarcodes();
+        //    if (lastUpdatedTimeBarcodes < Convert.ToDateTime("2021/02/10"))
+        //    {
+        //        Shared.SaveToLog("lastUpdatedTimeBarcodes < 20210210 => " + lastUpdatedTimeBarcodes.ToString());
+        //        lastUpdatedTimeBarcodes = Convert.ToDateTime("2021/02/10");
+        //    }
+        //    //InitCountBarcodes();
+        //    //UpdateBarcodes(date, true);
+        //}
 
 
         public bool UpdateBarcodes(bool isFirst)
@@ -62,16 +64,37 @@ namespace gamma_mob.Models
             }
         }
 
-        public DateTime GetLastUpdatedTimeBarcodes
+        public DateTime GetLastUpdatedTimeBarcodesMoscowTimeZone
         {
             get
             {
-                return lastUpdatedTimeBarcodes;
+                return lastUpdatedTimeBarcodes.AddHours(3);
             }
         }
 
-        private static int? countBarcodeNomenclatures { get; set; }
-        private static int? countBarcodeProducts { get; set; }
+        private static int? countBarcodeNomenclatures 
+        {
+            get
+            {
+                return Db.GetCountBarcodeNomenclatures();
+            }
+            set
+            {
+                Db.SetCountBarcodeNomenclatures(value);
+            }
+        }
+
+        private static int? countBarcodeProducts
+        {
+            get
+            {
+                return Db.GetCountBarcodeProducts();
+            }
+            set
+            {
+                Db.SetCountBarcodeProducts(value);
+            }
+        }
 
         public void AddedBarcode(int? kindId)
         {

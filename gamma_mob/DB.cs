@@ -197,6 +197,29 @@ namespace gamma_mob
                         empComBarcodes.ExecuteNonQuery();
                     }
 
+                    if (!ColumnCeExists(empConBarcodes, "Settings", "CountBarcodeNomenclatures"))
+                    {
+                        strQuery = "ALTER TABLE Settings ADD CountBarcodeNomenclatures int";
+                        empComBarcodes.CommandText = strQuery;
+                        empComBarcodes.ExecuteNonQuery();
+                    }
+                    if (!ColumnCeExists(empConBarcodes, "Settings", "CountBarcodeProducts"))
+                    {
+                        strQuery = "ALTER TABLE Settings ADD CountBarcodeProducts int";
+                        empComBarcodes.CommandText = strQuery;
+                        empComBarcodes.ExecuteNonQuery();
+                    }
+
+                    if (!ColumnCeExists(empConBarcodes, "Settings", "DatabaseCreateTime"))
+                    {
+                        strQuery = "ALTER TABLE Settings ADD column DatabaseCreateTime datetime";
+                        empComBarcodes.CommandText = strQuery;
+                        empComBarcodes.ExecuteNonQuery();
+                        strQuery = "UPDATE Settings SET DatabaseCreateTime = GETDATE()";
+                        empComBarcodes.CommandText = strQuery;
+                        empComBarcodes.ExecuteNonQuery();
+                    }
+
                     if (!TableCeExists(empConLog, "Logs"))
                     {
                         strQuery = "CREATE TABLE Logs (LogId uniqueidentifier default newid() PRIMARY KEY,LogDate DateTime default GetDate(),Log nvarchar(1000),Barcode nvarchar(100), UserName nvarchar(250), PersonId uniqueidentifier, PlaceId int, DocTypeId int, IsUploaded bit, DocId uniqueidentifier, PlaceZoneId uniqueidentifier, ToDelete bit default (0), IsDeleted bit default (0), ProductId uniqueidentifier, ProductKindId int, NomenclatureId uniqueidentifier, CharacteristicId uniqueidentifier, QualityId uniqueidentifier, Quantity int, IsUploadedToServer bit default (0))";
@@ -415,6 +438,65 @@ namespace gamma_mob
             return ExecuteCeNonQuery(sql, parameters, CommandType.Text, ConnectServerCe.BarcodesServer);
         }
 
+        public static int? GetCountBarcodeNomenclatures()
+        {
+            int? ret = 0;
+            const string sql = "SELECT CountBarcodeNomenclatures FROM Settings";
+            var parameters = new List<SqlCeParameter>();
+            using (DataTable table = ExecuteCeSelectQuery(sql, parameters, CommandType.Text, ConnectServerCe.BarcodesServer))
+            {
+                if (table != null && table.Rows.Count > 0)
+                {
+                    DataRow row = table.Rows[0];
+                    ret = row.IsNull("CountBarcodeNomenclatures") ? null : (int?)Convert.ToInt32(row["CountBarcodeNomenclatures"]);
+                }
+            }
+            return ret;
+        }
+        
+        public static bool SetCountBarcodeNomenclatures(int? value)
+        {
+            const string sql = "UPDATE Settings SET CountBarcodeNomenclatures = @Value";
+
+            var parameters = new List<SqlCeParameter>();
+            SqlCeParameter p = new SqlCeParameter();
+            p.ParameterName = "@Value";
+            p.DbType = DbType.Int32;
+            p.Value = value ?? 0;
+            parameters.Add(p);
+
+            return ExecuteCeNonQuery(sql, parameters, CommandType.Text, ConnectServerCe.BarcodesServer);
+        }
+
+        public static int? GetCountBarcodeProducts()
+        {
+            int? ret = 0;
+            const string sql = "SELECT CountBarcodeProducts FROM Settings";
+            var parameters = new List<SqlCeParameter>();
+            using (DataTable table = ExecuteCeSelectQuery(sql, parameters, CommandType.Text, ConnectServerCe.BarcodesServer))
+            {
+                if (table != null && table.Rows.Count > 0)
+                {
+                    DataRow row = table.Rows[0];
+                    ret = row.IsNull("CountBarcodeProducts") ? null : (int?)Convert.ToInt32(row["CountBarcodeProducts"]);
+                }
+            }
+            return ret;
+        }
+
+        public static bool SetCountBarcodeProducts(int? value)
+        {
+            const string sql = "UPDATE Settings SET CountBarcodeProducts = @Value";
+
+            var parameters = new List<SqlCeParameter>();
+            SqlCeParameter p = new SqlCeParameter();
+            p.ParameterName = "@Value";
+            p.DbType = DbType.Int32;
+            p.Value = value ?? 0;
+            parameters.Add(p);
+
+            return ExecuteCeNonQuery(sql, parameters, CommandType.Text, ConnectServerCe.BarcodesServer);
+        }
 
         public static bool UpdateBarcodes1C(CashedBarcode item)
         {
@@ -424,6 +506,7 @@ namespace gamma_mob
                 switch (item.TypeChange)
                 {
                     case 2:
+                        
                         var parameters2 = new List<SqlCeParameter>();
 
                         SqlCeParameter p26 = new SqlCeParameter();
@@ -432,8 +515,9 @@ namespace gamma_mob
                         p26.Value = item.BarcodeId;
                         parameters2.Add(p26);
                         string sql2 = "DELETE Barcodes WHERE BarcodeId = @BarcodeID";
-                        return ExecuteCeNonQuery(sql2, parameters2, CommandType.Text, ConnectServerCe.BarcodesServer);
-
+                        var ret2 = ExecuteCeNonQuery(sql2, parameters2, CommandType.Text, ConnectServerCe.BarcodesServer);
+                        Shared.Barcodes1C.RemovedBarcode(item.KindId);
+                        return ret2;
                         break;
                     case 0:
 
@@ -485,8 +569,9 @@ namespace gamma_mob
                         p08.Value = (item.KindId as object) ?? DBNull.Value;
                         parameters0.Add(p08);
                         string sql0 = "INSERT INTO Barcodes (Barcode, Name, NomenclatureID, CharacteristicID, QualityID, MeasureUnitID, BarcodeID, Number, KindId) VALUES (@Barcode, @Name, @NomenclatureID, @CharacteristicID, @QualityID, @MeasureUnitID, @BarcodeID, @Number, @KindID)";
-
-                        return ExecuteCeNonQuery(sql0, parameters0, CommandType.Text, ConnectServerCe.BarcodesServer);
+                        var ret0 = ExecuteCeNonQuery(sql0, parameters0, CommandType.Text, ConnectServerCe.BarcodesServer);
+                        Shared.Barcodes1C.AddedBarcode(item.KindId);
+                        return ret0;
                         break;
                     case 1:
 
@@ -1220,7 +1305,11 @@ namespace gamma_mob
                         },
                     new SqlParameter("@IsOutOrders", SqlDbType.Bit)
                         {
-                            Value = docDirection != DocDirection.DocIn
+                            Value = docDirection == DocDirection.DocOut
+                        },
+                    new SqlParameter("@DocDirection", SqlDbType.Bit)
+                        {
+                            Value = docDirection
                         }
                 };
             using (DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure))
@@ -1235,6 +1324,8 @@ namespace gamma_mob
                             DocOrderId = new Guid(row["1COrderID"].ToString()),
                             Number = row["Number"].ToString(),
                             Consignee = row["Consignee"].ToString(),
+                            OutPlaceName = row["OutPlaceShortName"].ToString(),
+                            InPlaceName = row["InPlaceShortName"].ToString(),
                             OrderType = (OrderType)Convert.ToInt32(row["OrderKindID"])
                         });
                     }
@@ -1462,7 +1553,8 @@ namespace gamma_mob
                     sql = "SELECT * FROM v1COrderGoods WHERE DocOrderID = @DocID";
                     break;
                 case OrderType.MovementOrder:
-                    sql = "SELECT * FROM vDocMovementOrders WHERE DocOrderID = @DocID";
+                    sql = "SELECT * FROM v1COrderGoods WHERE DocOrderID = @DocID";
+                    //sql = "SELECT * FROM vDocMovementOrders WHERE DocOrderID = @DocID";
                     break;
             }
                 
@@ -3184,9 +3276,9 @@ namespace gamma_mob
                 if (table == null || table.Rows.Count == 0)
                 {
                     if (!Shared.LastCeQueryCompleted)
-                        Shared.SaveToLog(@"Ошибка при поиске в локальной БД " + barcode + " (Локальные база ШК " + Shared.Barcodes1C.GetCountBarcodes + "; посл.обн " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodes.ToString(System.Globalization.CultureInfo.InvariantCulture) + ")");
+                        Shared.SaveToLog(@"Ошибка при поиске в локальной БД " + barcode + " (Локальные база ШК " + Shared.Barcodes1C.GetCountBarcodes + "; посл.обн " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodesMoscowTimeZone.ToString(System.Globalization.CultureInfo.InvariantCulture) + ")");
                     else
-                        Shared.SaveToLog(@"Не найден в локальной БД " + barcode + " (Локальные база ШК "+ Shared.Barcodes1C.GetCountBarcodes +  "; посл.обн " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodes.ToString(System.Globalization.CultureInfo.InvariantCulture) + ")");
+                        Shared.SaveToLog(@"Не найден в локальной БД " + barcode + " (Локальные база ШК " + Shared.Barcodes1C.GetCountBarcodes + "; посл.обн " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodesMoscowTimeZone.ToString(System.Globalization.CultureInfo.InvariantCulture) + ")");
                     const string sqlDB = "dbo.mob_GetNomenclatureCharacteristicQualityFromBarcode";
                     var parametersDB = new List<SqlParameter>
                     {
@@ -3199,9 +3291,9 @@ namespace gamma_mob
                     if (table == null || table.Rows.Count == 0)
                     {
                         if (!Shared.LastCeQueryCompleted)
-                            Shared.SaveToLog(@"Ошибка при поиске в серверной БД " + barcode + " (Локальные база ШК " + Shared.Barcodes1C.GetCountBarcodes + "; посл.обн " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodes.ToString(System.Globalization.CultureInfo.InvariantCulture) + ")");
+                            Shared.SaveToLog(@"Ошибка при поиске в серверной БД " + barcode + " (Локальные база ШК " + Shared.Barcodes1C.GetCountBarcodes + "; посл.обн " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodesMoscowTimeZone.ToString(System.Globalization.CultureInfo.InvariantCulture) + ")");
                         else
-                            Shared.SaveToLog(@"Не найден в серверной БД " + barcode + " (Локальные база ШК " + Shared.Barcodes1C.GetCountBarcodes + "; посл.обн " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodes.ToString(System.Globalization.CultureInfo.InvariantCulture) + ")");
+                            Shared.SaveToLog(@"Не найден в серверной БД " + barcode + " (Локальные база ШК " + Shared.Barcodes1C.GetCountBarcodes + "; посл.обн " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodesMoscowTimeZone.ToString(System.Globalization.CultureInfo.InvariantCulture) + ")");
                     }
                 }
                 if (table != null && table.Rows.Count > 0)
@@ -3396,15 +3488,15 @@ namespace gamma_mob
                                      KindId = row.IsNull("KindID") ? null : (int?)Convert.ToInt32(row["KindID"])
                                  }))
                             {
-                                switch (Convert.ToInt32(row["TypeChange"]))
-                                {
-                                    case 2:
-                                        Shared.Barcodes1C.RemovedBarcode(row.IsNull("KindID") ? null : (int?)Convert.ToInt32(row["KindID"]));
-                                        break;
-                                    case 0:
-                                        Shared.Barcodes1C.AddedBarcode(row.IsNull("KindID") ? null : (int?)Convert.ToInt32(row["KindID"]));
-                                        break;
-                                }
+                                //switch (Convert.ToInt32(row["TypeChange"]))
+                                //{
+                                //    case 2:
+                                //        Shared.Barcodes1C.RemovedBarcode(row.IsNull("KindID") ? null : (int?)Convert.ToInt32(row["KindID"]));
+                                //        break;
+                                //    case 0:
+                                //        Shared.Barcodes1C.AddedBarcode(row.IsNull("KindID") ? null : (int?)Convert.ToInt32(row["KindID"]));
+                                //        break;
+                                //}
                                 if (previousDate != Convert.ToDateTime(row["DateChange"]))
                                 {
                                     ret = previousDate;//возвращаем время последней удачно записанной строки с предыдущим временем (чтобы если несколько изменений в один момент и произойдет сбой, то все эти записи этого момента кешировались повторно) 

@@ -30,6 +30,19 @@ namespace gamma_mob
             btnEdit.ImageIndex = (int) Images.Edit;
             btnRefresh.ImageIndex = (int) Images.Refresh;
             btnInfoProduct.ImageIndex = (int) Images.InfoProduct;
+            switch (DocDirection)
+            {
+                case DocDirection.DocOut:
+                    Text = "Отгрузка";
+                    break;
+                case DocDirection.DocIn:
+                    Text = "Приемка";
+                    break;
+                case DocDirection.DocOutIn:
+                    Text = "Заказы на перемещение";
+                    break;
+            }
+
             GetDocOrders();
             gridDocShipmentOrders.DataSource = BSource;
             var tableStyle = new DataGridTableStyle {MappingName = BSource.GetListName(null)};
@@ -40,21 +53,48 @@ namespace gamma_mob
                 });
             tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
                 {
+                    MappingName = "OrderType",
+                    Width = -1
+                });
+            tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
+                {
                     HeaderText = "Номер",
                     MappingName = "Number",
                     Width = 80
                 });
-            tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
-                {
-                    HeaderText = "Получатель",
-                    MappingName = "Consignee",
-                    Width = 140
-                });
-            tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
-                {
-                    MappingName = "OrderType",
-                    Width = -1
-                });
+            switch (DocDirection)
+            {
+                case DocDirection.DocOut:
+                    tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
+                    {
+                        HeaderText = "Получатель",
+                        MappingName = "Consignee",
+                        Width = 140
+                    });
+                    break;
+                case DocDirection.DocIn:
+                    tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
+                    {
+                        HeaderText = "Получатель",
+                        MappingName = "Consignee",
+                        Width = 140
+                    });
+                    break;
+                case DocDirection.DocOutIn:
+                    tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
+                    {
+                        HeaderText = "Откуда",
+                        MappingName = "OutPlaceName",
+                        Width = 70
+                    });
+                    tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
+                    {
+                        HeaderText = "Куда",
+                        MappingName = "InPlaceName",
+                        Width = 70
+                    });
+                    break;
+            }
             gridDocShipmentOrders.TableStyles.Add(tableStyle);
             //Shared.RefreshBarcodes1C();
         }
@@ -81,8 +121,8 @@ namespace gamma_mob
             if (row >= 0)
             {
             var id = new Guid(gridDocShipmentOrders[row, 0].ToString());
-            var orderType = (OrderType) Convert.ToInt32(gridDocShipmentOrders[row, 3]);
-            var docOrderForm = new DocWithNomenclatureForm(id, this, gridDocShipmentOrders[row, 1].ToString(),
+            var orderType = (OrderType) Convert.ToInt32(gridDocShipmentOrders[row, 1]);
+            var docOrderForm = new DocWithNomenclatureForm(id, this, gridDocShipmentOrders[row, 2].ToString(),
                 orderType, DocDirection, Shared.MaxAllowedPercentBreak);
             docOrderForm.Show();
             if (!docOrderForm.IsDisposed && docOrderForm.Enabled)

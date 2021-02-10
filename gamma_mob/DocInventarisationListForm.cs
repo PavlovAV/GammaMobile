@@ -17,7 +17,10 @@ namespace gamma_mob
         {
             ParentForm = parentForm;
             DocDirection = docDirection;
-
+            if (Shared.Barcodes1C.GetLastUpdatedTimeBarcodesMoscowTimeZone != null && (DateTime.Now - Shared.Barcodes1C.GetLastUpdatedTimeBarcodesMoscowTimeZone).TotalHours > 1)
+                MessageBox.Show("Локальная база штрих-кодов устарела! " + Environment.NewLine
+                    + "Последнее обновление - " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodesMoscowTimeZone.ToString(System.Globalization.CultureInfo.InvariantCulture) + Environment.NewLine
+                    + "Перезапустите программу для загрузки штрих-кодов!");
         }
 
         private DocDirection DocDirection { get; set; }

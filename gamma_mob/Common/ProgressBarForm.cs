@@ -79,6 +79,15 @@ namespace gamma_mob.Common
                          }))
                     {
                         retCount = index;
+                        //switch (Convert.ToInt32(row["TypeChange"]))
+                        //{
+                        //    case 2:
+                        //        Shared.Barcodes1C.RemovedBarcode(row.IsNull("KindID") ? null : (int?)Convert.ToInt32(row["KindID"]));
+                        //        break;
+                        //    case 0:
+                        //        Shared.Barcodes1C.AddedBarcode(row.IsNull("KindID") ? null : (int?)Convert.ToInt32(row["KindID"]));
+                        //        break;
+                        //} 
                         if (previousDate != Convert.ToDateTime(row["DateChange"]))
                         {
                             ret = previousDate;//возвращаем время последней удачно записанной строки с предыдущим временем (чтобы если несколько изменений в один момент и произойдет сбой, то все эти записи этого момента кешировались повторно) 

@@ -1307,7 +1307,7 @@ namespace gamma_mob
                         {
                             Value = docDirection == DocDirection.DocOut
                         },
-                    new SqlParameter("@DocDirection", SqlDbType.Bit)
+                    new SqlParameter("@DocDirection", SqlDbType.SmallInt)
                         {
                             Value = docDirection
                         }

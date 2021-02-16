@@ -7,5 +7,11 @@ namespace gamma_mob.Models
         public Guid PersonID { get; set; }
         public string Name { get; set; }
         public string UserName { get; set; }
+        public bool? b1 { get; set; }
+        public bool? b2 { get; set; }
+        public int? i1 { get; set; }
+        public int? i2 { get; set; }
+        public string s1 { get; set; }
+        public string s2 { get; set; }
     }
 }

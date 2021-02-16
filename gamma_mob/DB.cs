@@ -632,6 +632,22 @@ namespace gamma_mob
             return false;
         }
 
+        public static DateTime GetLocalDbBarcodesDateCreated()
+        {
+            DateTime ret = new DateTime() ;
+            const string sql = "SELECT DatabaseCreateTime FROM Settings";
+            var parameters = new List<SqlCeParameter>();
+            using (DataTable table = ExecuteCeSelectQuery(sql, parameters, CommandType.Text, ConnectServerCe.BarcodesServer))
+            {
+                if (table != null && table.Rows.Count > 0)
+                {
+                    DataRow row = table.Rows[0];
+                    ret = row.IsNull("DatabaseCreateTime") ? new DateTime() : Convert.ToDateTime(row["DatabaseCreateTime"]);
+                }
+            }
+            return ret;
+        }
+
         public static bool AddMessageToLog(Guid scanId, DateTime dateScanned, string barcode, int placeId, Guid? placeZoneId, int docTypeId, Guid? docId, bool isUploaded, Guid? productId, int? productKindId, Guid? nomenclatureId, Guid? characteristicId, Guid? qualityId, int? quantity)
         {
             string sql = (Db.ExistsMessageLogFromLogId(scanId))
@@ -1165,7 +1181,13 @@ namespace gamma_mob
                     {
                         PersonID = new Guid(row["PersonID"].ToString()),
                         Name = row["Name"].ToString(),
-                        UserName = row["UserName"].ToString()
+                        UserName = row["UserName"].ToString(),
+                        b1 = row.IsNull("b1") ? (bool?)null : Convert.ToBoolean(row["b1"]),
+                        b2 = row.IsNull("b2") ? (bool?)null : Convert.ToBoolean(row["b2"]),
+                        i1 = row.IsNull("i1") ? (int?)null : Convert.ToInt32(row["i1"]),
+                        i2 = row.IsNull("i2") ? (int?)null : (int?)Convert.ToInt32(row["i2"]),
+                        s1 = row.IsNull("s1") ? null : row["s1"].ToString(),
+                        s2 = row.IsNull("s2") ? null : row["s2"].ToString()
                     };
                 }
             }
@@ -3271,14 +3293,17 @@ namespace gamma_mob
             var parameters = new List<SqlCeParameter>();
             parameters.Add(p);
             DataTable table = null;
-            table = ExecuteCeSelectQuery(sql, parameters, CommandType.Text, ConnectServerCe.BarcodesServer);
+            if (Shared.IsFindBarcodeFromFirstLocalAndNextOnline)
+                table = ExecuteCeSelectQuery(sql, parameters, CommandType.Text, ConnectServerCe.BarcodesServer);
+            //if (table = ExecuteCeSelectQuery(sql, parameters, CommandType.Text, ConnectServerCe.BarcodesServer);
             {
                 if (table == null || table.Rows.Count == 0)
                 {
                     if (!Shared.LastCeQueryCompleted)
                         Shared.SaveToLog(@"Ошибка при поиске в локальной БД " + barcode + " (Локальные база ШК " + Shared.Barcodes1C.GetCountBarcodes + "; посл.обн " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodesMoscowTimeZone.ToString(System.Globalization.CultureInfo.InvariantCulture) + ")");
                     else
-                        Shared.SaveToLog(@"Не найден в локальной БД " + barcode + " (Локальные база ШК " + Shared.Barcodes1C.GetCountBarcodes + "; посл.обн " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodesMoscowTimeZone.ToString(System.Globalization.CultureInfo.InvariantCulture) + ")");
+                        if (Shared.IsFindBarcodeFromFirstLocalAndNextOnline)
+                            Shared.SaveToLog(@"Не найден в локальной БД " + barcode + " (Локальные база ШК " + Shared.Barcodes1C.GetCountBarcodes + "; посл.обн " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodesMoscowTimeZone.ToString(System.Globalization.CultureInfo.InvariantCulture) + ")");
                     const string sqlDB = "dbo.mob_GetNomenclatureCharacteristicQualityFromBarcode";
                     var parametersDB = new List<SqlParameter>
                     {

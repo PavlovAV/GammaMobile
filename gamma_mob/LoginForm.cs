@@ -182,7 +182,7 @@ namespace gamma_mob
                 ConnectionLost(@"Не определен логин." + Environment.NewLine + @"Обратитесь в техподдержку Гаммы!");
                 return;
             }
-
+            Shared.IsFindBarcodeFromFirstLocalAndNextOnline = (person.b1 ?? false);
             if (person.UserName.Contains("0"))
             {
                using (var form = new ChooseShiftDialog())
@@ -346,7 +346,8 @@ namespace gamma_mob
             {
                 btnHelp.Text = "Скрыть";
                 lblMessage.Font = new System.Drawing.Font("Tahoma", 10, System.Drawing.FontStyle.Regular);
-                lblMessage.Text = "Сервер: " + Settings.ServerIP + Environment.NewLine + "База данных: " + Settings.Database + Environment.NewLine + "Логин: " + Settings.UserName;
+                lblMessage.Text = "Версия: " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version + Environment.NewLine + "Сервер: " + Settings.ServerIP + Environment.NewLine + "БД/логин: " + Settings.Database + "/" + Settings.UserName;
+                lblMessage.Text = lblMessage.Text + Environment.NewLine + "БД ШК:" + Db.GetLocalDbBarcodesDateCreated().ToString(System.Globalization.CultureInfo.InvariantCulture);
                 btnExecRDP.Visible = true;
                 btnTestPing.Visible = true;
                 btnTestSQL.Visible = true;

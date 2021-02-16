@@ -52,6 +52,8 @@ namespace gamma_mob.Common
 
         public static int PlaceId { get; set; }
 
+        public static bool IsFindBarcodeFromFirstLocalAndNextOnline { get; set; }
+
         public static List<Warehouse> Warehouses
         {
             get

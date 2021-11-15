@@ -17,7 +17,7 @@ namespace gamma_mob
     {
         private static readonly string program = @"gamma_mob";
         private static readonly string executablePath = Application2.StartupPath + @"\";
-        private static readonly string updateRootPath = @"\Temp\";
+        private static readonly string updateRootPath = @"\FlashDisk\";
         private static readonly string updatePath = updateRootPath + @"GammaUpdate\"; //executablePath + @"update\";
 
         private static string errorMessage { get; set; }
@@ -389,7 +389,7 @@ namespace gamma_mob
                                     }
                                     catch (Exception ex)
                                     {
-                                        //Console.WriteLine("Ошибка при получении данных с БД!");
+                                        //Console.WriteLine("Ошибка при получении данных с БД! "+ file_name + ":" + ex.Message);
                                         //MessageBox.Show("Ошибка при получении данных с БД! " + file_name + ":" + ex.Message);
                                     }
                                     //files.Add(file);

@@ -67,10 +67,19 @@ namespace gamma_mob
         private static string ConnectionCeString (ConnectServerCe serverCe) 
         {
             {
-                var dbFileLog = Application2.StartupPath + @"\..\GammaDBLog.sdf";
-                var dbFileBarcodes = Application2.StartupPath + @"\..\GammaDBBarcodes.sdf";
-                
-                var dbFile = serverCe == ConnectServerCe.LogServer ? dbFileLog : serverCe == ConnectServerCe.BarcodesServer ? dbFileBarcodes : Application2.StartupPath + @"\GammaDBLocal.sdf";
+#if DEBUG
+                string startupPath = @"\FlashDisk\gamma_mob";
+#else
+                        string startupPath = Application2.StartupPath;
+#endif
+
+                DateTime dbCurrentFileBarcodesCreateTime = new DateTime();
+                DateTime dbNewFileBarcodesCreateTime = new DateTime();
+
+                var dbFileLog = startupPath + @"\..\GammaDBLog.sdf";
+                var dbFileBarcodes = startupPath + @"\..\..\GammaDBBarcodes.sdf";
+
+                var dbFile = serverCe == ConnectServerCe.LogServer ? dbFileLog : serverCe == ConnectServerCe.BarcodesServer ? dbFileBarcodes : startupPath + @"\GammaDBLocal.sdf";
                 if (!IsNotFirstGetConnectionCeString && !IsInitializationFirstConnectionCeString)
                 {
                     IsInitializationFirstConnectionCeString = true;
@@ -84,6 +93,7 @@ namespace gamma_mob
                     bool IsErrorDbFileBarcodes = false;
                     bool isDbFileLogToDelete = false;
                     bool isDbFileBarcodesToDelete = false;
+                    bool IsExistNewFileBarcodes = false;
                     SqlCeConnection empConLog;
                     SqlCeCommand empComLog;
                     SqlCeConnection empConBarcodes;
@@ -105,6 +115,9 @@ namespace gamma_mob
                         empConBarcodes = new SqlCeConnection(@"Data Source = " + dbFileBarcodes);
                         empConBarcodes.Open();
                         empComBarcodes = empConBarcodes.CreateCommand();
+                        empComBarcodes.CommandText = "SELECT DatabaseCreateTime FROM Settings";
+                        dbCurrentFileBarcodesCreateTime = Convert.ToDateTime(empComBarcodes.ExecuteScalar());
+                        empConBarcodes.Close();
                     }
                     catch
                     {
@@ -125,10 +138,27 @@ namespace gamma_mob
                                 IsDeletedDbFileLog = false;
                             }
                     }
+
                     if (File.Exists(dbFileBarcodes))
                     {
                         isDbFileBarcodesToDelete = true;
-                        if (IsErrorDbFileBarcodes)
+                        try
+                        {
+                            //dbNewFileBarcodesCreateTime = File.GetCreationTime(startupPath + @"\GammaDBBarcodes.sdf");
+                            var empConNewBarcodes = new SqlCeConnection(@"Data Source = " + startupPath + @"\GammaDBBarcodes.sdf");
+                            empConNewBarcodes.Open();
+                            var empComNewBarcodes = empConNewBarcodes.CreateCommand();
+                            empComNewBarcodes.CommandText = "SELECT DatabaseCreateTime FROM Settings";
+                            dbNewFileBarcodesCreateTime = Convert.ToDateTime(empComNewBarcodes.ExecuteScalar());
+                            empConNewBarcodes.Close();
+                            if ((dbCurrentFileBarcodesCreateTime != null && dbNewFileBarcodesCreateTime != null) && dbCurrentFileBarcodesCreateTime < dbNewFileBarcodesCreateTime)
+                                IsExistNewFileBarcodes = true;
+                        }
+                        catch
+                        {
+                            IsExistNewFileBarcodes = false;
+                        }
+                        if (IsErrorDbFileBarcodes || IsExistNewFileBarcodes)
                             try
                             {
                                 File.Delete(dbFileBarcodes);
@@ -147,11 +177,6 @@ namespace gamma_mob
                     }
                     if (!File.Exists(dbFileBarcodes))
                     {
-#if DEBUG
-                        string startupPath = @"\FlashDisk\gamma_mob";
-#else
-                        string startupPath = Application2.StartupPath;
-#endif
                         if (File.Exists(startupPath + @"\GammaDBBarcodes.sdf"))
                         {
                             try

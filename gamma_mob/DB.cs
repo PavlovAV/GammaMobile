@@ -144,13 +144,10 @@ namespace gamma_mob
                         isDbFileBarcodesToDelete = true;
                         try
                         {
-                            //dbNewFileBarcodesCreateTime = File.GetCreationTime(startupPath + @"\GammaDBBarcodes.sdf");
-                            var empConNewBarcodes = new SqlCeConnection(@"Data Source = " + startupPath + @"\GammaDBBarcodes.sdf");
-                            empConNewBarcodes.Open();
-                            var empComNewBarcodes = empConNewBarcodes.CreateCommand();
-                            empComNewBarcodes.CommandText = "SELECT DatabaseCreateTime FROM Settings";
-                            dbNewFileBarcodesCreateTime = Convert.ToDateTime(empComNewBarcodes.ExecuteScalar());
-                            empConNewBarcodes.Close();
+                            using (StreamReader sr = new StreamReader(startupPath + @"\GammaDBBarcodesVersion.txt"))
+                            {
+                                dbNewFileBarcodesCreateTime = Convert.ToDateTime(sr.ReadLine());
+                            }
                             if ((dbCurrentFileBarcodesCreateTime != null && dbNewFileBarcodesCreateTime != null) && dbCurrentFileBarcodesCreateTime < dbNewFileBarcodesCreateTime)
                                 IsExistNewFileBarcodes = true;
                         }

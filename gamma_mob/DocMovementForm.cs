@@ -111,8 +111,21 @@ namespace gamma_mob
 
         private DocDirection DocDirection { get; set; }
         private EndPointInfo EndPointInfo { get; set; }
-        
-        private BindingList<MovementProduct> AcceptedProducts { get; set; }
+
+        private BindingList<MovementProduct> _acceptedProducts { get; set; }
+        private BindingList<MovementProduct> AcceptedProducts
+        {
+            get
+            {
+                if (_acceptedProducts == null)
+                    _acceptedProducts = new BindingList<MovementProduct>();
+                return _acceptedProducts;
+            }
+            set
+            {
+                _acceptedProducts = value;
+            }
+        }
         private BindingSource BSource { get; set; }
         
         //private delegate void ConnectStateChangeInvoker(ConnectState state);

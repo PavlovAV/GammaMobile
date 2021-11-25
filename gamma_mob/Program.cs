@@ -35,7 +35,11 @@ namespace gamma_mob
             // создаем таймер
             System.Threading.Timer timer = new System.Threading.Timer(tm, num, 10000, 2700000);
 #endif
-            
+            int num_1 = 0;
+                // устанавливаем метод обратного вызова
+                TimerCallback tm_1 = new TimerCallback(CheckBatteryLevel);
+                // создаем таймер
+                System.Threading.Timer timer_1 = new System.Threading.Timer(tm_1, num_1, 600000,600000);
 
             var loginForm = new LoginForm();
             if (loginForm.ShowDialog() == DialogResult.OK)
@@ -56,6 +60,15 @@ namespace gamma_mob
             else BarcodeScanner.Scanner.Dispose();
         }
 
-        
+        public static void CheckBatteryLevel(object obj)
+        {
+            try
+            {
+                Shared.SaveToLog("BatteryLevel " + Device.GetBatteryLevel().ToString());
+            }
+            catch
+            {
+            }
+        }
     }
 }

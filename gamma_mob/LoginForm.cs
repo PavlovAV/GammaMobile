@@ -76,9 +76,12 @@ namespace gamma_mob
                 {
                     btnExecRDP.Text = "Запуск RDP";
                 }
-                Shared.SaveToLog("BatterySuspendTimeout " + Device.GetBatterySuspendTimeout().ToString());
+                var batterySuspendTimeout = Device.GetBatterySuspendTimeout();
+                Shared.SaveToLog("BatterySuspendTimeout " + batterySuspendTimeout.ToString());
                 Shared.SaveToLog("BatteryLevel " + Device.GetBatteryLevel().ToString());
                 Shared.SaveToLog("WiFiPowerStatus " + Device.GetWiFiPowerStatus().ToString());
+                if (batterySuspendTimeout != 600)
+                    Shared.SaveToLog("SetBatterySuspendTimeout(600) " + Device.SetBatterySuspendTimeout(600).ToString());
             }
             catch
             {

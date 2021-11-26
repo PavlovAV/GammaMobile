@@ -27,19 +27,19 @@ namespace gamma_mob
             _mutex = new NamedMutex(false, "gammamob", out isNew);
             if (!isNew) return;
             Decode.SetWedge(WedgeType.Barcode, false);
-#if !DEBUG
+//#if !DEBUG
             UpdateProgram.DropFlagUpdateLoading();
             int num = 0;
             // устанавливаем метод обратного вызова
             TimerCallback tm = new TimerCallback(UpdateProgram.LoadUpdate);
             // создаем таймер
             System.Threading.Timer timer = new System.Threading.Timer(tm, num, 10000, 2700000);
-#endif
+//#endif
             int num_1 = 0;
                 // устанавливаем метод обратного вызова
                 TimerCallback tm_1 = new TimerCallback(CheckBatteryLevel);
                 // создаем таймер
-                System.Threading.Timer timer_1 = new System.Threading.Timer(tm_1, num_1, 600000,600000);
+                System.Threading.Timer timer_1 = new System.Threading.Timer(tm_1, num_1, 300000,600000);
 
             var loginForm = new LoginForm();
             if (loginForm.ShowDialog() == DialogResult.OK)
@@ -64,7 +64,7 @@ namespace gamma_mob
         {
             try
             {
-                Shared.SaveToLog("BatteryLevel " + Device.GetBatteryLevel().ToString());
+                Shared.SaveToLog("Battery Level " + Device.GetBatteryLevel().ToString());
             }
             catch
             {

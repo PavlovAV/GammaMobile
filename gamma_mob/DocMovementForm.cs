@@ -569,57 +569,79 @@ namespace gamma_mob
                                 int? productKindId, int? coefficientPackage, int? coefficientPallet)
         {
             MovementProduct good = null;
-            good = AcceptedProducts.FirstOrDefault(
-                    g => g.NomenclatureId == nomenclatureId && g.CharacteristicId == characteristicId && g.QualityId == qualityId && g.PlaceZoneId == placeZoneId);
-            if (good == null)
+            string error_ch = "";
+                
+            try
             {
-                good = new MovementProduct
+                good = AcceptedProducts.FirstOrDefault(
+                        g => g.NomenclatureId == nomenclatureId && g.CharacteristicId == characteristicId && g.QualityId == qualityId && g.PlaceZoneId == placeZoneId);
+                error_ch = "ch1";
+                if (good == null)
                 {
-                    NomenclatureId = nomenclatureId,
-                    CharacteristicId = characteristicId,
-                    QualityId = qualityId,
-                    NomenclatureName = nomenclatureName,
-                    ShortNomenclatureName = shortNomenclatureName,
-                    PlaceZoneId = placeZoneId,
-                    CollectedQuantity = 0,
-                    CoefficientPackage = coefficientPackage,
-                    CoefficientPallet = coefficientPallet
-                };
-                AcceptedProducts.Add(good);
-                BSource.DataSource = AcceptedProducts;
-            }
-            if (!add)
-            {
-                good.CollectedQuantity -= quantity;
-                if (productKindId == null || productKindId != 3)
-                {
-                    Collected--;
-                    //Barcodes.Remove(Barcodes.FirstOrDefault(b => b.Barcode == barcode));
+                    good = new MovementProduct
+                    {
+                        NomenclatureId = nomenclatureId,
+                        CharacteristicId = characteristicId,
+                        QualityId = qualityId,
+                        NomenclatureName = nomenclatureName,
+                        ShortNomenclatureName = shortNomenclatureName,
+                        PlaceZoneId = placeZoneId,
+                        CollectedQuantity = 0,
+                        CoefficientPackage = coefficientPackage,
+                        CoefficientPallet = coefficientPallet
+                    };
+                    error_ch = "ch1_1";
+                    AcceptedProducts.Add(good);
+                    error_ch = "ch1_2";
+                    BSource.DataSource = AcceptedProducts;
+                    error_ch = "ch1_3";
                 }
-                if (good.CollectedQuantity == 0)
-                    AcceptedProducts.Remove(good);
-            }
-            else
-            {
-                good.CollectedQuantity += quantity;
-                if (productKindId == null || productKindId != 3) 
+                error_ch = "ch2";
+                if (!add)
                 {
-                    Collected++;
-                    //Barcodes.Add(new Barcodes
-                    //{
-                    //    Barcode = barcode,
-                    //    ProductKindId = productKindId
-                    //});
+                    good.CollectedQuantity -= quantity;
+                    if (productKindId == null || productKindId != 3)
+                    {
+                        Collected--;
+                        //Barcodes.Remove(Barcodes.FirstOrDefault(b => b.Barcode == barcode));
+                    }
+                    if (good.CollectedQuantity == 0)
+                        AcceptedProducts.Remove(good);
+                    error_ch = "ch3";
                 }
+                else
+                {
+                    good.CollectedQuantity += quantity;
+                    if (productKindId == null || productKindId != 3)
+                    {
+                        Collected++;
+                        //Barcodes.Add(new Barcodes
+                        //{
+                        //    Barcode = barcode,
+                        //    ProductKindId = productKindId
+                        //});
+                    }
+                    error_ch = "ch4";
+                }
+                gridDocAccept.UnselectAll();
+                error_ch = "ch5";
+                int index = AcceptedProducts.IndexOf(good);
+                error_ch = "ch6";
+                if (index > 0)
+                {
+                    gridDocAccept.CurrentRowIndex = index;
+                    gridDocAccept.Select(index);
+                }
+                error_ch = "ch7";
+                Activate();
+                error_ch = "ch8";
             }
-            gridDocAccept.UnselectAll();
-            int index = AcceptedProducts.IndexOf(good);
-            if (index > 0)
+            catch
             {
-                gridDocAccept.CurrentRowIndex = index;
-                gridDocAccept.Select(index);
+                Shared.SaveToLog("Error DocMovementForms " + error_ch);
+                MessageBox.Show("Ошибка при обновлении списка. Откройте перемещение повторно.");
+                Close();
             }
-            Activate();
         }
 
         private void gridDocAccept_DoubleClick(object sender, EventArgs e)

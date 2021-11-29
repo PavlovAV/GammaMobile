@@ -9,6 +9,7 @@ using System.IO;
 using OpenNETCF.Windows.Forms;
 using System.Threading;
 using System.Runtime.InteropServices;
+using Datalogic.API;
 
 namespace gamma_mob.Common
 {
@@ -94,7 +95,7 @@ namespace gamma_mob.Common
                     if (timerPeriodForUnloadOfflineProducts != null) 
                         _timerPeriodForUnloadOfflineProducts = Convert.ToInt32(timerPeriodForUnloadOfflineProducts);
                 }
-                return _timerPeriodForUnloadOfflineProducts ?? 36000;//5 мин;
+                return _timerPeriodForUnloadOfflineProducts ?? 20000;
             }
         }
 
@@ -109,10 +110,25 @@ namespace gamma_mob.Common
                     if (timerPeriodForBarcodesUpdate != null) 
                         _timerPeriodForBarcodesUpdate = Convert.ToInt32(timerPeriodForBarcodesUpdate);
                 }
-                return _timerPeriodForBarcodesUpdate ?? 36000;//5 мин;
+                return _timerPeriodForBarcodesUpdate ?? 360000;
             }
         }
 
+
+        private static int? _timerPeriodForCheckBatteryLevel { get; set; }
+        public static int TimerPeriodForCheckBatteryLevel
+        {
+            get
+            {
+                if (_timerPeriodForCheckBatteryLevel == null)
+                {
+                    var timerPeriodForCheckBatteryLevel = Db.GetProgramSettings("TimerPeriodForCheckBatteryLevel");
+                    if (timerPeriodForCheckBatteryLevel != null)
+                        _timerPeriodForCheckBatteryLevel = Convert.ToInt32(timerPeriodForCheckBatteryLevel);
+                }
+                return _timerPeriodForCheckBatteryLevel ?? 540000;
+            }
+        }
 
         private static int? _minLengthProductBarcode { get; set; }
         public static int MinLengthProductBarcode
@@ -550,6 +566,33 @@ namespace gamma_mob.Common
 
         }
 
+        private static System.Threading.Timer _timerForCheckBatteryLevel { get; set; }
+        public static System.Threading.Timer TimerForCheckBatteryLevel
+        {
+            get
+            {
+                if (_timerForCheckBatteryLevel == null)
+                {
+                    int num = 0;
+                    TimerCallback tm = new TimerCallback(Shared.CheckBatteryLevel);
+                    // создаем таймер
+                    _timerForCheckBatteryLevel = new System.Threading.Timer(tm, num, 0, Shared.TimerPeriodForCheckBatteryLevel);
+                }
+                return _timerForCheckBatteryLevel;
+            }
+
+        }
+
+        public static void CheckBatteryLevel(object obj)
+        {
+            try
+            {
+                Shared.SaveToLog("Battery Level " + Device.GetBatteryLevel().ToString());
+            }
+            catch
+            {
+            }
+        }
         
     }
 }

@@ -92,7 +92,11 @@ namespace gamma_mob
             //Подписка на событие потери связи
             ConnectionState.OnConnectionLost += ConnectionLost;
 
-
+            ConnectionState.CheckConnection();
+            if (Shared.TimerForCheckBatteryLevel == null)
+            {
+                Shared.SaveToLog(@"Внимание! Не запущена автоматическая проверка уровня заряда аккумулятора.");
+            }
 //#if DEBUG
 //            AuthorizeByBarcode("00000000000056");
 //#endif

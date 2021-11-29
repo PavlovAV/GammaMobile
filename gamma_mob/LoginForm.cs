@@ -76,6 +76,7 @@ namespace gamma_mob
                 {
                     btnExecRDP.Text = "Запуск RDP";
                 }
+                Shared.SaveToLog("DbBarcodes created:" + Db.GetLocalDbBarcodesDateCreated().ToString(System.Globalization.CultureInfo.InvariantCulture));
                 var batterySuspendTimeout = Device.GetBatterySuspendTimeout();
                 Shared.SaveToLog("BatterySuspendTimeout " + batterySuspendTimeout.ToString());
                 Shared.SaveToLog("BatteryLevel " + Device.GetBatteryLevel().ToString());
@@ -356,7 +357,7 @@ namespace gamma_mob
                 btnHelp.Text = "Скрыть";
                 lblMessage.Font = new System.Drawing.Font("Tahoma", 10, System.Drawing.FontStyle.Regular);
                 lblMessage.Text = "Версия: " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version + Environment.NewLine + "Сервер: " + Settings.ServerIP + Environment.NewLine + "БД/логин: " + Settings.Database + "/" + Settings.UserName;
-                lblMessage.Text = lblMessage.Text + Environment.NewLine + "БД ШК:" + Db.GetLocalDbBarcodesDateCreated().ToString(System.Globalization.CultureInfo.InvariantCulture);
+                lblMessage.Text = lblMessage.Text + Environment.NewLine + "БД ШК создан:" + Db.GetLocalDbBarcodesDateCreated().ToString(System.Globalization.CultureInfo.InvariantCulture);
                 btnExecRDP.Visible = true;
                 btnTestPing.Visible = true;
                 btnTestSQL.Visible = true;

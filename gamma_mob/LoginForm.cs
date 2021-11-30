@@ -77,6 +77,7 @@ namespace gamma_mob
                     btnExecRDP.Text = "Запуск RDP";
                 }
                 Shared.SaveToLog("DbBarcodes created:" + Db.GetLocalDbBarcodesDateCreated().ToString(System.Globalization.CultureInfo.InvariantCulture));
+                Shared.UpdateBatterySerialumber();
                 var batterySuspendTimeout = Device.GetBatterySuspendTimeout();
                 Shared.SaveToLog("BatterySuspendTimeout " + batterySuspendTimeout.ToString());
                 Shared.SaveToLog("BatteryLevel " + Device.GetBatteryLevel().ToString());

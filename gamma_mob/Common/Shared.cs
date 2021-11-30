@@ -306,6 +306,21 @@ namespace gamma_mob.Common
             }
         }
 
+        private static string _batterySerialNumber { get; set; }
+
+        private static string batterySerialNumber
+        {
+            get
+            {
+                return _batterySerialNumber;
+            }
+            set
+            {
+                _batterySerialNumber = value;
+                Shared.SaveToLog("Battery SerialNumber " + value);
+            }
+        }
+
         public static bool InitializationData()
         {
             Shared.DeleteOldUploadedToServerLogs();
@@ -588,9 +603,25 @@ namespace gamma_mob.Common
             try
             {
                 Shared.SaveToLog("Battery Level " + Device.GetBatteryLevel().ToString());
+                UpdateBatterySerialumber();
             }
             catch
             {
+            }
+        }
+
+        public static void UpdateBatterySerialumber()
+        {
+            try
+            {
+                Device.BatteryInfo bInfo;
+                var res = Device.GetBatteryInfo(out bInfo);
+                if (bInfo != null && (batterySerialNumber == null || batterySerialNumber != bInfo.SerialNumber))
+                    batterySerialNumber = bInfo.SerialNumber;
+            }
+            catch
+            {
+                Shared.SaveToLog("Error UpdateBatterySerialumber");
             }
         }
         

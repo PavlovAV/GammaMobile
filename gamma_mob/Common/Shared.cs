@@ -77,10 +77,55 @@ namespace gamma_mob.Common
                 if (_maxAllowedPercentBreak == null)
                 {
                     var maxAllowedPercentBreak = Db.GetProgramSettings("MaxAllowedPercentBreakInDocOrder");
-                    if (maxAllowedPercentBreak != null) 
+                    if (maxAllowedPercentBreak != null && maxAllowedPercentBreak != String.Empty) 
                         _maxAllowedPercentBreak = Convert.ToInt32(maxAllowedPercentBreak);
                 }
                 return _maxAllowedPercentBreak ?? 0;
+            }
+        }
+
+        private static int? _limitNormalLevelBattery { get; set; }
+        private static int limitNormalLevelBattery
+        {
+            get
+            {
+                if (_limitNormalLevelBattery == null)
+                {
+                    var limit = Db.GetProgramSettings("LimitNormalLevelBattery");
+                    if (limit != null && limit != String.Empty)
+                        _limitNormalLevelBattery = Convert.ToInt32(limit);
+                }
+                return _limitNormalLevelBattery ?? 10;
+            }
+        }
+
+        private static uint? _lowLevelBatterySuspendTimeout { get; set; }
+        private static uint lowLevelBatterySuspendTimeout
+        {
+            get
+            {
+                if (_lowLevelBatterySuspendTimeout == null)
+                {
+                    var timeout = Db.GetProgramSettings("LowLevelBatterySuspendTimeout");
+                    if (timeout != null && timeout != String.Empty)
+                        _lowLevelBatterySuspendTimeout = Convert.ToUInt32(timeout);
+                }
+                return _lowLevelBatterySuspendTimeout ?? 60;
+            }
+        }
+
+        private static uint? _normalLevelBatterySuspendTimeout { get; set; }
+        private static uint normalLevelBatterySuspendTimeout
+        {
+            get
+            {
+                if (_normalLevelBatterySuspendTimeout == null)
+                {
+                    var timeout = Db.GetProgramSettings("NormalLevelBatterySuspendTimeout");
+                    if (timeout != null && timeout != String.Empty )
+                        _normalLevelBatterySuspendTimeout = Convert.ToUInt32(timeout);
+                }
+                return _normalLevelBatterySuspendTimeout ?? 600;
             }
         }
 
@@ -92,7 +137,7 @@ namespace gamma_mob.Common
                 if (_timerPeriodForUnloadOfflineProducts == null)
                 {
                     var timerPeriodForUnloadOfflineProducts = Db.GetProgramSettings("TimerPeriodForUnloadOfflineProducts");
-                    if (timerPeriodForUnloadOfflineProducts != null) 
+                    if (timerPeriodForUnloadOfflineProducts != null && timerPeriodForUnloadOfflineProducts != String.Empty) 
                         _timerPeriodForUnloadOfflineProducts = Convert.ToInt32(timerPeriodForUnloadOfflineProducts);
                 }
                 return _timerPeriodForUnloadOfflineProducts ?? 20000;
@@ -107,7 +152,7 @@ namespace gamma_mob.Common
                 if (_timerPeriodForBarcodesUpdate == null)
                 {
                     var timerPeriodForBarcodesUpdate = Db.GetProgramSettings("TimerPeriodForBarcodesUpdate");
-                    if (timerPeriodForBarcodesUpdate != null) 
+                    if (timerPeriodForBarcodesUpdate != null && timerPeriodForBarcodesUpdate != String.Empty) 
                         _timerPeriodForBarcodesUpdate = Convert.ToInt32(timerPeriodForBarcodesUpdate);
                 }
                 return _timerPeriodForBarcodesUpdate ?? 360000;
@@ -123,7 +168,7 @@ namespace gamma_mob.Common
                 if (_timerPeriodForCheckBatteryLevel == null)
                 {
                     var timerPeriodForCheckBatteryLevel = Db.GetProgramSettings("TimerPeriodForCheckBatteryLevel");
-                    if (timerPeriodForCheckBatteryLevel != null)
+                    if (timerPeriodForCheckBatteryLevel != null && timerPeriodForCheckBatteryLevel != String.Empty)
                         _timerPeriodForCheckBatteryLevel = Convert.ToInt32(timerPeriodForCheckBatteryLevel);
                 }
                 return _timerPeriodForCheckBatteryLevel ?? 540000;
@@ -138,7 +183,7 @@ namespace gamma_mob.Common
                 if (_minLengthProductBarcode == null)
                 {
                     var minLengthProductBarcode = Db.GetProgramSettings("MinLengthProductBarcode");
-                    if (minLengthProductBarcode != null)
+                    if (minLengthProductBarcode != null && minLengthProductBarcode != String.Empty)
                         _minLengthProductBarcode = Convert.ToInt32(minLengthProductBarcode);
                 }
                 return _minLengthProductBarcode ?? 5;//5 символов;
@@ -318,6 +363,34 @@ namespace gamma_mob.Common
             {
                 _batterySerialNumber = value;
                 Shared.SaveToLog("Battery SerialNumber " + value);
+            }
+        }
+
+        private static int _batteryLevel { get; set; }
+
+        private static int batteryLevel
+        {
+            get
+            {
+                return _batteryLevel;
+            }
+            set
+            {
+                _batteryLevel = value;
+                Shared.SaveToLog("Battery Level " + value.ToString());
+                try
+                {
+                    var batterySuspendTimeout = Device.GetBatterySuspendTimeout();
+                    if (value <= limitNormalLevelBattery && batterySuspendTimeout != lowLevelBatterySuspendTimeout)
+                        Shared.SaveToLog("SetBatterySuspendTimeout(" + lowLevelBatterySuspendTimeout.ToString() + ") " + Device.SetBatterySuspendTimeout(lowLevelBatterySuspendTimeout).ToString());
+                    if (value > limitNormalLevelBattery && batterySuspendTimeout != normalLevelBatterySuspendTimeout)
+                        Shared.SaveToLog("SetBatterySuspendTimeout(" + normalLevelBatterySuspendTimeout.ToString() + ") " + Device.SetBatterySuspendTimeout(normalLevelBatterySuspendTimeout).ToString());
+                }
+                catch
+                {
+                    Shared.SaveToLog("Error SetBatterySuspendTimeout in set batteryLevel");
+                }
+                
             }
         }
 
@@ -602,7 +675,7 @@ namespace gamma_mob.Common
         {
             try
             {
-                Shared.SaveToLog("Battery Level " + Device.GetBatteryLevel().ToString());
+                batteryLevel = Device.GetBatteryLevel();
                 UpdateBatterySerialumber();
             }
             catch

@@ -623,24 +623,27 @@ namespace gamma_mob
                     }
                     error_ch = "ch4";
                 }
-                gridDocAccept.UnselectAll();
-                error_ch = "ch5";
-                int index = AcceptedProducts.IndexOf(good);
-                error_ch = "ch6";
-                if (index > 0)
+                if (gridDocAccept != null && gridDocAccept.DataSource != null)
                 {
-                    gridDocAccept.CurrentRowIndex = index;
-                    gridDocAccept.Select(index);
+                    gridDocAccept.UnselectAll();
+                    error_ch = "ch5";
+                    int index = AcceptedProducts.IndexOf(good);
+                    error_ch = "ch6";
+                    if (index > 0)
+                    {
+                        gridDocAccept.CurrentRowIndex = index;
+                        gridDocAccept.Select(index);
+                    }
+                    error_ch = "ch7";
                 }
-                error_ch = "ch7";
                 Activate();
                 error_ch = "ch8";
             }
             catch
             {
                 Shared.SaveToLog("Error DocMovementForms " + error_ch);
-                MessageBox.Show("Ошибка при обновлении списка. Откройте перемещение повторно.");
-                Close();
+                MessageBox.Show("Ошибка при обновлении списка. Нажмите Ок для повтора.");
+                RefreshDocMovementProducts(new Guid(), true);
             }
         }
 

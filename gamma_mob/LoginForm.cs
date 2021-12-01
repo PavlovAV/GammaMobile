@@ -14,6 +14,7 @@ using Microsoft.Win32;
 using System.Net;
 using gamma_mob.Dialogs;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 namespace gamma_mob
 {
@@ -45,7 +46,13 @@ namespace gamma_mob
 
         private string barcode;
 
-        
+        [DllImport("coredll.dll", SetLastError = true, CharSet = CharSet.Auto)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        static extern bool GetDiskFreeSpaceEx(string lpDirectoryName,
+        out ulong lpFreeBytesAvailable,
+        out ulong lpTotalNumberOfBytes,
+        out ulong lpTotalNumberOfFreeBytes);
+
 
         protected override void FormLoad(object sender, EventArgs e)
         {
@@ -84,6 +91,12 @@ namespace gamma_mob
                 Shared.SaveToLog("WiFiPowerStatus " + Device.GetWiFiPowerStatus().ToString());
                 if (batterySuspendTimeout != 600)
                     Shared.SaveToLog("SetBatterySuspendTimeout(600) " + Device.SetBatterySuspendTimeout(600).ToString());
+                
+                UInt64 userFreeBytes, totalDiskBytes, totalFreeBytesExecutable, totalFreeBytesUpdatable;
+                GetDiskFreeSpaceEx(@"\", out userFreeBytes, out totalDiskBytes, out totalFreeBytesExecutable);
+                GetDiskFreeSpaceEx(@"\FlashDisk\", out userFreeBytes, out totalDiskBytes, out totalFreeBytesUpdatable);
+                Shared.SaveToLog("FreeSpace " + totalFreeBytesExecutable.ToString() + "/" +
+                    totalFreeBytesUpdatable.ToString());
             }
             catch
             {

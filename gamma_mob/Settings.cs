@@ -3,6 +3,8 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Xml;
+using gamma_mob.Common;
+using System;
 
 namespace gamma_mob
 {
@@ -13,10 +15,12 @@ namespace gamma_mob
     {
         private static readonly NameValueCollection m_settings;
         private static readonly string m_settingsPath;
+        private static readonly string m_currentSecondServerFlag;
 
         static Settings()
         {
             m_settingsPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase);
+            m_currentSecondServerFlag = m_settingsPath + @"\CurrentSecondServer.flg";
             m_settingsPath += @"\Settings.xml";
 
             if (!File.Exists(m_settingsPath))
@@ -29,11 +33,29 @@ namespace gamma_mob
 
             // Add settings to the NameValueCollection.
             m_settings = new NameValueCollection();
-            m_settings.Add("ServerIP", nodeList.Item(0).Attributes["value"].Value);
-            m_settings.Add("Database", nodeList.Item(1).Attributes["value"].Value);
-            m_settings.Add("UserName", nodeList.Item(2).Attributes["value"].Value);
-            m_settings.Add("Password", nodeList.Item(3).Attributes["value"].Value);
-            m_settings.Add("TimeOut", nodeList.Item(4).Attributes["value"].Value);
+            for (var i = 0; i < nodeList.Count; i++ )
+            {
+                m_settings.Add(nodeList.Item(i).Attributes["key"].Value, nodeList.Item(i).Attributes["value"].Value);
+            }
+            if ((m_settings.Get("SecondServerIP") ?? String.Empty) == String.Empty)
+                m_settings.Add("SecondServerIP", "");
+            if (ServerIP.Substring(0,3) != "192")
+            {
+                if (SecondServerIP == "")
+                    SecondServerIP = ServerIP;
+                try
+                {
+                    if (!File.Exists(m_currentSecondServerFlag))
+                        File.CreateText(m_currentSecondServerFlag);
+                }
+                catch
+                {
+                    Shared.SaveToLog("Error Create(m_currentSecondServerFlag)");
+                }
+            }
+            m_settings.Add("CurrentServer", File.Exists(m_currentSecondServerFlag)
+                 ? m_settings.Get("SecondServerIP") : m_settings.Get("ServerIP"));
+            
         }
 
         public static string ServerIP
@@ -66,6 +88,18 @@ namespace gamma_mob
             set { m_settings.Set("TimeOut", value); }
         }
 
+        public static string SecondServerIP
+        {
+            get { return m_settings.Get("SecondServerIP"); }
+            set { m_settings.Set("SecondServerIP", value); }
+        }
+
+        public static string CurrentServer
+        {
+            get { return m_settings.Get("CurrentServer"); }
+            //set { m_settings.Set("CurrentServer", value); }
+        }
+
         public static void Update()
         {
             var tw = new XmlTextWriter(m_settingsPath, Encoding.UTF8);
@@ -91,5 +125,41 @@ namespace gamma_mob
 
             tw.Close();
         }
+
+        public static bool SetCurrentInternalServer()
+        {
+            bool ret = false;
+            try
+            {
+                if (File.Exists(m_currentSecondServerFlag)) File.Delete(m_currentSecondServerFlag);
+                m_settings.Set("CurrentServer", ServerIP);
+                ret = true;
+            }
+            catch
+            {
+                Shared.SaveToLog("Error Delete(m_currentSecondServerFlag)");
+            }
+            return ret;
+        }
+
+        public static bool SetCurrentExternalServer()
+        {
+            bool ret = false;
+            if (SecondServerIP != "")
+            {
+                try
+                {
+                    File.CreateText(m_currentSecondServerFlag);
+                    m_settings.Set("CurrentServer", SecondServerIP);
+                    ret = true;
+                }
+                catch
+                {
+                    Shared.SaveToLog("Error Create(m_currentSecondServerFlag)");
+                }
+            }
+            return ret;
+        }
+
     }
 }

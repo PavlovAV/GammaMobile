@@ -2,10 +2,11 @@
 
 <configuration>
   <appSettings>
-    <add key="ServerIP" value="83.171.103.204,5009" />
+    <add key="ServerIP" value="192.168.0.78" />
     <add key="Database" value="gammanew" />
     <add key="UserName" value="tsd" />
     <add key="Password" value="mobileuser" />
     <add key="TimeOut" value="2" />
+    <add key="SecondServerIP" value="83.171.103.204,5009" />
   </appSettings>
 </configuration>

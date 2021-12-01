@@ -27,7 +27,8 @@ namespace gamma_mob
                 btnCloseShift.Text = "Информация";
                 //btnInventarisation.Visible = true;
             }
-            lblUserInfo.Text = "Логин: " + Settings.UserName + " (" + Shared.PersonName + ")";
+            //btnUserInfo.Text = "Логин: " + Settings.UserName + " (" + Shared.PersonName + ")";
+            userInfoTextId = 0;
             if (Shared.TimerForBarcodesUpdate == null)
             {
                 MessageBox.Show(@"Внимание! Не запущена автоматическая" + Environment.NewLine + @"загрузка штрих-кодов.");
@@ -341,6 +342,53 @@ namespace gamma_mob
             Cursor.Current = Cursors.Default;
         }
 
-        
+        private short _userInfoTextId { get; set; }
+        private short userInfoTextId 
+        {
+            get
+            {
+                return _userInfoTextId;
+            }
+            set
+            {
+                _userInfoTextId = value;
+                try
+                {
+                    switch (value)
+                    {
+                        case 0:
+                            btnUserInfo.Text = "Логин: " + Settings.UserName + " (" + Shared.PersonName + ")";
+                            break;
+                        case 1:
+                            btnUserInfo.Text = "Сервер: " + Settings.CurrentServer;
+                            break;
+                        case 2:
+                            btnUserInfo.Text = "БД: " + Settings.Database;
+                            break;
+                        case 3:
+                            btnUserInfo.Text = "Версия: " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+                            break;
+                        case 4:
+                            btnUserInfo.Text = "БД ШК создан:" + Db.GetLocalDbBarcodesDateCreated().ToString(System.Globalization.CultureInfo.InvariantCulture);
+                            break;
+                        case 5:
+                            btnUserInfo.Text = "БД ШК обновлен: " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodesMoscowTimeZone.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                            break;
+                        case 6:
+                            btnUserInfo.Text = "БД ШК кол-во: " + Shared.Barcodes1C.GetCountBarcodes;
+                            break;
+                    }
+                }
+                catch
+                {
+                    Shared.SaveToLog(@"Error btnUserInfo");
+                }
+            }
+        }
+
+        private void btnUserInfo_Click(object sender, EventArgs e)
+        {
+            userInfoTextId = userInfoTextId == 6 ? (short)0 : (short)(userInfoTextId + 1);
+        }
     }
 }

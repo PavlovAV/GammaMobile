@@ -35,7 +35,7 @@
             this.btnComplectPallet = new System.Windows.Forms.Button();
             this.btnCloseShift = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.lblUserInfo = new System.Windows.Forms.Label();
+            this.btnUserInfo = new System.Windows.Forms.Button();
             this.btnDocTransfer = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
@@ -108,6 +108,7 @@
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.btnUserInfo);
             this.panel1.Controls.Add(this.btnDocTransfer);
             this.panel1.Controls.Add(this.btnDocOrder);
             this.panel1.Controls.Add(this.btnCloseShift);
@@ -120,14 +121,15 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(638, 455);
             // 
-            // lblUserInfo
+            // btnUserInfo
             // 
-            this.lblUserInfo.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.lblUserInfo.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Regular);
-            this.lblUserInfo.Location = new System.Drawing.Point(0, 438);
-            this.lblUserInfo.Name = "lblUserInfo";
-            this.lblUserInfo.Size = new System.Drawing.Size(638, 17);
-            this.lblUserInfo.Text = "label1";
+            this.btnUserInfo.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.btnUserInfo.Location = new System.Drawing.Point(0, 435);
+            this.btnUserInfo.Name = "btnUserInfo";
+            this.btnUserInfo.Size = new System.Drawing.Size(638, 20);
+            this.btnUserInfo.TabIndex = 8;
+            this.btnUserInfo.Text = "button1";
+            this.btnUserInfo.Click += new System.EventHandler(this.btnUserInfo_Click);
             // 
             // btnDocTransfer
             // 
@@ -145,7 +147,6 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(638, 455);
-            this.Controls.Add(this.lblUserInfo);
             this.Controls.Add(this.panel1);
             this.Name = "MainForm";
             this.Text = "Gamma";
@@ -163,8 +164,8 @@
         private System.Windows.Forms.Button btnComplectPallet;
         private System.Windows.Forms.Button btnCloseShift;
         private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.Label lblUserInfo;
         private System.Windows.Forms.Button btnDocTransfer;
+        private System.Windows.Forms.Button btnUserInfo;
     }
 }
 

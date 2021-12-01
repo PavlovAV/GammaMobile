@@ -94,7 +94,7 @@ namespace gamma_mob
             //Подписка на событие потери связи
             ConnectionState.OnConnectionLost += ConnectionLost;
 
-            ConnectionState.CheckConnection();
+            ConnectionState.CheckConnection(Settings.CurrentServer);
             if (Shared.TimerForCheckBatteryLevel == null)
             {
                 Shared.SaveToLog(@"Внимание! Не запущена автоматическая проверка уровня заряда аккумулятора.");
@@ -158,7 +158,7 @@ namespace gamma_mob
                 (MethodInvoker)
                 (() => lblMessage.Text = barcode + Environment.NewLine +
                     "\r\n\r\nИдет проверка сети..."));
-            if (!ConnectionState.CheckConnection())
+            if (!ConnectionState.CheckConnection(Settings.CurrentServer))
             {
                 ConnectionError();
                 return;
@@ -230,7 +230,7 @@ namespace gamma_mob
                 }
             }
             if (!ConnectionState.CheckConnection()) return;
-            Db.SetConnectionString(Settings.ServerIP, Settings.Database, Settings.UserName, Settings.Password, Settings.TimeOut);
+            Db.SetConnectionString(Settings.CurrentServer, Settings.Database, Settings.UserName, Settings.Password, Settings.TimeOut);
             switch (Db.CheckSqlConnection())
             {
                 case 2:
@@ -357,12 +357,15 @@ namespace gamma_mob
             {
                 btnHelp.Text = "Скрыть";
                 lblMessage.Font = new System.Drawing.Font("Tahoma", 10, System.Drawing.FontStyle.Regular);
-                lblMessage.Text = "Версия: " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version + Environment.NewLine + "Сервер: " + Settings.ServerIP + Environment.NewLine + "БД/логин: " + Settings.Database + "/" + Settings.UserName;
+                lblMessage.Text = "Версия: " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version + Environment.NewLine + "Сервер: " + Settings.CurrentServer + Environment.NewLine + "БД/логин: " + Settings.Database + "/" + Settings.UserName;
                 lblMessage.Text = lblMessage.Text + Environment.NewLine + "БД ШК создан:" + Db.GetLocalDbBarcodesDateCreated().ToString(System.Globalization.CultureInfo.InvariantCulture);
                 btnExecRDP.Visible = true;
                 btnTestPing.Visible = true;
                 btnTestSQL.Visible = true;
                 btnTestWiFi.Visible = true;
+                btnSetExternalNet.Visible = true;
+                btnSetInternalNet.Visible = true;
+                RefreshBtnSetNetEnabled();
                 try
                 {
                     var strHostName = Dns.GetHostName();
@@ -390,6 +393,8 @@ namespace gamma_mob
                 btnTestPing.Visible = false;
                 btnTestSQL.Visible = false;
                 btnTestWiFi.Visible = false;
+                btnSetExternalNet.Visible = false;
+                btnSetInternalNet.Visible = false;
                 try
                 {
                     var cerdispProcess = GetProcessRunning(@"cerdisp");
@@ -478,24 +483,24 @@ namespace gamma_mob
         private void btnTestSQL_Click(object sender, EventArgs e)
         {
             Cursor.Current = Cursors.WaitCursor;
-            if (ConnectionState.CheckConnection())
+            if (ConnectionState.CheckConnection(Settings.CurrentServer))
             {
                 switch (Db.CheckSqlConnection())
                 {
                     case 2:
-                        lblMessage.Text = "Нет связи с БД " + Settings.ServerIP + Environment.NewLine + ConnectionState.GetConnectionState();
+                        lblMessage.Text = "Нет связи с БД " + Settings.CurrentServer + Environment.NewLine + ConnectionState.GetConnectionState();
                         break;
                     case 1:
-                        lblMessage.Text = "Неверно указан логин или пароль к БД " + Settings.ServerIP + Environment.NewLine + ConnectionState.GetConnectionState();
+                        lblMessage.Text = "Неверно указан логин или пароль к БД " + Settings.CurrentServer + Environment.NewLine + ConnectionState.GetConnectionState();
                         break;
                     default:
-                        lblMessage.Text = "Соединение с БД " + Settings.ServerIP + " установлено" + Environment.NewLine + ConnectionState.GetConnectionState();
+                        lblMessage.Text = "Соединение с БД " + Settings.CurrentServer + " установлено" + Environment.NewLine + ConnectionState.GetConnectionState();
                         break;
                 }
             }
             else
             {
-                lblMessage.Text = "Нет связи с БД " + Settings.ServerIP + ". Повторите попытку в зоне покрытия WiFi" + Environment.NewLine + ConnectionState.GetConnectionState();
+                lblMessage.Text = "Нет связи с БД " + Settings.CurrentServer + ". Повторите попытку в зоне покрытия WiFi" + Environment.NewLine + ConnectionState.GetConnectionState();
             }
             Cursor.Current = Cursors.Default;
         }
@@ -529,6 +534,37 @@ namespace gamma_mob
         private void lblMessage_KeyPress(object sender, KeyPressEventArgs e)
         {
             SetBarcode(e.KeyChar);
+        }
+
+        private void btnSetInternalNet_Click(object sender, EventArgs e)
+        {
+            ChangeCurrentServer(false);
+        }
+
+        private void btnSetExternalNet_Click(object sender, EventArgs e)
+        {
+            ChangeCurrentServer(true);
+        }
+
+        private void ChangeCurrentServer(bool isChangeExternalServer)
+        {
+            if (MessageBox.Show("Вы уверены, что хотите изменить адрес сервера?","Изменение адреса сервера", 
+                MessageBoxButtons.YesNo, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+            {
+                if ((!isChangeExternalServer) ? Settings.SetCurrentInternalServer() : Settings.SetCurrentExternalServer())
+                {
+                    RefreshBtnSetNetEnabled();
+                    lblMessage.Text = "Установлен адрес сервера " + Settings.CurrentServer;
+                }
+                else
+                    lblMessage.Text = "Ошибка при установке адреса сервера " + (!isChangeExternalServer ? Settings.ServerIP : Settings.SecondServerIP);
+            }
+        }
+
+        public void RefreshBtnSetNetEnabled()
+        {
+            btnSetExternalNet.Enabled = Settings.CurrentServer == Settings.ServerIP;
+            btnSetInternalNet.Enabled = Settings.CurrentServer == Settings.SecondServerIP;
         }
     }
 }

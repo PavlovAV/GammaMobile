@@ -84,17 +84,27 @@ namespace gamma_mob
 
 
         //        static private DateTime TimePingChecked = new DateTime();
-        
-        public static Boolean CheckConnection()
+        public static Boolean CheckConnection(string server)
         {
-            if (ServerIp == "")
-            {
-                if (!GetIpFromSettings(Settings.ServerIP))
+            if (!GetIpFromSettings(server))
                 {
                     stateConnection = @"Не определен IP сервера";
                     IsConnected = false;
                     return false;
                 }
+            return CheckConnection();
+        }
+
+        public static Boolean CheckConnection()
+        {
+           if (ServerIp == "")
+            {
+             /*   if (!GetIpFromSettings(Settings.CurrentServer))
+                {
+                    stateConnection = @"Не определен IP сервера";
+                    IsConnected = false;
+                    return false;
+                }*/
             }
             if (!Device.GetWiFiPowerStatus())
             {
@@ -114,7 +124,7 @@ namespace gamma_mob
                     }
                     //Не пингуем, незачем
                     return true;
-                    if (Settings.ServerIP.IndexOf(@",") >= 0)
+                    if (Settings.CurrentServer.IndexOf(@",") >= 0)
                     {
                         //IsConnected = true;
                         return true;
@@ -164,7 +174,7 @@ namespace gamma_mob
         {
             if (ServerIp == "")
             {
-                GetIpFromSettings(Settings.ServerIP);
+                GetIpFromSettings(Settings.CurrentServer);
             }
             return ServerIp;
         }

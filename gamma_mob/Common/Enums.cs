@@ -84,6 +84,7 @@
     public enum ConnectServerCe
     {
         LogServer,
-        BarcodesServer
+        BarcodesServer,
+        BackupBarcodesServer
     }
 }

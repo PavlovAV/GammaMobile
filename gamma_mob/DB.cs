@@ -78,8 +78,12 @@ namespace gamma_mob
 
                 var dbFileLog = startupPath + @"\..\GammaDBLog.sdf";
                 var dbFileBarcodes = startupPath + @"\..\..\GammaDBBarcodes.sdf";
+                var dbFileBackupBarcodes = startupPath + @"\..\GammaDBBackupBarcodes.sdf";
 
-                var dbFile = serverCe == ConnectServerCe.LogServer ? dbFileLog : serverCe == ConnectServerCe.BarcodesServer ? dbFileBarcodes : startupPath + @"\GammaDBLocal.sdf";
+                var dbFile = serverCe == ConnectServerCe.LogServer ? dbFileLog 
+                        : serverCe == ConnectServerCe.BarcodesServer ? dbFileBackupBarcodes 
+                        : serverCe == ConnectServerCe.BackupBarcodesServer ? dbFileBackupBarcodes 
+                        : startupPath + @"\GammaDBLocal.sdf";
                 if (!IsNotFirstGetConnectionCeString && !IsInitializationFirstConnectionCeString)
                 {
                     IsInitializationFirstConnectionCeString = true;
@@ -112,7 +116,7 @@ namespace gamma_mob
 
                     try
                     {
-                        empConBarcodes = new SqlCeConnection(@"Data Source = " + dbFileBarcodes);
+                        empConBarcodes = new SqlCeConnection(@"Data Source = " + dbFileBackupBarcodes);
                         empConBarcodes.Open();
                         empComBarcodes = empConBarcodes.CreateCommand();
                         empComBarcodes.CommandText = "SELECT DatabaseCreateTime FROM Settings";
@@ -139,7 +143,7 @@ namespace gamma_mob
                             }
                     }
 
-                    if (File.Exists(dbFileBarcodes))
+                    if (File.Exists(dbFileBackupBarcodes))
                     {
                         isDbFileBarcodesToDelete = true;
                         try
@@ -158,7 +162,7 @@ namespace gamma_mob
                         if (IsErrorDbFileBarcodes || IsExistNewFileBarcodes)
                             try
                             {
-                                File.Delete(dbFileBarcodes);
+                                File.Delete(dbFileBackupBarcodes);
                                 IsDeletedDbFileBarcodes = true;
                             }
                             catch
@@ -172,14 +176,14 @@ namespace gamma_mob
                             empEngine.CreateDatabase();
                             isCreateDatabaseLog = true;
                     }
-                    if (!File.Exists(dbFileBarcodes))
+                    if (!File.Exists(dbFileBackupBarcodes))
                     {
                         if (File.Exists(startupPath + @"\GammaDBBarcodes.sdf"))
                         {
                             try
                             {
                                 isCopyDatabaseBarcodes = true;
-                                File.Copy(startupPath + @"\GammaDBBarcodes.sdf", dbFileBarcodes);
+                                File.Copy(startupPath + @"\GammaDBBarcodes.sdf", dbFileBackupBarcodes);
                             }
                             catch
                             {//Скопировать не получилось - надо создать
@@ -190,7 +194,7 @@ namespace gamma_mob
                             isCreateDatabaseBarcodes = true;
                         if (isCreateDatabaseBarcodes)
                         {
-                            SqlCeEngine empEngine = new SqlCeEngine(@"Data Source = " + dbFileBarcodes);
+                            SqlCeEngine empEngine = new SqlCeEngine(@"Data Source = " + dbFileBackupBarcodes);
                             empEngine.CreateDatabase();
                             isCreateDatabaseBarcodes = true;
                         }
@@ -199,7 +203,7 @@ namespace gamma_mob
                     empConLog = new SqlCeConnection(@"Data Source = " + dbFileLog);
                     empConLog.Open();
                     empComLog = empConLog.CreateCommand();
-                    empConBarcodes = new SqlCeConnection(@"Data Source = " + dbFileBarcodes);
+                    empConBarcodes = new SqlCeConnection(@"Data Source = " + dbFileBackupBarcodes);
                     empConBarcodes.Open();
                     empComBarcodes = empConBarcodes.CreateCommand();
                     string strQuery;
@@ -309,11 +313,11 @@ namespace gamma_mob
                         empComLog.CommandText = strQuery;
                         empComLog.Parameters.Clear();
                         if (!isDbFileBarcodesToDelete)
-                            empComLog.Parameters.Add("@Log", DbType.String).Value = @"Error database " + dbFileBarcodes + @" - Database not exist";
+                            empComLog.Parameters.Add("@Log", DbType.String).Value = @"Error database " + dbFileBackupBarcodes + @" - Database not exist";
                         else if (IsDeletedDbFileBarcodes)
-                            empComLog.Parameters.Add("@Log", DbType.String).Value = @"Error database " + dbFileBarcodes + @" - Database deleted";
+                            empComLog.Parameters.Add("@Log", DbType.String).Value = @"Error database " + dbFileBackupBarcodes + @" - Database deleted";
                         else
-                            empComLog.Parameters.Add("@Log", DbType.String).Value = @"error database " + dbFileBarcodes + @" - Error database deleted";
+                            empComLog.Parameters.Add("@Log", DbType.String).Value = @"error database " + dbFileBackupBarcodes + @" - Error database deleted";
                         empComLog.ExecuteNonQuery();
                     }
                     
@@ -338,7 +342,7 @@ namespace gamma_mob
                         strQuery = "INSERT INTO Logs (Log) VALUES(@Log)";
                         empComLog.CommandText = strQuery;
                         empComLog.Parameters.Clear();
-                        empComLog.Parameters.Add("@Log", DbType.String).Value = @"Copy database " + dbFileBarcodes;
+                        empComLog.Parameters.Add("@Log", DbType.String).Value = @"Copy database " + dbFileBackupBarcodes;
                         empComLog.ExecuteNonQuery();
                     }
                     if (isCreateDatabaseBarcodes)
@@ -346,8 +350,54 @@ namespace gamma_mob
                         strQuery = "INSERT INTO Logs (Log) VALUES(@Log)";
                         empComLog.CommandText = strQuery;
                         empComLog.Parameters.Clear();
-                        empComLog.Parameters.Add("@Log", DbType.String).Value = @"Create database " + dbFileBarcodes;
+                        empComLog.Parameters.Add("@Log", DbType.String).Value = @"Create database " + dbFileBackupBarcodes;
                         empComLog.ExecuteNonQuery();
+                    }
+                    bool isCopyDatabaseBarcodesFromBackup = false;
+                    if (isCopyDatabaseBarcodes || isCreateDatabaseBarcodes)
+                    {
+                        isCopyDatabaseBarcodesFromBackup = true;
+                    }
+                    else
+                    {
+                        try
+                        {
+                            empConBarcodes = new SqlCeConnection(@"Data Source = " + dbFileBarcodes);
+                            empConBarcodes.Open();
+                            empComBarcodes = empConBarcodes.CreateCommand();
+                            empComBarcodes.CommandText = "SELECT DatabaseCreateTime FROM Settings";
+                            dbCurrentFileBarcodesCreateTime = Convert.ToDateTime(empComBarcodes.ExecuteScalar());
+                            empConBarcodes.Close();
+                        }
+                        catch
+                        {
+                            isCopyDatabaseBarcodesFromBackup = true;
+                        }
+                    }
+                    if (isCopyDatabaseBarcodesFromBackup)
+                    {
+                        try
+                        {
+                            if (File.Exists(dbFileBarcodes))
+                            {
+                                File.Delete(dbFileBarcodes);
+                            }
+                            File.Copy(dbFileBackupBarcodes, dbFileBarcodes);
+                            strQuery = "INSERT INTO Logs (Log) VALUES(@Log)";
+                            empComLog.CommandText = strQuery;
+                            empComLog.Parameters.Clear();
+                            empComLog.Parameters.Add("@Log", DbType.String).Value = @"Copy database " + dbFileBackupBarcodes;
+                            empComLog.ExecuteNonQuery();
+
+                        }
+                        catch
+                        {
+                            strQuery = "INSERT INTO Logs (Log) VALUES(@Log)";
+                            empComLog.CommandText = strQuery;
+                            empComLog.Parameters.Clear();
+                            empComLog.Parameters.Add("@Log", DbType.String).Value = @"Error copy database " + dbFileBackupBarcodes + " to " + dbFileBarcodes;
+                            empComLog.ExecuteNonQuery();
+                        }
                     }
                     empConLog.Close();
                     IsNotFirstGetConnectionCeString = true;
@@ -535,9 +585,21 @@ namespace gamma_mob
                         p26.ParameterName = "@BarcodeID";
                         p26.SqlDbType = SqlDbType.UniqueIdentifier;
                         p26.Value = item.BarcodeId;
-                        parameters2.Add(p26);
+                        parameters2.Add(p26); 
+                        var parameters2_ = new List<SqlCeParameter>();
+                        foreach (var par in parameters2)
+                        {
+                            var pp = new SqlCeParameter()
+                                    {
+                                        ParameterName = par.ParameterName,
+                                        DbType = par.DbType,
+                                        Value = par.Value
+                                    };
+                            parameters2_.Add(pp);
+                        }
                         string sql2 = "DELETE Barcodes WHERE BarcodeId = @BarcodeID";
                         var ret2 = ExecuteCeNonQuery(sql2, parameters2, CommandType.Text, ConnectServerCe.BarcodesServer);
+                        var ret2_ = ExecuteCeNonQuery(sql2, parameters2_, CommandType.Text, ConnectServerCe.BackupBarcodesServer);
                         Shared.Barcodes1C.RemovedBarcode(item.KindId);
                         return ret2;
                         break;
@@ -590,8 +652,20 @@ namespace gamma_mob
                         p08.DbType = DbType.Int16;
                         p08.Value = (item.KindId as object) ?? DBNull.Value;
                         parameters0.Add(p08);
+                        var parameters0_ = new List<SqlCeParameter>();
+                        foreach (var par in parameters0)
+                        {
+                            var pp = new SqlCeParameter()
+                                    {
+                                        ParameterName = par.ParameterName,
+                                        DbType = par.DbType,
+                                        Value = par.Value
+                                    };
+                            parameters0_.Add(pp);
+                        }
                         string sql0 = "INSERT INTO Barcodes (Barcode, Name, NomenclatureID, CharacteristicID, QualityID, MeasureUnitID, BarcodeID, Number, KindId) VALUES (@Barcode, @Name, @NomenclatureID, @CharacteristicID, @QualityID, @MeasureUnitID, @BarcodeID, @Number, @KindID)";
                         var ret0 = ExecuteCeNonQuery(sql0, parameters0, CommandType.Text, ConnectServerCe.BarcodesServer);
+                        var ret0_ = ExecuteCeNonQuery(sql0, parameters0_, CommandType.Text, ConnectServerCe.BackupBarcodesServer);
                         Shared.Barcodes1C.AddedBarcode(item.KindId);
                         return ret0;
                         break;
@@ -644,9 +718,21 @@ namespace gamma_mob
                         p8.DbType = DbType.Int16;
                         p8.Value = (item.KindId as object) ?? DBNull.Value;
                         parameters1.Add(p8);
+                        var parameters1_ =  new List<SqlCeParameter>();
+                        foreach (var par in parameters1)
+                        {
+                            var pp = new SqlCeParameter()
+                                {
+                                    ParameterName = par.ParameterName,
+                                    DbType = par.DbType,
+                                    Value = par.Value
+                                };
+                            parameters1_.Add(pp);
+                        }
                         string sql1 = "UPDATE Barcodes SET Barcode = @Barcode, Name = @Name, NomenclatureID = @NomenclatureID, CharacteristicID = @CharacteristicID, QualityID = @QualityID, MeasureUnitID = @MeasureUnitID, BarcodeID = @BarcodeID, Number = @Number, KindId = @KindID  WHERE BarcodeId = @BarcodeID";
-
-                        return ExecuteCeNonQuery(sql1, parameters1, CommandType.Text, ConnectServerCe.BarcodesServer);
+                        var ret1 = ExecuteCeNonQuery(sql1, parameters1, CommandType.Text, ConnectServerCe.BarcodesServer);
+                        var ret1_ = ExecuteCeNonQuery(sql1, parameters1_, CommandType.Text, ConnectServerCe.BackupBarcodesServer);
+                        return ret1;
                         break;
                 }
 

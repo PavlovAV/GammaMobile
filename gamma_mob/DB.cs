@@ -386,7 +386,7 @@ namespace gamma_mob
                             strQuery = "INSERT INTO Logs (Log) VALUES(@Log)";
                             empComLog.CommandText = strQuery;
                             empComLog.Parameters.Clear();
-                            empComLog.Parameters.Add("@Log", DbType.String).Value = @"Copy database " + dbFileBackupBarcodes;
+                            empComLog.Parameters.Add("@Log", DbType.String).Value = @"Copy database " + dbFileBackupBarcodes + " to " + dbFileBarcodes;
                             empComLog.ExecuteNonQuery();
 
                         }

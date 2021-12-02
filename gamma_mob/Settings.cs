@@ -29,74 +29,78 @@ namespace gamma_mob
             var xdoc = new XmlDocument();
             xdoc.Load(m_settingsPath);
             XmlElement root = xdoc.DocumentElement;
-            XmlNodeList nodeList = root.ChildNodes.Item(0).ChildNodes;
+            for (var j = 0; j < root.ChildNodes.Count; j++)
+            {
+                XmlNode node = root.ChildNodes.Item(j);
+                XmlNodeList nodeList = node.ChildNodes;
 
-            // Add settings to the NameValueCollection.
-            m_settings = new NameValueCollection();
-            for (var i = 0; i < nodeList.Count; i++ )
-            {
-                m_settings.Add(nodeList.Item(i).Attributes["key"].Value, nodeList.Item(i).Attributes["value"].Value);
-            }
-            if ((m_settings.Get("SecondServerIP") ?? String.Empty) == String.Empty)
-                m_settings.Add("SecondServerIP", "");
-            if (ServerIP.Substring(0,3) != "192")
-            {
-                if (SecondServerIP == "")
-                    SecondServerIP = ServerIP;
-                try
+                // Add settings to the NameValueCollection.
+                m_settings = new NameValueCollection();
+                for (var i = 0; i < nodeList.Count; i++)
                 {
-                    if (!File.Exists(m_currentSecondServerFlag))
-                        File.CreateText(m_currentSecondServerFlag);
+                    m_settings.Add(node.Name +"."+ nodeList.Item(i).Attributes["key"].Value, nodeList.Item(i).Attributes["value"].Value);
                 }
-                catch
+                if ((m_settings.Get("appSettings.SecondServerIP") ?? String.Empty) == String.Empty)
+                    m_settings.Add("appSettings.SecondServerIP", "");
+                if (ServerIP.Substring(0, 3) != "192")
                 {
-                    Shared.SaveToLog("Error Create(m_currentSecondServerFlag)");
+                    if (SecondServerIP == "")
+                        SecondServerIP = ServerIP;
+                    try
+                    {
+                        if (!File.Exists(m_currentSecondServerFlag))
+                            File.CreateText(m_currentSecondServerFlag);
+                    }
+                    catch
+                    {
+                        Shared.SaveToLog("Error Create(m_currentSecondServerFlag)");
+                    }
                 }
             }
-            m_settings.Add("CurrentServer", File.Exists(m_currentSecondServerFlag)
-                 ? m_settings.Get("SecondServerIP") : m_settings.Get("ServerIP"));
+            m_settings.Add("appSettings.CurrentServer", File.Exists(m_currentSecondServerFlag)
+                 ? m_settings.Get("appSettings.SecondServerIP") : m_settings.Get("appSettings.ServerIP"));
             
         }
 
         public static string ServerIP
         {
-            get { return m_settings.Get("ServerIP"); }
-            set { m_settings.Set("ServerIP", value); }
+            get { return m_settings.Get("appSettings.ServerIP"); }
+            set { m_settings.Set("appSettings.ServerIP", value); }
         }
 
         public static string UserName
         {
-            get { return m_settings.Get("UserName"); }
-            set { m_settings.Set("UserName", value); }
+            get { return m_settings.Get("appSettings.UserName"); }
+            set { m_settings.Set("appSettings.UserName", value); }
         }
 
         public static string Password
         {
-            get { return m_settings.Get("Password"); }
-            set { m_settings.Set("Password", value); }
+            get { return m_settings.Get("appSettings.Password"); }
+            set { m_settings.Set("appSettings.Password", value); }
         }
 
         public static string Database
         {
-            get { return m_settings.Get("Database"); }
-            set { m_settings.Set("Database", value); }
+            get { return m_settings.Get("appSettings.Database"); }
+            set { m_settings.Set("appSettings.Database", value); }
         }
 
         public static string TimeOut
         {
-            get { return m_settings.Get("TimeOut"); }
-            set { m_settings.Set("TimeOut", value); }
+            get { return m_settings.Get("appSettings.TimeOut"); }
+            set { m_settings.Set("appSettings.TimeOut", value); }
         }
 
         public static string SecondServerIP
         {
-            get { return m_settings.Get("SecondServerIP"); }
-            set { m_settings.Set("SecondServerIP", value); }
+            get { return m_settings.Get("appSettings.SecondServerIP"); }
+            set { m_settings.Set("appSettings.SecondServerIP", value); }
         }
 
         public static string CurrentServer
         {
-            get { return m_settings.Get("CurrentServer"); }
+            get { return m_settings.Get("appSettings.CurrentServer"); }
             //set { m_settings.Set("CurrentServer", value); }
         }
 
@@ -132,7 +136,7 @@ namespace gamma_mob
             try
             {
                 if (File.Exists(m_currentSecondServerFlag)) File.Delete(m_currentSecondServerFlag);
-                m_settings.Set("CurrentServer", ServerIP);
+                m_settings.Set("appSettings.CurrentServer", ServerIP);
                 ret = true;
             }
             catch
@@ -150,7 +154,7 @@ namespace gamma_mob
                 try
                 {
                     File.CreateText(m_currentSecondServerFlag);
-                    m_settings.Set("CurrentServer", SecondServerIP);
+                    m_settings.Set("appSettings.CurrentServer", SecondServerIP);
                     ret = true;
                 }
                 catch
@@ -160,6 +164,5 @@ namespace gamma_mob
             }
             return ret;
         }
-
     }
 }

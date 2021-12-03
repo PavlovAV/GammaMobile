@@ -1,12 +1,174 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 
 <configuration>
-  <appSettings>
-    <add key="ServerIP" value="192.168.0.78" />
-    <add key="Database" value="gammanew" />
-    <add key="UserName" value="tsd" />
-    <add key="Password" value="mobileuser" />
-    <add key="TimeOut" value="2" />
-    <add key="SecondServerIP" value="83.171.103.204,5009" />
-  </appSettings>
+  <progSettings>
+    <Gamma>
+      <add key="ServerIP" value="192.168.0.78" />
+      <add key="Database" value="gammanewTemp" />
+      <add key="UserName" value="tsd" />
+      <add key="Password" value="mobileuser" />
+      <add key="TimeOut" value="2" />
+      <add key="SecondServerIP" value="83.171.103.204,5009" />
+    </Gamma>
+  </progSettings>
+  <dduSettings>
+    <HKEY_CURRENT_USER__Software__Datalogic__DDU__GENERAL>
+      <add key="Password" value="123446" />
+      <add key="DashShowInAppsel" value="0" />
+      <add key="DashWifiLocation" value="0" />
+      <add key="DduLoad" value="1" />
+      <add key="DLButtonsEnable" value="1" />
+      <add key="FirstLoad" value="1" />
+      <add key="AppSelLoad" value="1" />
+      <add key="DashBatLocation" value="3" />
+    </HKEY_CURRENT_USER__Software__Datalogic__DDU__GENERAL>
+    <HKEY_CURRENT_USER__Software__Datalogic__DDU__UserInterface>
+      <add key="EnableDesktop" value="0" />
+      <add key="EnableStartMenu" value="0" />
+      <add key="EnableTaskbar" value="0" />
+      <add key="TurnOffAutoDeploy" value="1" />
+      <add key="ShowTaskbar" value="1" />
+    </HKEY_CURRENT_USER__Software__Datalogic__DDU__UserInterface>
+    <HKEY_CURRENT_USER__Software__Datalogic__DDU__AppSelector__0>
+      <add key="Default" value="" />
+      <add key="CommandLine" value="" />
+      <add key="Delay" value="1" />
+      <add key="Executable" value="\FlashDisk\gamma_mob\gamma_mob.exe" />
+      <add key="IconFile" value="" />
+      <add key="Password" value="" />
+      <add key="Startup" value="0" />
+      <add key="Title" value="Gamma" />
+    </HKEY_CURRENT_USER__Software__Datalogic__DDU__AppSelector__0>
+    <HKEY_CURRENT_USER__Software__Datalogic__DDU__AppSelector__1>
+      <add key="Default" value="" />
+      <add key="CommandLine" value="" />
+      <add key="Delay" value="0" />
+      <add key="Executable" value="\FlashDisk\gamma_mob\cerdisp.exe" />
+      <add key="IconFile" value="" />
+      <add key="Password" value="" />
+      <add key="Startup" value="0" />
+      <add key="Title" value="RDP" />
+    </HKEY_CURRENT_USER__Software__Datalogic__DDU__AppSelector__1>
+  </dduSettings>
+  <dlbSettings>
+    <HKEY_CURRENT_USER__Software__Datalogic__DDU__KeyListener__0>
+      <add key="AssignedFunc" value="" />
+      <add key="CommandLine" value="" />
+      <add key="FuncFlag" value="44" />
+      <add key="Modifiers" value="0" />
+      <add key="VirtualKey" value="0" />
+    </HKEY_CURRENT_USER__Software__Datalogic__DDU__KeyListener__0>
+    <HKEY_CURRENT_USER__Software__Datalogic__DDU__KeyListener__1>
+      <add key="AssignedFunc" value="\FlashDisk\gamma_mob\cerdisp.exe" />
+      <add key="CommandLine" value="" />
+      <add key="FuncFlag" value="0" />
+      <add key="Modifiers" value="0" />
+      <add key="VirtualKey" value="112" />
+    </HKEY_CURRENT_USER__Software__Datalogic__DDU__KeyListener__1>
+    <HKEY_CURRENT_USER__Software__Datalogic__DDU__KeyListener__11>
+      <add key="AssignedFunc" value="" />
+      <add key="CommandLine" value="" />
+      <add key="FuncFlag" value="44" />
+      <add key="Modifiers" value="0" />
+      <add key="VirtualKey" value="193" />
+    </HKEY_CURRENT_USER__Software__Datalogic__DDU__KeyListener__11>
+    <HKEY_CURRENT_USER__Software__Datalogic__DDU__KeyListener__3>
+      <add key="AssignedFunc" value="" />
+      <add key="CommandLine" value="" />
+      <add key="FuncFlag" value="4" />
+      <add key="Modifiers" value="0" />
+      <add key="VirtualKey" value="114" />
+    </HKEY_CURRENT_USER__Software__Datalogic__DDU__KeyListener__3>
+    <HKEY_CURRENT_USER__Software__Datalogic__DDU__KeyListener__7>
+      <add key="AssignedFunc" value="\Windows\Programs\Summit\scu.exe" />
+      <add key="CommandLine" value="" />
+      <add key="FuncFlag" value="0" />
+      <add key="Modifiers" value="0" />
+      <add key="VirtualKey" value="118" />
+    </HKEY_CURRENT_USER__Software__Datalogic__DDU__KeyListener__7>
+    <HKEY_CURRENT_USER__Software__Datalogic__DDU__KeyListener__9>
+      <add key="AssignedFunc" value="" />
+      <add key="CommandLine" value="" />
+      <add key="FuncFlag" value="3" />
+      <add key="Modifiers" value="0" />
+      <add key="VirtualKey" value="120" />
+    </HKEY_CURRENT_USER__Software__Datalogic__DDU__KeyListener__9>
+  </dlbSettings>
+  <scanSettings>
+    <EAN13>
+      <add key="ENABLE" value="1" />
+      <add key="SEND_CHECK" value="1" />
+      <add key="SEND_SYS" value="1" />
+      <add key="TO_ISBN" value="0" />
+      <add key="TO_ISSN" value="0" />
+    </EAN13>
+    <I25>
+      <add key="ENABLE" value="1" />
+      <add key="MIN_LENGTH" value="6" />
+      <add key="MAX_LENGTH" value="25" />
+      <add key="ENABLE_CHECK" value="0" />
+      <add key="SEND_CHECK" value="1" />
+      <add key="CASE_CODE" value="0" />
+    </I25>
+    <CODE128>
+      <add key="ENABLE" value="1" />
+      <add key="MIN_LENGTH" value="6" />
+      <add key="MAX_LENGTH" value="25" />
+      <add key="ENABLE_GS1_128" value="1" />
+    </CODE128>
+    <CODE39>
+      <add key="ENABLE" value="1" />
+      <add key="MIN_LENGTH" value="6" />
+      <add key="MAX_LENGTH" value="25" />
+      <add key="ENABLE_CHECK" value="0" />
+      <add key="SEND_CHECK" value="1" />
+      <add key="FULL_ASCII" value="1" />
+    </CODE39>
+    <CODEBAR>
+      <add key="ENABLE" value="0" />
+    </CODEBAR>
+    <CODE93>
+      <add key="ENABLE" value="0" />
+    </CODE93>
+    <EAN8>
+      <add key="ENABLE" value="0" />
+    </EAN8>
+    <GS1_14>
+      <add key="ENABLE" value="0" />
+    </GS1_14>
+    <GS1_EXP>
+      <add key="ENABLE" value="0" />
+    </GS1_EXP>
+    <GS1_LIMIT>
+      <add key="ENABLE" value="0" />
+    </GS1_LIMIT>
+    <MSI>
+      <add key="ENABLE" value="0" />
+    </MSI>
+    <PHARMA39>
+      <add key="ENABLE" value="0" />
+    </PHARMA39>
+    <S25>
+      <add key="ENABLE" value="0" />
+    </S25>
+    <TRIOPTIC>
+      <add key="ENABLE" value="0" />
+    </TRIOPTIC>
+    <UPCA>
+      <add key="ENABLE" value="0" />
+    </UPCA>
+    <UPCE0>
+      <add key="ENABLE" value="0" />
+    </UPCE0>
+  </scanSettings>
+  <backlightSettings>
+    <HKEY_CURRENT_USER__ControlPanel__BackLight>
+      <add key="BatPowerOn" value="1" />
+      <add key="BatteryTimeout" value="300" />
+      <add key="PowerSave" value="1" />
+      <add key="UseBattery" value="1" />
+      <add key="Enable" value="1" />
+      <add key="Brightness" value="20" />
+    </HKEY_CURRENT_USER__ControlPanel__BackLight>
+  </backlightSettings>
 </configuration>

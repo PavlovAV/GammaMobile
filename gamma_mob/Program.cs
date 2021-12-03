@@ -33,7 +33,7 @@ namespace gamma_mob
             // устанавливаем метод обратного вызова
             TimerCallback tm = new TimerCallback(UpdateProgram.LoadUpdate);
             // создаем таймер
-            System.Threading.Timer timer = new System.Threading.Timer(tm, num, 10000, 2700000);
+            System.Threading.Timer timer = new System.Threading.Timer(tm, num, 30000, 1800000);
 #endif
 
             var loginForm = new LoginForm();

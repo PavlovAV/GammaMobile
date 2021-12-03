@@ -87,6 +87,26 @@ namespace gamma_mob
                 if (!IsNotFirstGetConnectionCeString && !IsInitializationFirstConnectionCeString)
                 {
                     IsInitializationFirstConnectionCeString = true;
+
+                    bool isCopyAutostartIni = false;
+                    bool isErrorCopyAutostartIni = false;
+                    
+                    if (!File.Exists(@"\FlashDisk\Autostart.ini"))
+                    {
+                        if (File.Exists(startupPath + @"\Autostart.ini"))
+                        {
+                            try
+                            {
+                                isCopyAutostartIni = true;
+                                File.Copy(startupPath + @"\Autostart.ini", @"\FlashDisk\Autostart.ini");
+                            }
+                            catch
+                            {
+                                isErrorCopyAutostartIni = true;
+                            }
+                        }
+                    }
+                    
                     bool isCreateDatabaseLog = false;
                     bool isCreateDatabaseBarcodes = false;
                     bool isCopyDatabaseLog = false;
@@ -399,6 +419,22 @@ namespace gamma_mob
                             empComLog.ExecuteNonQuery();
                         }
                     }
+                    if (isCopyAutostartIni)
+                    {
+                        strQuery = "INSERT INTO Logs (Log) VALUES(@Log)";
+                        empComLog.CommandText = strQuery;
+                        empComLog.Parameters.Clear();
+                        empComLog.Parameters.Add("@Log", DbType.String).Value = @"Copy Autostart.Ini";
+                        empComLog.ExecuteNonQuery();
+                    }
+                    if (isErrorCopyAutostartIni)
+                    {
+                        strQuery = "INSERT INTO Logs (Log) VALUES(@Log)";
+                        empComLog.CommandText = strQuery;
+                        empComLog.Parameters.Clear();
+                        empComLog.Parameters.Add("@Log", DbType.String).Value = @"Error copy Autostart.Ini";
+                        empComLog.ExecuteNonQuery();
+                    } 
                     empConLog.Close();
                     IsNotFirstGetConnectionCeString = true;
                 }

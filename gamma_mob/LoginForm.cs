@@ -100,6 +100,7 @@ namespace gamma_mob
             }
             catch
             {
+                Shared.SaveToLog("Error LoginFormLoad");
             }
 
             //Подписка на событие восстановления связи

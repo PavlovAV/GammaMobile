@@ -7,6 +7,7 @@ using gamma_mob.Common;
 using System;
 using Microsoft.Win32;
 using Datalogic.API;
+using System.Security.Cryptography;
 
 namespace gamma_mob
 {
@@ -18,69 +19,131 @@ namespace gamma_mob
         private static readonly NameValueCollection m_settings;
         private static readonly string m_settingsPath;
         private static readonly string m_currentSecondServerFlag;
+        private static readonly string m_settingsCPath;
 
         static Settings()
         {
             m_settingsPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase);
             m_currentSecondServerFlag = m_settingsPath + @"\CurrentSecondServer.flg";
             m_settingsPath += @"\Settings.xml";
-
-            if (!File.Exists(m_settingsPath))
-                throw new FileNotFoundException(m_settingsPath + " could not be found.");
-
-            var xdoc = new XmlDocument();
-            xdoc.Load(m_settingsPath);
-            XmlElement root = xdoc.DocumentElement;
-            // Add settings to the NameValueCollection.
-            m_settings = new NameValueCollection();
-            if (root.ChildNodes.Count == 1)
+            m_settingsCPath = m_settingsPath + @"c";
+/*#if DEBUG
+//Для формирования нового зашифрованного файла настроек.
+//1. внести изменения в settings.xml
+//2. снять комментарий и запустить в режиме Debug
+//3. новый файл settings.xmlc скопировать из ТСД (Program files\gamma_mob)
             {
-                XmlNode node = root.ChildNodes.Item(0);
-                XmlNodeList nodeList = node.ChildNodes;
-                for (var i = 0; i < nodeList.Count; i++)
-                {
-                    m_settings.Add("progSettings.Gamma."+nodeList.Item(i).Attributes["key"].Value, nodeList.Item(i).Attributes["value"].Value);
-                }
-                if ((m_settings.Get("progSettings.Gamma.SecondServerIP") ?? String.Empty) == String.Empty)
-                    m_settings.Add("progSettings.Gamma.SecondServerIP", "");
-                
-                if (ServerIP != null && ServerIP.Substring(0, 3) != "192")
-                {
-                    if (SecondServerIP == "")
-                        SecondServerIP = ServerIP;
-                    try
-                    {
-                        if (!File.Exists(m_currentSecondServerFlag))
-                            File.CreateText(m_currentSecondServerFlag);
-                    }
-                    catch
-                    {
-                        Shared.SaveToLog("Error Create(m_currentSecondServerFlag)");
-                    }
-                }
+                FileStream stream = new FileStream(m_settingsCPath, FileMode.OpenOrCreate, FileAccess.Write);
 
+                DESCryptoServiceProvider cryptic = new DESCryptoServiceProvider();
+
+                cryptic.Key = ASCIIEncoding.ASCII.GetBytes("GammaMob");
+                cryptic.IV = ASCIIEncoding.ASCII.GetBytes("GammaMob");
+
+                CryptoStream crStream = new CryptoStream(stream,
+                   cryptic.CreateEncryptor(), CryptoStreamMode.Write);
+
+                var f = File.OpenText(m_settingsPath);
+                string ff = f.ReadToEnd();
+                byte[] data = ASCIIEncoding.ASCII.GetBytes(ff);
+
+                crStream.Write(data, 0, data.Length);
+                f.Close();
+                crStream.Close();
+                stream.Close();
+            }
+#endif
+*/
+            if (!File.Exists(m_settingsPath) && !File.Exists(m_settingsCPath))
+            {
+                Shared.SaveToLog("Error Settings files in " + m_settingsPath.Replace(@"\Settings.xml", @"\") + " could not be found.");
+                throw new FileNotFoundException(m_settingsPath + " could not be found.");
             }
             else
             {
-                for (var h = 0; h < root.ChildNodes.Count; h++)
+                var xdoc = new XmlDocument();
+                //Если есть незашифрованный - то используем его
+                if (File.Exists(m_settingsPath))
                 {
-                    XmlNode nodeSettings = root.ChildNodes.Item(h);
-                    XmlNodeList nodeSettingsList = nodeSettings.ChildNodes;
-                    for (var j = 0; j < nodeSettingsList.Count; j++)
+                    xdoc.Load(m_settingsPath);
+                    Shared.SaveToLog("Settings load from " + m_settingsPath);
+                }
+                else
+                {
+                    
+                                
+                    FileStream stream_ = new FileStream(m_settingsCPath,
+                                                  FileMode.Open, FileAccess.Read);
+
+                    DESCryptoServiceProvider cryptic_ = new DESCryptoServiceProvider();
+
+                    cryptic_.Key = ASCIIEncoding.ASCII.GetBytes("GammaMob");
+                    cryptic_.IV = ASCIIEncoding.ASCII.GetBytes("GammaMob");
+
+                    CryptoStream crStream_ = new CryptoStream(stream_,
+                        cryptic_.CreateDecryptor(), CryptoStreamMode.Read);
+
+                    StreamReader reader_ = new StreamReader(crStream_);
+                    xdoc.Load(reader_);
+
+                    reader_.Close();
+                    stream_.Close();
+                    Shared.SaveToLog("Settings load from " + m_settingsCPath);
+                }
+
+                //var xdoc = new XmlDocument();
+                //xdoc.Load(m_settingsPath);
+                XmlElement root = xdoc.DocumentElement;
+                
+                m_settings = new NameValueCollection();
+                if (root.ChildNodes.Count == 1)
+                {
+                    XmlNode node = root.ChildNodes.Item(0);
+                    XmlNodeList nodeList = node.ChildNodes;
+                    for (var i = 0; i < nodeList.Count; i++)
                     {
-                        XmlNode node = nodeSettings.ChildNodes.Item(j);
-                        XmlNodeList nodeList = node.ChildNodes;
-                        for (var i = 0; i < nodeList.Count; i++)
+                        m_settings.Add("progSettings.Gamma." + nodeList.Item(i).Attributes["key"].Value, nodeList.Item(i).Attributes["value"].Value);
+                    }
+                    if ((m_settings.Get("progSettings.Gamma.SecondServerIP") ?? String.Empty) == String.Empty)
+                        m_settings.Add("progSettings.Gamma.SecondServerIP", "");
+
+                    if (ServerIP != null && ServerIP.Substring(0, 3) != "192")
+                    {
+                        if (SecondServerIP == "")
+                            SecondServerIP = ServerIP;
+                        try
                         {
-                            m_settings.Add(nodeSettings.Name + "." + node.Name + "." + nodeList.Item(i).Attributes["key"].Value, nodeList.Item(i).Attributes["value"].Value);
+                            if (!File.Exists(m_currentSecondServerFlag))
+                                File.CreateText(m_currentSecondServerFlag);
+                        }
+                        catch
+                        {
+                            Shared.SaveToLog("Error Create(m_currentSecondServerFlag)");
                         }
                     }
+
                 }
-                UpdateDeviceSettings();
+                else
+                {
+                    for (var h = 0; h < root.ChildNodes.Count; h++)
+                    {
+                        XmlNode nodeSettings = root.ChildNodes.Item(h);
+                        XmlNodeList nodeSettingsList = nodeSettings.ChildNodes;
+                        for (var j = 0; j < nodeSettingsList.Count; j++)
+                        {
+                            XmlNode node = nodeSettings.ChildNodes.Item(j);
+                            XmlNodeList nodeList = node.ChildNodes;
+                            for (var i = 0; i < nodeList.Count; i++)
+                            {
+                                m_settings.Add(nodeSettings.Name + "." + node.Name + "." + nodeList.Item(i).Attributes["key"].Value, nodeList.Item(i).Attributes["value"].Value);
+                            }
+                        }
+                    }
+                    UpdateDeviceSettings();
+                }
+                m_settings.Add("progSettings.Gamma.CurrentServer", File.Exists(m_currentSecondServerFlag)
+                     ? m_settings.Get("progSettings.Gamma.SecondServerIP") : m_settings.Get("progSettings.Gamma.ServerIP"));
             }
-            m_settings.Add("progSettings.Gamma.CurrentServer", File.Exists(m_currentSecondServerFlag)
-                 ? m_settings.Get("progSettings.Gamma.SecondServerIP") : m_settings.Get("progSettings.Gamma.ServerIP"));
-            
         }
 
         public static string ServerIP
@@ -337,11 +400,13 @@ namespace gamma_mob
                     }
 
             }
+#if !DEBUG
             if (reboot)
             {
                 Shared.SaveToLog("Error - Rebooting Device");
                 Device.Reset(Device.BootType.Warm);
             }
+#endif
         }
 
         private static bool IsInt(string s)

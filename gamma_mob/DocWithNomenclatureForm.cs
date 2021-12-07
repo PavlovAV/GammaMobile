@@ -518,51 +518,75 @@ namespace gamma_mob
         private void UpdateGrid(Guid nomenclatureId, Guid characteristicId, Guid qualityId, string nomenclatureName,
                 string shortNomenclatureName, decimal quantity, bool add, int countProductSpools, int countProductSpoolsWithBreak, int? productKindId)
         {
-            DocNomenclatureItem good =
-                NomenclatureList.FirstOrDefault(
+            DocNomenclatureItem good = null;
+            string error_ch = "";
+
+            try
+            {
+                good = NomenclatureList.FirstOrDefault(
                     g => g.NomenclatureId == nomenclatureId && g.CharacteristicId == characteristicId && g.QualityId == qualityId);
-            if (good == null)
-            {
-                good = new DocNomenclatureItem
-                    {
-                        NomenclatureId = nomenclatureId,
-                        CharacteristicId = characteristicId,
-                        QualityId = qualityId,
-                        NomenclatureName = nomenclatureName,
-                        ShortNomenclatureName = shortNomenclatureName,
-                        CollectedQuantity = 0,
-                        Quantity = "0",
-                        CountProductSpools = 0,
-                        CountProductSpoolsWithBreak = 0,
-                        CoefficientPackage = null,
-                        CoefficientPallet = null
-                    };
-                NomenclatureList.Add(good);
-                BSource.DataSource = NomenclatureList;
+                error_ch = "ch1";
+                if (good == null)
+                {
+                    good = new DocNomenclatureItem
+                        {
+                            NomenclatureId = nomenclatureId,
+                            CharacteristicId = characteristicId,
+                            QualityId = qualityId,
+                            NomenclatureName = nomenclatureName,
+                            ShortNomenclatureName = shortNomenclatureName,
+                            CollectedQuantity = 0,
+                            Quantity = "0",
+                            CountProductSpools = 0,
+                            CountProductSpoolsWithBreak = 0,
+                            CoefficientPackage = null,
+                            CoefficientPallet = null
+                        };
+                    NomenclatureList.Add(good);
+                    BSource.DataSource = NomenclatureList;
+                }
+                
+                if (add)
+                {
+                    error_ch = "ch2";
+                    good.CountProductSpools += countProductSpools;
+                    good.CountProductSpoolsWithBreak += countProductSpoolsWithBreak;
+                    good.CollectedQuantity += quantity;
+                    if (productKindId == null || productKindId != 3) Collected++;
+                }
+                else
+                {
+                    error_ch = "ch3";
+                    good.CountProductSpools -= countProductSpools;
+                    good.CountProductSpoolsWithBreak -= countProductSpoolsWithBreak;
+                    good.CollectedQuantity -= quantity;
+                    if (productKindId == null || productKindId != 3) Collected--;
+                }
+                error_ch = "ch4";
+                CountNomenclatureExceedingMaxPercentWithBreak = 0;
+                error_ch = "ch5";
+                foreach (DocNomenclatureItem item in NomenclatureList)
+                {
+                    CountNomenclatureExceedingMaxPercentWithBreak += (item.SpoolWithBreakPercentColumn > Convert.ToDecimal(MaxAllowedPercentBreak)) ? 1 : 0;
+                }
+                error_ch = "ch6";
+                gridDocOrder.UnselectAll();
+                error_ch = "ch7";
+                int index = NomenclatureList.IndexOf(good);
+                error_ch = "ch8";
+                if (index > 0)
+                {
+                    gridDocOrder.CurrentRowIndex = index;
+                    gridDocOrder.Select(index);
+                }
+                error_ch = "ch9";
             }
-            if (add)
+            catch
             {
-                good.CountProductSpools += countProductSpools;
-                good.CountProductSpoolsWithBreak += countProductSpoolsWithBreak;
-                good.CollectedQuantity += quantity;
-                if (productKindId == null || productKindId != 3) Collected++;
+                Shared.SaveToLog("Error DocWithNomenclatureForms " + error_ch);
+                MessageBox.Show("Ошибка при обновлении списка. Нажмите Ок для повтора.");
+                RefreshDocOrder(DocOrderId, true);
             }
-            else
-            {
-                good.CountProductSpools -= countProductSpools;
-                good.CountProductSpoolsWithBreak -= countProductSpoolsWithBreak;
-                good.CollectedQuantity -= quantity;
-                if (productKindId == null || productKindId != 3) Collected--;
-            }
-            CountNomenclatureExceedingMaxPercentWithBreak = 0;
-            foreach (DocNomenclatureItem item in NomenclatureList)
-            {
-                CountNomenclatureExceedingMaxPercentWithBreak += (item.SpoolWithBreakPercentColumn > Convert.ToDecimal(MaxAllowedPercentBreak)) ? 1 : 0;
-            }
-            gridDocOrder.UnselectAll();
-            int index = NomenclatureList.IndexOf(good);
-            gridDocOrder.CurrentRowIndex = index;
-            gridDocOrder.Select(index);
         }
 
         private void btnAddProduct_Click(object sender, EventArgs e)

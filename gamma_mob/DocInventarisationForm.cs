@@ -489,55 +489,81 @@ namespace gamma_mob
         private void UpdateGrid(Guid nomenclatureId, Guid characteristicId, Guid qualityId, string nomenclatureName,
                 string shortNomenclatureName, decimal quantity, int? productKindId)
         {
-            DocNomenclatureItem good =
-                NomenclatureList.FirstOrDefault(
+            DocNomenclatureItem good = null;
+            string error_ch = "";
+
+            try
+            {
+                good = NomenclatureList.FirstOrDefault(
                     g => g.NomenclatureId == nomenclatureId && g.CharacteristicId == characteristicId && g.QualityId == qualityId);
-            if (good == null)
-            {
-                good = new DocNomenclatureItem
+                error_ch = "ch1"; 
+                if (good == null)
                 {
-                    NomenclatureId = nomenclatureId,
-                    CharacteristicId = characteristicId,
-                    QualityId = qualityId,
-                    NomenclatureName = nomenclatureName,
-                    ShortNomenclatureName = shortNomenclatureName,
-                    CollectedQuantity = 0
-                };
-                NomenclatureList.Add(good);
-                BSource.DataSource = NomenclatureList;
-            }
-            //if (!add)
-            //{
-            //    good.CollectedQuantity -= quantity;
-            //    if (productKindId == null || productKindId != 3)
-            //    {
-            //        Collected--;
-            //        //Barcodes.Remove(Barcodes.FirstOrDefault(b => b.Barcode == barcode));
-            //    }
-            //    if (good.CollectedQuantity == 0)
-            //        NomenclatureList.Remove(good);
-            //}
-            //else
-            {
-                good.CollectedQuantity += quantity;
-                if (productKindId == null || productKindId != 3)
-                {
-                    Collected++;
-                    //Barcodes.Add(new Barcodes
-                    //{
-                    //    Barcode = barcode,
-                    //    ProductKindId = productKindId
-                    //});
+                    good = new DocNomenclatureItem
+                    {
+                        NomenclatureId = nomenclatureId,
+                        CharacteristicId = characteristicId,
+                        QualityId = qualityId,
+                        NomenclatureName = nomenclatureName,
+                        ShortNomenclatureName = shortNomenclatureName,
+                        CollectedQuantity = 0
+                    };
+                    error_ch = "ch1_1";
+                    NomenclatureList.Add(good);
+                    error_ch = "ch1_2";
+                    BSource.DataSource = NomenclatureList;
+                    error_ch = "ch1_3";
                 }
+                error_ch = "ch2";
+                //if (!add)
+                //{
+                //    good.CollectedQuantity -= quantity;
+                //    if (productKindId == null || productKindId != 3)
+                //    {
+                //        Collected--;
+                //        //Barcodes.Remove(Barcodes.FirstOrDefault(b => b.Barcode == barcode));
+                //    }
+                //    if (good.CollectedQuantity == 0)
+                //        NomenclatureList.Remove(good);
+                //}
+                //else
+                {
+                    good.CollectedQuantity += quantity;
+                    if (productKindId == null || productKindId != 3)
+                    {
+                        Collected++;
+                        //Barcodes.Add(new Barcodes
+                        //{
+                        //    Barcode = barcode,
+                        //    ProductKindId = productKindId
+                        //});
+                    }
+                }
+                error_ch = "ch4";
+                if (gridInventarisation != null && gridInventarisation.DataSource != null)
+                {
+                    error_ch = "ch5";
+                    gridInventarisation.UnselectAll();
+                    error_ch = "ch6";
+                    int index = NomenclatureList.IndexOf(good);
+                    error_ch = "ch7";
+                    if (index > 0)
+                    {
+                        error_ch = "ch7_1";
+                        gridInventarisation.CurrentRowIndex = index;
+                        gridInventarisation.Select(index);
+                    }
+                }
+                error_ch = "ch8";
+                Activate();
+                error_ch = "ch9";
             }
-            gridInventarisation.UnselectAll();
-            int index = NomenclatureList.IndexOf(good);
-            if (index > 0)
+            catch
             {
-                gridInventarisation.CurrentRowIndex = index;
-                gridInventarisation.Select(index);
+                Shared.SaveToLog("Error DocInventarisationForm " + error_ch);
+                MessageBox.Show("Ошибка при обновлении списка. Нажмите Ок для повтора.");
+                RefreshDocInventarisation(DocInventarisationId, true);
             }
-            Activate();
         }
 
         private void BarcodeReaction(string barcode)

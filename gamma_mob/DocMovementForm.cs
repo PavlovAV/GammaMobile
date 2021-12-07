@@ -623,7 +623,7 @@ namespace gamma_mob
                     }
                     error_ch = "ch4";
                 }
-                if (gridDocAccept != null && gridDocAccept.DataSource != null)
+                //if (gridDocAccept != null && gridDocAccept.DataSource != null)
                 {
                     gridDocAccept.UnselectAll();
                     error_ch = "ch5";

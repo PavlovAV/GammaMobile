@@ -143,6 +143,7 @@ namespace gamma_mob
                 }
                 m_settings.Add("progSettings.Gamma.CurrentServer", File.Exists(m_currentSecondServerFlag)
                      ? m_settings.Get("progSettings.Gamma.SecondServerIP") : m_settings.Get("progSettings.Gamma.ServerIP"));
+                Shared.SaveToLog("CurrentServer/DB " + CurrentServer + "/" + Database);
             }
         }
 

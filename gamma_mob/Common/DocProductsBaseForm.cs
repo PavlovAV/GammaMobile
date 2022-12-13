@@ -11,7 +11,7 @@ using System.ComponentModel;
 
 namespace gamma_mob
 {
-    public partial class DocProductsBaseForm : BaseForm
+    public partial class DocProductsBaseForm : BaseFormWithToolBar
     {
         protected DocProductsBaseForm()
         {
@@ -19,25 +19,7 @@ namespace gamma_mob
         }
 
         private RefreshDocProductDelegate RefreshDocOrder;
-        /*
-        public DocProductsBaseForm(Guid docShipmentOrderId, Guid nomenclatureId, string nomenclatureName
-            , Guid characteristicId, Guid qualityId, Form parentForm)
-            : this()
-        {
-            lblNomenclature.Text = nomenclatureName;
-            ParentForm = parentForm;
-            DocShipmentOrderId = docShipmentOrderId;
-            NomenclatureId = nomenclatureId;
-            CharacteristicId = characteristicId;
-            QualityId = qualityId;
-            if (!RefreshDatGrid())
-            {
-                MessageBox.Show(@"Не удалось получить информацию");
-                Close();
-                return;
-            }
-        }
-        */
+
         public DocProductsBaseForm(Guid docShipmentOrderId, Guid nomenclatureId, string nomenclatureName
             , Guid characteristicId, Guid qualityId, Form parentForm)
             : this()
@@ -120,12 +102,12 @@ namespace gamma_mob
 
         protected virtual BindingList<ProductBase> GetProducts()
         {
-            return (BindingList<ProductBase>)null; //Db.DocShipmentOrderGoodProducts(DocShipmentOrderId, NomenclatureId, CharacteristicId, QualityId, DocDirections);
+            return (BindingList<ProductBase>)null; 
         }
 
         protected virtual DbOperationProductResult RemovalProduct(Guid scanId)
         {
-            return (DbOperationProductResult)null; //Db.RemoveProductRFromOrder(DocShipmentOrderId, NomenclatureId, CharacteristicId, QualityId, Quantity);
+            return (DbOperationProductResult)null; 
         }
 
         protected virtual DialogResult GetDialogResult(string number, string place) 
@@ -183,28 +165,16 @@ namespace gamma_mob
             return true;
         }
 
-        private void tbrMain_ButtonClick(object sender, ToolBarButtonClickEventArgs e)
-        {
-            switch (tbrMain.Buttons.IndexOf(e.Button))
-            {
-                case 0:
-                    Close();
-                    break;
-                case 2:
-                    //SetQuantityProductRemoval();
-                    DeleteMovementProduct();
-                    break;
-            }
-        }
-
         protected override void FormLoad(object sender, EventArgs e)
         {
             base.FormLoad(sender, e);
-            tbrMain.ImageList = ImgList;
-            btnBack.ImageIndex = (int)Images.Back;
-            btnRemoval.ImageIndex = (int)Images.Remove;
+            base.ActivateToolBar(new List<int>() { (int)Images.Back, (int)Images.Remove });//, pnlToolBar_ButtonClick);
             BarcodeFunc = BarcodeReaction;
+        }
 
+        protected override void RemoveToolBarButton() 
+        {
+            DeleteMovementProduct();
         }
 
         private void DeleteMovementProduct()
@@ -238,9 +208,6 @@ namespace gamma_mob
         private void CancelLastMovement(ProductBase t)
         {
 
-            //var dialogResult = MessageBox.Show("Отменить перемещение " + t.Number + Environment.NewLine + "и вернуть продукт на передел " + t.OutPlace + "?"
-            //                , @"Операция с продуктом",
-            //                MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
             var dialogResult = GetDialogResult(t.Number,t.OutPlace);
             if (dialogResult == DialogResult.Yes)
             {
@@ -287,7 +254,7 @@ namespace gamma_mob
                 MessageBox.Show("Перемещение по ШК " + barcode + " не найдено!");
             else
             {
-                var t = AcceptedProducts[rowIndex];//((DataTable)gridProducts.DataSource).Rows[rowIndex];
+                var t = AcceptedProducts[rowIndex];
                 if (t != null)
                 {
                     Invoke((UpdateGridInvoker) (CancelLastMovement),

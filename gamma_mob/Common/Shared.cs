@@ -10,6 +10,7 @@ using OpenNETCF.Windows.Forms;
 using System.Threading;
 using System.Runtime.InteropServices;
 using Datalogic.API;
+using System.Reflection;
 
 namespace gamma_mob.Common
 {
@@ -697,6 +698,10 @@ namespace gamma_mob.Common
                 Shared.SaveToLog("Error UpdateBatterySerialumber");
             }
         }
-        
+
+        public static int ToolBarWeight = Program.deviceName.Contains("CPT") ? 33 : 29;
+
+        public static int ToolBarHeight = Program.deviceName.Contains("CPT") ? 32 : 29;
+
     }
 }

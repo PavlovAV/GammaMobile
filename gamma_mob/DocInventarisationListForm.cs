@@ -3,10 +3,11 @@ using System.Windows.Forms;
 using gamma_mob.Common;
 using gamma_mob.Dialogs;
 using gamma_mob.Models;
+using System.Collections.Generic;
 
 namespace gamma_mob
 {
-    public partial class DocInventarisationListForm : BaseForm
+    public partial class DocInventarisationListForm : BaseFormWithToolBar
     {
         private DocInventarisationListForm()
         {
@@ -25,42 +26,25 @@ namespace gamma_mob
 
         private DocDirection DocDirection { get; set; }
 
-        private void tbrMain_ButtonClick(object sender, ToolBarButtonClickEventArgs e)
+        protected override void EditToolBarButton()
         {
-            switch (tbrMain.Buttons.IndexOf(e.Button))
-            {
-                case 0:
-                    Close();
-                    break;
-                case 1:
-                    EditDocInventarisation();
-                    break;
-                case 2:
-                    GetDocInventarisations();
-                    break;
-                case 3:
-                    NewInventarisation();
-                    break;
-                case 4:
-                    var InfoProduct = new InfoProductForm(this);
-                    //BarcodeFunc = null;
-                    DialogResult result = InfoProduct.ShowDialog();
-                    //Invoke((MethodInvoker)Activate);
-                    //BarcodeFunc = BarcodeReaction;
-                    break;
-            }
+            EditDocInventarisation();
+        }
+
+        protected override void RefreshToolBarButton()
+        {
+            GetDocInventarisations();
+        }
+
+        protected override void NewToolBarButton()
+        {
+            NewInventarisation();
         }
 
         private BindingSource BSource { get; set; }
 
         private void DocInventarisationListForm_Load(object sender, EventArgs e)
         {
-            ImgList = Shared.ImgList;
-            tbrMain.ImageList = ImgList;
-            btnBack.ImageIndex = (int)Images.Back;
-            btnEdit.ImageIndex = (int)Images.Edit;
-            btnRefresh.ImageIndex = (int)Images.Refresh;
-            btnInfoProduct.ImageIndex = (int)Images.InfoProduct;
             GetDocInventarisations();
             gridInventarisations.DataSource = BSource;
             var tableStyle = new DataGridTableStyle { MappingName = BSource.GetListName(null) };
@@ -134,7 +118,7 @@ namespace gamma_mob
                 return;
             }
             EndPointInfo endPointInfo;
-            using (var form = new ChooseEndPointDialog())
+            using (var form = new ChooseEndPointDialog(false))
             {
                 DialogResult result = form.ShowDialog();
                 if (result != DialogResult.OK) return;
@@ -164,10 +148,7 @@ namespace gamma_mob
         protected override void FormLoad(object sender, EventArgs e)
         {           
             base.FormLoad(sender, e);
-            tbrMain.ImageList = ImgList;
-            btnBack.ImageIndex = (int)Images.Back;
-            btnRefresh.ImageIndex = (int)Images.Refresh;
-            btnAdd.ImageIndex = (int) Images.DocPlus;
+            base.ActivateToolBar(new List<int>() { (int)Images.Back, (int)Images.Edit, (int)Images.Refresh, (int)Images.DocPlus, (int)Images.InfoProduct });//, pnlToolBar_ButtonClick);
         }
 
         private void gridInventarisations_CurrentCellChanged(object sender, EventArgs e)

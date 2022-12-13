@@ -315,10 +315,13 @@ namespace gamma_mob
                         using (SqlConnection connection = new SqlConnection(connectionString))
                         {
                             connection.Open();
-                            string sql = "SELECT FileID, DirName, FileName, Title, MD5, Action, CommandTimeOut, FileSize FROM vRepositoryOfProgramFiles WHERE ProgramName = @Program";
+                            string sql = "SELECT FileID, DirName, FileName, Title, MD5, Action, CommandTimeOut, FileSize FROM [dbo].[mob_GetRepositoryOfProgramFiles] (@Program)";
                             SqlCommand command = new SqlCommand(sql, connection);
                             command.Parameters.Add("@Program", SqlDbType.NVarChar, 50);
                             command.Parameters["@Program"].Value = program;
+                            command.Parameters.Add("@DeviceID", SqlDbType.NVarChar, 50);
+                            command.Parameters["@DeviceID"].Value = Db.deviceName;
+                            
                             SqlDataReader reader = command.ExecuteReader();
                                 while (reader.Read())
                                 {

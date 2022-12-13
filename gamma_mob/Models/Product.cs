@@ -13,5 +13,7 @@ namespace gamma_mob.Models
         public int CountProductSpools { get; set; }
         public int CountProductSpoolsWithBreak { get; set; }
         public Guid QualityId { get; set; }
+        public int? CoefficientPackage { get; set; }
+        public int? CoefficientPallet { get; set; }
     }
 }

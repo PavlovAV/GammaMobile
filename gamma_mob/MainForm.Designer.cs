@@ -37,6 +37,7 @@
             this.panel1 = new System.Windows.Forms.Panel();
             this.btnUserInfo = new System.Windows.Forms.Button();
             this.btnDocTransfer = new System.Windows.Forms.Button();
+            this.btnCloseApp = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -108,6 +109,7 @@
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.btnCloseApp);
             this.panel1.Controls.Add(this.btnUserInfo);
             this.panel1.Controls.Add(this.btnDocTransfer);
             this.panel1.Controls.Add(this.btnDocOrder);
@@ -142,6 +144,16 @@
             this.btnDocTransfer.Text = "Заказ на перем.";
             this.btnDocTransfer.Click += new System.EventHandler(this.btnDocTransfer_Click);
             // 
+            // btnCloseApp
+            // 
+            this.btnCloseApp.Location = new System.Drawing.Point(0, 253);
+            this.btnCloseApp.Name = "btnCloseApp";
+            this.btnCloseApp.Size = new System.Drawing.Size(232, 35);
+            this.btnCloseApp.TabIndex = 9;
+            this.btnCloseApp.Text = "Выйти";
+            this.btnCloseApp.Visible = false;
+            this.btnCloseApp.Click += new System.EventHandler(this.btnCloseApp_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -166,6 +178,7 @@
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Button btnDocTransfer;
         private System.Windows.Forms.Button btnUserInfo;
+        private System.Windows.Forms.Button btnCloseApp;
     }
 }
 

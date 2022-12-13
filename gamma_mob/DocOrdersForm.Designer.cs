@@ -29,11 +29,6 @@
         private void InitializeComponent()
         {
             this.gridDocShipmentOrders = new System.Windows.Forms.DataGrid();
-            this.tbrMain = new System.Windows.Forms.ToolBar();
-            this.btnBack = new System.Windows.Forms.ToolBarButton();
-            this.btnEdit = new System.Windows.Forms.ToolBarButton();
-            this.btnRefresh = new System.Windows.Forms.ToolBarButton();
-            this.btnInfoProduct = new System.Windows.Forms.ToolBarButton();
             this.SuspendLayout();
             // 
             // gridDocShipmentOrders
@@ -49,21 +44,11 @@
             this.gridDocShipmentOrders.TabIndex = 1;
             this.gridDocShipmentOrders.DoubleClick += new System.EventHandler(this.gridDocShipmentOrders_DoubleClick);
             // 
-            // tbrMain
-            // 
-            this.tbrMain.Buttons.Add(this.btnBack);
-            this.tbrMain.Buttons.Add(this.btnEdit);
-            this.tbrMain.Buttons.Add(this.btnRefresh);
-            this.tbrMain.Buttons.Add(this.btnInfoProduct);
-            this.tbrMain.Name = "tbrMain";
-            this.tbrMain.ButtonClick += new System.Windows.Forms.ToolBarButtonClickEventHandler(this.tbrMain_ButtonClick);
-            // 
             // DocOrdersForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(638, 455);
-            this.Controls.Add(this.tbrMain);
             this.Controls.Add(this.gridDocShipmentOrders);
             this.Name = "DocOrdersForm";
             this.Text = "Приказы";
@@ -75,10 +60,5 @@
         #endregion
 
         private System.Windows.Forms.DataGrid gridDocShipmentOrders;
-        private System.Windows.Forms.ToolBar tbrMain;
-        private System.Windows.Forms.ToolBarButton btnBack;
-        private System.Windows.Forms.ToolBarButton btnEdit;
-        private System.Windows.Forms.ToolBarButton btnRefresh;
-        private System.Windows.Forms.ToolBarButton btnInfoProduct;
     }
 }

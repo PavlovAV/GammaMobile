@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Windows.Forms;
 using gamma_mob.Common;
+using System.Collections.Generic;
 
 namespace gamma_mob
 {
-    public partial class DocOrdersForm: BaseForm
+    public partial class DocOrdersForm: BaseFormWithToolBar
     {
         private DocOrdersForm()
         {
@@ -24,12 +25,6 @@ namespace gamma_mob
 
         private void DocShipmentOrders_Load(object sender, EventArgs e)
         {
-            ImgList = Shared.ImgList;
-            tbrMain.ImageList = ImgList;
-            btnBack.ImageIndex = (int) Images.Back;
-            btnEdit.ImageIndex = (int) Images.Edit;
-            btnRefresh.ImageIndex = (int) Images.Refresh;
-            btnInfoProduct.ImageIndex = (int) Images.InfoProduct;
             switch (DocDirection)
             {
                 case DocDirection.DocOut:
@@ -99,6 +94,22 @@ namespace gamma_mob
             //Shared.RefreshBarcodes1C();
         }
 
+        protected override void FormLoad(object sender, EventArgs e)
+        {
+            base.FormLoad(sender, e);
+            base.ActivateToolBar(new List<int>() { (int)Images.Back, (int)Images.Edit, (int)Images.Refresh, (int)Images.InfoProduct });//, pnlToolBar_ButtonClick);
+        }
+
+        protected override void EditToolBarButton()
+        {
+            EditDocOrder();
+        }
+
+        protected override void RefreshToolBarButton()
+        {
+            GetDocOrders();
+        }
+
         private void GetDocOrders()
         {
             if (BSource == null)
@@ -130,29 +141,6 @@ namespace gamma_mob
             } 
             Cursor.Current = Cursors.Default;
             
-        }
-
-        private void tbrMain_ButtonClick(object sender, ToolBarButtonClickEventArgs e)
-        {
-            switch (tbrMain.Buttons.IndexOf(e.Button))
-            {
-                case 0:
-                    Close();
-                    break;
-                case 1:
-                    EditDocOrder();
-                    break;
-                case 2:
-                    GetDocOrders();
-                    break;
-                case 3:
-                    var InfoProduct = new InfoProductForm(this);
-                    //BarcodeFunc = null;
-                    DialogResult result = InfoProduct.ShowDialog();
-                    //Invoke((MethodInvoker)Activate);
-                    //BarcodeFunc = BarcodeReaction;
-                    break;
-            }
         }
     }
 }

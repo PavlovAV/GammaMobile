@@ -20,7 +20,7 @@ namespace gamma_mob
         private static string ConnectionString { get; set; }
 
         private static string _deviceName  { get; set; }
-        private static string deviceName
+        public static string deviceName
         {
             get
             {
@@ -68,7 +68,8 @@ namespace gamma_mob
         {
             {
 #if DEBUG
-                string startupPath = @"\FlashDisk\gamma_mob";
+                string startupPath = Program.deviceName.Contains("Falcon") ? @"\FlashDisk\gamma_mob" : 
+                    Program.deviceName.Contains("CPT") ? @"\USER_DATA\gamma_mob" : "";
 #else
                         string startupPath = Application2.StartupPath;
 #endif
@@ -1500,6 +1501,14 @@ namespace gamma_mob
             return list ?? new BindingList<DocOrder>();
         }
 
+        public static List<PlaceZone> GetPlaceZones(int placeId, Guid? placeZoneId)
+        {
+            var placeZones = placeZoneId == null
+                ? Shared.PlaceZones.Where(p => p.PlaceId == placeId && p.PlaceZoneParentId == Guid.Empty && p.IsValid).ToList()
+                : Shared.PlaceZones.Where(p => p.PlaceZoneParentId == placeZoneId && p.IsValid).ToList();
+            return placeZones;
+        }
+
         public static List<PlaceZone> GetWarehousePlaceZones(int placeId)
         {
             var placeZones = Shared.PlaceZones.Where(p => p.PlaceId == placeId && p.PlaceZoneParentId == Guid.Empty && p.IsValid).ToList();
@@ -1823,9 +1832,9 @@ namespace gamma_mob
             return list;
         }
 
-        public static DbOperationProductResult DeleteLastProductFromMovement(string barcode, int placeId, Guid personId, DocDirection docDirection)
+        public static DbDeleteOperationProductResult DeleteLastProductFromMovement(string barcode, int placeId, Guid personId, DocDirection docDirection)
         {
-            DbOperationProductResult result = null;
+            DbDeleteOperationProductResult result = null;
             const string sql = "dbo.[mob_DelLastProductFromMovement]";
             var parameters = new List<SqlParameter>
                 {
@@ -1850,7 +1859,7 @@ namespace gamma_mob
             {
                 if (table != null && table.Rows.Count > 0)
                 {
-                    result = new DbOperationProductResult
+                    result = new DbDeleteOperationProductResult
                     {
                         AlreadyMadeChanges = Convert.ToBoolean(table.Rows[0]["AlreadyRemoved"]),
                         ResultMessage = table.Rows[0]["ResultMessage"].ToString(),
@@ -1876,9 +1885,9 @@ namespace gamma_mob
             return result;
         }
 
-        public static DbOperationProductResult DeleteProductFromMovement(string barcode, Guid docMovementId, DocDirection docDirection)
+        public static DbDeleteOperationProductResult DeleteProductFromMovement(string barcode, Guid docMovementId, DocDirection docDirection)
         {
-            DbOperationProductResult result = null;
+            DbDeleteOperationProductResult result = null;
             const string sql = "dbo.[mob_DelProductFromMovement]";
             var parameters = new List<SqlParameter>
                 {
@@ -1899,7 +1908,7 @@ namespace gamma_mob
             {
                 if (table != null && table.Rows.Count > 0)
                 {
-                    result = new DbOperationProductResult
+                    result = new DbDeleteOperationProductResult
                     {
                         AlreadyMadeChanges = Convert.ToBoolean(table.Rows[0]["AlreadyRemoved"]),
                         ResultMessage = table.Rows[0]["ResultMessage"].ToString(),
@@ -1926,9 +1935,9 @@ namespace gamma_mob
         }
 
 
-        public static DbOperationProductResult DeleteProductFromMovementOnMovementID(Guid scanId)
+        public static DbDeleteOperationProductResult DeleteProductFromMovementOnMovementID(Guid scanId)
         {
-            DbOperationProductResult result = null;
+            DbDeleteOperationProductResult result = null;
             const string sql = "dbo.[mob_DelProductFromMovementOnMovementID]";
             var parameters = new List<SqlParameter>
                 {
@@ -1941,7 +1950,7 @@ namespace gamma_mob
             {
                 if (table != null && table.Rows.Count > 0)
                 {
-                    result = new DbOperationProductResult
+                    result = new DbDeleteOperationProductResult
                     {
                         AlreadyMadeChanges = Convert.ToBoolean(table.Rows[0]["AlreadyRemoved"]),
                         ResultMessage = table.Rows[0]["ResultMessage"].ToString(),
@@ -1967,9 +1976,9 @@ namespace gamma_mob
             return result;
         }
 
-        public static DbOperationProductResult DeleteProductFromInventarisationOnInvProductID(Guid scanId)
+        public static DbDeleteOperationProductResult DeleteProductFromInventarisationOnInvProductID(Guid scanId)
         {
-            DbOperationProductResult result = null;
+            DbDeleteOperationProductResult result = null;
             const string sql = "dbo.[mob_DelProductFromInventarisationOnInvProductID]";
             var parameters = new List<SqlParameter>
                 {
@@ -1982,7 +1991,7 @@ namespace gamma_mob
             {
                 if (table != null && table.Rows.Count > 0)
                 {
-                    result = new DbOperationProductResult
+                    result = new DbDeleteOperationProductResult
                     {
                         AlreadyMadeChanges = Convert.ToBoolean(table.Rows[0]["AlreadyRemoved"]),
                         ResultMessage = table.Rows[0]["ResultMessage"].ToString(),
@@ -2015,10 +2024,10 @@ namespace gamma_mob
         /// <param name="docOrderId">Идентификатор документа на отгрузку 1С</param>
         /// <param name="docDirection">in,out,outin</param>
         /// <returns>Описание результата действия</returns>
-        public static DbOperationProductResult DeleteProductFromOrder(string barcode,
+        public static DbDeleteOperationProductResult DeleteProductFromOrder(string barcode,
                                                                       Guid docOrderId, DocDirection docDirection)
         {
-            DbOperationProductResult result = null;
+            DbDeleteOperationProductResult result = null;
             const string sql = "dbo.[mob_DelProductFromOrder]";
             var parameters = new List<SqlParameter>
                 {
@@ -2040,7 +2049,7 @@ namespace gamma_mob
             {
                 if (table != null && table.Rows.Count > 0)
                 {
-                    result = new DbOperationProductResult
+                    result = new DbDeleteOperationProductResult
                     {
                         ResultMessage = table.Rows[0]["ResultMessage"].ToString(),
                         AlreadyMadeChanges = Convert.ToBoolean(table.Rows[0]["AlreadyRemoved"])
@@ -2065,9 +2074,9 @@ namespace gamma_mob
             return result;
         }
 
-        public static DbOperationProductResult DeleteProductFromOrderOnMovementID(Guid scanId)
+        public static DbDeleteOperationProductResult DeleteProductFromOrderOnMovementID(Guid scanId)
         {
-            DbOperationProductResult result = null;
+            DbDeleteOperationProductResult result = null;
             const string sql = "dbo.[mob_DelProductFromMovementOnMovementID]";
             var parameters = new List<SqlParameter>
                 {
@@ -2081,7 +2090,7 @@ namespace gamma_mob
             {
                 if (table != null && table.Rows.Count > 0)
                 {
-                    result = new DbOperationProductResult
+                    result = new DbDeleteOperationProductResult
                     {
                         ResultMessage = table.Rows[0]["ResultMessage"].ToString(),
                         AlreadyMadeChanges = Convert.ToBoolean(table.Rows[0]["AlreadyRemoved"]),
@@ -2247,11 +2256,11 @@ namespace gamma_mob
             return result;
         }
 
-        public static DbOperationProductResult AddProductIdToOrder(Guid? scanId, Guid docOrderId, OrderType orderType, Guid personId
+        public static DbOrderOperationProductResult AddProductIdToOrder(Guid? scanId, Guid docOrderId, OrderType orderType, Guid personId
             , Guid productId, DocDirection docDirection, int? productKindId, Guid nomenclatureId, Guid characteristicId
             , Guid qualityId, int quantity)
         {
-            DbOperationProductResult result = null;
+            DbOrderOperationProductResult result = null;
             const string sql = "dbo.[mob_AddScanIdToOrder]";
             var parameters = new List<SqlParameter>
                 {
@@ -2308,10 +2317,11 @@ namespace gamma_mob
             {
                 if (table != null && table.Rows.Count > 0)
                 {
-                    result = new DbOperationProductResult
+                    result = new DbOrderOperationProductResult
                     {
                         AlreadyMadeChanges = Convert.ToBoolean(table.Rows[0]["AlreadyAdded"]),
-                        ResultMessage = table.Rows[0]["ResultMessage"].ToString()
+                        ResultMessage = table.Rows[0]["ResultMessage"].ToString(),
+                        ScanId = scanId
                     };
                     if (!table.Rows[0].IsNull("NomenclatureID"))
                     {
@@ -2333,10 +2343,10 @@ namespace gamma_mob
             return result;
         }
 
-        public static MoveProductResult MoveProduct(Guid personId, Guid productId, EndPointInfo endPointInfo, int? productKindId, Guid nomenclatureId, Guid characteristicId
+        public static DbMoveOperationProductResult MoveProduct(Guid personId, Guid productId, EndPointInfo endPointInfo, int? productKindId, Guid nomenclatureId, Guid characteristicId
             , Guid qualityId, int quantity)
         {
-            MoveProductResult acceptProductResult = null;
+            DbMoveOperationProductResult acceptProductResult = null;
             const string sql = "dbo.[mob_AddProductIdToMovement]";
             var parameters = new List<SqlParameter>
                 {
@@ -2385,7 +2395,7 @@ namespace gamma_mob
             {
                 if (table != null && table.Rows.Count > 0)
                 {
-                    acceptProductResult = new MoveProductResult
+                    acceptProductResult = new DbMoveOperationProductResult
                     {
                         ResultMessage = table.Rows[0]["ResultMessage"].ToString(),
                         AlreadyAdded =
@@ -2395,24 +2405,28 @@ namespace gamma_mob
                     };
                     if (acceptProductResult != null & !table.Rows[0].IsNull("NomenclatureID"))
                     {
-                        acceptProductResult.NomenclatureId = new Guid(table.Rows[0]["NomenclatureID"].ToString());
-                        acceptProductResult.CharacteristicId = table.Rows[0].IsNull("CharacteristicID") ? Guid.Empty : new Guid(table.Rows[0]["CharacteristicID"].ToString());
-                        acceptProductResult.QualityId = new Guid(table.Rows[0]["QualityID"].ToString());
-                        acceptProductResult.Quantity = table.Rows[0].IsNull("Quantity") ? 0 : Convert.ToDecimal(table.Rows[0]["Quantity"]);
-                        acceptProductResult.NomenclatureName = table.Rows[0].IsNull("NomenclatureName") ? "" : table.Rows[0]["NomenclatureName"].ToString();
-                        acceptProductResult.ShortNomenclatureName = table.Rows[0].IsNull("ShortNomenclatureName") ? "" : table.Rows[0]["ShortNomenclatureName"].ToString();
-                        acceptProductResult.CoefficientPackage = table.Rows[0].IsNull("CoefficientPackage") ? (int?)null : Convert.ToInt32(table.Rows[0]["CoefficientPackage"]);
-                        acceptProductResult.CoefficientPallet = table.Rows[0].IsNull("CoefficientPallet") ? (int?)null : Convert.ToInt32(table.Rows[0]["CoefficientPallet"]);
+                        acceptProductResult.Product = new Product
+                        {
+                            //ProductId = new Guid(table.Rows[0]["ProductID"].ToString()),
+                            NomenclatureId = new Guid(table.Rows[0]["NomenclatureID"].ToString()),
+                            CharacteristicId = table.Rows[0].IsNull("CharacteristicID") ? Guid.Empty : new Guid(table.Rows[0]["CharacteristicID"].ToString()),
+                            QualityId = new Guid(table.Rows[0]["QualityID"].ToString()),
+                            Quantity = Convert.ToDecimal(table.Rows[0]["Quantity"]),
+                            NomenclatureName = table.Rows[0]["NomenclatureName"].ToString(),
+                            ShortNomenclatureName = table.Rows[0]["ShortNomenclatureName"].ToString(),
+                            CoefficientPackage = table.Rows[0].IsNull("CoefficientPackage") ? (int?)null : Convert.ToInt32(table.Rows[0]["CoefficientPackage"]),
+                            CoefficientPallet = table.Rows[0].IsNull("CoefficientPallet") ? (int?)null : Convert.ToInt32(table.Rows[0]["CoefficientPallet"])
+                        };
                     };
                 }
             }
             return acceptProductResult;
         }
 
-        public static MoveProductResult MoveProduct(Guid? scanId, Guid personId, Guid productId, EndPointInfo endPointInfo, int? productKindId, Guid nomenclatureId, Guid characteristicId
+        public static DbMoveOperationProductResult MoveProduct(Guid? scanId, Guid personId, Guid productId, EndPointInfo endPointInfo, int? productKindId, Guid nomenclatureId, Guid characteristicId
             , Guid qualityId, int quantity)
         {
-            MoveProductResult acceptProductResult = null;
+            DbMoveOperationProductResult acceptProductResult = null;
             const string sql = "dbo.[mob_AddScanIdToMovement]";
             var parameters = new List<SqlParameter>
                 {
@@ -2465,24 +2479,29 @@ namespace gamma_mob
             {
                 if (table != null && table.Rows.Count > 0)
                 {
-                    acceptProductResult = new MoveProductResult
+                    acceptProductResult = new DbMoveOperationProductResult
                     {
                         ResultMessage = table.Rows[0]["ResultMessage"].ToString(),
                         AlreadyAdded =
                             !table.Rows[0].IsNull("AlreadyAdded") &&
                             Convert.ToBoolean(table.Rows[0]["AlreadyAdded"]),
-                        PlaceZoneId = table.Rows[0].IsNull("PlaceZoneID") ? new Guid() : new Guid(table.Rows[0]["PlaceZoneID"].ToString())
+                        PlaceZoneId = table.Rows[0].IsNull("PlaceZoneID") ? new Guid() : new Guid(table.Rows[0]["PlaceZoneID"].ToString()),
+                        ScanId = scanId
                     };
                     if (acceptProductResult != null & !table.Rows[0].IsNull("NomenclatureID"))
                     {
-                        acceptProductResult.NomenclatureId = new Guid(table.Rows[0]["NomenclatureID"].ToString());
-                        acceptProductResult.CharacteristicId = table.Rows[0].IsNull("CharacteristicID") ? Guid.Empty : new Guid(table.Rows[0]["CharacteristicID"].ToString());
-                        acceptProductResult.QualityId = new Guid(table.Rows[0]["QualityID"].ToString());
-                        acceptProductResult.Quantity = table.Rows[0].IsNull("Quantity") ? 0 : Convert.ToDecimal(table.Rows[0]["Quantity"]);
-                        acceptProductResult.NomenclatureName = table.Rows[0].IsNull("NomenclatureName") ? "" : table.Rows[0]["NomenclatureName"].ToString();
-                        acceptProductResult.ShortNomenclatureName = table.Rows[0].IsNull("ShortNomenclatureName") ? "" : table.Rows[0]["ShortNomenclatureName"].ToString();
-                        acceptProductResult.CoefficientPackage = table.Rows[0].IsNull("CoefficientPackage") ? (int?)null : Convert.ToInt32(table.Rows[0]["CoefficientPackage"]);
-                        acceptProductResult.CoefficientPallet = table.Rows[0].IsNull("CoefficientPallet") ? (int?)null : Convert.ToInt32(table.Rows[0]["CoefficientPallet"]);
+                        acceptProductResult.Product = new Product
+                        {
+                            //ProductId = new Guid(table.Rows[0]["ProductID"].ToString()),
+                            NomenclatureId = new Guid(table.Rows[0]["NomenclatureID"].ToString()),
+                            CharacteristicId = table.Rows[0].IsNull("CharacteristicID") ? Guid.Empty : new Guid(table.Rows[0]["CharacteristicID"].ToString()),
+                            QualityId = new Guid(table.Rows[0]["QualityID"].ToString()),
+                            Quantity = Convert.ToDecimal(table.Rows[0]["Quantity"]),
+                            NomenclatureName = table.Rows[0]["NomenclatureName"].ToString(),
+                            ShortNomenclatureName = table.Rows[0]["ShortNomenclatureName"].ToString(),
+                            CoefficientPackage = table.Rows[0].IsNull("CoefficientPackage") ? (int?)null : Convert.ToInt32(table.Rows[0]["CoefficientPackage"]),
+                            CoefficientPallet = table.Rows[0].IsNull("CoefficientPallet") ? (int?)null : Convert.ToInt32(table.Rows[0]["CoefficientPallet"])
+                        };
                     };
                 }
             }
@@ -2923,10 +2942,10 @@ namespace gamma_mob
             return list;
         }
 
-        internal static DbOperationProductResult AddProductIdToInventarisation(Guid? scanId, Guid docInventarisationId, Guid personId, EndPointInfo endPointInfo, Guid productId, int? productKindId, Guid nomenclatureId, Guid characteristicId
+        internal static DbInventarisationOperationProductResult AddProductIdToInventarisation(Guid? scanId, Guid docInventarisationId, Guid personId, EndPointInfo endPointInfo, Guid productId, int? productKindId, Guid nomenclatureId, Guid characteristicId
             , Guid qualityId, int quantity)
         {
-            DbOperationProductResult result = null;
+            DbInventarisationOperationProductResult result = null;
             const string sql = "dbo.[mob_AddScanIdToInventarisation]";
             var parameters = new List<SqlParameter>
                 {
@@ -2975,10 +2994,11 @@ namespace gamma_mob
             {
                 if (table != null && table.Rows.Count > 0)
                 {
-                    result = new DbOperationProductResult
+                    result = new DbInventarisationOperationProductResult
                     {
                         AlreadyMadeChanges = Convert.ToBoolean(table.Rows[0]["AlreadyAdded"]),
-                        ResultMessage = table.Rows[0]["ResultMessage"].ToString()
+                        ResultMessage = table.Rows[0]["ResultMessage"].ToString(),
+                        ScanId = scanId
                     };
                     if (!table.Rows[0].IsNull("NomenclatureID"))
                     {

@@ -43,6 +43,7 @@
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.Load += new System.EventHandler(this.FormLoad);
             this.Closing += new System.ComponentModel.CancelEventHandler(this.OnFormClosing);
+            this.Activated += new System.EventHandler(this.FormActivated);
             this.ResumeLayout(false);
 
         }

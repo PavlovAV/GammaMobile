@@ -15,6 +15,14 @@ namespace gamma_mob.Models
             set
             {
                 _placeId = value;
+                if (value == 0)
+                    PlaceName = String.Empty;
+                else
+                {
+                    var w = Shared.Warehouses.Find(f => f.WarehouseId == value);
+                    if (w != null)
+                        PlaceName = w.WarehouseName;
+                }
                 var placeZone = Shared.PlaceZones.Find(p => p.PlaceId == value);
                 IsAvailabilityPlaceZoneId = (placeZone != null);
             }
@@ -31,6 +39,8 @@ namespace gamma_mob.Models
                 _placeZoneId = value;
                 var placeZone = Shared.PlaceZones.Find(p => p.PlaceZoneId == value);
                 PlaceZoneBarcode = placeZone == null ? @"" : placeZone.Barcode;
+                if (value != null)
+                    IsAvailabilityChildPlaceZoneId = (Db.GetPlaceZoneChilds((Guid)value).Count > 0);
             }
         }
         public string PlaceName { get; set; }

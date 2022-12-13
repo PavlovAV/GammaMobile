@@ -42,7 +42,7 @@
             this.Name = "ChooseEndPointDialog";
             this.Text = "Выбор склада";
             this.TopMost = true;
-            this.Load += new System.EventHandler(this.ChooseEndPointDialog_Load);
+            //this.Load += new System.EventHandler(this.ChooseEndPointDialog_Load);
             this.ResumeLayout(false);
 
         }

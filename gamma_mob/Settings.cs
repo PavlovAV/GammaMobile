@@ -253,6 +253,7 @@ namespace gamma_mob
         private static void UpdateDeviceSettings()
         {
             bool reboot = false;
+#if !DEBUG
             foreach (var item in m_settings.Keys)
             {
                 if (item.ToString().Substring(0, 11) == "dduSettings" || item.ToString().Substring(0, 11) == "dlbSettings" || item.ToString().Substring(0, 11) == "backlightSe")
@@ -399,9 +400,8 @@ namespace gamma_mob
                             Shared.SaveToLog("Error Update scaner parameter (" + item + ")");
                         }
                     }
-
             }
-#if !DEBUG
+//#if !DEBUG
             if (reboot)
             {
                 Shared.SaveToLog("Error - Rebooting Device");

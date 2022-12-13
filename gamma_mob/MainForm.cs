@@ -36,7 +36,8 @@ namespace gamma_mob
             }
             Shared.SaveToLog(@"Локальные база ШК " + Shared.Barcodes1C.GetCountBarcodes + "; посл.обн " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodesMoscowTimeZone.ToString(System.Globalization.CultureInfo.InvariantCulture)
                  + "; создан " + Db.GetLocalDbBarcodesDateCreated().ToString(System.Globalization.CultureInfo.InvariantCulture));
-                        
+            if (Program.deviceName.Contains("CPT"))
+                btnCloseApp.Visible = true;
  //           var mFilter = new InactivityFilter(100);
             //mFilter.InactivityElapsed += m_filter_InactivityElapsed;
  //           Application2.AddMessageFilter(mFilter);
@@ -151,13 +152,43 @@ namespace gamma_mob
                 //    default:
                         Cursor.Current = Cursors.Default;
                         EndPointInfo endPointInfo;
-                        using (var form = new ChooseEndPointDialog())
+                        using (var form = new ChooseEndPointDialog(false))
                         {
                             DialogResult result = form.ShowDialog();
                             if (result != DialogResult.OK) return;
                             endPointInfo = form.EndPointInfo;
+                            if ((endPointInfo.IsAvailabilityPlaceZoneId && endPointInfo.PlaceZoneId == null) || (endPointInfo.IsAvailabilityChildPlaceZoneId && endPointInfo.PlaceZoneId != null))
+                            {
+                                string message = (endPointInfo.IsAvailabilityChildPlaceZoneId && endPointInfo.PlaceZoneId != null) ? "Вы не до конца указали зону. Попробуете еще раз?" : "Вы будете указывать зону сейчас?";
+                                var dialogResult = MessageBox.Show(message
+                                    , @"Операция с продуктом",
+                                    MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
+                                if (dialogResult == DialogResult.Yes)
+                                {
+                                    using (var formPlaceZone = new ChooseEndPointDialog(endPointInfo.PlaceId))
+                                    {
+                                        DialogResult resultPlaceZone = formPlaceZone.ShowDialog();
+                                        if (resultPlaceZone != DialogResult.OK)
+                                        {
+                                            MessageBox.Show(@"Не выбрана зона склада.", @"Выбор зоны склада",
+                                                            MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
+                                            endPointInfo.IsSettedDefaultPlaceZoneId = false;
+                                        }
+                                        else
+                                        {
+                                            endPointInfo = formPlaceZone.EndPointInfo;
+                                            endPointInfo.IsSettedDefaultPlaceZoneId = true;
+
+                                        }
+                                    }
+                                }
+                            }
+                            else if (endPointInfo.PlaceZoneId != null)
+                            {
+                                endPointInfo.IsSettedDefaultPlaceZoneId = true;
+                            }
                         }
-                        var docMovementForm = new DocMovementForm(this, DocDirection.DocOutIn, endPointInfo.PlaceId);
+                        var docMovementForm = new DocMovementForm(this, DocDirection.DocOutIn, endPointInfo);
                         if (docMovementForm.Text != "Ошибка при обновлении с сервера!")
                         {
                             docMovementForm.Text = "Перем-е на " + endPointInfo.PlaceName;
@@ -389,6 +420,11 @@ namespace gamma_mob
         private void btnUserInfo_Click(object sender, EventArgs e)
         {
             userInfoTextId = userInfoTextId == 6 ? (short)0 : (short)(userInfoTextId + 1);
+        }
+
+        private void btnCloseApp_Click(object sender, EventArgs e)
+        {
+            Close();
         }
     }
 }

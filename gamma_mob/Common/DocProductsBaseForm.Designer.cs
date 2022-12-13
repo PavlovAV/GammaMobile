@@ -28,25 +28,9 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.tbrMain = new System.Windows.Forms.ToolBar();
-            this.btnBack = new System.Windows.Forms.ToolBarButton();
-            this.Separator1 = new System.Windows.Forms.ToolBarButton();
-            this.btnRemoval = new System.Windows.Forms.ToolBarButton();
             this.gridProducts = new System.Windows.Forms.DataGrid();
             this.lblNomenclature = new System.Windows.Forms.Label();
             this.SuspendLayout();
-            // 
-            // tbrMain
-            // 
-            this.tbrMain.Buttons.Add(this.btnBack);
-            this.tbrMain.Buttons.Add(this.Separator1);
-            this.tbrMain.Buttons.Add(this.btnRemoval);
-            this.tbrMain.Name = "tbrMain";
-            this.tbrMain.ButtonClick += new System.Windows.Forms.ToolBarButtonClickEventHandler(this.tbrMain_ButtonClick);
-            // 
-            // Separator1
-            // 
-            this.Separator1.Style = System.Windows.Forms.ToolBarButtonStyle.Separator;
             // 
             // gridProducts
             // 
@@ -75,7 +59,6 @@
             this.ClientSize = new System.Drawing.Size(238, 295);
             this.Controls.Add(this.gridProducts);
             this.Controls.Add(this.lblNomenclature);
-            this.Controls.Add(this.tbrMain);
             this.Name = "DocProductsBaseForm";
             this.Text = "Продукция";
             this.ResumeLayout(false);
@@ -84,11 +67,7 @@
 
         #endregion
 
-        private System.Windows.Forms.ToolBar tbrMain;
-        private System.Windows.Forms.ToolBarButton btnBack;
         private System.Windows.Forms.DataGrid gridProducts;
         private System.Windows.Forms.Label lblNomenclature;
-        private System.Windows.Forms.ToolBarButton Separator1;
-        private System.Windows.Forms.ToolBarButton btnRemoval;
     }
 }

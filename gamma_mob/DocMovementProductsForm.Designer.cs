@@ -33,7 +33,7 @@
             this.mainMenu1 = new System.Windows.Forms.MainMenu();
             this.Menu = this.mainMenu1;
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.Text = "DocShipmentProductsForms";
+            this.Text = "DocMovementProductsForms";
             this.AutoScroll = true;
         }
 

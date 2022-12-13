@@ -14,7 +14,7 @@ namespace gamma_mob
     {
         private static NamedMutex _mutex;
         private static readonly string _executablePath = Application2.StartupPath + @"\";
-
+        public static readonly string deviceName = System.Net.Dns.GetHostName();
 
         /// <summary>
         ///     Главная точка входа для приложения.
@@ -26,7 +26,10 @@ namespace gamma_mob
             bool isNew;
             _mutex = new NamedMutex(false, "gammamob", out isNew);
             if (!isNew) return;
-            Decode.SetWedge(WedgeType.Barcode, false);
+            if (deviceName.Contains("Falcon"))
+            {
+                Decode.SetWedge(WedgeType.Barcode, false);
+            }
 #if !DEBUG
             UpdateProgram.DropFlagUpdateLoading();
             int num = 0;

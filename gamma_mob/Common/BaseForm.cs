@@ -2,6 +2,8 @@
 using System.ComponentModel;
 using System.Windows.Forms;
 using OpenNETCF.Windows.Forms;
+using System.Collections.Generic;
+using System.Reflection;
 
 namespace gamma_mob.Common
 {
@@ -25,6 +27,8 @@ namespace gamma_mob.Common
             private get { return _barcodeFunc; }
             set
             {
+                if (value == BarcodeFunc)
+                    return;
                 Scanner.BarcodeReceived -= BarcodeFunc;
                 _barcodeFunc = value;
                 if (value == null) return;
@@ -33,13 +37,12 @@ namespace gamma_mob.Common
             }
         }
 
-        protected ImageList ImgList { get; set; }
+        protected ImageList ImgList = Shared.ImgList;
 
         public Form ParentForm { get; set; }
 
         protected virtual void FormLoad(object sender, EventArgs e)
         {
-            ImgList = Shared.ImgList;
             Shared.SaveToLog("Open " + ((Form)sender).Name + " " + ((Form)sender).Text);
         }
 
@@ -52,8 +55,11 @@ namespace gamma_mob.Common
                 ParentForm.Show();
                 ParentForm.Activate();
             }
-
         }
 
+        protected virtual void FormActivated(object sender, EventArgs e)
+        {
+            Shared.SaveToLog("Activate " + ((Form)sender).Name + " " + ((Form)sender).Text);
+        }
     }
 }

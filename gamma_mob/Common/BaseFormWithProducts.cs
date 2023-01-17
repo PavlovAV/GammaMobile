@@ -11,7 +11,7 @@ using System.Drawing;
 
 namespace gamma_mob.Common
 {
-    public abstract class BaseFormWithProducts : BaseFormWithChooseEndpoint
+    public abstract class BaseFormWithProducts : BaseFormWithChooseNomenclatureCharacteristic
     {        
         #region Panels
 
@@ -332,7 +332,8 @@ namespace gamma_mob.Common
                         {
                             if (CheckIsCreatePalletRFromBarcodeScan())
                             {
-                                if (getProductResult.NomenclatureId == null || getProductResult.NomenclatureId == Guid.Empty || getProductResult.CharacteristicId == null || getProductResult.CharacteristicId == Guid.Empty || getProductResult.QualityId == null || getProductResult.QualityId == Guid.Empty)
+                                base.ChooseNomenclatureCharacteristic(this.ChooseNomenclatureCharacteristicBarcodeReactionInAddProduct, new AddProductReceivedEventHandlerParameter() { barcode = barcode, endPointInfo = EndPointInfo, fromBuffer = fromBuffer, getProductResult = getProductResult });
+                                /*if (getProductResult.NomenclatureId == null || getProductResult.NomenclatureId == Guid.Empty || getProductResult.CharacteristicId == null || getProductResult.CharacteristicId == Guid.Empty || getProductResult.QualityId == null || getProductResult.QualityId == Guid.Empty)
                                 {
                                     using (var form = new ChooseNomenclatureCharacteristicDialog(barcode))
                                     {
@@ -366,19 +367,35 @@ namespace gamma_mob.Common
                                     {
                                         getProductResult.CountProducts = form.Quantity;
                                     }
-                                }
+                                }*/
                             }
-                        }
-                        if (EndPointInfo != null && EndPointInfo.IsAvailabilityPlaceZoneId && !EndPointInfo.IsSettedDefaultPlaceZoneId)
-                        {
-                            base.ChooseEndPoint(this.ChoosePlaceZoneBarcodeReactionInAddProduct, new AddProductReceivedEventHandlerParameter() { barcode = barcode, endPointInfo = EndPointInfo, fromBuffer = fromBuffer, getProductResult = getProductResult });
                         }
                         else
                         {
-                            AddProductByBarcode(barcode, EndPointInfo, fromBuffer, getProductResult);
+                            AddProductByBarcode(barcode, fromBuffer, getProductResult);
+                            /*if (EndPointInfo != null && EndPointInfo.IsAvailabilityPlaceZoneId && !EndPointInfo.IsSettedDefaultPlaceZoneId)
+                            {
+                                base.ChooseEndPoint(this.ChoosePlaceZoneBarcodeReactionInAddProduct, new AddProductReceivedEventHandlerParameter() { barcode = barcode, endPointInfo = EndPointInfo, fromBuffer = fromBuffer, getProductResult = getProductResult });
+                            }
+                            else
+                            {
+                                AddProductByBarcode(barcode, EndPointInfo, fromBuffer, getProductResult);
+                            }*/
                         }
                     }
                 }
+            }
+        }
+
+        protected void AddProductByBarcode(string barcode, bool fromBuffer, DbProductIdFromBarcodeResult getProductResult)
+        {
+            if (EndPointInfo != null && EndPointInfo.IsAvailabilityPlaceZoneId && !EndPointInfo.IsSettedDefaultPlaceZoneId)
+            {
+                base.ChooseEndPoint(this.ChoosePlaceZoneBarcodeReactionInAddProduct, new AddProductReceivedEventHandlerParameter() { barcode = barcode, endPointInfo = EndPointInfo, fromBuffer = fromBuffer, getProductResult = getProductResult });
+            }
+            else
+            {
+                AddProductByBarcode(barcode, EndPointInfo, fromBuffer, getProductResult);
             }
         }
 
@@ -515,7 +532,7 @@ namespace gamma_mob.Common
                 }
                 else
                 {
-                    if (AddProductByBarcode(offlineProduct.ScanId, offlineProduct.Barcode,  new EndPointInfo() { PlaceId = (int)offlineProduct.PlaceId, PlaceZoneId = offlineProduct.PlaceZoneId }, true, new DbProductIdFromBarcodeResult() { ProductId = offlineProduct.ProductId ?? new Guid(), ProductKindId = offlineProduct.ProductKindId, NomenclatureId = offlineProduct.NomenclatureId ?? new Guid(), CharacteristicId = offlineProduct.CharacteristicId ?? new Guid(), QualityId = offlineProduct.QualityId ?? new Guid(), CountProducts = offlineProduct.Quantity ?? 0 }, (Guid)offlineProduct.DocId) == null)
+                    if (AddProductByBarcode(offlineProduct.ScanId, offlineProduct.Barcode, new EndPointInfo() { PlaceId = (int)offlineProduct.PlaceId, PlaceZoneId = offlineProduct.PlaceZoneId }, true, new DbProductIdFromBarcodeResult() { ProductId = offlineProduct.ProductId ?? new Guid(), ProductKindId = offlineProduct.ProductKindId, NomenclatureId = offlineProduct.NomenclatureId ?? new Guid(), CharacteristicId = offlineProduct.CharacteristicId ?? new Guid(), QualityId = offlineProduct.QualityId ?? new Guid(), CountProducts = offlineProduct.Quantity ?? 0, FromProductId = offlineProduct.FromProductId }, (Guid)offlineProduct.DocId) == null)
                         break;
                 }
             }            
@@ -526,11 +543,20 @@ namespace gamma_mob.Common
 
         #region Barcode
 
+        private void ChooseNomenclatureCharacteristicBarcodeReactionInAddProduct(AddProductReceivedEventHandlerParameter param)
+        {
+            base.ReturnAddProductBeforeChoosedNomenclatureCharacteristic -= ChooseNomenclatureCharacteristicBarcodeReactionInAddProduct;
+            BarcodeFunc = this.BarcodeReaction;
+            if (param != null)
+                AddProductByBarcode(param.barcode, param.fromBuffer, param.getProductResult);
+        }
+
         private void ChoosePlaceZoneBarcodeReactionInAddProduct(AddProductReceivedEventHandlerParameter param)
         {
             base.ReturnAddProductBeforeChoosedPlaceZone -= ChoosePlaceZoneBarcodeReactionInAddProduct;
             BarcodeFunc = this.BarcodeReaction;
-            AddProductByBarcode(param.barcode, param.endPointInfo, param.fromBuffer, param.getProductResult);
+            if (param != null)
+                AddProductByBarcode(param.barcode, param.endPointInfo, param.fromBuffer, param.getProductResult);
         }
 
         protected void BarcodeReaction(string barcode)

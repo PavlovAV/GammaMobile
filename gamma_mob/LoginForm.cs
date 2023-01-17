@@ -113,6 +113,14 @@ namespace gamma_mob
             {
                 Shared.SaveToLog(@"Внимание! Не запущена автоматическая проверка уровня заряда аккумулятора.");
             }
+
+#if !DEBUG
+            if (Shared.TimerForCheckUpdateProgram == null)
+            {
+                Shared.SaveToLog(@"Внимание! Не запущена автоматическая проверка на наличие новой версии программы.");
+            }
+#endif
+
 //#if DEBUG
 //            AuthorizeByBarcode("00000000000056");
 //#endif

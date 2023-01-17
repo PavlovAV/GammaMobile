@@ -14,5 +14,6 @@ namespace gamma_mob.Models
         public Guid MeasureUnitId { get; set; }
         public Guid QualityId { get; set; }
         public int CountProducts { get; set; }
+        public Guid? FromProductId { get; set; }
     }
 }

@@ -21,11 +21,11 @@ namespace gamma_mob.Models
 
         public Guid? AddScannedBarcode(string barcode, EndPointInfo endPointInfo, DocDirection docTypeId, Guid? docId, DbProductIdFromBarcodeResult getProductResult)
         {
-            var item = new ScannedBarcode(barcode, endPointInfo, (int)docTypeId, docId, getProductResult.ProductId, getProductResult.ProductKindId, getProductResult.NomenclatureId, getProductResult.CharacteristicId, getProductResult.QualityId, getProductResult.CountProducts);
+            var item = new ScannedBarcode(barcode, endPointInfo, (int)docTypeId, docId, getProductResult.ProductId, getProductResult.ProductKindId, getProductResult.NomenclatureId, getProductResult.CharacteristicId, getProductResult.QualityId, getProductResult.CountProducts, getProductResult.FromProductId);
             if (item != null)
             {
                 Barcodes.Add(item);
-                Shared.SaveToLog(item.ScanId, item.DateScanned, item.Barcode, item.PlaceId, item.PlaceZoneId, item.DocTypeId, item.DocId, item.IsUploaded, item.ProductId, item.ProductKindId, item.NomenclatureId, item.CharacteristicId, item.QualityId, item.Quantity);
+                Shared.SaveToLog(item.ScanId, item.DateScanned, item.Barcode, item.PlaceId, item.PlaceZoneId, item.DocTypeId, item.DocId, item.IsUploaded, item.ProductId, item.ProductKindId, item.NomenclatureId, item.CharacteristicId, item.QualityId, item.Quantity, item.FromProductId);
                 if (getProductResult.ProductId == null || getProductResult.ProductId == Guid.Empty)
                     lastScannedBarcode = null;
                 else

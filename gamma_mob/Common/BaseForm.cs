@@ -27,8 +27,9 @@ namespace gamma_mob.Common
             private get { return _barcodeFunc; }
             set
             {
-                if (value == BarcodeFunc)
-                    return;
+                //if ((value != null && Scanner.BarcodeReceived != null && value == BarcodeFunc)
+                //    || (value == null && Scanner.BarcodeReceived == null && BarcodeFunc == null))
+                //    return;
                 Scanner.BarcodeReceived -= BarcodeFunc;
                 _barcodeFunc = value;
                 if (value == null) return;
@@ -36,6 +37,11 @@ namespace gamma_mob.Common
                 Scanner.BarcodeReceived += BarcodeFunc;
             }
         }
+
+        //protected void SetBarcodeFunc(BarcodeReceivedEventHandler barcodeFunc)
+        //{
+        //    BarcodeFunc = barcodeFunc;
+        //}
 
         protected ImageList ImgList = Shared.ImgList;
 

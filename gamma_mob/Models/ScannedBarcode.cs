@@ -10,11 +10,21 @@ namespace gamma_mob.Models
         {}
 
         public ScannedBarcode(string barcode, EndPointInfo endPointInfo, int docTypeId, Guid? docId, Guid? productId, int? productKindId, Guid? nomenclatureId, Guid? characteristicId, Guid? qualityId, int? quantity)
-            :this(barcode, Guid.NewGuid(), endPointInfo, docTypeId, docId, false, false, false, DateTime.Now, productId, productKindId, nomenclatureId, characteristicId, qualityId, quantity)
+            : this(barcode, endPointInfo, docTypeId, docId, productId, productKindId, nomenclatureId, characteristicId, qualityId, quantity, null)
+        {
+        }
+
+        public ScannedBarcode(string barcode, EndPointInfo endPointInfo, int docTypeId, Guid? docId, Guid? productId, int? productKindId, Guid? nomenclatureId, Guid? characteristicId, Guid? qualityId, int? quantity, Guid? fromProductId)
+            :this(barcode, Guid.NewGuid(), endPointInfo, docTypeId, docId, false, false, false, DateTime.Now, productId, productKindId, nomenclatureId, characteristicId, qualityId, quantity, fromProductId)
         {
         }
 
         public ScannedBarcode(string barcode, Guid scanId, EndPointInfo endPointInfo, int docTypeId, Guid? docId, bool isUploaded, bool toDelete, bool isDeleted, DateTime dateScanned, Guid? productId, int? productKindId, Guid? nomenclatureId, Guid? characteristicId, Guid? qualityId, int? quantity)
+            : this(barcode, scanId, endPointInfo, docTypeId, docId, isUploaded, toDelete, isDeleted, dateScanned, productId, productKindId, nomenclatureId, characteristicId, qualityId, quantity, null)
+        {
+        }
+
+        public ScannedBarcode(string barcode, Guid scanId, EndPointInfo endPointInfo, int docTypeId, Guid? docId, bool isUploaded, bool toDelete, bool isDeleted, DateTime dateScanned, Guid? productId, int? productKindId, Guid? nomenclatureId, Guid? characteristicId, Guid? qualityId, int? quantity, Guid? fromProductId)
         {
             Barcode = barcode;
             ScanId = scanId;
@@ -32,6 +42,7 @@ namespace gamma_mob.Models
             CharacteristicId = characteristicId;
             QualityId = qualityId;
             Quantity = quantity;
+            FromProductId = fromProductId;
         }
 
         /*public ScannedBarcode(string barcode, EndPointInfo endPointInfo, int docTypeId, Guid? docId)
@@ -81,6 +92,10 @@ namespace gamma_mob.Models
         /// Количество групповых упаковок для россыпи ( и только для россыпи)
         /// </summary>
         public int? Quantity { get; set; }
+        /// <summary>
+        /// ИД паллеты, из которой вытащили упаковку/коробку
+        /// </summary>
+        public Guid? FromProductId { get; set; }
         public string UploadResult { get; set; }
         public bool ToDelete { get; set; }
         public bool IsDeleted { get; set; }

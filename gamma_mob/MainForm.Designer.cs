@@ -44,20 +44,31 @@
             // btnDocOrder
             // 
             this.btnDocOrder.Font = new System.Drawing.Font("Tahoma", 18F, System.Drawing.FontStyle.Bold);
-            this.btnDocOrder.Location = new System.Drawing.Point(3, 3);
+            this.btnDocOrder.Location = new System.Drawing.Point(3, 1);
             this.btnDocOrder.Name = "btnDocOrder";
-            this.btnDocOrder.Size = new System.Drawing.Size(232, 35);
+            this.btnDocOrder.Size = new System.Drawing.Size(232, 32);
             this.btnDocOrder.TabIndex = 0;
             this.btnDocOrder.TabStop = false;
             this.btnDocOrder.Text = "Отгрузки";
             this.btnDocOrder.Click += new System.EventHandler(this.btnDocOrder_Click);
             // 
+            // btnDocTransfer
+            // 
+            this.btnDocTransfer.Font = new System.Drawing.Font("Tahoma", 16F, System.Drawing.FontStyle.Bold);
+            this.btnDocTransfer.Location = new System.Drawing.Point(3, 35);
+            this.btnDocTransfer.Name = "btnDocTransfer";
+            this.btnDocTransfer.Size = new System.Drawing.Size(232, 32);
+            this.btnDocTransfer.TabIndex = 7;
+            this.btnDocTransfer.TabStop = false;
+            this.btnDocTransfer.Text = "Заказ на перем.";
+            this.btnDocTransfer.Click += new System.EventHandler(this.btnDocTransfer_Click);
+            // 
             // btnDocMovement
             // 
             this.btnDocMovement.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Bold);
-            this.btnDocMovement.Location = new System.Drawing.Point(3, 84);
+            this.btnDocMovement.Location = new System.Drawing.Point(3, 70);
             this.btnDocMovement.Name = "btnDocMovement";
-            this.btnDocMovement.Size = new System.Drawing.Size(232, 35);
+            this.btnDocMovement.Size = new System.Drawing.Size(232, 32);
             this.btnDocMovement.TabIndex = 1;
             this.btnDocMovement.TabStop = false;
             this.btnDocMovement.Text = "Перемещение на склад";
@@ -66,9 +77,9 @@
             // btnExtAccept
             // 
             this.btnExtAccept.Font = new System.Drawing.Font("Tahoma", 16F, System.Drawing.FontStyle.Bold);
-            this.btnExtAccept.Location = new System.Drawing.Point(3, 124);
+            this.btnExtAccept.Location = new System.Drawing.Point(3, 105);
             this.btnExtAccept.Name = "btnExtAccept";
-            this.btnExtAccept.Size = new System.Drawing.Size(232, 35);
+            this.btnExtAccept.Size = new System.Drawing.Size(232, 32);
             this.btnExtAccept.TabIndex = 3;
             this.btnExtAccept.TabStop = false;
             this.btnExtAccept.Text = "Приемка";
@@ -77,35 +88,56 @@
             // btnInventarisation
             // 
             this.btnInventarisation.Font = new System.Drawing.Font("Tahoma", 16F, System.Drawing.FontStyle.Bold);
-            this.btnInventarisation.Location = new System.Drawing.Point(3, 164);
+            this.btnInventarisation.Location = new System.Drawing.Point(3, 140);
             this.btnInventarisation.Name = "btnInventarisation";
-            this.btnInventarisation.Size = new System.Drawing.Size(232, 35);
+            this.btnInventarisation.Size = new System.Drawing.Size(232, 32);
             this.btnInventarisation.TabIndex = 4;
             this.btnInventarisation.TabStop = false;
             this.btnInventarisation.Text = "Инвентаризация";
             this.btnInventarisation.Click += new System.EventHandler(this.btnInventarisation_Click);
+            // 
+            // btnCloseShift
+            // 
+            this.btnCloseShift.Font = new System.Drawing.Font("Tahoma", 14F, System.Drawing.FontStyle.Regular);
+            this.btnCloseShift.Location = new System.Drawing.Point(3, 175);
+            this.btnCloseShift.Name = "btnCloseShift";
+            this.btnCloseShift.Size = new System.Drawing.Size(232, 32);
+            this.btnCloseShift.TabIndex = 6;
+            this.btnCloseShift.TabStop = false;
+            this.btnCloseShift.Text = "Закрытие смены";
+            this.btnCloseShift.Click += new System.EventHandler(this.btnCloseShift_Click);
             // 
             // btnComplectPallet
             // 
             this.btnComplectPallet.Font = new System.Drawing.Font("Tahoma", 14F, System.Drawing.FontStyle.Regular);
             this.btnComplectPallet.Location = new System.Drawing.Point(3, 253);
             this.btnComplectPallet.Name = "btnComplectPallet";
-            this.btnComplectPallet.Size = new System.Drawing.Size(232, 35);
+            this.btnComplectPallet.Size = new System.Drawing.Size(232, 32);
             this.btnComplectPallet.TabIndex = 5;
             this.btnComplectPallet.TabStop = false;
             this.btnComplectPallet.Text = "Комплектация паллеты";
             this.btnComplectPallet.Visible = false;
             // 
-            // btnCloseShift
+            // btnCloseApp
             // 
-            this.btnCloseShift.Font = new System.Drawing.Font("Tahoma", 14F, System.Drawing.FontStyle.Regular);
-            this.btnCloseShift.Location = new System.Drawing.Point(3, 204);
-            this.btnCloseShift.Name = "btnCloseShift";
-            this.btnCloseShift.Size = new System.Drawing.Size(232, 35);
-            this.btnCloseShift.TabIndex = 6;
-            this.btnCloseShift.TabStop = false;
-            this.btnCloseShift.Text = "Закрытие смены";
-            this.btnCloseShift.Click += new System.EventHandler(this.btnCloseShift_Click);
+            this.btnCloseApp.Font = new System.Drawing.Font("Tahoma", 14F, System.Drawing.FontStyle.Regular);
+            this.btnCloseApp.Location = new System.Drawing.Point(3, 210);
+            this.btnCloseApp.Name = "btnCloseApp";
+            this.btnCloseApp.Size = new System.Drawing.Size(232, 32);
+            this.btnCloseApp.TabIndex = 9;
+            this.btnCloseApp.TabStop = false; 
+            this.btnCloseApp.Text = "Выход";
+            this.btnCloseApp.Click += new System.EventHandler(this.btnCloseApp_Click);
+            // 
+            // btnUserInfo
+            // 
+            this.btnUserInfo.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.btnUserInfo.Location = new System.Drawing.Point(0, 435);
+            this.btnUserInfo.Name = "btnUserInfo";
+            this.btnUserInfo.Size = new System.Drawing.Size(638, 20);
+            this.btnUserInfo.TabIndex = 8;
+            this.btnUserInfo.Text = "button1";
+            this.btnUserInfo.Click += new System.EventHandler(this.btnUserInfo_Click);
             // 
             // panel1
             // 
@@ -122,37 +154,6 @@
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(638, 455);
-            // 
-            // btnUserInfo
-            // 
-            this.btnUserInfo.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.btnUserInfo.Location = new System.Drawing.Point(0, 435);
-            this.btnUserInfo.Name = "btnUserInfo";
-            this.btnUserInfo.Size = new System.Drawing.Size(638, 20);
-            this.btnUserInfo.TabIndex = 8;
-            this.btnUserInfo.Text = "button1";
-            this.btnUserInfo.Click += new System.EventHandler(this.btnUserInfo_Click);
-            // 
-            // btnDocTransfer
-            // 
-            this.btnDocTransfer.Font = new System.Drawing.Font("Tahoma", 16F, System.Drawing.FontStyle.Bold);
-            this.btnDocTransfer.Location = new System.Drawing.Point(3, 44);
-            this.btnDocTransfer.Name = "btnDocTransfer";
-            this.btnDocTransfer.Size = new System.Drawing.Size(232, 35);
-            this.btnDocTransfer.TabIndex = 7;
-            this.btnDocTransfer.TabStop = false;
-            this.btnDocTransfer.Text = "Заказ на перем.";
-            this.btnDocTransfer.Click += new System.EventHandler(this.btnDocTransfer_Click);
-            // 
-            // btnCloseApp
-            // 
-            this.btnCloseApp.Location = new System.Drawing.Point(0, 253);
-            this.btnCloseApp.Name = "btnCloseApp";
-            this.btnCloseApp.Size = new System.Drawing.Size(232, 35);
-            this.btnCloseApp.TabIndex = 9;
-            this.btnCloseApp.Text = "Выйти";
-            this.btnCloseApp.Visible = false;
-            this.btnCloseApp.Click += new System.EventHandler(this.btnCloseApp_Click);
             // 
             // MainForm
             // 

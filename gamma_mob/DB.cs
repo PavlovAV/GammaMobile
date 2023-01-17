@@ -280,9 +280,16 @@ namespace gamma_mob
                         empComLog.Parameters.Clear();
                         empComLog.Parameters.Add("@Log", DbType.String).Value = @"Create table Logs ";
                         empComLog.ExecuteNonQuery();
+                    }
 
-                        
-                        
+                    if (!ColumnCeExists(empConLog, "Logs", "FromProductId"))
+                    {
+                        strQuery = "ALTER TABLE Logs ADD column FromProductId uniqueidentifier";
+                        empComLog.CommandText = strQuery;
+                        empComLog.ExecuteNonQuery();
+                        //strQuery = "UPDATE Settings SET DatabaseCreateTime = GETDATE()";
+                        //empComBarcodes.CommandText = strQuery;
+                        //empComBarcodes.ExecuteNonQuery();
                     }
 
                     if (!TableCeExists(empConBarcodes, "Barcodes"))
@@ -793,11 +800,11 @@ namespace gamma_mob
             return ret;
         }
 
-        public static bool AddMessageToLog(Guid scanId, DateTime dateScanned, string barcode, int placeId, Guid? placeZoneId, int docTypeId, Guid? docId, bool isUploaded, Guid? productId, int? productKindId, Guid? nomenclatureId, Guid? characteristicId, Guid? qualityId, int? quantity)
+        public static bool AddMessageToLog(Guid scanId, DateTime dateScanned, string barcode, int placeId, Guid? placeZoneId, int docTypeId, Guid? docId, bool isUploaded, Guid? productId, int? productKindId, Guid? nomenclatureId, Guid? characteristicId, Guid? qualityId, int? quantity, Guid? fromProductId)
         {
             string sql = (Db.ExistsMessageLogFromLogId(scanId))
-                    ? "UPDATE Logs SET LogDate = @DateScanned, Barcode = @Barcode, PlaceId = @PlaceId, PlaceZoneId = @PlaceZoneId, DocTypeId = @DocTypeId, DocId = @DocId, IsUploaded = @IsUploaded, ProductId = @ProductId, ProductKindId = @ProductKindId, NomenclatureId = @NomenclatureId, CharacteristicId = @CharacteristicId, QualityId = @QualityId, Quantity = @Quantity WHERE LogId = @ScanId"
-                    : "INSERT INTO Logs (LogId, LogDate, UserName, PersonId, Barcode, PlaceId, PlaceZoneId, DocTypeId, DocId, IsUploaded, ProductId, ProductKindId, NomenclatureId, CharacteristicId, QualityId, Quantity) VALUES (@ScanId, @DateScanned, @UserName, @PersonId, @Barcode, @PlaceId, @PlaceZoneId, @DocTypeId, @DocId, @IsUploaded, @ProductId, @ProductKindId, @NomenclatureId, @CharacteristicId, @QualityId, @Quantity)";
+                    ? "UPDATE Logs SET LogDate = @DateScanned, Barcode = @Barcode, PlaceId = @PlaceId, PlaceZoneId = @PlaceZoneId, DocTypeId = @DocTypeId, DocId = @DocId, IsUploaded = @IsUploaded, ProductId = @ProductId, ProductKindId = @ProductKindId, NomenclatureId = @NomenclatureId, CharacteristicId = @CharacteristicId, QualityId = @QualityId, Quantity = @Quantity, FromProductId = @FromProductId WHERE LogId = @ScanId"
+                    : "INSERT INTO Logs (LogId, LogDate, UserName, PersonId, Barcode, PlaceId, PlaceZoneId, DocTypeId, DocId, IsUploaded, ProductId, ProductKindId, NomenclatureId, CharacteristicId, QualityId, Quantity, FromProductId) VALUES (@ScanId, @DateScanned, @UserName, @PersonId, @Barcode, @PlaceId, @PlaceZoneId, @DocTypeId, @DocId, @IsUploaded, @ProductId, @ProductKindId, @NomenclatureId, @CharacteristicId, @QualityId, @Quantity, @FromProductId)";
 
             var parameters = new List<SqlCeParameter>
                 {
@@ -864,6 +871,10 @@ namespace gamma_mob
                     new SqlCeParameter("@Quantity", SqlDbType.Int)
                         {
                             Value = (quantity as object) ?? DBNull.Value
+                        },
+                    new SqlCeParameter("@FromProductId", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = (fromProductId as object) ?? DBNull.Value
                         }
 
                 };
@@ -2258,7 +2269,7 @@ namespace gamma_mob
 
         public static DbOrderOperationProductResult AddProductIdToOrder(Guid? scanId, Guid docOrderId, OrderType orderType, Guid personId
             , Guid productId, DocDirection docDirection, int? productKindId, Guid nomenclatureId, Guid characteristicId
-            , Guid qualityId, int quantity)
+            , Guid qualityId, int quantity, Guid? fromProductId)
         {
             DbOrderOperationProductResult result = null;
             const string sql = "dbo.[mob_AddScanIdToOrder]";
@@ -2311,6 +2322,10 @@ namespace gamma_mob
                     new SqlParameter("@ShiftId", SqlDbType.TinyInt)
                         {
                             Value = Shared.ShiftId
+                        },
+                    new SqlParameter("@FromProductID", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = (fromProductId as object) ?? DBNull.Value
                         }
                 };
             using (DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure))
@@ -2424,7 +2439,7 @@ namespace gamma_mob
         }
 
         public static DbMoveOperationProductResult MoveProduct(Guid? scanId, Guid personId, Guid productId, EndPointInfo endPointInfo, int? productKindId, Guid nomenclatureId, Guid characteristicId
-            , Guid qualityId, int quantity)
+            , Guid qualityId, int quantity, Guid? fromProductId)
         {
             DbMoveOperationProductResult acceptProductResult = null;
             const string sql = "dbo.[mob_AddScanIdToMovement]";
@@ -2473,6 +2488,10 @@ namespace gamma_mob
                     new SqlParameter("@ShiftId", SqlDbType.TinyInt)
                         {
                             Value = Shared.ShiftId
+                        },
+                    new SqlParameter("@FromProductID", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = (fromProductId as object) ?? DBNull.Value
                         }
                 };
             using (DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure))
@@ -3854,6 +3873,82 @@ namespace gamma_mob
                 }
             }
             return result;
+        }
+
+        //public static bool? CheckWhetherProductCanBeWithdrawal(int countWithdrawal)
+        //{
+        //    bool chrckResult = null;
+        //    const string sql = "select dbo.CheckWhetherProductCanBeWithdrawal(@CountWithdrawal)";
+        //    var parameters = new List<SqlParameter>
+        //        {
+        //            new SqlParameter("@CountWithdrawal", SqlDbType.Int)
+        //                {
+        //                    Value = countWithdrawal
+        //                }
+        //        };
+        //    using (DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.TableDirect))
+        //    {
+        //        if (table != null && table.Rows.Count > 0)
+        //        {
+        //            chrckResult = table.Rows[0]["ValueSetting"].ToString();
+        //        }
+        //    }
+        //    return Convert.ToInt32(command.ExecuteScalar());
+        //}
+
+        public static bool CheckWhetherProductCanBeWithdrawal(Guid productID, int countWithdrawal)
+        {
+            using (var command = new SqlCommand())
+            {
+                bool checkResult = false;
+                try
+                {
+                    using (var connection = new SqlConnection(ConnectionString))
+                    {
+                        connection.Open();
+                        command.Connection = connection;
+                        var sql = "SELECT dbo.CheckWhetherProductCanBeWithdrawal(@ProductID, @CountWithdrawal)";
+                        command.CommandText = sql;
+                        command.Parameters.Add(new SqlParameter("@ProductID", SqlDbType.UniqueIdentifier)
+                                {
+                                    Value = productID
+                                });
+                        command.Parameters.Add(new SqlParameter("@CountWithdrawal", SqlDbType.Int)
+                                {
+                                    Value = countWithdrawal
+                                });
+                        checkResult = Convert.ToBoolean(command.ExecuteScalar());
+                        connection.Close();
+                    }
+                }
+                catch (Exception _)
+                { }
+                return checkResult;
+            }
+        }
+
+        public static Guid? GetProductNomenclature(Guid productId)
+        {
+            Guid? nomenclatureId = null;
+            const string sql = "SELECT TOP 1 p.[1CNomenclatureID] AS NomenclatureID FROM vProductsBaseInfo p WHERE p.ProductID = @ProductID";
+            var parameters = new List<SqlParameter>
+                {
+                    new SqlParameter("@ProductID", SqlDbType.UniqueIdentifier)
+                    {
+                         Value = productId
+                    }
+                };
+            using (DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.Text))
+            {
+                if (table != null)
+                    if (table.Rows.Count > 0)
+                    {
+                        DataRow row = table.Rows[0];
+                        var nomenclatureIdString = row["NomenclatureID"].ToString();
+                        nomenclatureId = new Guid(nomenclatureIdString);
+                    }
+            }
+            return nomenclatureId;
         }
     }
 }

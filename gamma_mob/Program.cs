@@ -30,14 +30,6 @@ namespace gamma_mob
             {
                 Decode.SetWedge(WedgeType.Barcode, false);
             }
-#if !DEBUG
-            UpdateProgram.DropFlagUpdateLoading();
-            int num = 0;
-            // устанавливаем метод обратного вызова
-            TimerCallback tm = new TimerCallback(UpdateProgram.LoadUpdate);
-            // создаем таймер
-            System.Threading.Timer timer = new System.Threading.Timer(tm, num, 30000, 1800000);
-#endif
 
             var loginForm = new LoginForm();
             if (loginForm.ShowDialog() == DialogResult.OK)

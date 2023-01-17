@@ -41,8 +41,8 @@
             this.label4.Font = new System.Drawing.Font("Tahoma", 13F, System.Drawing.FontStyle.Regular);
             this.label4.Location = new System.Drawing.Point(0, 0);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(638, 30);
-            this.label4.Text = "Выберите номенклатуру";
+            this.label4.Size = new System.Drawing.Size(638, 55);
+            this.label4.Text = "Выберите номенклатуру или отсканируйте палету, из которой упаковка/коробка";
             this.label4.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // panel1
@@ -66,9 +66,9 @@
             // 
             this.gridChoose.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
             this.gridChoose.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.gridChoose.Location = new System.Drawing.Point(0, 30);
+            this.gridChoose.Location = new System.Drawing.Point(0, 55);
             this.gridChoose.Name = "gridChoose";
-            this.gridChoose.Size = new System.Drawing.Size(638, 394);
+            this.gridChoose.Size = new System.Drawing.Size(638, 369);
             this.gridChoose.TabIndex = 11;
             this.gridChoose.DoubleClick += new System.EventHandler(this.gridChoose_DoubleClick);
             // 

@@ -4,6 +4,7 @@ namespace gamma_mob.Common
     public delegate void BarcodeReceivedEventHandler(string barcode);
     public delegate void AddProductReceivedEventHandler(AddProductReceivedEventHandlerParameter param);
     public delegate void ChoosePlaceZoneEventHandler(EndPointInfo param);
+    public delegate void ChooseNomenclatureCharacteristicEventHandler(DbProductIdFromBarcodeResult param);
     public class AddProductReceivedEventHandlerParameter
     {
         public string barcode {get; set;}

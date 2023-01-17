@@ -176,6 +176,21 @@ namespace gamma_mob.Common
             }
         }
 
+        private static int? _timerPeriodForCheckUpdateProgram { get; set; }
+        public static int TimerPeriodForCheckUpdateProgram
+        {
+            get
+            {
+                if (_timerPeriodForCheckUpdateProgram == null)
+                {
+                    var timerPeriodForCheckUpdateProgram = Db.GetProgramSettings("TimerPeriodForCheckUpdateProgram");
+                    if (timerPeriodForCheckUpdateProgram != null && timerPeriodForCheckUpdateProgram != String.Empty)
+                        _timerPeriodForCheckUpdateProgram = Convert.ToInt32(timerPeriodForCheckUpdateProgram);
+                }
+                return _timerPeriodForCheckUpdateProgram ?? 1800000;
+            }
+        }
+
         private static int? _minLengthProductBarcode { get; set; }
         public static int MinLengthProductBarcode
         {
@@ -534,12 +549,25 @@ namespace gamma_mob.Common
             
         }
 
+        public static void SaveToLog(Guid scanId, DateTime dateScanned, string barcode, int placeId, Guid? placeZoneId, int docTypeId, Guid? docId, bool isUploaded, Guid? productId, int? productKindId, Guid? nomenclatureId, Guid? characteristicId, Guid? qualityId, int? quantity, Guid? fromProductId)
+        {
+
+            try
+            {
+                Db.AddMessageToLog(scanId, dateScanned, barcode, placeId, placeZoneId, docTypeId, docId, isUploaded, productId, productKindId, nomenclatureId, characteristicId, qualityId, quantity, fromProductId);
+            }
+            catch (Exception err)
+            {
+                //MessageBox.Show(err.Message);
+            }
+        }
+
         public static void SaveToLog(Guid scanId, DateTime dateScanned, string barcode, int placeId, Guid? placeZoneId, int docTypeId, Guid? docId, bool isUploaded, Guid? productId, int? productKindId, Guid? nomenclatureId, Guid? characteristicId, Guid? qualityId, int? quantity)
         {
 
             try
             {
-                Db.AddMessageToLog(scanId, dateScanned, barcode, placeId, placeZoneId, docTypeId, docId, isUploaded, productId, productKindId, nomenclatureId, characteristicId, qualityId, quantity);
+                Db.AddMessageToLog(scanId, dateScanned, barcode, placeId, placeZoneId, docTypeId, docId, isUploaded, productId, productKindId, nomenclatureId, characteristicId, qualityId, quantity, null);
             }
             catch (Exception err)
             {
@@ -703,5 +731,21 @@ namespace gamma_mob.Common
 
         public static int ToolBarHeight = Program.deviceName.Contains("CPT") ? 32 : 29;
 
+        private static System.Threading.Timer _timerForCheckUpdateProgram { get; set; }
+        public static System.Threading.Timer TimerForCheckUpdateProgram
+        {
+            get
+            {
+                if (_timerForCheckUpdateProgram == null)
+                {
+                    UpdateProgram.DropFlagUpdateLoading();
+                    int num = 0;
+                    TimerCallback tm = new TimerCallback(UpdateProgram.LoadUpdate);
+                    // создаем таймер
+                    _timerForCheckUpdateProgram = new System.Threading.Timer(tm, num, 10, Shared.TimerPeriodForCheckUpdateProgram);
+                }
+                return _timerForCheckUpdateProgram;
+            }
+        }
     }
 }

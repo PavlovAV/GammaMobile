@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using OpenNETCF.Windows.Forms;
 using System.Threading;
 using System.Runtime.InteropServices;
+using gamma_mob.Common;
 
 namespace gamma_mob
 {
@@ -303,8 +304,7 @@ namespace gamma_mob
 
         public static void LoadUpdate(object obj)
         {
-            
-            
+            Shared.SaveToLog("Start LoadUpdate");
             if (!CheckAndCreateFlagUpdateLoading())
             {
                 if (ConnectionState.CheckConnection() && Db.CheckSqlConnection() == 0)
@@ -312,95 +312,98 @@ namespace gamma_mob
                     string connectionString = Db.GetConnectionString();
                     try
                     {
+                        Shared.SaveToLog("Start check files on DB in LoadUpdate");
                         using (SqlConnection connection = new SqlConnection(connectionString))
                         {
                             connection.Open();
-                            string sql = "SELECT FileID, DirName, FileName, Title, MD5, Action, CommandTimeOut, FileSize FROM [dbo].[mob_GetRepositoryOfProgramFiles] (@Program)";
+                            string sql = "SELECT FileID, DirName, FileName, Title, MD5, Action, CommandTimeOut, FileSize FROM [dbo].[mob_GetRepositoryOfProgramFiles] (@Program, @DeviceID)";
                             SqlCommand command = new SqlCommand(sql, connection);
                             command.Parameters.Add("@Program", SqlDbType.NVarChar, 50);
                             command.Parameters["@Program"].Value = program;
                             command.Parameters.Add("@DeviceID", SqlDbType.NVarChar, 50);
                             command.Parameters["@DeviceID"].Value = Db.deviceName;
-                            
+
                             SqlDataReader reader = command.ExecuteReader();
-                                while (reader.Read())
+                            while (reader.Read())
+                            {
+                                string file_name = reader.GetString(2);
+                                try
                                 {
-                                    string file_name = reader.GetString(2);
+                                    int id = reader.GetInt32(0);
+                                    string dirname = reader.GetString(1);
+                                    string filename = reader.GetString(2);
+                                    string title = reader.GetString(3);
+                                    byte[] image = (byte[])null; //(byte?[])reader.GetValue(4);
+                                    string md5 = reader.GetString(4);
+                                    bool action = (bool)reader.GetValue(5);
+                                    string timeout = reader.GetString(6);
+                                    Int32 fileSize = (Int32)reader.GetValue(7);
+                                    bool isFreeSpace = true;
                                     try
                                     {
-                                        int id = reader.GetInt32(0);
-                                        string dirname = reader.GetString(1);
-                                        string filename = reader.GetString(2);
-                                        string title = reader.GetString(3);
-                                        byte[] image = (byte[])null; //(byte?[])reader.GetValue(4);
-                                        string md5 = reader.GetString(4);
-                                        bool action = (bool)reader.GetValue(5);
-                                        string timeout = reader.GetString(6);
-                                        Int32 fileSize = (Int32)reader.GetValue(7);
-                                        bool isFreeSpace = true;
-                                        try
+                                        UInt64 userFreeBytes, totalDiskBytes, totalFreeBytesExecutable, totalFreeBytesUpdatable;
+
+                                        GetDiskFreeSpaceEx(executablePath, out userFreeBytes, out totalDiskBytes, out totalFreeBytesExecutable);
+                                        GetDiskFreeSpaceEx(updateRootPath, out userFreeBytes, out totalDiskBytes, out totalFreeBytesUpdatable);
+                                        if (totalFreeBytesExecutable <= (ulong)fileSize || totalFreeBytesUpdatable <= (ulong)fileSize)
                                         {
-                                            UInt64 userFreeBytes, totalDiskBytes, totalFreeBytesExecutable, totalFreeBytesUpdatable;
-                                        
-                                            GetDiskFreeSpaceEx(executablePath, out userFreeBytes, out totalDiskBytes, out totalFreeBytesExecutable);
-                                            GetDiskFreeSpaceEx(updateRootPath, out userFreeBytes, out totalDiskBytes, out totalFreeBytesUpdatable);
-                                            if (totalFreeBytesExecutable <= (ulong)fileSize || totalFreeBytesUpdatable <= (ulong)fileSize)
-                                            {
                                             //MessageBox.Show("Нет места для обновления " + Environment.NewLine +
                                             //    filename + Environment.NewLine + "Требуется " + fileSize.ToString() +
                                             //    Environment.NewLine + "Доступно " + totalFreeBytesExecutable.ToString() + "/" +
                                             //    totalFreeBytesUpdatable.ToString());
-                                                ErrorMessage = "Нет места для обновления " + 
-                                                filename +  " Требуется " + fileSize.ToString() +
-                                                 " Доступно " + totalFreeBytesExecutable.ToString() + "/" +
-                                                totalFreeBytesUpdatable.ToString();
-                                                isFreeSpace = false;
-                                            }
-                                        }
-                                        catch
-                                        {
-
-                                        }
-
-                                        if (isFreeSpace)
-                                        {
-                                            FileOfRepositary file = new FileOfRepositary(id, dirname, filename, title, image, md5, action);
-
-                                            //LoadFile(file);
-                                            if (CheckFile(file))
-                                            {
-                                                if (file.Action)
-                                                    using (SqlConnection connection_image = new SqlConnection(connectionString))
-                                                    {
-                                                        connection_image.Open();
-                                                        string sql_image = "SELECT Image FROM vRepositoryOfProgramFiles WHERE FileID = @FileID";
-                                                        SqlCommand command_image = new SqlCommand(sql_image, connection_image);
-                                                        command_image.CommandTimeout = Convert.ToInt32(timeout);
-                                                        command_image.Parameters.Add("@FileID", SqlDbType.Int);
-                                                        command_image.Parameters["@FileID"].Value = file.Id;
-                                                        SqlDataReader reader_image = command_image.ExecuteReader();
-                                                        if (reader_image.Read())
-                                                        {
-                                                            file.Image = (byte[])reader_image.GetValue(0);
-                                                        }
-                                                        reader_image.Close();
-                                                    }
-                                                SaveFile(file);
-                                                //MessageBox.Show("Файл успешно скачан для обновления с БД! " + file_name);
-                                            }
+                                            ErrorMessage = "Нет места для обновления " +
+                                            filename + " Требуется " + fileSize.ToString() +
+                                             " Доступно " + totalFreeBytesExecutable.ToString() + "/" +
+                                            totalFreeBytesUpdatable.ToString();
+                                            isFreeSpace = false;
                                         }
                                     }
-                                    catch (Exception ex)
+                                    catch
                                     {
-                                        //Console.WriteLine("Ошибка при получении данных с БД! "+ file_name + ":" + ex.Message);
-                                        //MessageBox.Show("Ошибка при получении данных с БД! " + file_name + ":" + ex.Message);
+
                                     }
-                                    //files.Add(file);
+
+                                    if (isFreeSpace)
+                                    {
+                                        FileOfRepositary file = new FileOfRepositary(id, dirname, filename, title, image, md5, action);
+
+                                        //LoadFile(file);
+                                        if (CheckFile(file))
+                                        {
+                                            if (file.Action)
+                                                using (SqlConnection connection_image = new SqlConnection(connectionString))
+                                                {
+                                                    connection_image.Open();
+                                                    string sql_image = "SELECT Image FROM vRepositoryOfProgramFiles WHERE FileID = @FileID";
+                                                    SqlCommand command_image = new SqlCommand(sql_image, connection_image);
+                                                    command_image.CommandTimeout = Convert.ToInt32(timeout);
+                                                    command_image.Parameters.Add("@FileID", SqlDbType.Int);
+                                                    command_image.Parameters["@FileID"].Value = file.Id;
+                                                    SqlDataReader reader_image = command_image.ExecuteReader();
+                                                    if (reader_image.Read())
+                                                    {
+                                                        file.Image = (byte[])reader_image.GetValue(0);
+                                                    }
+                                                    reader_image.Close();
+                                                }
+                                            SaveFile(file);
+                                            //MessageBox.Show("Файл успешно скачан для обновления с БД! " + file_name);
+                                        }
+                                    }
                                 }
+                                catch (Exception ex)
+                                {
+                                    Shared.SaveToLog("Error file operation in LoadUpdate");
+                                    //Console.WriteLine("Ошибка при получении данных с БД! "+ file_name + ":" + ex.Message);
+                                    //MessageBox.Show("Ошибка при получении данных с БД! " + file_name + ":" + ex.Message);
+                                }
+                                //files.Add(file);
+                            }
                         }
                     }
                     catch (Exception ex)
                     {
+                        Shared.SaveToLog("Error LoadUpdate");
                         //Console.WriteLine("Ошибка при получении данных с БД!");
                         //MessageBox.Show("Ошибка при получении данных с БД!");
                         //return;

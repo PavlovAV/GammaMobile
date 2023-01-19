@@ -956,6 +956,38 @@ namespace gamma_mob
             return ExecuteCeNonQuery(sql, parameters, CommandType.Text, ConnectServerCe.LogServer);
         }
 
+        public static bool AddMessageToLog(string log, Guid? docId, Guid? productId)
+        {
+            const string sql = "INSERT INTO Logs (Log, DocId, ProductId, UserName, PersonId) VALUES (@Log, @DocId, @ProductId, @UserName, @PersonId)";
+
+            var parameters = new List<SqlCeParameter>
+                {
+                    new SqlCeParameter("@Log", DbType.String)
+                        {
+                            Value = (log as object) ?? DBNull.Value
+                        },
+                    new SqlCeParameter("@DocId", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = (docId as object) ?? DBNull.Value
+                        },
+                    new SqlCeParameter("@ProductId", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = (productId as object) ?? DBNull.Value
+                        },
+                    new SqlCeParameter("@UserName", DbType.String)
+                        {
+                            Value = Settings.UserName
+                        },
+                    new SqlCeParameter("@PersonId", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = (Shared.PersonId as object) ?? DBNull.Value
+                        }
+                    
+
+                };
+            return ExecuteCeNonQuery(sql, parameters, CommandType.Text, ConnectServerCe.LogServer);
+        }
+
         public static bool AddMessageToLog(string log)
         {
             const string sql = "INSERT INTO Logs (Log, UserName, PersonId) VALUES (@log, @UserName, @PersonId)";
@@ -1054,7 +1086,7 @@ namespace gamma_mob
         
         public static void UploadLogToServer()
         {
-            const string sqlCE = "SELECT LogId, LogDate, Log, Barcode, UserName, PersonId, PlaceId, PlaceZoneId, DocTypeId, DocId, IsUploaded, ToDelete, IsDeleted, ProductId, ProductKindId, NomenclatureId, CharacteristicId, QualityId, Quantity FROM Logs WHERE IsUploadedToServer = 0 ORDER BY LogDate";
+            const string sqlCE = "SELECT LogId, LogDate, Log, Barcode, UserName, PersonId, PlaceId, PlaceZoneId, DocTypeId, DocId, IsUploaded, ToDelete, IsDeleted, ProductId, ProductKindId, NomenclatureId, CharacteristicId, QualityId, Quantity, FromProductId FROM Logs WHERE IsUploadedToServer = 0 ORDER BY LogDate";
 
             var parametersCE = new List<SqlCeParameter>();
                 //{
@@ -1070,7 +1102,7 @@ namespace gamma_mob
                 {
                     foreach (DataRow row in table.Rows)
                     {
-                        const string sql = "INSERT INTO LogFromMobileDevices(DeviceName, DeviceIP, UserName,PersonId,LogId,LogDate,Log,Barcode,PlaceId,DocTypeId,IsUploaded,DocId,PlaceZoneId,ToDelete,IsDeleted,ProductId,ProductKindId,NomenclatureId,CharacteristicId,QualityId,Quantity) VALUES(@DeviceName, @DeviceIP, @UserName,@PersonId,@LogId,@LogDate,@Log,@Barcode,@PlaceId,@DocTypeId,@IsUploaded,@DocId,@PlaceZoneId,@ToDelete,@IsDeleted,@ProductId,@ProductKindId,@NomenclatureId,@CharacteristicId,@QualityId,@Quantity)";
+                        const string sql = "INSERT INTO LogFromMobileDevices(DeviceName, DeviceIP, UserName,PersonId,LogId,LogDate,Log,Barcode,PlaceId,DocTypeId,IsUploaded,DocId,PlaceZoneId,ToDelete,IsDeleted,ProductId,ProductKindId,NomenclatureId,CharacteristicId,QualityId,Quantity,FromProductId) VALUES(@DeviceName, @DeviceIP, @UserName,@PersonId,@LogId,@LogDate,@Log,@Barcode,@PlaceId,@DocTypeId,@IsUploaded,@DocId,@PlaceZoneId,@ToDelete,@IsDeleted,@ProductId,@ProductKindId,@NomenclatureId,@CharacteristicId,@QualityId,@Quantity,@FromProductId)";
                         var parameters = new List<SqlParameter>
                         {
                             new SqlParameter("@DeviceName", SqlDbType.Text)
@@ -1156,6 +1188,10 @@ namespace gamma_mob
                             new SqlParameter("@Quantity", SqlDbType.Int)
                                 {
                                     Value = row["Quantity"], // row.IsNull("Quantity") ? (int?)null : Convert.ToInt32(row["Quantity"]),
+                                },
+                            new SqlParameter("@FromProductId", SqlDbType.UniqueIdentifier)
+                                {
+                                    Value = row["FromProductId"], // row.IsNull("FromProductId") ? (Guid?)null : new Guid(row["FromProductId"].ToString()),
                                 }
                         };
                         if (ExecuteSilentlyNonQuery(sql, parameters, CommandType.Text))
@@ -2272,7 +2308,7 @@ namespace gamma_mob
             , Guid qualityId, int quantity, Guid? fromProductId)
         {
             DbOrderOperationProductResult result = null;
-            const string sql = "dbo.[mob_AddScanIdToOrder]";
+            const string sql = "dbo.[mob_AddScanIdToOrderV1]";
             var parameters = new List<SqlParameter>
                 {
                     new SqlParameter("@ScanID", SqlDbType.UniqueIdentifier)
@@ -2442,7 +2478,7 @@ namespace gamma_mob
             , Guid qualityId, int quantity, Guid? fromProductId)
         {
             DbMoveOperationProductResult acceptProductResult = null;
-            const string sql = "dbo.[mob_AddScanIdToMovement]";
+            const string sql = "dbo.[mob_AddScanIdToMovementV1]";
             var parameters = new List<SqlParameter>
                 {
                     new SqlParameter("@ScanID", SqlDbType.UniqueIdentifier)
@@ -3483,10 +3519,10 @@ namespace gamma_mob
                 if (table == null || table.Rows.Count == 0)
                 {
                     if (!Shared.LastCeQueryCompleted)
-                        Shared.SaveToLog(@"Ошибка при поиске в локальной БД " + barcode + " (Локальные база ШК " + Shared.Barcodes1C.GetCountBarcodes + "; посл.обн " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodesMoscowTimeZone.ToString(System.Globalization.CultureInfo.InvariantCulture) + ")");
+                        Shared.SaveToLogError(@"Ошибка при поиске в локальной БД " + barcode + " (Локальные база ШК " + Shared.Barcodes1C.GetCountBarcodes + "; посл.обн " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodesMoscowTimeZone.ToString(System.Globalization.CultureInfo.InvariantCulture) + ")");
                     else
                         if (Shared.IsFindBarcodeFromFirstLocalAndNextOnline)
-                            Shared.SaveToLog(@"Не найден в локальной БД " + barcode + " (Локальные база ШК " + Shared.Barcodes1C.GetCountBarcodes + "; посл.обн " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodesMoscowTimeZone.ToString(System.Globalization.CultureInfo.InvariantCulture) + ")");
+                            Shared.SaveToLogInformation(@"Не найден в локальной БД " + barcode + " (Локальные база ШК " + Shared.Barcodes1C.GetCountBarcodes + "; посл.обн " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodesMoscowTimeZone.ToString(System.Globalization.CultureInfo.InvariantCulture) + ")");
                     const string sqlDB = "dbo.mob_GetNomenclatureCharacteristicQualityFromBarcode";
                     var parametersDB = new List<SqlParameter>
                     {
@@ -3499,9 +3535,9 @@ namespace gamma_mob
                     if (table == null || table.Rows.Count == 0)
                     {
                         if (!Shared.LastCeQueryCompleted)
-                            Shared.SaveToLog(@"Ошибка при поиске в серверной БД " + barcode + " (Локальные база ШК " + Shared.Barcodes1C.GetCountBarcodes + "; посл.обн " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodesMoscowTimeZone.ToString(System.Globalization.CultureInfo.InvariantCulture) + ")");
+                            Shared.SaveToLogError(@"Ошибка при поиске в серверной БД " + barcode + " (Локальные база ШК " + Shared.Barcodes1C.GetCountBarcodes + "; посл.обн " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodesMoscowTimeZone.ToString(System.Globalization.CultureInfo.InvariantCulture) + ")");
                         else
-                            Shared.SaveToLog(@"Не найден в серверной БД " + barcode + " (Локальные база ШК " + Shared.Barcodes1C.GetCountBarcodes + "; посл.обн " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodesMoscowTimeZone.ToString(System.Globalization.CultureInfo.InvariantCulture) + ")");
+                            Shared.SaveToLogInformation(@"Не найден в серверной БД " + barcode + " (Локальные база ШК " + Shared.Barcodes1C.GetCountBarcodes + "; посл.обн " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodesMoscowTimeZone.ToString(System.Globalization.CultureInfo.InvariantCulture) + ")");
                     }
                 }
                 if (table != null && table.Rows.Count > 0)

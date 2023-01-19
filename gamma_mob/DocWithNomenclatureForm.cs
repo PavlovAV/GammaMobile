@@ -50,7 +50,7 @@ namespace gamma_mob
             
             if (!RefreshDocOrderGoods(docOrderId))
             {
-                MessageBox.Show(@"Не удалось получить информацию о документе!/r/nПопробуйте ещё раз обновить!");
+                Shared.ShowMessageInformation(@"Не удалось получить информацию о документе!" + Environment.NewLine + "Попробуйте ещё раз обновить!");
                 //Close();
                 return;
             }
@@ -114,8 +114,8 @@ namespace gamma_mob
 
             MaxAllowedPercentBreak = maxAllowedPercentBreak;
 
-            if (!Shared.InitializationData()) MessageBox.Show(@"Внимание! Не обновлены" + Environment.NewLine + @" данные с сервера.");
-            if (Shared.TimerForUnloadOfflineProducts == null) MessageBox.Show(@"Внимание! Не запущена автоматическая" + Environment.NewLine + @"выгрузка на сервер.");
+            if (!Shared.InitializationData()) Shared.ShowMessageInformation(@"Внимание! Не обновлены" + Environment.NewLine + @" данные с сервера.");
+            if (Shared.TimerForUnloadOfflineProducts == null) Shared.ShowMessageInformation(@"Внимание! Не запущена автоматическая" + Environment.NewLine + @"выгрузка на сервер.");
             OnUpdateBarcodesIsNotUploaded();
         }
 
@@ -161,14 +161,14 @@ namespace gamma_mob
         {
             if (!ConnectionState.CheckConnection())
                     {
-                        MessageBox.Show(@"Нет связи с базой" + Environment.NewLine + ConnectionState.GetConnectionState(), @"Ошибка связи");
+                        Shared.ShowMessageError(@"Нет связи с базой" + Environment.NewLine + ConnectionState.GetConnectionState());
                         return;
                     }
                     var nomenclatureItem = NomenclatureList[gridDocOrder.CurrentRowIndex];
                     var resultMessage = Db.FindDocOrderNomenclatureStoragePlaces(DocId, nomenclatureItem.NomenclatureId, nomenclatureItem.CharacteristicId, nomenclatureItem.QualityId)
                                         ?? "Не удалось получить информацию о расположении продукции";
                     if (resultMessage != null)
-                        MessageBox.Show(resultMessage, @"Расположение продукции", MessageBoxButtons.OK,MessageBoxIcon.Question,MessageBoxDefaultButton.Button1);
+                        Shared.ShowMessageError(resultMessage);
         }
 
         protected override void PalletToolBarButton() 
@@ -191,7 +191,7 @@ namespace gamma_mob
         {
             if (!ConnectionState.CheckConnection())
             {
-                MessageBox.Show(@"Нет связи с сервером" + Environment.NewLine + ConnectionState.GetConnectionState());
+                Shared.ShowMessageError(@"Нет связи с сервером" + Environment.NewLine + ConnectionState.GetConnectionState());
                 return;
             }
             var good = NomenclatureList[gridDocOrder.CurrentRowIndex];
@@ -209,7 +209,10 @@ namespace gamma_mob
         {
             if (!RefreshDocOrderGoods(docId))
             {
-                if (showMessage) MessageBox.Show(@"Не удалось получить информацию о документе!/r/nПопробуйте ещё раз обновить!");
+                if (showMessage) 
+                    Shared.ShowMessageInformation(@"Не удалось получить информацию о документе!" + Environment.NewLine + "Попробуйте ещё раз обновить!");
+                else
+                    Shared.SaveToLogInformation(@"Не удалось получить информацию о документе!" + Environment.NewLine + "Попробуйте ещё раз обновить!");
                 //Close();
                 return;
             }
@@ -330,8 +333,7 @@ namespace gamma_mob
             }
             catch
             {
-                Shared.SaveToLog("Error DocWithNomenclatureForms " + error_ch);
-                MessageBox.Show("Ошибка при обновлении списка. Нажмите Ок для повтора.");
+                Shared.ShowMessageError(@"Ошибка при обновлении списка. Нажмите Ок для повтора. (" + error_ch + @")");
                 RefreshDocOrder(DocId, true);
             }
         }

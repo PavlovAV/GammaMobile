@@ -19,7 +19,7 @@ namespace gamma_mob
             ParentForm = parentForm;
             DocDirection = docDirection;
             if (Shared.Barcodes1C.GetLastUpdatedTimeBarcodesMoscowTimeZone != null && (DateTime.Now - Shared.Barcodes1C.GetLastUpdatedTimeBarcodesMoscowTimeZone).TotalHours > 1)
-                MessageBox.Show("Локальная база штрих-кодов устарела! " + Environment.NewLine
+                Shared.ShowMessageInformation("Локальная база штрих-кодов устарела! " + Environment.NewLine
                     + "Последнее обновление - " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodesMoscowTimeZone.ToString(System.Globalization.CultureInfo.InvariantCulture) + Environment.NewLine
                     + "Перезапустите программу для загрузки штрих-кодов!");
         }
@@ -113,7 +113,7 @@ namespace gamma_mob
             Cursor.Current = Cursors.WaitCursor;
             if (!ConnectionState.CheckConnection())
             {
-                MessageBox.Show(@"Нет сети, повторите попытку в зоне покрытия WiFi" + Environment.NewLine + ConnectionState.GetConnectionState());
+                Shared.ShowMessageInformation(@"Нет сети, повторите попытку в зоне покрытия WiFi" + Environment.NewLine + ConnectionState.GetConnectionState());
                 Cursor.Current = Cursors.Default;
                 return;
             }
@@ -127,7 +127,7 @@ namespace gamma_mob
             DocInventarisation doc = Db.CreateNewInventarisation(Shared.PersonId, endPointInfo.PlaceId);
             if (doc == null)
             {
-                MessageBox.Show(@"Не удалось создать документ в базе");
+                Shared.ShowMessageError(@"Не удалось создать документ в базе");
                 Cursor.Current = Cursors.Default;
                 return;
             }

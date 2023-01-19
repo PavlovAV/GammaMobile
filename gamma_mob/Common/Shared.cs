@@ -378,7 +378,7 @@ namespace gamma_mob.Common
             set
             {
                 _batterySerialNumber = value;
-                Shared.SaveToLog("Battery SerialNumber " + value);
+                Shared.SaveToLogStartProgramInformation("Battery SerialNumber " + value);
             }
         }
 
@@ -393,18 +393,18 @@ namespace gamma_mob.Common
             set
             {
                 _batteryLevel = value;
-                Shared.SaveToLog("Battery Level " + value.ToString());
+                Shared.SaveToLogInformation("Battery Level " + value.ToString());
                 try
                 {
                     var batterySuspendTimeout = Device.GetBatterySuspendTimeout();
                     if (value <= limitNormalLevelBattery && batterySuspendTimeout != lowLevelBatterySuspendTimeout)
-                        Shared.SaveToLog("SetBatterySuspendTimeout(" + lowLevelBatterySuspendTimeout.ToString() + ") " + Device.SetBatterySuspendTimeout(lowLevelBatterySuspendTimeout).ToString());
+                        Shared.SaveToLogInformation("SetBatterySuspendTimeout(" + lowLevelBatterySuspendTimeout.ToString() + ") " + Device.SetBatterySuspendTimeout(lowLevelBatterySuspendTimeout).ToString());
                     if (value > limitNormalLevelBattery && batterySuspendTimeout != normalLevelBatterySuspendTimeout)
-                        Shared.SaveToLog("SetBatterySuspendTimeout(" + normalLevelBatterySuspendTimeout.ToString() + ") " + Device.SetBatterySuspendTimeout(normalLevelBatterySuspendTimeout).ToString());
+                        Shared.SaveToLogInformation("SetBatterySuspendTimeout(" + normalLevelBatterySuspendTimeout.ToString() + ") " + Device.SetBatterySuspendTimeout(normalLevelBatterySuspendTimeout).ToString());
                 }
                 catch
                 {
-                    Shared.SaveToLog("Error SetBatterySuspendTimeout in set batteryLevel");
+                    Shared.SaveToLogError("Error SetBatterySuspendTimeout in set batteryLevel");
                 }
                 
             }
@@ -614,7 +614,20 @@ namespace gamma_mob.Common
             }
         }
 */
-        public static void SaveToLog(string log)
+        private static void SaveToLog(string log, Guid? docId, Guid? productId)
+        {
+
+            try
+            {
+                Db.AddMessageToLog(log, docId, productId);
+            }
+            catch (Exception err)
+            {
+               // MessageBox.Show(err.Message);
+            }
+        }
+
+        private static void SaveToLog(string log)
         {
 
             try
@@ -623,8 +636,44 @@ namespace gamma_mob.Common
             }
             catch (Exception err)
             {
-               // MessageBox.Show(err.Message);
+                // MessageBox.Show(err.Message);
             }
+        }
+
+        public static void SaveToLogInformation(string log, Guid? docId, Guid? productId)
+        {
+            Shared.SaveToLog(log, docId, productId);
+        }
+
+        public static void SaveToLogError(string log, Guid? docId, Guid? productId)
+        {
+            Shared.SaveToLog(@"ERROR! " + log, docId, productId);
+        }
+
+        public static void SaveToLogQuestion(string log, Guid? docId, Guid? productId)
+        {
+            Shared.SaveToLog(@"QUEST? " + log, docId, productId);
+        }
+
+        public static void SaveToLogInformation(string log)
+        {
+            Shared.SaveToLogInformation(log, null, null);
+        }
+
+        public static void SaveToLogError(string log)
+        {
+            Shared.SaveToLogError(log, null, null);
+        }
+
+        public static void SaveToLogQuestion(string log)
+        {
+            Shared.SaveToLogQuestion(log, null, null);
+        }
+
+
+        public static void SaveToLogStartProgramInformation(string log)
+        {
+            Shared.SaveToLog(@"START: " + log);
         }
 
         public static void DeleteOldUploadedToServerLogs()
@@ -723,7 +772,7 @@ namespace gamma_mob.Common
             }
             catch
             {
-                Shared.SaveToLog("Error UpdateBatterySerialumber");
+                Shared.SaveToLogError("Error UpdateBatterySerialumber");
             }
         }
 
@@ -746,6 +795,42 @@ namespace gamma_mob.Common
                 }
                 return _timerForCheckUpdateProgram;
             }
+        }
+
+        public static bool ShowMessageError(string message)
+        {
+            return ShowMessageError(message, @"", null, null);
+        }
+
+        public static bool ShowMessageError(string message, string technicalMessage, Guid? docID, Guid? productID)
+        {
+            MessageBox.Show(message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Hand, MessageBoxDefaultButton.Button3);
+            Shared.SaveToLogError(message, docID, productID);
+            return true;
+        }
+
+       public static DialogResult ShowMessageQuestion(string message)
+        {
+            return ShowMessageQuestion(message, @"", null, null);
+        }
+
+        public static DialogResult ShowMessageQuestion(string message, string technicalMessage, Guid? docID, Guid? productID)
+        {
+            var res = MessageBox.Show(message, "Вопрос", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
+            Shared.SaveToLogQuestion(message + " => Ответ: " + res, docID, productID);
+            return res;
+        }
+
+        public static bool ShowMessageInformation(string message)
+        {
+            return ShowMessageInformation(message, @"", null, null);
+        }
+
+        public static bool ShowMessageInformation(string message, string technicalMessage, Guid? docID, Guid? productID)
+        {
+            MessageBox.Show(message,"Информация", MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button3);
+            Shared.SaveToLogInformation(message, docID, productID);
+            return true;
         }
     }
 }

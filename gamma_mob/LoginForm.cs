@@ -60,10 +60,10 @@ namespace gamma_mob
             BarcodeFunc = AuthorizeByBarcode;
             try
             {
-                Shared.SaveToLog("Version " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version);
-                Shared.SaveToLog("Model " + Datalogic.API.Device.GetModel().ToString());
+                Shared.SaveToLogStartProgramInformation(@"Version " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version);
+                Shared.SaveToLogStartProgramInformation(@"Model " + Datalogic.API.Device.GetModel().ToString());
                 var strHostName = Dns.GetHostName();
-                Shared.SaveToLog("HostName " + strHostName);
+                Shared.SaveToLogStartProgramInformation(@"HostName " + strHostName);
 
                 IPHostEntry ipEntry = Dns.GetHostByName(strHostName);
                 IPAddress[] addr = ipEntry.AddressList;
@@ -72,7 +72,7 @@ namespace gamma_mob
                 {
                     ipAdress = ipAdress+ "   " + i.ToString() + ": " + addr[i].ToString();
                 }
-                Shared.SaveToLog("IpAdress " + ipAdress);
+                Shared.SaveToLogStartProgramInformation(@"IpAdress " + ipAdress);
 
                 var cerdispProcess = GetProcessRunning(@"cerdisp");
                 if (cerdispProcess != null)
@@ -83,24 +83,24 @@ namespace gamma_mob
                 {
                     btnExecRDP.Text = "Запуск RDP";
                 }
-                Shared.SaveToLog("DbBarcodes created:" + Db.GetLocalDbBarcodesDateCreated().ToString(System.Globalization.CultureInfo.InvariantCulture));
+                Shared.SaveToLogStartProgramInformation(@"DbBarcodes created:" + Db.GetLocalDbBarcodesDateCreated().ToString(System.Globalization.CultureInfo.InvariantCulture));
                 Shared.UpdateBatterySerialumber();
                 var batterySuspendTimeout = Device.GetBatterySuspendTimeout();
-                Shared.SaveToLog("BatterySuspendTimeout " + batterySuspendTimeout.ToString());
-                Shared.SaveToLog("BatteryLevel " + Device.GetBatteryLevel().ToString());
-                Shared.SaveToLog("WiFiPowerStatus " + Device.GetWiFiPowerStatus().ToString());
+                Shared.SaveToLogStartProgramInformation(@"BatterySuspendTimeout " + batterySuspendTimeout.ToString());
+                Shared.SaveToLogStartProgramInformation(@"BatteryLevel " + Device.GetBatteryLevel().ToString());
+                Shared.SaveToLogStartProgramInformation(@"WiFiPowerStatus " + Device.GetWiFiPowerStatus().ToString());
                 if (batterySuspendTimeout != 600)
-                    Shared.SaveToLog("SetBatterySuspendTimeout(600) " + Device.SetBatterySuspendTimeout(600).ToString());
+                    Shared.SaveToLogStartProgramInformation(@"SetBatterySuspendTimeout(600) " + Device.SetBatterySuspendTimeout(600).ToString());
                 
                 UInt64 userFreeBytes, totalDiskBytes, totalFreeBytesExecutable, totalFreeBytesUpdatable;
                 GetDiskFreeSpaceEx(@"\", out userFreeBytes, out totalDiskBytes, out totalFreeBytesExecutable);
                 GetDiskFreeSpaceEx(@"\FlashDisk\", out userFreeBytes, out totalDiskBytes, out totalFreeBytesUpdatable);
-                Shared.SaveToLog("FreeSpace " + totalFreeBytesExecutable.ToString() + "/" +
+                Shared.SaveToLogStartProgramInformation(@"FreeSpace " + totalFreeBytesExecutable.ToString() + @"/" +
                     totalFreeBytesUpdatable.ToString());
             }
             catch
             {
-                Shared.SaveToLog("Error LoginFormLoad");
+                Shared.SaveToLogError(@"Error LoginFormLoad");
             }
 
             //Подписка на событие восстановления связи
@@ -111,17 +111,17 @@ namespace gamma_mob
             ConnectionState.CheckConnection(Settings.CurrentServer);
             if (Shared.TimerForCheckBatteryLevel == null)
             {
-                Shared.SaveToLog(@"Внимание! Не запущена автоматическая проверка уровня заряда аккумулятора.");
+                Shared.SaveToLogError(@"Внимание! Не запущена автоматическая проверка уровня заряда аккумулятора.");
             }
 
 #if !DEBUG
             if (Shared.TimerForCheckUpdateProgram == null)
             {
-                Shared.SaveToLog(@"Внимание! Не запущена автоматическая проверка на наличие новой версии программы.");
+                Shared.SaveToLogError(@"Внимание! Не запущена автоматическая проверка на наличие новой версии программы.");
             }
 #endif
 
-//#if DEBUG
+            //#if DEBUG
 //            AuthorizeByBarcode("00000000000056");
 //#endif
         }
@@ -172,6 +172,8 @@ namespace gamma_mob
                     //ConnectionRestored();
                     break;
             }
+            if (conState == ConnectState.NoConnection && message == string.Empty)
+                Shared.SaveToLogInformation(message);
         }
 
         private void AuthorizeByBarcode(string barcode)
@@ -570,16 +572,19 @@ namespace gamma_mob
 
         private void ChangeCurrentServer(bool isChangeExternalServer)
         {
-            if (MessageBox.Show("Вы уверены, что хотите изменить адрес сервера?","Изменение адреса сервера", 
-                MessageBoxButtons.YesNo, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+            if (Shared.ShowMessageQuestion("Вы уверены, что хотите изменить адрес сервера?") == DialogResult.Yes)
             {
                 if ((!isChangeExternalServer) ? Settings.SetCurrentInternalServer() : Settings.SetCurrentExternalServer())
                 {
                     RefreshBtnSetNetEnabled();
                     lblMessage.Text = "Установлен адрес сервера " + Settings.CurrentServer;
+                    Shared.SaveToLogInformation(lblMessage.Text);
                 }
                 else
+                {
                     lblMessage.Text = "Ошибка при установке адреса сервера " + (!isChangeExternalServer ? Settings.ServerIP : Settings.SecondServerIP);
+                    Shared.SaveToLogError(lblMessage.Text);
+                }
             }
         }
 

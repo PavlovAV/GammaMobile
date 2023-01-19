@@ -26,7 +26,7 @@ namespace gamma_mob
             }
             catch (DecodeException)
             {
-                MessageBox.Show(@"Exception loading barcode decoder.", @"Decoder Error");
+                Shared.ShowMessageError(@"Exception loading barcode decoder.");
                 return;
             }
 
@@ -74,7 +74,7 @@ namespace gamma_mob
             }
             catch (Exception)
             {
-                MessageBox.Show(@"Error reading string!");
+                Shared.ShowMessageError(@"Error reading string!");
                 return;
             }
             dcdData = dcdData.Trim(); // replaceAll("\\p{Cntrl}", "");

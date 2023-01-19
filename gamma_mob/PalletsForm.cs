@@ -35,7 +35,7 @@ namespace gamma_mob
             Pallets = Db.GetOrderPallets(docOrderId);
             if (Pallets == null)
             {
-                MessageBox.Show(@"Не удалось получить информацию о скомплектованных паллетах");
+                Shared.ShowMessageError(@"Не удалось получить информацию о скомплектованных паллетах");
                 Close();
                 return;
             }
@@ -106,8 +106,7 @@ namespace gamma_mob
         {
             var pallet = Pallets[gridPallets.CurrentRowIndex];
             if (pallet == null) return;
-            if (MessageBox.Show(@"Вы действительно хотите удалить паллету № " + pallet.Number, @"Удаление паллеты", 
-                MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) != DialogResult.Yes) return;
+            if (Shared.ShowMessageQuestion(@"Вы действительно хотите удалить паллету № " + pallet.Number) != DialogResult.Yes) return;
             UIServices.SetBusyState(this);
                 var result = Db.DeletePallet(pallet.ProductId);
             UIServices.SetNormalState(this);
@@ -116,7 +115,7 @@ namespace gamma_mob
                 Pallets.Remove(pallet);
                 return;
             }
-            MessageBox.Show(result);
+            Shared.ShowMessageError(result);
         }
 
         private void gridPallets_DoubleClick(object sender, EventArgs e)
@@ -130,7 +129,7 @@ namespace gamma_mob
             var result = Db.CreateNewPallet(productId, DocOrderId);
             if (!String.IsNullOrEmpty(result))
             {
-                MessageBox.Show(result);
+                Shared.ShowMessageError(result);
                 return;
             }
             var pallet = new Pallet
@@ -147,7 +146,7 @@ namespace gamma_mob
         {
             if (!ConnectionState.CheckConnection())
             {
-                MessageBox.Show(@"Нет связи с сервером" + Environment.NewLine + ConnectionState.GetConnectionState());
+                Shared.ShowMessageError(@"Нет связи с сервером" + Environment.NewLine + ConnectionState.GetConnectionState());
                 return;
             }
             var listItem = Pallets[gridPallets.CurrentRowIndex];
@@ -166,7 +165,7 @@ namespace gamma_mob
             UIServices.SetBusyState(this);
             if (!ConnectionState.CheckConnection())
             {
-                MessageBox.Show(@"Нет связи с сервером" + Environment.NewLine + ConnectionState.GetConnectionState());
+                Shared.ShowMessageError(@"Нет связи с сервером" + Environment.NewLine + ConnectionState.GetConnectionState());
                 return;
             }
             var form = new PalletForm(this, pallet);

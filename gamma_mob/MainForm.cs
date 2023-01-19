@@ -31,10 +31,9 @@ namespace gamma_mob
             userInfoTextId = 0;
             if (Shared.TimerForBarcodesUpdate == null)
             {
-                MessageBox.Show(@"Внимание! Не запущена автоматическая" + Environment.NewLine + @"загрузка штрих-кодов.");
-                Shared.SaveToLog(@"Внимание! Не запущена автоматическая загрузка штрих-кодов.");
+                Shared.ShowMessageInformation(@"Внимание! Не запущена автоматическая" + Environment.NewLine + @"загрузка штрих-кодов.");
             }
-            Shared.SaveToLog(@"Локальные база ШК " + Shared.Barcodes1C.GetCountBarcodes + "; посл.обн " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodesMoscowTimeZone.ToString(System.Globalization.CultureInfo.InvariantCulture)
+            Shared.SaveToLogStartProgramInformation(@"Локальные база ШК " + Shared.Barcodes1C.GetCountBarcodes + "; посл.обн " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodesMoscowTimeZone.ToString(System.Globalization.CultureInfo.InvariantCulture)
                  + "; создан " + Db.GetLocalDbBarcodesDateCreated().ToString(System.Globalization.CultureInfo.InvariantCulture));
             if (Program.deviceName.Contains("CPT"))
                 btnCloseApp.Visible = true;
@@ -57,9 +56,7 @@ namespace gamma_mob
                 switch (Db.CheckSqlConnection())
                 {
                     case 2:
-                        MessageBox.Show(@"Нет связи с БД. Повторите попытку в зоне покрытия WiFi" + Environment.NewLine + ConnectionState.GetConnectionState(),
-                                        @"Отсутствует WiFi", MessageBoxButtons.OK, MessageBoxIcon.Hand,
-                                        MessageBoxDefaultButton.Button1);
+                        Shared.ShowMessageError(@"Нет связи с БД. Повторите попытку в зоне покрытия WiFi" + Environment.NewLine + ConnectionState.GetConnectionState());
                         break;
                     case 1:
                         WrongUserPass();
@@ -78,17 +75,14 @@ namespace gamma_mob
             }
             else
             {
-                MessageBox.Show(@"Нет связи с БД. Повторите попытку в зоне покрытия WiFi" + Environment.NewLine + ConnectionState.GetConnectionState(),
-                                @"Отсутствует WiFi", MessageBoxButtons.OK, MessageBoxIcon.Hand,
-                                MessageBoxDefaultButton.Button1);
+                Shared.ShowMessageError(@"Нет связи с БД. Повторите попытку в зоне покрытия WiFi" + Environment.NewLine + ConnectionState.GetConnectionState());
             }
             Cursor.Current = Cursors.Default;
         }
 
         private void WrongUserPass()
         {
-            MessageBox.Show(@"Неверно указан логин или пароль", @"Ошибка связи с БД",
-                            MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
+            Shared.ShowMessageError(@"Неверно указан логин или пароль");
             Application.Exit();
         }
 
@@ -106,9 +100,7 @@ namespace gamma_mob
                 switch (Db.CheckSqlConnection())
                 {
                     case 2:
-                        MessageBox.Show(@"Нет связи с БД. Повторите попытку в зоне покрытия WiFi" + Environment.NewLine + ConnectionState.GetConnectionState(),
-                                        @"Отсутствует WiFi", MessageBoxButtons.OK, MessageBoxIcon.Hand,
-                                        MessageBoxDefaultButton.Button1);
+                        Shared.ShowMessageError(@"Нет связи с БД. Повторите попытку в зоне покрытия WiFi" + Environment.NewLine + ConnectionState.GetConnectionState());
                         break;
                     case 1:
                         WrongUserPass();
@@ -127,9 +119,7 @@ namespace gamma_mob
             }
             else
             {
-                MessageBox.Show(@"Нет связи с БД. Повторите попытку в зоне покрытия WiFi" + Environment.NewLine + ConnectionState.GetConnectionState(),
-                                @"Отсутствует WiFi", MessageBoxButtons.OK, MessageBoxIcon.Hand,
-                                MessageBoxDefaultButton.Button1);
+                Shared.ShowMessageError(@"Нет связи с БД. Повторите попытку в зоне покрытия WiFi" + Environment.NewLine + ConnectionState.GetConnectionState());
             }
             Cursor.Current = Cursors.Default;
         }
@@ -160,9 +150,7 @@ namespace gamma_mob
                             if ((endPointInfo.IsAvailabilityPlaceZoneId && endPointInfo.PlaceZoneId == null) || (endPointInfo.IsAvailabilityChildPlaceZoneId && endPointInfo.PlaceZoneId != null))
                             {
                                 string message = (endPointInfo.IsAvailabilityChildPlaceZoneId && endPointInfo.PlaceZoneId != null) ? "Вы не до конца указали зону. Попробуете еще раз?" : "Вы будете указывать зону сейчас?";
-                                var dialogResult = MessageBox.Show(message
-                                    , @"Операция с продуктом",
-                                    MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
+                                var dialogResult = Shared.ShowMessageQuestion(message);
                                 if (dialogResult == DialogResult.Yes)
                                 {
                                     using (var formPlaceZone = new ChooseEndPointDialog(endPointInfo.PlaceId))
@@ -170,8 +158,7 @@ namespace gamma_mob
                                         DialogResult resultPlaceZone = formPlaceZone.ShowDialog();
                                         if (resultPlaceZone != DialogResult.OK)
                                         {
-                                            MessageBox.Show(@"Не выбрана зона склада.", @"Выбор зоны склада",
-                                                            MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
+                                            Shared.ShowMessageInformation(@"Не выбрана зона склада.");
                                             endPointInfo.IsSettedDefaultPlaceZoneId = false;
                                         }
                                         else
@@ -220,9 +207,7 @@ namespace gamma_mob
                 switch (Db.CheckSqlConnection())
                 {
                     case 2:
-                        MessageBox.Show(@"Нет связи с БД. Повторите попытку в зоне покрытия WiFi" + Environment.NewLine + ConnectionState.GetConnectionState(),
-                                        @"Отсутствует WiFi", MessageBoxButtons.OK, MessageBoxIcon.Hand,
-                                        MessageBoxDefaultButton.Button1);
+                        Shared.ShowMessageError(@"Нет связи с БД. Повторите попытку в зоне покрытия WiFi" + Environment.NewLine + ConnectionState.GetConnectionState());
                         break;
                     case 1:
                         WrongUserPass();
@@ -241,9 +226,7 @@ namespace gamma_mob
             }
             else
             {
-                MessageBox.Show(@"Нет связи с БД. Повторите попытку в зоне покрытия WiFi" + Environment.NewLine + ConnectionState.GetConnectionState(),
-                                @"Отсутствует WiFi", MessageBoxButtons.OK, MessageBoxIcon.Hand,
-                                MessageBoxDefaultButton.Button1);
+                Shared.ShowMessageError(@"Нет связи с БД. Повторите попытку в зоне покрытия WiFi" + Environment.NewLine + ConnectionState.GetConnectionState());
             }
             Cursor.Current = Cursors.Default;
         }
@@ -259,18 +242,14 @@ namespace gamma_mob
                     switch (Db.CheckSqlConnection())
                     {
                         case 2:
-                            MessageBox.Show(@"Нет связи с БД. Повторите попытку в зоне покрытия WiFi" + Environment.NewLine + ConnectionState.GetConnectionState(),
-                                            @"Отсутствует WiFi", MessageBoxButtons.OK, MessageBoxIcon.Hand,
-                                            MessageBoxDefaultButton.Button1);
+                            Shared.ShowMessageError(@"Нет связи с БД. Повторите попытку в зоне покрытия WiFi" + Environment.NewLine + ConnectionState.GetConnectionState());
                             break;
                         case 1:
                             WrongUserPass();
                             break;
                         default:
                             Cursor.Current = Cursors.Default;
-                            if (MessageBox.Show(@"Вы уверены, что хотите закрыть смену?", @"Закрытие смены", MessageBoxButtons.OKCancel,
-                                                        MessageBoxIcon.Asterisk,
-                                                        MessageBoxDefaultButton.Button2) == DialogResult.OK)
+                            if (Shared.ShowMessageQuestion(@"Вы уверены, что хотите закрыть смену?") == DialogResult.Yes)
                             {
                                 using (var form = new ChooseShiftDialog())
                                 {
@@ -279,8 +258,7 @@ namespace gamma_mob
                                         DialogResult result = form.ShowDialog();
                                         if (result != DialogResult.OK || form.ShiftId < 1)
                                         {
-                                            MessageBox.Show(@"Не указан номер смены." + Environment.NewLine + @"Смена не закрыта!", @"Смена не закрыта",
-                                                            MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
+                                            Shared.ShowMessageError(@"Не указан номер смены." + Environment.NewLine + @"Смена не закрыта!");
                                             return;
                                         }
                                         Shared.ShiftId = form.ShiftId;
@@ -290,27 +268,19 @@ namespace gamma_mob
                                         var resultMessage = Db.CloseShiftWarehouse(Shared.PersonId, Shared.ShiftId);
                                         if (Shared.LastQueryCompleted == false)
                                         {
-                                            MessageBox.Show(@"Смена не закрыта!" + Environment.NewLine + @"Произошла ошибка." + Environment.NewLine + @"Попробуйте снова.", @"Закрытие смены", MessageBoxButtons.OK,
-                                                            MessageBoxIcon.Asterisk,
-                                                            MessageBoxDefaultButton.Button1);
+                                            Shared.ShowMessageError(@"Смена не закрыта!" + Environment.NewLine + @"Произошла ошибка." + Environment.NewLine + @"Попробуйте снова.");
                                             return;
                                         }
                                         switch (resultMessage)
                                         {
                                             case 1:
-                                                MessageBox.Show(@"Смена закрыта." + Environment.NewLine + @"Распечатайте рапорт на компьютере в Гамме.", @"Закрытие смены", MessageBoxButtons.OK,
-                                                            MessageBoxIcon.None,
-                                                            MessageBoxDefaultButton.Button1);
+                                                Shared.ShowMessageInformation(@"Смена закрыта." + Environment.NewLine + @"Распечатайте рапорт на компьютере в Гамме.");
                                                 break;
                                             case -1:
-                                                MessageBox.Show(@"Смена не закрыта." + Environment.NewLine + @"Произошла ошибка." + Environment.NewLine + @"Попробуйте снова.", @"Закрытие смены", MessageBoxButtons.OK,
-                                                            MessageBoxIcon.Asterisk,
-                                                            MessageBoxDefaultButton.Button1);
+                                                Shared.ShowMessageError(@"Смена не закрыта." + Environment.NewLine + @"Произошла ошибка." + Environment.NewLine + @"Попробуйте снова.");
                                                 break;
                                             case 0:
-                                                MessageBox.Show(@"Смена не закрыта." + Environment.NewLine + @"Уже есть рапорт за эту смену." + Environment.NewLine + @"Закройте смену в Гамме повторно.", @"Закрытие смены", MessageBoxButtons.OK,
-                                                            MessageBoxIcon.Asterisk,
-                                                            MessageBoxDefaultButton.Button1);
+                                                Shared.ShowMessageError(@"Смена не закрыта." + Environment.NewLine + @"Уже есть рапорт за эту смену." + Environment.NewLine + @"Закройте смену в Гамме повторно.");
                                                 break;
 
 
@@ -324,9 +294,7 @@ namespace gamma_mob
                 }
                 else
                 {
-                    MessageBox.Show(@"Нет связи с БД. Повторите попытку в зоне покрытия WiFi" + Environment.NewLine + ConnectionState.GetConnectionState(),
-                                    @"Отсутствует WiFi", MessageBoxButtons.OK, MessageBoxIcon.Hand,
-                                    MessageBoxDefaultButton.Button1);
+                    Shared.ShowMessageError(@"Нет связи с БД. Повторите попытку в зоне покрытия WiFi" + Environment.NewLine + ConnectionState.GetConnectionState());
                 }
                 Cursor.Current = Cursors.Default;
             }
@@ -345,9 +313,7 @@ namespace gamma_mob
                 switch (Db.CheckSqlConnection())
                 {
                     case 2:
-                        MessageBox.Show(@"Нет связи с БД. Повторите попытку в зоне покрытия WiFi" + Environment.NewLine + ConnectionState.GetConnectionState(),
-                                        @"Отсутствует WiFi", MessageBoxButtons.OK, MessageBoxIcon.Hand,
-                                        MessageBoxDefaultButton.Button1);
+                        Shared.ShowMessageError(@"Нет связи с БД. Повторите попытку в зоне покрытия WiFi" + Environment.NewLine + ConnectionState.GetConnectionState());
                         break;
                     case 1:
                         WrongUserPass();
@@ -366,9 +332,7 @@ namespace gamma_mob
             }
             else
             {
-                MessageBox.Show(@"Нет связи с БД. Повторите попытку в зоне покрытия WiFi" + Environment.NewLine + ConnectionState.GetConnectionState(),
-                                @"Отсутствует WiFi", MessageBoxButtons.OK, MessageBoxIcon.Hand,
-                                MessageBoxDefaultButton.Button1);
+                Shared.ShowMessageError(@"Нет связи с БД. Повторите попытку в зоне покрытия WiFi" + Environment.NewLine + ConnectionState.GetConnectionState());
             }
             Cursor.Current = Cursors.Default;
         }
@@ -412,7 +376,7 @@ namespace gamma_mob
                 }
                 catch
                 {
-                    Shared.SaveToLog(@"Error btnUserInfo");
+                    Shared.SaveToLogError(@"Error btnUserInfo");
                 }
             }
         }

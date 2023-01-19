@@ -42,7 +42,7 @@ namespace gamma_mob
                 lblZoneName.Visible = true;
             }
 
-            Shared.SaveToLog(@"EndPointInfo.PlaceId-" + EndPointInfo.PlaceId + @"; EndPointInfo.PlaceZoneId-" + EndPointInfo.PlaceZoneId);
+            Shared.SaveToLogInformation(@"EndPointInfo.PlaceId-" + EndPointInfo.PlaceId + @"; EndPointInfo.PlaceZoneId-" + EndPointInfo.PlaceZoneId);
 
             AcceptedProducts = new BindingList<MovementProduct>();
 
@@ -66,13 +66,13 @@ namespace gamma_mob
                 //Shared.RefreshBarcodes1C();
                 if (BSource == null)
                 {
-                    MessageBox.Show(@"Внимание! Ошибка при обновлении с сервера." + Environment.NewLine + @"Попробуйте еще раз.");
+                    Shared.ShowMessageError(@"Внимание! Ошибка при обновлении с сервера." + Environment.NewLine + @"Попробуйте еще раз.");
                     Text = "Ошибка при обновлении с сервера!";
                 }
                 else
                 {
-                    if (!Shared.InitializationData()) MessageBox.Show(@"Внимание! Не обновлены" + Environment.NewLine + @" данные с сервера.");
-                    if (Shared.TimerForUnloadOfflineProducts == null) MessageBox.Show(@"Внимание! Не запущена автоматическая" + Environment.NewLine + @"выгрузка на сервер.");
+                    if (!Shared.InitializationData()) Shared.ShowMessageInformation(@"Внимание! Не обновлены" + Environment.NewLine + @" данные с сервера.");
+                    if (Shared.TimerForUnloadOfflineProducts == null) Shared.ShowMessageInformation(@"Внимание! Не запущена автоматическая" + Environment.NewLine + @"выгрузка на сервер.");
                     OnUpdateBarcodesIsNotUploaded();
                 }
         }
@@ -246,8 +246,7 @@ namespace gamma_mob
             }
             catch
             {
-                Shared.SaveToLog("Error DocMovementForms " + error_ch);
-                MessageBox.Show("Ошибка при обновлении списка. Нажмите Ок для повтора.");
+                Shared.ShowMessageError(@"Ошибка при обновлении списка. Нажмите Ок для повтора. (" + error_ch + @")");
                 RefreshDocMovementProducts(new Guid(), true);
             }
         }
@@ -261,7 +260,7 @@ namespace gamma_mob
         {
             if (!ConnectionState.CheckConnection())
             {
-                MessageBox.Show(@"Нет связи с сервером" + Environment.NewLine + ConnectionState.GetConnectionState());
+                Shared.ShowMessageError(@"Нет связи с сервером" + Environment.NewLine + ConnectionState.GetConnectionState());
                 return;
             }
             var row = gridDocAccept.CurrentRowIndex;
@@ -287,7 +286,10 @@ namespace gamma_mob
         {
             if (!GetLastMovementProducts())
             {
-                if (showMessage) MessageBox.Show(@"Не удалось получить информацию о документе!" + Environment.NewLine + @"Попробуйте ещё раз обновить!");
+                if (showMessage) 
+                    Shared.ShowMessageInformation(@"Не удалось получить информацию о документе!" + Environment.NewLine + @"Попробуйте ещё раз обновить!");
+                else
+                    Shared.SaveToLogInformation(@"Не удалось получить информацию о документе!" + Environment.NewLine + @"Попробуйте ещё раз обновить!", docId, null);
                 //Close();
                 return;
             }

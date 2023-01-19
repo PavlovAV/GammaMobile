@@ -28,15 +28,14 @@ namespace gamma_mob
         }        
 
         protected override DbOperationProductResult RemovalProduct(Guid scanId)
-        { 
+        {
+            Shared.SaveToLogInformation(@"Start RemovalProduct in DocInventarisationProductsForm: scanId = " + scanId.ToString());
             return Db.DeleteProductFromInventarisationOnInvProductID(scanId);
         }
 
         protected override DialogResult GetDialogResult(string number, string place)
         {
-            return MessageBox.Show("Отменить инвентаризацию " + number + "?"
-                            , @"Операция с продуктом",
-                            MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
+            return Shared.ShowMessageQuestion("Отменить инвентаризацию " + number + "?");
         }
     }
 }

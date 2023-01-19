@@ -29,14 +29,13 @@ namespace gamma_mob
 
         protected override DbOperationProductResult RemovalProduct(Guid scanId)
         {
+            Shared.SaveToLogInformation(@"Start RemovalProduct in DocMovementProductsForm: scanId = " + scanId.ToString());
             return Db.DeleteProductFromMovementOnMovementID(scanId);
         }
         
         protected override DialogResult GetDialogResult(string number, string place)
         {
-            return MessageBox.Show("Удалить перемещение продукта " + number + Environment.NewLine + "и вернуть продукт на передел " + place + "?"
-                           , @"Операция с продуктом",
-                           MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
+            return Shared.ShowMessageQuestion("Удалить перемещение продукта " + number + Environment.NewLine + "и вернуть продукт на передел " + place + "?");
         }
     }
 }

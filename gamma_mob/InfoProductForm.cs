@@ -38,7 +38,7 @@ namespace gamma_mob
             Invoke((MethodInvoker)(() => edtNumber.Text = barcode));
             if (Db.CheckSqlConnection() == 1)
             {
-                MessageBox.Show(@"Нет связи с базой" + Environment.NewLine + ConnectionState.GetConnectionState());
+                Shared.ShowMessageInformation(@"Нет связи с базой" + Environment.NewLine + ConnectionState.GetConnectionState());
                 return;
             }
             string infoproduct = Db.InfoProductByBarcode(barcode);

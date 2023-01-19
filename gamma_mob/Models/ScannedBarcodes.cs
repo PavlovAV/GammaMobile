@@ -48,9 +48,9 @@ namespace gamma_mob.Models
             {
                 item.IsUploaded = true;
                 if (item.ProductId != productId)
-                    Shared.SaveToLog("Change ProductId from " + item.ProductId + " to " + (productId == null ? "" : productId.ToString()) + " ON Barcode " + item.Barcode + " | ScanId " + item.ScanId.ToString());
+                    Shared.SaveToLogInformation("Change ProductId from " + item.ProductId + " to " + (productId == null ? "" : productId.ToString()) + " ON Barcode " + item.Barcode + " | ScanId " + item.ScanId.ToString());
                 item.ProductId = productId;
-                Shared.SaveToLog("Set IsUploaded => True ON Barcode " + item.Barcode + " | ScanId " + item.ScanId.ToString());
+                Shared.SaveToLogInformation("Set IsUploaded => True ON Barcode " + item.Barcode + " | ScanId " + item.ScanId.ToString());
                 Shared.SaveToLog(item.ScanId, item.IsUploaded, null);
                 if (OnUpdateBarcodesIsNotUploaded != null) OnUpdateBarcodesIsNotUploaded();
                 return true;
@@ -71,9 +71,9 @@ namespace gamma_mob.Models
                 item.IsUploaded = true;
                 item.UploadResult = errorLog;
                 if (item.ProductId != productId)
-                    Shared.SaveToLog("Change ProductId from " + item.ProductId + " to " + (productId == null ? "" : productId.ToString()) + " ON Barcode " + item.Barcode + " | ScanId " + item.ScanId.ToString());
+                    Shared.SaveToLogInformation("Change ProductId from " + item.ProductId + " to " + (productId == null ? "" : productId.ToString()) + " ON Barcode " + item.Barcode + " | ScanId " + item.ScanId.ToString());
                 item.ProductId = productId;
-                Shared.SaveToLog("Set IsUploadedWithError => True | " + errorLog + " ON Barcode " + item.Barcode + " | ScanId " + item.ScanId.ToString());
+                Shared.SaveToLogInformation("Set IsUploadedWithError => True | " + errorLog + " ON Barcode " + item.Barcode + " | ScanId " + item.ScanId.ToString());
                 Shared.SaveToLog(item.ScanId, item.IsUploaded, errorLog);
                 if (OnUpdateBarcodesIsNotUploaded != null) OnUpdateBarcodesIsNotUploaded();
                 return true;
@@ -129,7 +129,7 @@ namespace gamma_mob.Models
             if (item != null)
             {
                 item.IsDeleted = true;
-                Shared.SaveToLog("Set IsDeleted => True ON Barcode " + item.Barcode + " | ScanId " + item.ScanId.ToString());
+                Shared.SaveToLogInformation("Set IsDeleted => True ON Barcode " + item.Barcode + " | ScanId " + item.ScanId.ToString());
                 Shared.SaveToLog(item.ScanId, item.IsUploaded, item.IsDeleted, null);
                 if (OnUpdateBarcodesIsNotUploaded != null) OnUpdateBarcodesIsNotUploaded();
                 return true;

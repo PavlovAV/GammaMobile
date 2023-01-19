@@ -242,7 +242,7 @@ namespace gamma_mob.Common
         protected override void OnFormClosing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             if (Shared.ScannedBarcodes.BarcodesIsNotUploaded(DocDirection).Count > 0)
-                MessageBox.Show("Есть невыгруженные продукты!" + Environment.NewLine + "Сначала выгрузите в базу в зоне связи!");
+                Shared.ShowMessageInformation("Есть невыгруженные продукты!" + Environment.NewLine + "Сначала выгрузите в базу в зоне связи!");
             base.OnFormClosing(sender, e);
             ConnectionState.OnConnectionRestored -= ConnectionRestored;
             ConnectionState.OnConnectionLost -= ConnectionLost;
@@ -309,9 +309,7 @@ namespace gamma_mob.Common
         {
             if (barcode.Length < Shared.MinLengthProductBarcode)
             {
-                Shared.SaveToLog(@"Ошибочный ШК! " + barcode);
-                MessageBox.Show(@"Ошибка при сканировании ШК " + barcode + Environment.NewLine + @"Штрих-код должен быть длиннее 12 символов", @"Продукция не найдена",
-                                MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
+                Shared.ShowMessageError(@"Ошибка при сканировании ШК " + barcode + Environment.NewLine + @"Штрих-код должен быть длиннее 12 символов");
             }
             else
             {
@@ -322,9 +320,7 @@ namespace gamma_mob.Common
 
                     if (getProductResult == null || getProductResult.ProductKindId == null || (getProductResult.ProductKindId != 3 && (getProductResult.ProductId == null || getProductResult.ProductId == Guid.Empty)))
                     {
-                        Shared.SaveToLog(@"Продукция не найдена по ШК! " + barcode + " (Локальные база ШК " + Shared.Barcodes1C.GetCountBarcodes + "; посл.обн " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodesMoscowTimeZone.ToString(System.Globalization.CultureInfo.InvariantCulture) + ")");
-                        MessageBox.Show(@"Продукция не найдена по ШК!", @"Продукция не найдена",
-                                        MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
+                        Shared.ShowMessageError(@"Продукция не найдена по ШК! " + barcode + " (Локальные база ШК " + Shared.Barcodes1C.GetCountBarcodes + "; посл.обн " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodesMoscowTimeZone.ToString(System.Globalization.CultureInfo.InvariantCulture) + ")");
                     }
                     else
                     {
@@ -403,15 +399,13 @@ namespace gamma_mob.Common
         {
             if (!fromBuffer && getProductResult.ProductId != null && getProductResult.ProductId != Guid.Empty && Shared.ScannedBarcodes.CheckIsLastBarcode(barcode, DocDirection, DocId, (endPointInfo == null ? null : (int?)endPointInfo.PlaceId), (endPointInfo == null ? null : endPointInfo.PlaceZoneId)))
             {
-                Shared.SaveToLog(@"Вы уже сканировали этот шк " + barcode);
-                MessageBox.Show(@"Вы уже сканировали этот шк " + barcode, @"Повтор",
-                                                    MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
+                Shared.ShowMessageInformation(@"Вы уже сканировали этот шк " + barcode);
             }
             else
             {
                 var scanId = Shared.ScannedBarcodes.AddScannedBarcode(barcode, endPointInfo ?? new EndPointInfo(), DocDirection, DocId, getProductResult);
                 if (scanId == null || scanId == Guid.Empty)
-                    MessageBox.Show("Ошибка1 при сохранении отсканированного штрих-кода");
+                    Shared.ShowMessageError("Ошибка1 при сохранении отсканированного штрих-кода");
 
                 AddProductByBarcode(scanId, barcode, endPointInfo, fromBuffer, getProductResult, DocId);
             }   
@@ -419,17 +413,18 @@ namespace gamma_mob.Common
 
         protected bool? AddProductByBarcode(Guid? scanId, string barcode, EndPointInfo endPointInfo, bool fromBuffer, DbProductIdFromBarcodeResult getProductResult, Guid? id)
         {
-            Shared.SaveToLog(@"Add " + barcode + @"; Q-" + getProductResult.CountProducts + @"; F-" + fromBuffer.ToString());
+            Shared.SaveToLogInformation(@"Add " + barcode + @"; scanId-" + scanId.ToString() + @"; Q-" + getProductResult.CountProducts + @"; F-" + fromBuffer.ToString());
             Cursor.Current = Cursors.WaitCursor;
 
             var addResult = AddProductId(scanId, getProductResult, endPointInfo);
             if (Shared.LastQueryCompleted == false)
             {
+                Shared.SaveToLogError(@"AddProductId.LastQueryCompleted is null (scanId = " + scanId.ToString() + ")");
                 return null;
             }
             if (addResult == null)
             {
-                MessageBox.Show(@"Не удалось добавить продукт" + Environment.NewLine + barcode + " в приказ!");
+                Shared.ShowMessageError(@"Не удалось добавить продукт" + Environment.NewLine + barcode + " в приказ!");
                 Shared.ScannedBarcodes.ClearLastBarcode();
                 return false;
             }
@@ -443,7 +438,7 @@ namespace gamma_mob.Common
                 Shared.ScannedBarcodes.UploadedScanWithError(scanId, addResult.ResultMessage, addResult.Product == null ? (Guid?)null : addResult.Product.ProductId);
                 if ((DocId != null && id == DocId) || (EndPointInfo != null && endPointInfo.PlaceId == EndPointInfo.PlaceId))
                 {
-                    MessageBox.Show(fromBuffer ? @"Ошибка при загрузке на сервер невыгруженного" + Environment.NewLine + @" продукта: " : @"Продукт: " + barcode + Environment.NewLine + addResult.ResultMessage);
+                    Shared.ShowMessageError(fromBuffer ? @"Ошибка при загрузке на сервер невыгруженного" + Environment.NewLine + @" продукта: " : @"Продукт: " + barcode + Environment.NewLine + addResult.ResultMessage);
                     Shared.ScannedBarcodes.ClearLastBarcode();
                 }
             }
@@ -527,7 +522,7 @@ namespace gamma_mob.Common
                 var checkRes = CheckUnloadOfflineProduct(offlineProduct);
                 if (checkRes != "")
                 {
-                    MessageBox.Show(checkRes, @"Информация о выгрузке");
+                    Shared.ShowMessageError(checkRes);
                     Shared.ScannedBarcodes.UploadedScanWithError(offlineProduct.ScanId, checkRes, offlineProduct.ProductId);
                 }
                 else

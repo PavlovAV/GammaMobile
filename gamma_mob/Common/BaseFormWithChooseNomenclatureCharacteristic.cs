@@ -68,8 +68,7 @@ namespace gamma_mob.Common
                               //&& (((ChooseNomenclatureCharacteristicForm.QualityId ?? Guid.Empty) == Guid.Empty && (getFromProductResult.QualityId ?? Guid.Empty) == Guid.Empty) || (ChooseNomenclatureCharacteristicForm.QualityId != Guid.Empty && getFromProductResult.QualityId != Guid.Empty && ChooseNomenclatureCharacteristicForm.QualityId == getFromProductResult.QualityId))
                             ))
                         {
-                            MessageBox.Show(@"Ошибка! Не совпадает номенклатура продукта упаковки и паллеты!", @"Продукт не добавлен",
-                                                MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
+                            Shared.ShowMessageError(@"Ошибка! Не совпадает номенклатура продукта упаковки и паллеты!");
                             return;
                         }
                         else
@@ -80,8 +79,7 @@ namespace gamma_mob.Common
                             Invoke((MethodInvoker)Activate);
                             if (result != DialogResult.OK || form.Quantity == null)
                             {
-                                MessageBox.Show(@"Не указано количество продукта. Продукт не добавлен!", @"Продукт не добавлен",
-                                                MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
+                                Shared.ShowMessageError(@"Не указано количество продукта. Продукт не добавлен!");
                                 return;
                             }
                             else
@@ -90,8 +88,7 @@ namespace gamma_mob.Common
                                     getFromProductResult.CountProducts = form.Quantity;
                                 else
                                 {
-                                    MessageBox.Show(@"Ошибка! Недостаточно количества продукта в паллете для списания!", @"Продукт не добавлен",
-                                                MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
+                                    Shared.ShowMessageError(@"Ошибка! Недостаточно количества продукта в паллете для списания!");
                                     return;
                                 }
                             }
@@ -125,12 +122,12 @@ namespace gamma_mob.Common
                         });
                     }
                     else
-                        MessageBox.Show(@"Ошибка! Попробуйте еще раз или выберите номенклатуру", @"Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button3);
+                        Shared.ShowMessageError(@"Ошибка! Попробуйте еще раз или выберите номенклатуру");
                 }
             }
             else
             {
-                MessageBox.Show(@"Ошибка! Штрих-код продукта не распознан! Попробуйте еще раз или выберите номенклатуру", @"Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button3);
+                Shared.ShowMessageError(@"Ошибка! Штрих-код продукта не распознан!" + Environment.NewLine + "Попробуйте еще раз или выберите номенклатуру");
             }
         }
 
@@ -167,7 +164,7 @@ namespace gamma_mob.Common
                         });
                     }
                     else
-                        MessageBox.Show(@"Ошибка! Попробуйте еще раз или выберите номенклатуру", @"Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button3);
+                        Shared.ShowMessageError(@"Ошибка! Попробуйте еще раз или выберите номенклатуру");
                 }
                 else
                 {
@@ -186,7 +183,7 @@ namespace gamma_mob.Common
                         });
                     }
                     else
-                        MessageBox.Show(@"Ошибка! Попробуйте еще раз или выберите номенклатуру", @"Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button3);
+                        Shared.ShowMessageError(@"Ошибка! Попробуйте еще раз или выберите номенклатуру");
                 }
             }
         }

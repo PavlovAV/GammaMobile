@@ -32,7 +32,7 @@ namespace gamma_mob
             var list = pallet.Items;
             if (Shared.LastQueryCompleted == false || list == null)
             {
-                MessageBox.Show(@"Не удалось получить информацию о текущем документе");
+                Shared.ShowMessageError(@"Не удалось получить информацию о текущем документе");
                 Close();
                 return;
             }
@@ -107,7 +107,7 @@ namespace gamma_mob
             }
             catch (Exception)
             {
-                MessageBox.Show(@"Служба печати не доступна");
+                Shared.ShowMessageError(@"Служба печати не доступна");
             }
             UIServices.SetNormalState(this);
         }
@@ -119,7 +119,7 @@ namespace gamma_mob
             UIServices.SetBusyState(this);
             if (!Db.DeleteItemFromPallet(ProductId, item.NomenclatureId, item.CharacteristicId))
             {
-                MessageBox.Show(@"Не удалось связаться с базой");
+                Shared.ShowMessageError(@"Не удалось связаться с базой");
             }
             else
             {
@@ -137,7 +137,7 @@ namespace gamma_mob
                 var dlgResult = form.ShowDialog();
                 if (dlgResult != DialogResult.OK)
                 {
-                    MessageBox.Show(@"Не было указано количество пачек");
+                    Shared.ShowMessageInformation(@"Не было указано количество пачек");
                     UIServices.SetNormalState(this);
                     return;
                 }
@@ -146,13 +146,11 @@ namespace gamma_mob
             var result = Db.AddItemToPallet(ProductId, DocOrderId, barcode, quantity);
             if (Shared.LastQueryCompleted == false)
             {
-                MessageBox.Show(@"Нет связи с базой", @"Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Hand,
-                                MessageBoxDefaultButton.Button1);
+                Shared.ShowMessageError(@"Нет связи с базой");
             }      
             else if (result != null && !String.IsNullOrEmpty(result.ResultMessage))
             {
-                    MessageBox.Show(result.ResultMessage, @"Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Hand,
-                                    MessageBoxDefaultButton.Button1);
+                    Shared.ShowMessageError(result.ResultMessage);
             }
             else
             {

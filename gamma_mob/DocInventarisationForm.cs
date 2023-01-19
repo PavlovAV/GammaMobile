@@ -60,8 +60,7 @@ namespace gamma_mob
                         Invoke((MethodInvoker)Activate);
                         if (result != DialogResult.OK)
                         {
-                            MessageBox.Show(@"Не выбрана зона склада.", @"Выбор зоны склада",
-                                            MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
+                            Shared.ShowMessageInformation(@"Не выбрана зона склада.");
                             IsExit = true;
                             Close();
                         }
@@ -78,7 +77,7 @@ namespace gamma_mob
 
             if (!IsExit)
             {
-                Shared.SaveToLog(@"EndPointInfo.PlaceId-" + EndPointInfo.PlaceId + @"; EndPointInfo.PlaceZoneId-" + EndPointInfo.PlaceZoneId);
+                Shared.SaveToLogInformation(@"EndPointInfo.PlaceId-" + EndPointInfo.PlaceId + @"; EndPointInfo.PlaceZoneId-" + EndPointInfo.PlaceZoneId);
 
 
                 RefreshProducts(docInventarisationId);
@@ -114,8 +113,8 @@ namespace gamma_mob
                 gridInventarisation.TableStyles.Add(tableStyle);
                 //Barcodes1C = Db.GetBarcodes1C();
                 //Shared.RefreshBarcodes1C();
-                if (!Shared.InitializationData()) MessageBox.Show(@"Внимание! Не обновлены" + Environment.NewLine + @" данные с сервера.");
-                if (Shared.TimerForUnloadOfflineProducts == null) MessageBox.Show(@"Внимание! Не запущена автоматическая" + Environment.NewLine + @"выгрузка на сервер.");
+                if (!Shared.InitializationData()) Shared.ShowMessageInformation(@"Внимание! Не обновлены" + Environment.NewLine + @" данные с сервера.");
+                if (Shared.TimerForUnloadOfflineProducts == null) Shared.ShowMessageInformation(@"Внимание! Не запущена автоматическая" + Environment.NewLine + @"выгрузка на сервер.");
                 OnUpdateBarcodesIsNotUploaded();
             }
         }
@@ -264,8 +263,7 @@ namespace gamma_mob
             }
             catch
             {
-                Shared.SaveToLog("Error DocInventarisationForm " + error_ch);
-                MessageBox.Show("Ошибка при обновлении списка. Нажмите Ок для повтора.");
+                Shared.ShowMessageError(@"Ошибка при обновлении списка. Нажмите Ок для повтора. (" + error_ch + @")");
                 RefreshDocInventarisation(DocId, true);
             }
         }
@@ -279,7 +277,7 @@ namespace gamma_mob
         {
             if (!ConnectionState.CheckConnection())
             {
-                MessageBox.Show(@"Нет связи с сервером" + Environment.NewLine + ConnectionState.GetConnectionState());
+                Shared.ShowMessageError(@"Нет связи с сервером" + Environment.NewLine + ConnectionState.GetConnectionState());
                 return;
             }
             int row = gridInventarisation.CurrentRowIndex;
@@ -306,7 +304,10 @@ namespace gamma_mob
         {
             if (!RefreshProducts(docId))
             {
-                if (showMessage) MessageBox.Show(@"Не удалось получить информацию о документе");
+                if (showMessage) 
+                    Shared.ShowMessageError(@"Не удалось получить информацию о документе");
+                else
+                    Shared.SaveToLogError(@"Не удалось получить информацию о документе", docId, null);
                 //Close();
                 return;
             }

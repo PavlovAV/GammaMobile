@@ -123,8 +123,7 @@ namespace gamma_mob.Dialogs
                 Invoke((MethodInvoker)Activate);
                 if (result != DialogResult.OK || form.Quantity == null)
                 {
-                    MessageBox.Show(@"Не указано количество продукта. Продукт не добавлен!", @"Продукт не добавлен",
-                                    MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
+                    Shared.ShowMessageInformation(@"Не указано количество продукта. Продукт не добавлен!");
                     return false;
                 }
                 else
@@ -223,7 +222,7 @@ namespace gamma_mob.Dialogs
             }
             else
             {
-                MessageBox.Show(@"Ошибка! Штрих-код продукта не распознан! Попробуйте еще раз или выберите номенклатуру", @"Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button3);
+                Shared.ShowMessageError(@"Ошибка! Штрих-код продукта не распознан!" + Environment.NewLine + @"Попробуйте еще раз или выберите номенклатуру");
             }
         }
 

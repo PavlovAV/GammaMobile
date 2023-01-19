@@ -35,9 +35,7 @@ namespace gamma_mob
 
         protected override DialogResult GetDialogResult(string number, string place)
         {
-            return MessageBox.Show("Удалить из приказа продукт " + number + Environment.NewLine + "и вернуть продукт на передел " + place + "?"
-                           , @"Операция с продуктом",
-                           MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
+            return Shared.ShowMessageQuestion("Удалить из приказа продукт " + number + Environment.NewLine + "и вернуть продукт на передел " + place + "?");
         }
 
         //protected override DataTable GetProducts()

@@ -91,7 +91,7 @@ namespace gamma_mob.Dialogs
                     var placeZoneChilds = Db.GetPlaceZoneChilds((Guid)EndPointInfo.PlaceZoneId);
                     if (placeZoneChilds == null || placeZoneChilds.Count == 0)
                     {
-                        MessageBox.Show(@"Внимание! Зона не выбрана!" + Environment.NewLine + @"Перемещение не выполнено!");
+                        Shared.ShowMessageError(@"Внимание! Зона не выбрана!" + Environment.NewLine + @"Перемещение не выполнено!");
                         DialogResult = DialogResult.Abort;
                         Close();
                     }
@@ -158,7 +158,7 @@ namespace gamma_mob.Dialogs
             }
             else
             {
-                MessageBox.Show(@"Ошибка! Штрих-код зоны не распознан! Попробуйте еще раз или выберите зону", @"Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button3);
+                Shared.ShowMessageError(@"Ошибка! Штрих-код зоны не распознан!" + Environment.NewLine + @"Попробуйте еще раз или выберите зону");
             }
         }
 
@@ -166,7 +166,7 @@ namespace gamma_mob.Dialogs
         {
             if (Shared.Warehouses == null)
             {
-                MessageBox.Show(@"Не удалось получить список складов");
+                Shared.ShowMessageError(@"Не удалось получить список складов");
                 return false;
             }
             

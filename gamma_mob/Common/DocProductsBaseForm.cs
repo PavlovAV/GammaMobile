@@ -33,7 +33,7 @@ namespace gamma_mob
             //RefreshDocOrder = refreshDocOrder;
             if (!RefreshDatGrid())
             {
-                MessageBox.Show(@"Не удалось получить информацию");
+                Shared.ShowMessageError(@"Не удалось получить информацию");
                 Close();
                 return;
             }
@@ -53,7 +53,7 @@ namespace gamma_mob
             RefreshDocOrder = refreshDocOrder;
             if (!RefreshDatGrid())
             {
-                MessageBox.Show(@"Не удалось получить информацию");
+                Shared.ShowMessageError(@"Не удалось получить информацию");
                 Close();
                 return;
             }
@@ -75,7 +75,7 @@ namespace gamma_mob
             //RefreshDocOrder = refreshDocOrder;
             if (!RefreshDatGrid())
             {
-                MessageBox.Show(@"Не удалось получить информацию");
+                Shared.ShowMessageError(@"Не удалось получить информацию");
                 Close();
                 return;
             }
@@ -181,7 +181,7 @@ namespace gamma_mob
         {
             if (!ConnectionState.CheckConnection())
             {
-                MessageBox.Show(@"Нет связи с сервером" + Environment.NewLine + ConnectionState.GetConnectionState());
+                Shared.ShowMessageError(@"Нет связи с сервером" + Environment.NewLine + ConnectionState.GetConnectionState());
                 return;
             }
             var rowIndex = gridProducts.CurrentRowIndex;
@@ -189,7 +189,7 @@ namespace gamma_mob
             {
                 if (AcceptedProducts[rowIndex].MovementId == null) //((DataTable)gridProducts.DataSource).Rows[rowIndex]["MovementID"] == null)
                 {
-                    MessageBox.Show("Ошибка при удалении.");
+                    Shared.ShowMessageError("Ошибка при удалении.");
                 }
                 else
                 {
@@ -216,7 +216,7 @@ namespace gamma_mob
                 delResult = RemovalProduct(scanId);
 
                 if (delResult == null)
-                    MessageBox.Show(@"Связь с сервером потеряна, не удалось отменить операцию.", @"Ошибка связи");
+                    Shared.ShowMessageError(@"Связь с сервером потеряна, не удалось отменить операцию.");
                 else
                     if (string.IsNullOrEmpty(delResult.ResultMessage))
                     {
@@ -227,7 +227,7 @@ namespace gamma_mob
                     }
                     else
                     {
-                        MessageBox.Show(@"Не удалось отменить операцию. " + delResult.ResultMessage, @"Ошибка");
+                        Shared.ShowMessageError(@"Не удалось отменить операцию. " + delResult.ResultMessage);
                     }
             }
         }
@@ -251,7 +251,7 @@ namespace gamma_mob
             
             
             if (rowIndex < 0)
-                MessageBox.Show("Перемещение по ШК " + barcode + " не найдено!");
+                Shared.ShowMessageError("Перемещение по ШК " + barcode + " не найдено!");
             else
             {
                 var t = AcceptedProducts[rowIndex];

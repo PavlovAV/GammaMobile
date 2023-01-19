@@ -304,7 +304,7 @@ namespace gamma_mob
 
         public static void LoadUpdate(object obj)
         {
-            Shared.SaveToLog("Start LoadUpdate");
+            Shared.SaveToLogInformation("Start LoadUpdate");
             if (!CheckAndCreateFlagUpdateLoading())
             {
                 if (ConnectionState.CheckConnection() && Db.CheckSqlConnection() == 0)
@@ -312,7 +312,7 @@ namespace gamma_mob
                     string connectionString = Db.GetConnectionString();
                     try
                     {
-                        Shared.SaveToLog("Start check files on DB in LoadUpdate");
+                        Shared.SaveToLogInformation("Start check files on DB in LoadUpdate");
                         using (SqlConnection connection = new SqlConnection(connectionString))
                         {
                             connection.Open();
@@ -393,7 +393,7 @@ namespace gamma_mob
                                 }
                                 catch (Exception ex)
                                 {
-                                    Shared.SaveToLog("Error file operation in LoadUpdate");
+                                    Shared.SaveToLogError("Error file operation in LoadUpdate");
                                     //Console.WriteLine("Ошибка при получении данных с БД! "+ file_name + ":" + ex.Message);
                                     //MessageBox.Show("Ошибка при получении данных с БД! " + file_name + ":" + ex.Message);
                                 }
@@ -403,7 +403,7 @@ namespace gamma_mob
                     }
                     catch (Exception ex)
                     {
-                        Shared.SaveToLog("Error LoadUpdate");
+                        Shared.SaveToLogError("Error LoadUpdate");
                         //Console.WriteLine("Ошибка при получении данных с БД!");
                         //MessageBox.Show("Ошибка при получении данных с БД!");
                         //return;
@@ -496,9 +496,7 @@ namespace gamma_mob
                 //    "Внимание!");
             }
             if (isNeededRebootingProgram)
-                MessageBox.Show(
-                    "Есть обновление, перезапустите программу!",
-                    "Внимание!");
+                Shared.ShowMessageInformation(@"Есть обновление, перезапустите программу!");
         }
     }
 }

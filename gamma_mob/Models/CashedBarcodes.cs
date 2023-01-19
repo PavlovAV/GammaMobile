@@ -13,7 +13,7 @@ namespace gamma_mob.Models
             lastUpdatedTimeBarcodes = Db.GetLastUpdatedTimeBarcodes();
             if (lastUpdatedTimeBarcodes < Convert.ToDateTime("2021/02/10"))
             {
-                Shared.SaveToLog("lastUpdatedTimeBarcodes < 20210210 => " + lastUpdatedTimeBarcodes.ToString());
+                Shared.SaveToLogInformation("lastUpdatedTimeBarcodes < 20210210 => " + lastUpdatedTimeBarcodes.ToString());
                 lastUpdatedTimeBarcodes = Convert.ToDateTime("2021/02/10");
             }
 //#if DEBUG

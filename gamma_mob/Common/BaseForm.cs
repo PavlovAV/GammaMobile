@@ -49,7 +49,7 @@ namespace gamma_mob.Common
 
         protected virtual void FormLoad(object sender, EventArgs e)
         {
-            Shared.SaveToLog("Open " + ((Form)sender).Name + " " + ((Form)sender).Text);
+            Shared.SaveToLogInformation("Open " + ((Form)sender).Name + " " + ((Form)sender).Text);
         }
 
         protected virtual void OnFormClosing(object sender, CancelEventArgs e)
@@ -65,7 +65,7 @@ namespace gamma_mob.Common
 
         protected virtual void FormActivated(object sender, EventArgs e)
         {
-            Shared.SaveToLog("Activate " + ((Form)sender).Name + " " + ((Form)sender).Text);
+            Shared.SaveToLogInformation("Activate " + ((Form)sender).Name + " " + ((Form)sender).Text);
         }
     }
 }

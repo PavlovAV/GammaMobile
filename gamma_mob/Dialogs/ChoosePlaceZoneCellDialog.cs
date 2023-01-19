@@ -105,7 +105,7 @@ namespace gamma_mob.Dialogs
             else
             {
                 BarcodeFunc = null;
-                MessageBox.Show(@"Ошибка! Штрих-код зоны не распознан! Попробуйте еще раз или выберите зону", @"Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button3);
+                Shared.ShowMessageError(@"Ошибка! Штрих-код зоны не распознан!" + Environment.NewLine + @"Попробуйте еще раз или выберите зону");
                 BarcodeFunc = BarcodeReaction;
             }
         }

@@ -74,7 +74,7 @@ namespace gamma_mob
                 }
                 Shared.SaveToLogStartProgramInformation(@"IpAdress " + ipAdress);
 
-                var cerdispProcess = GetProcessRunning(@"cerdisp");
+                var cerdispProcess = Shared.GetProcessRunning(@"cerdisp");
                 if (cerdispProcess != null)
                 {
                     btnExecRDP.Text = "Останов RDP";
@@ -313,6 +313,22 @@ namespace gamma_mob
 
         private void btnExecRDP_Click(object sender, EventArgs e)
         {
+            var res = Shared.ExecRDP();
+            if (res == null)
+            {
+                lblMessage.Text = @"RDP не запущен. Файл cerdisp.exe не найден.";                
+            }
+            else if ((bool)res)
+            {
+                lblMessage.Text = "RDP запущен";
+                btnExecRDP.Text = "Останов RDP";
+            }
+            else
+            {
+                lblMessage.Text = "RDP остановлен";
+                btnExecRDP.Text = "Запуск RDP";
+            }
+            /*
             var cerdispProcess = GetProcessRunning(@"cerdisp");
             if (cerdispProcess == null)
             {
@@ -351,10 +367,10 @@ namespace gamma_mob
                 cerdispProcess.Kill();
                 lblMessage.Text = "RDP остановлен";
                 btnExecRDP.Text = "Запуск RDP";
-            }
+            }*/
         }
 
-        private static OpenNETCF.ToolHelp.ProcessEntry GetProcessRunning(string processsName)
+        /*private static OpenNETCF.ToolHelp.ProcessEntry GetProcessRunning(string processsName)
         {
             try
             {
@@ -373,7 +389,7 @@ namespace gamma_mob
                 return null;
             }
 
-        }
+        }*/
 
         private void btnHelp_Click(object sender, EventArgs e)
         {
@@ -389,6 +405,7 @@ namespace gamma_mob
                 btnTestWiFi.Visible = true;
                 btnSetExternalNet.Visible = true;
                 btnSetInternalNet.Visible = true;
+                btnUpdateProgram.Visible = true;
                 RefreshBtnSetNetEnabled();
                 try
                 {
@@ -419,9 +436,10 @@ namespace gamma_mob
                 btnTestWiFi.Visible = false;
                 btnSetExternalNet.Visible = false;
                 btnSetInternalNet.Visible = false;
+                btnUpdateProgram.Visible = false;
                 try
                 {
-                    var cerdispProcess = GetProcessRunning(@"cerdisp");
+                    var cerdispProcess = Shared.GetProcessRunning(@"cerdisp");
                     if (cerdispProcess != null)
                     {
                         cerdispProcess.Kill();
@@ -592,6 +610,12 @@ namespace gamma_mob
         {
             btnSetExternalNet.Enabled = Settings.CurrentServer == Settings.ServerIP;
             btnSetInternalNet.Enabled = Settings.CurrentServer == Settings.SecondServerIP;
+        }
+
+        private void btnUpdateProgram_Click(object sender, EventArgs e)
+        {
+            UpdateProgram.DropFlagUpdateLoading();
+            UpdateProgram.LoadUpdate(new object());
         }
     }
 }

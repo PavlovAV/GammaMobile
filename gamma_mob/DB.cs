@@ -1540,7 +1540,9 @@ namespace gamma_mob
                             Consignee = row["Consignee"].ToString(),
                             OutPlaceName = row["OutPlaceShortName"].ToString(),
                             InPlaceName = row["InPlaceShortName"].ToString(),
-                            OrderType = (OrderType)Convert.ToInt32(row["OrderKindID"])
+                            OrderType = (OrderType)Convert.ToInt32(row["OrderKindID"]),
+                            OutPlaceID = row.IsNull("OutPlaceID") ? (int?)null : Convert.ToInt32(row["OutPlaceID"]),
+                            InPlaceID = row.IsNull("InPlaceID") ? (int?)null : Convert.ToInt32(row["InPlaceID"])
                         });
                     }
                 }
@@ -2183,7 +2185,7 @@ namespace gamma_mob
                 {
                     result = new DbProductIdFromBarcodeResult();
                     if (!table.Rows[0].IsNull("ProductKindID"))
-                        result.ProductKindId = Convert.ToInt16(table.Rows[0]["ProductKindID"]);
+                        result.ProductKindId = (ProductKind?)Convert.ToInt16(table.Rows[0]["ProductKindID"]);
                     if (!table.Rows[0].IsNull("ProductID"))
                         result.ProductId = (Guid)table.Rows[0]["ProductID"];
                     if (!table.Rows[0].IsNull("NomenclatureID"))
@@ -2218,7 +2220,7 @@ namespace gamma_mob
                 {
                     result = new DbProductIdFromBarcodeResult();
                     if (!table.Rows[0].IsNull("ProductKindID"))
-                        result.ProductKindId = Convert.ToInt16(table.Rows[0]["ProductKindID"]);
+                        result.ProductKindId = (ProductKind?)Convert.ToInt16(table.Rows[0]["ProductKindID"]);
                     if (!table.Rows[0].IsNull("ProductID"))
                         result.ProductId = (Guid)table.Rows[0]["ProductID"];
                     if (!table.Rows[0].IsNull("NomenclatureID"))
@@ -2255,7 +2257,7 @@ namespace gamma_mob
                     result.AddRange(from DataRow row in table.Rows
                                     select new DbProductIdFromBarcodeResult
                                   {
-                                      ProductKindId = row.IsNull("ProductKindID") ? (int?)null : Convert.ToInt16(row["ProductKindID"]),
+                                      ProductKindId = row.IsNull("ProductKindID") ? (ProductKind?)null : (ProductKind?)Convert.ToInt16(row["ProductKindID"]),
                                       ProductId = row.IsNull("ProductID") ? new Guid() : new Guid(row["ProductID"].ToString()),
                                       NomenclatureId = row.IsNull("NomenclatureID") ? new Guid() : new Guid(row["NomenclatureID"].ToString()),
                                       CharacteristicId = row.IsNull("CharacteristicID") ? new Guid() : new Guid(row["CharacteristicID"].ToString()),
@@ -2272,7 +2274,7 @@ namespace gamma_mob
         {
             DbProductIdFromBarcodeResult result = null;
 
-            const string sql = "mob_GetProductIdFromBarcodeOrNumber";
+            const string sql = "mob_GetProductIdFromBarcodeOrNumberV1";
             var parameters = new List<SqlParameter>
                 {
                     new SqlParameter("@Barcode", SqlDbType.VarChar)
@@ -2286,7 +2288,7 @@ namespace gamma_mob
                 {
                     result = new DbProductIdFromBarcodeResult();
                     if (!table.Rows[0].IsNull("ProductKindID"))
-                        result.ProductKindId = Convert.ToInt16(table.Rows[0]["ProductKindID"]);
+                        result.ProductKindId = (ProductKind?)Convert.ToInt16(table.Rows[0]["ProductKindID"]);
                     if (!table.Rows[0].IsNull("ProductID"))
                         result.ProductId = (Guid)table.Rows[0]["ProductID"];
                     if (!table.Rows[0].IsNull("NomenclatureID"))
@@ -2304,11 +2306,11 @@ namespace gamma_mob
         }
 
         public static DbOrderOperationProductResult AddProductIdToOrder(Guid? scanId, Guid docOrderId, OrderType orderType, Guid personId
-            , Guid productId, DocDirection docDirection, int? productKindId, Guid nomenclatureId, Guid characteristicId
+            , Guid productId, DocDirection docDirection, EndPointInfo endPointInfo, int? productKindId, Guid nomenclatureId, Guid characteristicId
             , Guid qualityId, int quantity, Guid? fromProductId)
         {
             DbOrderOperationProductResult result = null;
-            const string sql = "dbo.[mob_AddScanIdToOrderV1]";
+            const string sql = "dbo.[mob_AddScanIdToOrderV2]";
             var parameters = new List<SqlParameter>
                 {
                     new SqlParameter("@ScanID", SqlDbType.UniqueIdentifier)
@@ -2362,6 +2364,10 @@ namespace gamma_mob
                     new SqlParameter("@FromProductID", SqlDbType.UniqueIdentifier)
                         {
                             Value = (fromProductId as object) ?? DBNull.Value
+                        },
+                    new SqlParameter("@InPlaceZoneID", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = endPointInfo.PlaceZoneId
                         }
                 };
             using (DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure))
@@ -2478,7 +2484,7 @@ namespace gamma_mob
             , Guid qualityId, int quantity, Guid? fromProductId)
         {
             DbMoveOperationProductResult acceptProductResult = null;
-            const string sql = "dbo.[mob_AddScanIdToMovementV1]";
+            const string sql = "dbo.[mob_AddScanIdToMovementV2]";
             var parameters = new List<SqlParameter>
                 {
                     new SqlParameter("@ScanID", SqlDbType.UniqueIdentifier)
@@ -3985,6 +3991,47 @@ namespace gamma_mob
                     }
             }
             return nomenclatureId;
+        }
+
+        /// <summary>
+        /// Возвращает продукцию в зоне, если она только одна в этой зоне
+        /// </summary>
+        /// <param name="placeZoneId"></param>
+        /// <returns></returns>
+        public static DbProductIdFromBarcodeResult GetSingleProductInPlaceZone(Guid placeZoneId)
+        {
+            DbProductIdFromBarcodeResult result = null;
+            const string sql = "mob_GetSingleProductInPlaceZone";
+            var parameters = new List<SqlParameter>
+                {
+                    new SqlParameter("@PlaceZoneID", SqlDbType.UniqueIdentifier)
+                    {
+                         Value = placeZoneId
+                    }
+                };
+            using (DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure))
+            {
+                if (table != null)
+                    if (table.Rows.Count > 0)
+                    {
+                        result = new DbProductIdFromBarcodeResult();
+                        if (!table.Rows[0].IsNull("ProductKindID"))
+                            result.ProductKindId = (ProductKind?)Convert.ToInt16(table.Rows[0]["ProductKindID"]);
+                        if (!table.Rows[0].IsNull("ProductID"))
+                            result.ProductId = (Guid)table.Rows[0]["ProductID"];
+                        if (!table.Rows[0].IsNull("NomenclatureID"))
+                            result.NomenclatureId = (Guid)table.Rows[0]["NomenclatureID"];
+                        if (!table.Rows[0].IsNull("CharacteristicID"))
+                            result.CharacteristicId = (Guid)table.Rows[0]["CharacteristicID"];
+                        if (!table.Rows[0].IsNull("MeasureUnitID"))
+                            result.MeasureUnitId = (Guid)table.Rows[0]["MeasureUnitID"];
+                        if (!table.Rows[0].IsNull("QualityID"))
+                            result.QualityId = (Guid)table.Rows[0]["QualityID"];
+                        if (!table.Rows[0].IsNull("CountProducts"))
+                            result.CountProducts = Convert.ToInt16(table.Rows[0]["CountProducts"]);
+                    }
+            }
+            return result;
         }
     }
 }

@@ -119,6 +119,21 @@ namespace gamma_mob
             OnUpdateBarcodesIsNotUploaded();
         }
 
+        public DocWithNomenclatureForm(Guid docOrderId, Form parentForm, string orderNumber, OrderType orderType,
+            DocDirection docDirection, int maxAllowedPercentBreak, EndPointInfo endPointInfo)
+            : this(docOrderId, parentForm, orderNumber, orderType,
+            docDirection, maxAllowedPercentBreak) 
+        {
+            EndPointInfo = endPointInfo;
+            if (endPointInfo.IsSettedDefaultPlaceZoneId)
+            {
+                lblZoneName.Text = "Зона по умолчанию: " + EndPointInfo.PlaceZoneName;
+                lblZoneName.Visible = true;
+            }
+            Shared.SaveToLogInformation(@"EndPointInfo.PlaceId-" + EndPointInfo.PlaceId + @"; EndPointInfo.PlaceZoneId-" + EndPointInfo.PlaceZoneId);
+
+        }
+
         // Устанавливаем цвет фона для ячейки Собрано при превышении собранного количества над требуемым!
         private void ColumnSetCellFormat(object sender, DataGridFormatCellEventArgs e)
         {
@@ -149,7 +164,7 @@ namespace gamma_mob
         protected override void FormLoad(object sender, EventArgs e)
         {
             base.FormLoad(sender, e);
-            base.ActivatePanels(new List<int>() { (int)Images.Back, (int)Images.Inspect, (int)Images.Refresh, (int)Images.UploadToDb, (int)Images.Pallet, (int)Images.Question, (int)Images.InfoProduct });//, pnlToolBar_ButtonClick);
+            base.ActivatePanels(new List<int>() { (int)Images.Back, (int)Images.Inspect, (int)Images.Refresh, (int)Images.UploadToDb, /*(int)Images.Pallet, */(int)Images.Question, (int)Images.InfoProduct });//, pnlToolBar_ButtonClick);
         }
 
         protected override void RefreshToolBarButton()
@@ -253,16 +268,16 @@ namespace gamma_mob
 
         protected override DbOperationProductResult AddProductId(Guid? scanId, DbProductIdFromBarcodeResult getProductResult, EndPointInfo endPointInfo)
         {
-            var addedProductIdToOrderResult = Db.AddProductIdToOrder(scanId, DocId, OrderType, Shared.PersonId, getProductResult.ProductId, DocDirection, getProductResult.ProductKindId, getProductResult.NomenclatureId, getProductResult.CharacteristicId, getProductResult.QualityId, getProductResult.CountProducts, getProductResult.FromProductId);
+            var addedProductIdToOrderResult = Db.AddProductIdToOrder(scanId, DocId, OrderType, Shared.PersonId, getProductResult.ProductId, DocDirection, endPointInfo, (int?)getProductResult.ProductKindId, getProductResult.NomenclatureId, getProductResult.CharacteristicId, getProductResult.QualityId, getProductResult.CountProducts, getProductResult.FromProductId);
             return addedProductIdToOrderResult == null ? null : (addedProductIdToOrderResult as DbOperationProductResult);
         }
 
-        protected override void UpdateGrid(DbOperationProductResult addResult, int? productKindId, Guid? docOrderId, EndPointInfo endPointInfo, Guid? scanId)
+        protected override void UpdateGrid(DbOperationProductResult addResult, ProductKind? productKindId, Guid? docOrderId, EndPointInfo endPointInfo, Guid? scanId)
         {
             if (DocId == docOrderId)
                     Invoke((UpdateOrderGridInvoker)(UpdateGrid),
                        new object[] { addResult.Product.NomenclatureId, addResult.Product.CharacteristicId, addResult.Product.QualityId, addResult.Product.NomenclatureName, 
-                                addResult.Product.ShortNomenclatureName, addResult.Product.Quantity, true, addResult.Product.CountProductSpools, addResult.Product.CountProductSpoolsWithBreak, productKindId });                
+                                addResult.Product.ShortNomenclatureName, addResult.Product.Quantity, true, addResult.Product.CountProductSpools, addResult.Product.CountProductSpoolsWithBreak, (int?)productKindId });                
         }
      
         private void UpdateGrid(Guid nomenclatureId, Guid characteristicId, Guid qualityId, string nomenclatureName,
@@ -338,7 +353,7 @@ namespace gamma_mob
             }
         }
 
-        protected override bool CheckIsCreatePalletRFromBarcodeScan()
+        protected override bool CheckIsCreatePalletMovementFromBarcodeScan()
         {
             return true;
         }

@@ -148,7 +148,7 @@ namespace gamma_mob
         protected override void FormLoad(object sender, EventArgs e)
         {           
             base.FormLoad(sender, e);
-            base.ActivateToolBar(new List<int>() { (int)Images.Back, (int)Images.Edit, (int)Images.Refresh, (int)Images.DocPlus, (int)Images.InfoProduct });//, pnlToolBar_ButtonClick);
+            base.ActivateToolBar(new List<int>() { (int)Images.Back, (int)Images.Edit, (int)Images.Refresh, (int)Images.DocPlus, (int)Images.InfoProduct, (int)Images.RDP });//, pnlToolBar_ButtonClick);
         }
 
         private void gridInventarisations_CurrentCellChanged(object sender, EventArgs e)

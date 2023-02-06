@@ -178,16 +178,16 @@ namespace gamma_mob
        
         protected override DbOperationProductResult AddProductId(Guid? scanId, DbProductIdFromBarcodeResult getProductResult, EndPointInfo endPointInfo)
         {
-            var addedProductIdToInventarisationResult = Db.AddProductIdToInventarisation(scanId, DocId, Shared.PersonId, endPointInfo, getProductResult.ProductId, getProductResult.ProductKindId, getProductResult.NomenclatureId, getProductResult.CharacteristicId, getProductResult.QualityId, getProductResult.CountProducts);
+            var addedProductIdToInventarisationResult = Db.AddProductIdToInventarisation(scanId, DocId, Shared.PersonId, endPointInfo, getProductResult.ProductId, (int?)getProductResult.ProductKindId, getProductResult.NomenclatureId, getProductResult.CharacteristicId, getProductResult.QualityId, getProductResult.CountProducts);
             return addedProductIdToInventarisationResult == null ? null : (addedProductIdToInventarisationResult as DbOperationProductResult);
         }
 
-        protected override void UpdateGrid(DbOperationProductResult addResult, int? productKindId, Guid? docInventarisationId, EndPointInfo endPointInfo, Guid? scanId)
+        protected override void UpdateGrid(DbOperationProductResult addResult, ProductKind? productKindId, Guid? docInventarisationId, EndPointInfo endPointInfo, Guid? scanId)
         {
             if (DocId == docInventarisationId)
                     Invoke((UpdateInventarisationGridInvoker)(UpdateGrid),
                        new object[] { addResult.Product.NomenclatureId, addResult.Product.CharacteristicId, addResult.Product.QualityId, addResult.Product.NomenclatureName,
-                               addResult.Product.ShortNomenclatureName, addResult.Product.Quantity, productKindId });
+                               addResult.Product.ShortNomenclatureName, addResult.Product.Quantity, (int?)productKindId });
         }
 
         private void UpdateGrid(Guid nomenclatureId, Guid characteristicId, Guid qualityId, string nomenclatureName,
@@ -268,7 +268,7 @@ namespace gamma_mob
             }
         }
 
-        protected override bool CheckIsCreatePalletRFromBarcodeScan()
+        protected override bool CheckIsCreatePalletMovementFromBarcodeScan()
         {
             return false;
         }

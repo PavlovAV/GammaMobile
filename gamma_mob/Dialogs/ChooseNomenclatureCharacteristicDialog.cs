@@ -15,6 +15,18 @@ namespace gamma_mob.Dialogs
         public ChooseNomenclatureCharacteristicDialog()
         {
             InitializeComponent();
+            if (!Shared.IsScanGroupPackOnlyFromProduct)
+            {
+                gridChoose.Visible = true;
+                label4.Text = "Выберите номенклатуру или отсканируйте паллету, из которой упаковка/коробка, или зону стеллажа"; ;
+                btnOK.Visible = true;
+            }
+            else
+            {
+                gridChoose.Visible = false;
+                label4.Text = "Отсканируйте паллету, из которой упаковка/коробка, или зону стеллажа"; ;
+                btnOK.Visible = false;
+            }
         }
 
         public ChooseNomenclatureCharacteristicDialog(string barcode)
@@ -73,7 +85,7 @@ namespace gamma_mob.Dialogs
         private List<ChooseNomenclatureItem> ChooseNomenclatureList { get; set; }
 
 
-        private bool CreateNomenclatureList()
+        private void GetNomenclatureList()
         {
             List<ChooseNomenclatureItem> list = Shared.Barcodes1C.GetNomenclaturesFromBarcodeInBarcodes(Barcode);
             ChooseNomenclatureList = list;
@@ -84,7 +96,11 @@ namespace gamma_mob.Dialogs
                 BSource.DataSource = ChooseNomenclatureList;
             }
             gridChoose.DataSource = BSource;
+        }
 
+        private bool CreateNomenclatureList()
+        {
+            GetNomenclatureList();
             var tableStyle = new DataGridTableStyle { MappingName = BSource.GetListName(null) };
             var columnStyle = new DataGridTextBoxColumn();
             columnStyle.HeaderText = "Наименование";
@@ -129,6 +145,7 @@ namespace gamma_mob.Dialogs
                 else
                 {
                     CountProducts = form.Quantity;
+                    Shared.SaveToLogInformation(@"Установлено кол-во " + form.Quantity);
                 }
             }
             return true;
@@ -208,30 +225,66 @@ namespace gamma_mob.Dialogs
             BarcodeFunc = chooseNomenclatureCharacteristicFromBarcode;
         }
 
+        public void SetBarcodeText(string barcode)
+        {
+            edtBarcode.Text = barcode;
+        }
+
         private void ChooseNomenclatureCharacteristicFromBarcode(string barcode)
         {
-            DbProductIdFromBarcodeResult getFromProductResult = Shared.Barcodes1C.GetProductFromBarcodeOrNumberInBarcodes(barcode, false);
-            if (getFromProductResult != null && getFromProductResult.ProductId != null && getFromProductResult.ProductId != Guid.Empty)
+            if (barcode.Length > 0)
             {
-                FromProductId = getFromProductResult.ProductId;
-                NomenclatureId = getFromProductResult.NomenclatureId;
-                CharacteristicId = getFromProductResult.CharacteristicId;
-                QualityId = getFromProductResult.QualityId;
-                if (GetCountProducts())
-                    Invoke((MethodInvoker)(() => DialogResult = DialogResult.OK));
+                DbProductIdFromBarcodeResult getFromProductResult = Shared.Barcodes1C.GetProductFromBarcodeOrNumberInBarcodes(barcode, false);
+                if (getFromProductResult != null && getFromProductResult.ProductId != null && getFromProductResult.ProductId != Guid.Empty)
+                {
+                    FromProductId = getFromProductResult.ProductId;
+                    NomenclatureId = getFromProductResult.NomenclatureId;
+                    CharacteristicId = getFromProductResult.CharacteristicId;
+                    QualityId = getFromProductResult.QualityId;
+                    if (GetCountProducts())
+                        Invoke((MethodInvoker)(() => DialogResult = DialogResult.OK));
+                }
+                else
+                {
+                    Shared.ShowMessageError(@"Ошибка! Штрих-код продукта не распознан!" + Environment.NewLine + @"Попробуйте еще раз или выберите номенклатуру (если возможно)");
+                }
             }
             else
             {
-                Shared.ShowMessageError(@"Ошибка! Штрих-код продукта не распознан!" + Environment.NewLine + @"Попробуйте еще раз или выберите номенклатуру");
+                Shared.ShowMessageError(@"Ошибка! Штрих-код пустой!" + Environment.NewLine + @"Попробуйте еще раз или выберите номенклатуру (если возможно)");
             }
         }
 
         public bool CheckNomenclatureInNomenclatureList(Guid productId)
         {
             Guid? res = Db.GetProductNomenclature(productId);
-
+            if ((res ?? Guid.Empty) == Guid.Empty)
+                Shared.SaveToLogError(@"Db.GetProductNomenclature is null", null, productId);
+            else
+            {
+                if (ChooseNomenclatureList == null || ChooseNomenclatureList.Count == 0)
+                {
+                    Invoke((MethodInvoker)delegate()
+                    {
+                        GetNomenclatureList();
+                    });
+                }
+                Shared.SaveToLogInformation(@"Db.GetProductNomenclature return " + res.ToString() + @"(ChooseNomenclatureList.Count = " + ChooseNomenclatureList.Count);
+            }
             return ((res ?? Guid.Empty) == Guid.Empty ? false : ChooseNomenclatureList.Find(n => n.NomenclatureId == (Guid)res) != null);
+            //var ret = ChooseNomenclatureList.Find(n => n.NomenclatureId == nomenclatureId) != null;
+            //Shared.SaveToLogInformation(@"CheckNomenclatureInNomenclatureList return " + ret.ToString() + @"(ChooseNomenclatureList.Count = " + ChooseNomenclatureList.Count);
+            //return ret;
         }
 
+        public void btnAddBarcode_Click(object sender, EventArgs e)
+        {
+            Shared.SaveToLogInformation(@"Выбрано Добавить ШК: " + edtBarcode.Text);
+            //ChooseNomenclatureCharacteristicFromBarcode(edtBarcode.Text);
+            if (BarcodeFunc != null)
+                BarcodeFunc.Invoke(edtBarcode.Text);
+            else
+                ChooseNomenclatureCharacteristicFromBarcode(edtBarcode.Text);
+        }
     }
 }

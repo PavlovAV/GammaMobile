@@ -237,6 +237,7 @@ namespace gamma_mob.Common
             //Подписка на событие Выгрузить невыгруженную продукцию
             ScannedBarcodes.OnUnloadOfflineProducts += UnloadOfflineProducts;
 
+            Shared.RefreshIsScanGroupPackOnlyFromProduct();
         }
 
         protected override void OnFormClosing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -318,15 +319,15 @@ namespace gamma_mob.Common
                     DbProductIdFromBarcodeResult getProductResult = Shared.Barcodes1C.GetProductFromBarcodeOrNumberInBarcodes(barcode, false);
                     Cursor.Current = Cursors.Default;
 
-                    if (getProductResult == null || getProductResult.ProductKindId == null || (getProductResult.ProductKindId != 3 && (getProductResult.ProductId == null || getProductResult.ProductId == Guid.Empty)))
+                    if (getProductResult == null || getProductResult.ProductKindId == null || (Shared.FactProductKinds.Contains((ProductKind)getProductResult.ProductKindId) && (getProductResult.ProductId == null || getProductResult.ProductId == Guid.Empty)))
                     {
                         Shared.ShowMessageError(@"Продукция не найдена по ШК! " + barcode + " (Локальные база ШК " + Shared.Barcodes1C.GetCountBarcodes + "; посл.обн " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodesMoscowTimeZone.ToString(System.Globalization.CultureInfo.InvariantCulture) + ")");
                     }
                     else
                     {
-                        if (getProductResult.ProductKindId == 3 && (getProductResult.ProductId == null || getProductResult.ProductId == Guid.Empty))
+                        if (getProductResult.ProductKindId == ProductKind.ProductMovement && (getProductResult.ProductId == null || getProductResult.ProductId == Guid.Empty))
                         {
-                            if (CheckIsCreatePalletRFromBarcodeScan())
+                            if (CheckIsCreatePalletMovementFromBarcodeScan())
                             {
                                 base.ChooseNomenclatureCharacteristic(this.ChooseNomenclatureCharacteristicBarcodeReactionInAddProduct, new AddProductReceivedEventHandlerParameter() { barcode = barcode, endPointInfo = EndPointInfo, fromBuffer = fromBuffer, getProductResult = getProductResult });
                                 /*if (getProductResult.NomenclatureId == null || getProductResult.NomenclatureId == Guid.Empty || getProductResult.CharacteristicId == null || getProductResult.CharacteristicId == Guid.Empty || getProductResult.QualityId == null || getProductResult.QualityId == Guid.Empty)
@@ -450,12 +451,13 @@ namespace gamma_mob.Common
             return null;
         }
 
-        protected virtual void UpdateGrid(DbOperationProductResult addResult, int? productKindId, Guid? id, EndPointInfo endPointInfo, Guid? scanId) { }
+        protected virtual void UpdateGrid(DbOperationProductResult addResult, ProductKind? productKindId, Guid? id, EndPointInfo endPointInfo, Guid? scanId) { }
 
-        protected abstract bool CheckIsCreatePalletRFromBarcodeScan();
+        protected abstract bool CheckIsCreatePalletMovementFromBarcodeScan();
 
         public void btnAddProduct_Click(object sender, EventArgs e)
         {
+            Shared.SaveToLogInformation(@"Выбрано Добавить ШК: " + edtNumber.Text);
             AddProductByBarcode(edtNumber.Text, false);
         }
 
@@ -527,7 +529,7 @@ namespace gamma_mob.Common
                 }
                 else
                 {
-                    if (AddProductByBarcode(offlineProduct.ScanId, offlineProduct.Barcode, new EndPointInfo() { PlaceId = (int)offlineProduct.PlaceId, PlaceZoneId = offlineProduct.PlaceZoneId }, true, new DbProductIdFromBarcodeResult() { ProductId = offlineProduct.ProductId ?? new Guid(), ProductKindId = offlineProduct.ProductKindId, NomenclatureId = offlineProduct.NomenclatureId ?? new Guid(), CharacteristicId = offlineProduct.CharacteristicId ?? new Guid(), QualityId = offlineProduct.QualityId ?? new Guid(), CountProducts = offlineProduct.Quantity ?? 0, FromProductId = offlineProduct.FromProductId }, (Guid)offlineProduct.DocId) == null)
+                    if (AddProductByBarcode(offlineProduct.ScanId, offlineProduct.Barcode, new EndPointInfo() { PlaceId = (int)offlineProduct.PlaceId, PlaceZoneId = offlineProduct.PlaceZoneId }, true, new DbProductIdFromBarcodeResult() { ProductId = offlineProduct.ProductId ?? new Guid(), ProductKindId = (ProductKind?)offlineProduct.ProductKindId, NomenclatureId = offlineProduct.NomenclatureId ?? new Guid(), CharacteristicId = offlineProduct.CharacteristicId ?? new Guid(), QualityId = offlineProduct.QualityId ?? new Guid(), CountProducts = offlineProduct.Quantity ?? 0, FromProductId = offlineProduct.FromProductId }, (Guid)offlineProduct.DocId) == null)
                         break;
                 }
             }            

@@ -11,6 +11,7 @@ using System.Threading;
 using System.Runtime.InteropServices;
 using Datalogic.API;
 using System.Reflection;
+using Microsoft.Win32;
 
 namespace gamma_mob.Common
 {
@@ -68,6 +69,27 @@ namespace gamma_mob.Common
                 }
                 return _warehouses;
             }
+        }
+
+        private static bool? _isScanGroupPackOnlyFromProduct { get; set; }
+        public static bool IsScanGroupPackOnlyFromProduct
+        {
+            get
+            {
+                if (_isScanGroupPackOnlyFromProduct == null)
+                {
+                    var isScanGroupPackOnlyFromProduct = Db.GetProgramSettings("IsScanGroupPackOnlyFromProduct");
+                    if (isScanGroupPackOnlyFromProduct != null && isScanGroupPackOnlyFromProduct != String.Empty)
+                        _isScanGroupPackOnlyFromProduct = Convert.ToBoolean(isScanGroupPackOnlyFromProduct);
+                }
+                return _isScanGroupPackOnlyFromProduct ?? false;
+            }
+        }
+
+        public static bool RefreshIsScanGroupPackOnlyFromProduct()
+        {
+            _isScanGroupPackOnlyFromProduct = null;
+            return (IsScanGroupPackOnlyFromProduct != null);
         }
 
         private static int? _maxAllowedPercentBreak {get; set;}
@@ -243,6 +265,7 @@ namespace gamma_mob.Common
             ImgList.Images.Add(Resources.add);
             ImgList.Images.Add(Resources.delete);
             ImgList.Images.Add(Resources.InfoProduct);
+            ImgList.Images.Add(Resources.RDP);
         }
 
         private const int BS_MULTILINE = 0x00002000;
@@ -831,6 +854,73 @@ namespace gamma_mob.Common
             MessageBox.Show(message,"Информация", MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button3);
             Shared.SaveToLogInformation(message, docID, productID);
             return true;
+        }
+
+        public static List<ProductKind> FactProductKinds = new List<ProductKind>() { ProductKind.ProductSpool, ProductKind.ProductGroupPack, ProductKind.ProductPallet, ProductKind.ProductPalletR };
+
+        public static bool? ExecRDP()
+        {
+            var cerdispProcess = GetProcessRunning(@"cerdisp");
+            if (cerdispProcess == null)
+            {
+                RegistryKey reg = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\CERDISP", true);
+                //RegistryKey reg = Registry.LocalMachine.OpenSubKey(@"SOFTWARE", true);
+                //reg.DeleteSubKey(@"CERDISP");
+                if (reg == null)
+                {
+                    reg = Registry.LocalMachine.OpenSubKey(@"SOFTWARE", true);
+                    reg.CreateSubKey(@"CERDISP");
+                    reg = reg.OpenSubKey(@"CERDISP", true);
+                }
+                var serverIP = ConnectionState.GetServerIp();
+                var hostname = (string)reg.GetValue("Hostname", "");
+                if (serverIP != "" && hostname != serverIP)
+                {
+                    reg.SetValue("Hostname", serverIP, RegistryValueKind.String);
+                }
+
+                if (File.Exists(Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase) +
+                           @"\cerdisp.exe"))
+                {
+                    System.Diagnostics.Process.Start(Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase) +
+                               @"\cerdisp.exe", "-c");
+                    Shared.SaveToLogInformation(@"RDP запущен по адресу " + serverIP);
+                    return true;
+                }
+                else
+                {
+                    Shared.SaveToLogError(@"RDP не запущен. Файл" + Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase) +
+                               @"\cerdisp.exe не найден.");
+                    return null;
+                }
+            }
+            else
+            {
+                cerdispProcess.Kill();
+                Shared.SaveToLogInformation("RDP остановлен");
+                return false;
+            }
+        }
+
+        public static OpenNETCF.ToolHelp.ProcessEntry GetProcessRunning(string processsName)
+        {
+            try
+            {
+                OpenNETCF.ToolHelp.ProcessEntry cerdispProcess = null;
+                foreach (OpenNETCF.ToolHelp.ProcessEntry clsProcess in OpenNETCF.ToolHelp.ProcessEntry.GetProcesses())
+                {
+                    if (cerdispProcess == null && clsProcess.ExeFile.Contains(processsName))
+                    {
+                        cerdispProcess = clsProcess;
+                    }
+                }
+                return cerdispProcess;
+            }
+            catch
+            {
+                return null;
+            }
+
         }
     }
 }

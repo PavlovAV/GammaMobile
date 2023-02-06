@@ -36,11 +36,12 @@
             this.lblMessage = new System.Windows.Forms.TextBox();
             this.btnSetExternalNet = new System.Windows.Forms.Button();
             this.btnSetInternalNet = new System.Windows.Forms.Button();
+            this.btnUpdateProgram = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // btnHelp
             // 
-            this.btnHelp.Location = new System.Drawing.Point(83, 5);
+            this.btnHelp.Location = new System.Drawing.Point(83, 3);
             this.btnHelp.Name = "btnHelp";
             this.btnHelp.Size = new System.Drawing.Size(63, 20);
             this.btnHelp.TabIndex = 2;
@@ -49,7 +50,7 @@
             // 
             // btnTestWiFi
             // 
-            this.btnTestWiFi.Location = new System.Drawing.Point(13, 51);
+            this.btnTestWiFi.Location = new System.Drawing.Point(13, 47);
             this.btnTestWiFi.Name = "btnTestWiFi";
             this.btnTestWiFi.Size = new System.Drawing.Size(94, 20);
             this.btnTestWiFi.TabIndex = 4;
@@ -59,7 +60,7 @@
             // 
             // btnTestPing
             // 
-            this.btnTestPing.Location = new System.Drawing.Point(123, 51);
+            this.btnTestPing.Location = new System.Drawing.Point(123, 47);
             this.btnTestPing.Name = "btnTestPing";
             this.btnTestPing.Size = new System.Drawing.Size(98, 20);
             this.btnTestPing.TabIndex = 5;
@@ -69,7 +70,7 @@
             // 
             // btnTestSQL
             // 
-            this.btnTestSQL.Location = new System.Drawing.Point(13, 75);
+            this.btnTestSQL.Location = new System.Drawing.Point(13, 69);
             this.btnTestSQL.Name = "btnTestSQL";
             this.btnTestSQL.Size = new System.Drawing.Size(94, 20);
             this.btnTestSQL.TabIndex = 6;
@@ -79,7 +80,7 @@
             // 
             // btnExecRDP
             // 
-            this.btnExecRDP.Location = new System.Drawing.Point(123, 75);
+            this.btnExecRDP.Location = new System.Drawing.Point(123, 69);
             this.btnExecRDP.Name = "btnExecRDP";
             this.btnExecRDP.Size = new System.Drawing.Size(98, 20);
             this.btnExecRDP.TabIndex = 7;
@@ -92,11 +93,11 @@
             this.lblMessage.BackColor = System.Drawing.SystemColors.Control;
             this.lblMessage.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.lblMessage.Font = new System.Drawing.Font("Tahoma", 14F, System.Drawing.FontStyle.Regular);
-            this.lblMessage.Location = new System.Drawing.Point(13, 99);
+            this.lblMessage.Location = new System.Drawing.Point(13, 117);
             this.lblMessage.Multiline = true;
             this.lblMessage.Name = "lblMessage";
             this.lblMessage.ReadOnly = true;
-            this.lblMessage.Size = new System.Drawing.Size(210, 160);
+            this.lblMessage.Size = new System.Drawing.Size(210, 134);
             this.lblMessage.TabIndex = 1;
             this.lblMessage.Text = "Просканируйте свой штрих-код";
             this.lblMessage.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
@@ -104,7 +105,7 @@
             // 
             // btnSetExternalNet
             // 
-            this.btnSetExternalNet.Location = new System.Drawing.Point(123, 28);
+            this.btnSetExternalNet.Location = new System.Drawing.Point(123, 25);
             this.btnSetExternalNet.Name = "btnSetExternalNet";
             this.btnSetExternalNet.Size = new System.Drawing.Size(98, 20);
             this.btnSetExternalNet.TabIndex = 9;
@@ -114,7 +115,7 @@
             // 
             // btnSetInternalNet
             // 
-            this.btnSetInternalNet.Location = new System.Drawing.Point(13, 28);
+            this.btnSetInternalNet.Location = new System.Drawing.Point(13, 25);
             this.btnSetInternalNet.Name = "btnSetInternalNet";
             this.btnSetInternalNet.Size = new System.Drawing.Size(94, 20);
             this.btnSetInternalNet.TabIndex = 8;
@@ -122,11 +123,22 @@
             this.btnSetInternalNet.Visible = false;
             this.btnSetInternalNet.Click += new System.EventHandler(this.btnSetInternalNet_Click);
             // 
+            // btnUpdateProgram
+            // 
+            this.btnUpdateProgram.Location = new System.Drawing.Point(13, 92);
+            this.btnUpdateProgram.Name = "btnUpdateProgram";
+            this.btnUpdateProgram.Size = new System.Drawing.Size(208, 20);
+            this.btnUpdateProgram.TabIndex = 10;
+            this.btnUpdateProgram.Text = "Проверить обновление";
+            this.btnUpdateProgram.Visible = false;
+            this.btnUpdateProgram.Click += new System.EventHandler(this.btnUpdateProgram_Click);
+            // 
             // LoginForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(238, 295);
+            this.Controls.Add(this.btnUpdateProgram);
             this.Controls.Add(this.btnSetExternalNet);
             this.Controls.Add(this.btnSetInternalNet);
             this.Controls.Add(this.lblMessage);
@@ -152,5 +164,6 @@
         private System.Windows.Forms.TextBox lblMessage;
         private System.Windows.Forms.Button btnSetExternalNet;
         private System.Windows.Forms.Button btnSetInternalNet;
+        private System.Windows.Forms.Button btnUpdateProgram;
     }
 }

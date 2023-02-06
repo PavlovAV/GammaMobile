@@ -70,6 +70,9 @@ namespace gamma_mob.Common
                 case (int)Images.Remove:
                     RemoveToolBarButton();
                     break;
+                case (int)Images.RDP:
+                    RDPToolBarButton();
+                    break;
             }
         }
 
@@ -102,5 +105,16 @@ namespace gamma_mob.Common
         protected virtual void EditToolBarButton() { }
         
         protected virtual void RemoveToolBarButton() { }
+
+        protected virtual void RDPToolBarButton()
+        {
+            var res = Shared.ExecRDP();
+            if (res == null)
+                Shared.ShowMessageError(@"RDP не запущен. Файл cerdisp.exe не найден.");
+            else if ((bool)res)
+                Shared.ShowMessageInformation("RDP запущен");
+            else
+                Shared.ShowMessageInformation("RDP остановлен");
+        }
     }
 }

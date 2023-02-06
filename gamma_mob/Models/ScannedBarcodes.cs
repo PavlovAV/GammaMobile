@@ -21,7 +21,7 @@ namespace gamma_mob.Models
 
         public Guid? AddScannedBarcode(string barcode, EndPointInfo endPointInfo, DocDirection docTypeId, Guid? docId, DbProductIdFromBarcodeResult getProductResult)
         {
-            var item = new ScannedBarcode(barcode, endPointInfo, (int)docTypeId, docId, getProductResult.ProductId, getProductResult.ProductKindId, getProductResult.NomenclatureId, getProductResult.CharacteristicId, getProductResult.QualityId, getProductResult.CountProducts, getProductResult.FromProductId);
+            var item = new ScannedBarcode(barcode, endPointInfo, (int)docTypeId, docId, getProductResult.ProductId, (int?)getProductResult.ProductKindId, getProductResult.NomenclatureId, getProductResult.CharacteristicId, getProductResult.QualityId, getProductResult.CountProducts, getProductResult.FromProductId);
             if (item != null)
             {
                 Barcodes.Add(item);

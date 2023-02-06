@@ -32,17 +32,21 @@
             this.panel1 = new System.Windows.Forms.Panel();
             this.btnOK = new System.Windows.Forms.Button();
             this.gridChoose = new System.Windows.Forms.DataGrid();
+            this.pnlBarcode = new System.Windows.Forms.Panel();
+            this.btnAddBarcode = new System.Windows.Forms.Button();
+            this.edtBarcode = new System.Windows.Forms.TextBox();
             this.panel1.SuspendLayout();
+            this.pnlBarcode.SuspendLayout();
             this.SuspendLayout();
             // 
             // label4
             // 
             this.label4.Dock = System.Windows.Forms.DockStyle.Top;
-            this.label4.Font = new System.Drawing.Font("Tahoma", 13F, System.Drawing.FontStyle.Regular);
+            this.label4.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular);
             this.label4.Location = new System.Drawing.Point(0, 0);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(638, 55);
-            this.label4.Text = "Выберите номенклатуру или отсканируйте палету, из которой упаковка/коробка";
+            this.label4.Size = new System.Drawing.Size(638, 84);
+            this.label4.Text = "Выберите номенклатуру или отсканируйте паллету, из которой упаковка/коробка";
             this.label4.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // panel1
@@ -66,11 +70,36 @@
             // 
             this.gridChoose.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
             this.gridChoose.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.gridChoose.Location = new System.Drawing.Point(0, 55);
+            this.gridChoose.Location = new System.Drawing.Point(0, 84);
             this.gridChoose.Name = "gridChoose";
-            this.gridChoose.Size = new System.Drawing.Size(638, 369);
+            this.gridChoose.Size = new System.Drawing.Size(638, 340);
             this.gridChoose.TabIndex = 11;
             this.gridChoose.DoubleClick += new System.EventHandler(this.gridChoose_DoubleClick);
+            // 
+            // pnlBarcode
+            // 
+            this.pnlBarcode.Controls.Add(this.btnAddBarcode);
+            this.pnlBarcode.Controls.Add(this.edtBarcode);
+            this.pnlBarcode.Dock = System.Windows.Forms.DockStyle.Top;
+            this.pnlBarcode.Location = new System.Drawing.Point(0, 84);
+            this.pnlBarcode.Name = "pnlBarcode";
+            this.pnlBarcode.Size = new System.Drawing.Size(638, 30);
+            // 
+            // btnAddBarcode
+            // 
+            this.btnAddBarcode.Location = new System.Drawing.Point(143, 1);
+            this.btnAddBarcode.Name = "btnAddBarcode";
+            this.btnAddBarcode.Size = new System.Drawing.Size(72, 25);
+            this.btnAddBarcode.TabIndex = 2;
+            this.btnAddBarcode.Text = "Добавить";
+            this.btnAddBarcode.Click += new System.EventHandler(this.btnAddBarcode_Click);
+            // 
+            // edtBarcode
+            // 
+            this.edtBarcode.Location = new System.Drawing.Point(10, 1);
+            this.edtBarcode.Name = "edtBarcode";
+            this.edtBarcode.Size = new System.Drawing.Size(127, 25);
+            this.edtBarcode.TabIndex = 1;
             // 
             // ChooseNomenclatureCharacteristicDialog
             // 
@@ -78,6 +107,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.AutoScroll = true;
             this.ClientSize = new System.Drawing.Size(638, 455);
+            this.Controls.Add(this.pnlBarcode);
             this.Controls.Add(this.gridChoose);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.panel1);
@@ -88,6 +118,7 @@
             this.Text = "Ввод количества";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.panel1.ResumeLayout(false);
+            this.pnlBarcode.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -98,6 +129,9 @@
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Button btnOK;
         private System.Windows.Forms.DataGrid gridChoose;
-
+        private System.Windows.Forms.Panel pnlBarcode;
+        private System.Windows.Forms.TextBox edtBarcode;
+        private System.Windows.Forms.Button btnAddBarcode;
+        
     }
 }

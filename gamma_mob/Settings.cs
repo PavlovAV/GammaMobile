@@ -56,7 +56,7 @@ namespace gamma_mob
 */
             if (!File.Exists(m_settingsPath) && !File.Exists(m_settingsCPath))
             {
-                Shared.SaveToLog("Error Settings files in " + m_settingsPath.Replace(@"\Settings.xml", @"\") + " could not be found.");
+                Shared.SaveToLogError("Error Settings files in " + m_settingsPath.Replace(@"\Settings.xml", @"\") + " could not be found.");
                 throw new FileNotFoundException(m_settingsPath + " could not be found.");
             }
             else
@@ -66,7 +66,7 @@ namespace gamma_mob
                 if (File.Exists(m_settingsPath))
                 {
                     xdoc.Load(m_settingsPath);
-                    Shared.SaveToLog("Settings load from " + m_settingsPath);
+                    Shared.SaveToLogStartProgramInformation("Settings load from " + m_settingsPath);
                 }
                 else
                 {
@@ -88,7 +88,7 @@ namespace gamma_mob
 
                     reader_.Close();
                     stream_.Close();
-                    Shared.SaveToLog("Settings load from " + m_settingsCPath);
+                    Shared.SaveToLogStartProgramInformation("Settings load from " + m_settingsCPath);
                 }
 
                 //var xdoc = new XmlDocument();
@@ -118,7 +118,7 @@ namespace gamma_mob
                         }
                         catch
                         {
-                            Shared.SaveToLog("Error Create(m_currentSecondServerFlag)");
+                            Shared.SaveToLogError("Error Create(m_currentSecondServerFlag)");
                         }
                     }
 
@@ -143,7 +143,7 @@ namespace gamma_mob
                 }
                 m_settings.Add("progSettings.Gamma.CurrentServer", File.Exists(m_currentSecondServerFlag)
                      ? m_settings.Get("progSettings.Gamma.SecondServerIP") : m_settings.Get("progSettings.Gamma.ServerIP"));
-                Shared.SaveToLog("CurrentServer/DB " + CurrentServer + "/" + Database);
+                Shared.SaveToLogStartProgramInformation("CurrentServer/DB " + CurrentServer + "/" + Database);
             }
         }
 
@@ -226,7 +226,7 @@ namespace gamma_mob
             }
             catch
             {
-                Shared.SaveToLog("Error Delete(m_currentSecondServerFlag)");
+                Shared.SaveToLogError("Error Delete(m_currentSecondServerFlag)");
             }
             return ret;
         }
@@ -244,7 +244,7 @@ namespace gamma_mob
                 }
                 catch
                 {
-                    Shared.SaveToLog("Error Create(m_currentSecondServerFlag)");
+                    Shared.SaveToLogError("Error Create(m_currentSecondServerFlag)");
                 }
             }
             return ret;
@@ -254,6 +254,8 @@ namespace gamma_mob
         {
             bool reboot = false;
 #if !DEBUG
+            if (!Program.deviceName.Contains("CPT"))
+            {
             foreach (var item in m_settings.Keys)
             {
                 if (item.ToString().Substring(0, 11) == "dduSettings" || item.ToString().Substring(0, 11) == "dlbSettings" || item.ToString().Substring(0, 11) == "backlightSe")
@@ -276,7 +278,7 @@ namespace gamma_mob
                     }
                     catch (Exception ex)
                     {
-                        Shared.SaveToLog("Error Update registry ("+item+")");
+                        Shared.SaveToLogError("Error Update registry ("+item+")");
                     }
                 else
                     if (item.ToString().Substring(0, 11) == "scanSetting")
@@ -397,14 +399,15 @@ namespace gamma_mob
                         }
                         catch
                         {
-                            Shared.SaveToLog("Error Update scaner parameter (" + item + ")");
+                            Shared.SaveToLogError("Error Update scaner parameter (" + item + ")");
                         }
                     }
+            }
             }
 //#if !DEBUG
             if (reboot)
             {
-                Shared.SaveToLog("Error - Rebooting Device");
+                Shared.SaveToLogError("Error - Rebooting Device");
                 Device.Reset(Device.BootType.Warm);
             }
 #endif

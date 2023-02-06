@@ -87,7 +87,22 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common\BaseFormWithChooseEndpoint.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Common\BaseFormWithProducts.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Common\BaseFormWithToolBar.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Common\ButtonIntId.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Common\BaseFormWithChooseNomenclatureCharacteristic.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Common\PanelToolBar.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Common\ProgressBarForm.cs">
@@ -245,12 +260,15 @@
     <Compile Include="Models\Barcodes1C.cs" />
     <Compile Include="Models\CashedBarcodes.cs" />
     <Compile Include="Models\CashedBarcode.cs" />
+    <Compile Include="Models\DbDeleteOperationProductResult.cs" />
+    <Compile Include="Models\DbInventarisationOperationProductResult.cs" />
+    <Compile Include="Models\DbOrderOperationProductResult.cs" />
     <Compile Include="Models\ProductBase.cs" />
     <Compile Include="Models\ScannedBarcodes.cs" />
     <Compile Include="Models\ScannedBarcode.cs" />
     <Compile Include="Models\DbProductIdFromBarcodeResult.cs" />
     <Compile Include="Models\DocInventarisation.cs" />
-    <Compile Include="Models\MoveProductResult.cs" />
+    <Compile Include="Models\DbMoveOperationProductResult.cs" />
     <Compile Include="Models\DbOperationProductResult.cs" />
     <Compile Include="Models\DocMovementOrder.cs" />
     <Compile Include="Models\DocNomenclatureItem.cs" />
@@ -418,6 +436,7 @@
     <None Include="Resources\delete.png" />
     <None Include="Resources\InfoProduct.png" />
     <Content Include="Resources\printer.png" />
+    <Content Include="Resources\RDP.png" />
     <Content Include="Resources\save.png" />
     <Content Include="Settings.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

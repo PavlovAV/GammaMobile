@@ -213,13 +213,13 @@ namespace gamma_mob.Models
                                 if (list.Count == 1)
                                 {
                                     getProductResult = list[0];
-                                    getProductResult.ProductKindId = 3;
+                                    getProductResult.ProductKindId = ProductKind.ProductMovement;
                                 }
                                 else
                                 {//Россыпь, но кол-во найденных номенклатур больше 1, поэтому нельзя однозначно определить номенклатуру
                                     getProductResult = new DbProductIdFromBarcodeResult()
                                     {
-                                        ProductKindId = 3,
+                                        ProductKindId = ProductKind.ProductMovement,
                                         ProductId = new Guid(),
                                         NomenclatureId = new Guid(),
                                         CharacteristicId = new Guid(),

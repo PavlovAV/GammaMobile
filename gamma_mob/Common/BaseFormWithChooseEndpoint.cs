@@ -53,44 +53,51 @@ namespace gamma_mob.Common
 
         protected void ChoosePlaceZoneBarcodeReaction(string barcode)
         {
-            var placeZone = Shared.PlaceZones.Where(p => p.Barcode == barcode && p.IsValid).FirstOrDefault();
+            var placeZone = Shared.PlaceZones.FirstOrDefault(p => p.Barcode == barcode);
             if (placeZone != null)
             {
-                if (ChooseEndPointForm != null) 
+                if (placeZone.IsValid == true)
                 {
-                    var endPointInfo = new EndPointInfo() { PlaceId = placeZone.PlaceId, PlaceZoneId = placeZone.PlaceZoneId, PlaceZoneName = placeZone.Name };
-                    if (ReturnAddProductBeforeChoosedPlaceZone != null && (Param is AddProductReceivedEventHandlerParameter))
+                    if (ChooseEndPointForm != null)
                     {
-                        Invoke((MethodInvoker)(() => ChooseEndPointForm.ReturnedResult = false));
-                        Invoke((MethodInvoker)delegate()
+                        var endPointInfo = new EndPointInfo() { PlaceId = placeZone.PlaceId, PlaceZoneId = placeZone.PlaceZoneId, PlaceZoneName = placeZone.Name };
+                        if (ReturnAddProductBeforeChoosedPlaceZone != null && (Param is AddProductReceivedEventHandlerParameter))
                         {
-                            ChooseEndPointForm.Close();
-                        });
-                        (Param as AddProductReceivedEventHandlerParameter).endPointInfo = endPointInfo;
-                        Invoke((MethodInvoker)delegate()
+                            Invoke((MethodInvoker)(() => ChooseEndPointForm.ReturnedResult = false));
+                            Invoke((MethodInvoker)delegate()
+                            {
+                                ChooseEndPointForm.Close();
+                            });
+                            (Param as AddProductReceivedEventHandlerParameter).endPointInfo = endPointInfo;
+                            Invoke((MethodInvoker)delegate()
+                            {
+                                ReturnAddProductBeforeChoosedPlaceZone((Param as AddProductReceivedEventHandlerParameter));
+                            });
+                        }
+                        else if (ReturnPlaceZoneBeforeChoosedPlaceZone != null)
                         {
-                            ReturnAddProductBeforeChoosedPlaceZone((Param as AddProductReceivedEventHandlerParameter));
-                        });
+                            Invoke((MethodInvoker)(() => ChooseEndPointForm.ReturnedResult = false));
+                            Invoke((MethodInvoker)delegate()
+                            {
+                                ChooseEndPointForm.Close();
+                            });
+                            Invoke((MethodInvoker)delegate()
+                            {
+                                ReturnPlaceZoneBeforeChoosedPlaceZone(endPointInfo);
+                            });
+                        }
+                        else
+                            Shared.ShowMessageError(@"Ошибка! Попробуйте еще раз или выберите зону");
                     }
-                    else if (ReturnPlaceZoneBeforeChoosedPlaceZone != null)
-                    {
-                        Invoke((MethodInvoker)(() => ChooseEndPointForm.ReturnedResult = false));
-                        Invoke((MethodInvoker)delegate()
-                        {
-                            ChooseEndPointForm.Close();
-                        });
-                        Invoke((MethodInvoker)delegate()
-                        {
-                            ReturnPlaceZoneBeforeChoosedPlaceZone(endPointInfo);
-                        });
-                    }
-                    else
-                        Shared.ShowMessageError(@"Ошибка! Попробуйте еще раз или выберите зону");
+                }
+                else
+                {
+                    Shared.ShowMessageError(@"Ошибка! Зона " + placeZone.Name + @" отключена для использования!" + Environment.NewLine + @"Попробуйте еще раз или выберите зону");
                 }
             }
             else
             {
-                Shared.ShowMessageError(@"Ошибка! Штрих-код зоны не распознан!" + Environment.NewLine + "Попробуйте еще раз или выберите зону");
+                Shared.ShowMessageError(@"Ошибка! Штрих-код зоны не распознан!" + Environment.NewLine + @"Попробуйте еще раз или выберите зону");
             }
         }
 

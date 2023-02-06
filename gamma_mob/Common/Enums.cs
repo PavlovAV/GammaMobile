@@ -20,7 +20,8 @@
         Pallet,
         Add,
         Remove,
-        InfoProduct
+        InfoProduct,
+        RDP
     }
 
     public enum ConnectState
@@ -86,5 +87,37 @@
         LogServer,
         BarcodesServer,
         BackupBarcodesServer
+    }
+
+    public enum ProductKind
+    {
+        /// <summary>
+        /// Тамбура
+        /// </summary>
+        ProductSpool,
+        /// <summary>
+        /// Паллеты
+        /// </summary>
+        ProductPallet,
+        /// <summary>
+        /// Групповые упаковки
+        /// </summary>
+        ProductGroupPack,
+        /// <summary>
+        /// Россыпь
+        /// </summary>
+        ProductPalletR,
+        /// <summary>
+        /// Кипы
+        /// </summary>
+        ProductBale,
+        /// <summary>
+        /// Перемещение продукции поштучно
+        /// </summary>
+        ProductMovement,
+        /// <summary>
+        /// Остатки продукции
+        /// </summary>
+        ProductRest
     }
 }

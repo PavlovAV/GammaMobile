@@ -20,5 +20,7 @@ namespace gamma_mob.Models
         public string Consignee { get; set; }
         public string OutPlaceName { get; set; }
         public string InPlaceName { get; set; }
+        public int? OutPlaceID { get; set; }
+        public int? InPlaceID { get; set; }
     }
 }

@@ -34,7 +34,7 @@ namespace gamma_mob
             {
                 _stateConnection = value;
                 if (value != null && value != String.Empty)
-                    Shared.SaveToLog(value);
+                    Shared.SaveToLogInformation(value);
             }
         }
 
@@ -106,7 +106,15 @@ namespace gamma_mob
                     return false;
                 }*/
             }
-            if (!Device.GetWiFiPowerStatus())
+#if DEBUG
+           return true;
+#endif
+           if (Program.deviceName.Contains("CPT"))
+           {
+               IsConnected = true;
+               return true;
+           }
+           if (!Device.GetWiFiPowerStatus())
             {
                 IsConnected = false; 
                 return false;

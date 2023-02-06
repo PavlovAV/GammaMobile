@@ -24,7 +24,7 @@ namespace gamma_mob.Common
 
         protected static BarcodeReceivedEventHandler BarcodeFunc
         {
-            private get { return _barcodeFunc; }
+            get { return _barcodeFunc; }
             set
             {
                 //if ((value != null && Scanner.BarcodeReceived != null && value == BarcodeFunc)

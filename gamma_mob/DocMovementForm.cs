@@ -96,7 +96,7 @@ namespace gamma_mob
         protected override void FormLoad(object sender, EventArgs e)
         {
             base.FormLoad(sender, e);
-            base.ActivatePanels(new List<int>(){(int)Images.Back, (int)Images.Inspect, (int)Images.Refresh, (int)Images.UploadToDb, (int)Images.InfoProduct });//, pnlToolBar_ButtonClick);
+            base.ActivatePanels(new List<int>() { (int)Images.Back, (int)Images.Inspect, (int)Images.Refresh, (int)Images.UploadToDb, (int)Images.InfoProduct, (int)Images.RDP });//, pnlToolBar_ButtonClick);
         }
 
         protected override void RefreshToolBarButton()
@@ -106,22 +106,22 @@ namespace gamma_mob
 
         protected override DbOperationProductResult AddProductId(Guid? scanId, DbProductIdFromBarcodeResult getProductResult, EndPointInfo endPointInfo)
         {
-            var addedMoveProductResult = Db.MoveProduct(scanId, Shared.PersonId, getProductResult.ProductId, endPointInfo, getProductResult.ProductKindId, getProductResult.NomenclatureId, getProductResult.CharacteristicId, getProductResult.QualityId, getProductResult.CountProducts, getProductResult.FromProductId);
+            var addedMoveProductResult = Db.MoveProduct(scanId, Shared.PersonId, getProductResult.ProductId, endPointInfo, (int?)getProductResult.ProductKindId, getProductResult.NomenclatureId, getProductResult.CharacteristicId, getProductResult.QualityId, getProductResult.CountProducts, getProductResult.FromProductId);
             return addedMoveProductResult == null ? null : (addedMoveProductResult as DbOperationProductResult);
         }
 
-        protected override void UpdateGrid(DbOperationProductResult acceptResult, int? productKindId, Guid? docId, EndPointInfo endPointInfo, Guid? scanId)
+        protected override void UpdateGrid(DbOperationProductResult acceptResult, ProductKind? productKindId, Guid? docId, EndPointInfo endPointInfo, Guid? scanId)
         {
             if (endPointInfo.PlaceId == EndPointInfo.PlaceId)
                     Invoke((UpdateMovementGridInvoker)(UpdateGrid),
                         new object[]
                                    {
                                         acceptResult.Product.NomenclatureId, acceptResult.Product.CharacteristicId, acceptResult.Product.QualityId, acceptResult.Product.NomenclatureName, acceptResult.Product.ShortNomenclatureName, acceptResult.PlaceZoneId,  acceptResult.Product.Quantity
-                                       , true, productKindId, acceptResult.Product.CoefficientPackage, acceptResult.Product.CoefficientPallet
+                                       , true, (int?)productKindId, acceptResult.Product.CoefficientPackage, acceptResult.Product.CoefficientPallet
                                    });
         }
 
-        protected override bool CheckIsCreatePalletRFromBarcodeScan()
+        protected override bool CheckIsCreatePalletMovementFromBarcodeScan()
         {
             return true;
         }

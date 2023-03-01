@@ -19,7 +19,12 @@ namespace gamma_mob
         {
             ParentForm = parentForm;
             DocDirection = docDirection;
-            
+        }
+
+        public DocOrdersForm(Form parentForm, DocDirection docDirection, bool isMovementForOrder)
+            : this(parentForm, docDirection)
+        {
+            IsMovementForOrder = isMovementForOrder;
         }
 
         private DocDirection DocDirection { get; set; }
@@ -27,6 +32,8 @@ namespace gamma_mob
         private BindingSource BSource { get; set; }
 
         private BindingList<DocOrder> DocOrders { get; set; }
+
+        private bool IsMovementForOrder { get; set; } 
 
         private void DocShipmentOrders_Load(object sender, EventArgs e)
         {
@@ -39,7 +46,10 @@ namespace gamma_mob
                     Text = "Приемка";
                     break;
                 case DocDirection.DocOutIn:
-                    Text = "Заказы на перемещение";
+                    if (IsMovementForOrder)
+                        Text = "Сборка под отгрузку";
+                    else
+                        Text = "Заказы на перемещение";
                     break;
             }
 
@@ -129,7 +139,7 @@ namespace gamma_mob
 
         private void GetDocOrders()
         {
-            DocOrders = Db.PersonDocOrders(Shared.PersonId, DocDirection);
+            DocOrders = Db.PersonDocOrders(Shared.PersonId, DocDirection, IsMovementForOrder);
             if (BSource == null)
                 BSource = new BindingSource(DocOrders, null);
             else
@@ -165,7 +175,33 @@ namespace gamma_mob
                 if (selectedDocOrder != null)
                 {
                     EndPointInfo endPointInfo = null;
-                    if (selectedDocOrder.InPlaceID != null)
+                    var inPlaceID = selectedDocOrder.InPlaceID;
+                    if (IsMovementForOrder)
+                    {
+                        inPlaceID = (int)selectedDocOrder.OutPlaceID;
+                        string message = "Укажите зону сборки продкции под отгрузку";
+                            var dialogResult = Shared.ShowMessageInformation(message);
+                            //if (dialogResult == DialogResult.Yes)
+                            {
+                                using (var formPlaceZone = new ChooseEndPointDialog((int)inPlaceID))
+                                {
+                                    DialogResult resultPlaceZone = formPlaceZone.ShowDialog();
+                                    if (resultPlaceZone != DialogResult.OK)
+                                    {
+                                        Shared.ShowMessageInformation(@"Не выбрана зона склада.");
+                                        //endPointInfo.IsSettedDefaultPlaceZoneId = false;
+                                        return;
+                                    }
+                                    else
+                                    {
+                                        endPointInfo = formPlaceZone.EndPointInfo;
+                                        endPointInfo.IsSettedDefaultPlaceZoneId = true;
+
+                                    }
+                                }
+                            }
+                    }
+                    else if (selectedDocOrder.InPlaceID != null)
                     {
                         endPointInfo = new EndPointInfo() { PlaceId = (int)selectedDocOrder.InPlaceID };
                         //using (var form = new ChooseEndPointDialog(false))
@@ -202,11 +238,11 @@ namespace gamma_mob
                         }
                         //}
                     }
-                    var docOrderForm = selectedDocOrder.InPlaceID == null
+                    var docOrderForm = inPlaceID == null
                         ? new DocWithNomenclatureForm(selectedDocOrder.DocOrderId, this, selectedDocOrder.Number,
-                        selectedDocOrder.OrderType, DocDirection, Shared.MaxAllowedPercentBreak)
+                        selectedDocOrder.OrderType, DocDirection, IsMovementForOrder, Shared.MaxAllowedPercentBreak)
                         : new DocWithNomenclatureForm(selectedDocOrder.DocOrderId, this, selectedDocOrder.Number,
-                        selectedDocOrder.OrderType, DocDirection, Shared.MaxAllowedPercentBreak, endPointInfo);
+                        selectedDocOrder.OrderType, DocDirection, IsMovementForOrder, Shared.MaxAllowedPercentBreak, endPointInfo);
                     docOrderForm.Show();
                     if (!docOrderForm.IsDisposed && docOrderForm.Enabled)
                         Hide();

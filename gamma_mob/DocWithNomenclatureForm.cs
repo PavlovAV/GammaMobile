@@ -40,14 +40,15 @@ namespace gamma_mob
         /// <param name="orderType">Тип документа(приказ 1с, перемещение)</param>
         /// <param name="fileName">Имя файла для хранения информации о невыгруженных продуктах</param>
         /// <param name="docDirection">Направление движения продукции(in, out, outin)</param>
-        public DocWithNomenclatureForm(Guid docOrderId, Form parentForm, string orderNumber, OrderType orderType, 
-            DocDirection docDirection, int maxAllowedPercentBreak)
+        public DocWithNomenclatureForm(Guid docOrderId, Form parentForm, string orderNumber, OrderType orderType,
+            DocDirection docDirection, bool isMovementForOrder, int maxAllowedPercentBreak)
             : this(parentForm)
         {
             OrderType = orderType;
             DocId = docOrderId;
             DocDirection = docDirection;
-            
+            IsMovementForOrder = isMovementForOrder;
+
             if (!RefreshDocOrderGoods(docOrderId))
             {
                 Shared.ShowMessageInformation(@"Не удалось получить информацию о документе!" + Environment.NewLine + "Попробуйте ещё раз обновить!");
@@ -120,9 +121,9 @@ namespace gamma_mob
         }
 
         public DocWithNomenclatureForm(Guid docOrderId, Form parentForm, string orderNumber, OrderType orderType,
-            DocDirection docDirection, int maxAllowedPercentBreak, EndPointInfo endPointInfo)
+            DocDirection docDirection, bool isMovementForOrder, int maxAllowedPercentBreak, EndPointInfo endPointInfo)
             : this(docOrderId, parentForm, orderNumber, orderType,
-            docDirection, maxAllowedPercentBreak) 
+            docDirection, isMovementForOrder, maxAllowedPercentBreak) 
         {
             EndPointInfo = endPointInfo;
             if (endPointInfo.IsSettedDefaultPlaceZoneId)
@@ -210,7 +211,7 @@ namespace gamma_mob
                 return;
             }
             var good = NomenclatureList[gridDocOrder.CurrentRowIndex];
-            var form = new DocShipmentProductsForm(DocId, good.NomenclatureId, good.NomenclatureName, good.CharacteristicId, good.QualityId, this, DocDirection, new RefreshDocProductDelegate(RefreshDocOrder));
+            var form = new DocShipmentProductsForm(DocId, good.NomenclatureId, good.NomenclatureName, good.CharacteristicId, good.QualityId, this, DocDirection, IsMovementForOrder, OrderType, new RefreshDocProductDelegate(RefreshDocOrder));
             if (!form.IsDisposed)
             {
                 BarcodeFunc = null;
@@ -235,7 +236,7 @@ namespace gamma_mob
 
         private bool RefreshDocOrderGoods(Guid docId)
         {
-            BindingList<DocNomenclatureItem> list = Db.DocNomenclatureItems(docId, OrderType, DocDirection);
+            BindingList<DocNomenclatureItem> list = Db.DocNomenclatureItems(docId, OrderType, DocDirection, IsMovementForOrder);
             if (Shared.LastQueryCompleted == false)// || list == null)
             {
                // MessageBox.Show(@"Не удалось получить информацию о текущем документе");

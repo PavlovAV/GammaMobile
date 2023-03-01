@@ -278,6 +278,8 @@ namespace gamma_mob.Common
         /// </summary>
         protected Guid DocId { get; set; }
 
+        protected bool IsMovementForOrder { get; set; }
+
         protected int _collected;
 
         protected int Collected

@@ -15,9 +15,9 @@ namespace gamma_mob
         }
 
         public DocShipmentProductsForm(Guid docShipmentOrderId, Guid nomenclatureId, string nomenclatureName
-            , Guid characteristicId, Guid qualityId, Form parentForm, DocDirection docDirection, RefreshDocProductDelegate refreshDocOrder)
+            , Guid characteristicId, Guid qualityId, Form parentForm, DocDirection docDirection, bool isMovementForOrder, OrderType orderType, RefreshDocProductDelegate refreshDocOrder)
             : base(docShipmentOrderId, nomenclatureId, nomenclatureName
-            , characteristicId, qualityId, parentForm, docDirection, refreshDocOrder)
+            , characteristicId, qualityId, parentForm, docDirection, isMovementForOrder, orderType, refreshDocOrder)
         {
             
         }
@@ -25,7 +25,7 @@ namespace gamma_mob
         protected override BindingList<ProductBase> GetProducts()
         {
             //return Db.GetMovementGoodProducts(PlaceId, PersonId, NomenclatureId, CharacteristicId, QualityId, PlaceZoneId);
-            return Db.DocShipmentOrderGoodProducts(DocShipmentOrderId, NomenclatureId, CharacteristicId, QualityId, DocDirections);
+            return Db.DocShipmentOrderGoodProducts(DocShipmentOrderId, NomenclatureId, CharacteristicId, QualityId, DocDirections, IsMovementForOrder, OrderType);
         }
 
         protected override DbOperationProductResult RemovalProduct(Guid scanId)

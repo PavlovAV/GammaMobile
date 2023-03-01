@@ -40,7 +40,7 @@ namespace gamma_mob
         }
 
         public DocProductsBaseForm(Guid docShipmentOrderId, Guid nomenclatureId, string nomenclatureName
-            , Guid characteristicId, Guid qualityId, Form parentForm, DocDirection docDirection, RefreshDocProductDelegate refreshDocOrder)
+            , Guid characteristicId, Guid qualityId, Form parentForm, DocDirection docDirection, bool isMovementForOrder, OrderType orderType, RefreshDocProductDelegate refreshDocOrder)
             : this()
         {
             lblNomenclature.Text = nomenclatureName;
@@ -50,6 +50,8 @@ namespace gamma_mob
             CharacteristicId = characteristicId;
             QualityId = qualityId;
             DocDirections = docDirection;
+            OrderType = orderType;
+            IsMovementForOrder = isMovementForOrder;
             RefreshDocOrder = refreshDocOrder;
             if (!RefreshDatGrid())
             {
@@ -90,6 +92,8 @@ namespace gamma_mob
         protected Guid CharacteristicId { get; set; }
         protected Guid QualityId { get; set; }
         protected DocDirection DocDirections { get; set; }
+        protected bool IsMovementForOrder { get; set; }
+        protected OrderType OrderType { get; set; }
         protected Guid? PlaceZoneId { get; set; }
         public bool IsRefreshQuantity = false;
         protected decimal Quantity { get; set; }

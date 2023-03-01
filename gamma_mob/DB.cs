@@ -1388,7 +1388,7 @@ namespace gamma_mob
         }
 
         public static BindingList<ProductBase> DocShipmentOrderGoodProducts(Guid docShipmentOrderId, Guid nomenclatureId,
-                                                             Guid characteristicId, Guid qualityId, DocDirection docDirection)
+                                                             Guid characteristicId, Guid qualityId, DocDirection docDirection, bool isMovementForOrder, OrderType orderType)
         {
             BindingList<ProductBase> list = null;
             const string sql = "dbo.mob_GetGoodProducts";
@@ -1412,7 +1412,19 @@ namespace gamma_mob
                         },
                     new SqlParameter("@IsOutDoc", SqlDbType.Bit)
                         {
-                            Value = docDirection == DocDirection.DocOut
+                            Value = docDirection == DocDirection.DocOut || docDirection == DocDirection.DocOutIn
+                        },
+                    new SqlParameter("@IsInDoc", SqlDbType.Bit)
+                        {
+                            Value = docDirection == DocDirection.DocIn || docDirection == DocDirection.DocOutIn
+                        },
+                    new SqlParameter("@OrderType", SqlDbType.Int)
+                        {
+                            Value = (int) orderType
+                        },
+                    new SqlParameter("@IsMovementForOrder", SqlDbType.Bit)
+                        {
+                            Value = (bool) isMovementForOrder
                         }
                 };
             //DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure);
@@ -1507,7 +1519,7 @@ namespace gamma_mob
             return result;
         }
 
-        public static BindingList<DocOrder> PersonDocOrders(Guid personId, DocDirection docDirection)
+        public static BindingList<DocOrder> PersonDocOrders(Guid personId, DocDirection docDirection, bool isMovementForOrder)
         {
             BindingList<DocOrder> list = null;
             const string sql = "dbo.mob_GetPersonDocOrders";
@@ -1524,6 +1536,10 @@ namespace gamma_mob
                     new SqlParameter("@DocDirection", SqlDbType.SmallInt)
                         {
                             Value = docDirection
+                        },
+                    new SqlParameter("@IsMovementForOrder", SqlDbType.Bit)
+                        {
+                            Value = isMovementForOrder
                         }
                 };
             using (DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure))
@@ -1766,29 +1782,34 @@ namespace gamma_mob
             return list;
         }
 
-        public static BindingList<DocNomenclatureItem> DocNomenclatureItems(Guid docOrderId, OrderType orderType, DocDirection docDirection)
+        public static BindingList<DocNomenclatureItem> DocNomenclatureItems(Guid docOrderId, OrderType orderType, DocDirection docDirection, bool isMovementForOrder)
         {
             BindingList<DocNomenclatureItem> list = null;
-            var sql = "";
-            switch (orderType)
-            {
-                case OrderType.ShipmentOrder:
-                case OrderType.InternalOrder:
-                    sql = "SELECT * FROM v1COrderGoods WHERE DocOrderID = @DocID";
-                    break;
-                case OrderType.MovementOrder:
-                    sql = "SELECT * FROM v1COrderGoods WHERE DocOrderID = @DocID";
-                    //sql = "SELECT * FROM vDocMovementOrders WHERE DocOrderID = @DocID";
-                    break;
-            }
-                
-            var parameters =
-                new List<SqlParameter>
-                    {
-                        new SqlParameter("@DocID", SqlDbType.UniqueIdentifier)
-                    };
-            parameters[0].Value = docOrderId;
-            using (DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.Text))
+            var sql = "dbo.mob_GetOrderGoods";
+            var parameters = new List<SqlParameter>
+                {
+                    new SqlParameter("@DocOrderID", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = docOrderId
+                        },
+                    new SqlParameter("@IsOutDoc", SqlDbType.Bit)
+                        {
+                            Value = docDirection == DocDirection.DocOut || docDirection == DocDirection.DocOutIn
+                        },
+                    new SqlParameter("@IsInDoc", SqlDbType.Bit)
+                        {
+                            Value = docDirection == DocDirection.DocIn || docDirection == DocDirection.DocOutIn
+                        },
+                    new SqlParameter("@OrderType", SqlDbType.Int)
+                        {
+                            Value = (int) orderType
+                        },
+                    new SqlParameter("@IsMovementForOrder", SqlDbType.Bit)
+                        {
+                            Value = (bool) isMovementForOrder
+                        }
+                };
+            using (DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure))
             {
                 if (table != null && table.Rows.Count > 0)
                 {
@@ -1798,7 +1819,7 @@ namespace gamma_mob
                         string quantity;
                         decimal collectedQuantity;
                         int quantityUnits;
-                        if (docDirection == DocDirection.DocOut || orderType == OrderType.MovementOrder)
+                        if (docDirection == DocDirection.DocOut || orderType == OrderType.MovementOrder || (docDirection == DocDirection.DocOutIn || orderType == OrderType.ShipmentOrder))
                         {
                             //СГБ учитываем по весу, а СГИ - по групповым упаковкам
                             //!(row["Quantity"].ToString().All(char.IsDigit)) - проверяем, является ли числом (внимание: не отрабатывает отрицательное значение)

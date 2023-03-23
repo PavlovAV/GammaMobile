@@ -30,11 +30,11 @@ namespace gamma_mob.Common
                 //if ((value != null && Scanner.BarcodeReceived != null && value == BarcodeFunc)
                 //    || (value == null && Scanner.BarcodeReceived == null && BarcodeFunc == null))
                 //    return;
-                Scanner.BarcodeReceived -= BarcodeFunc;
+                Scanner.CurrentScanner.BarcodeReceived -= BarcodeFunc;
                 _barcodeFunc = value;
                 if (value == null) return;
                 if (DesignMode.IsTrue) return;
-                Scanner.BarcodeReceived += BarcodeFunc;
+                Scanner.CurrentScanner.BarcodeReceived += BarcodeFunc;
             }
         }
 
@@ -55,7 +55,7 @@ namespace gamma_mob.Common
         protected virtual void OnFormClosing(object sender, CancelEventArgs e)
         {
             if (Scanner != null)
-                Scanner.BarcodeReceived -= BarcodeFunc;
+                Scanner.CurrentScanner.BarcodeReceived -= BarcodeFunc;
             if (ParentForm != null)
             {
                 ParentForm.Show();

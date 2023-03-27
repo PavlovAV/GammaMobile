@@ -7,11 +7,12 @@ using gamma_mob.Common;
 using gamma_mob.Dialogs;
 using gamma_mob.Models;
 using gamma_mob.WCF;
+using System.Collections.Generic;
 
 
 namespace gamma_mob
 {
-    public partial class PalletForm : BaseForm
+    public partial class PalletForm : BaseFormWithBarcodeScan, INotifyPropertyChanged
     {
         private PalletForm()
         {   
@@ -29,6 +30,9 @@ namespace gamma_mob
         {
             DocOrderId = pallet.DocOrderId;
             ProductId = pallet.ProductId;
+            DocDirection = pallet.DocDirection;
+            Number = pallet.Number;
+            Text = "Паллета " + Number;
             var list = pallet.Items;
             if (Shared.LastQueryCompleted == false || list == null)
             {
@@ -43,33 +47,20 @@ namespace gamma_mob
         
         private Guid DocOrderId { get; set; }
 
-        private BindingSource BSource { get; set; }
-        private BindingList<DocNomenclatureItem> Items { get; set; }
+        private DocDirection DocDirection { get; set; }
 
-        private void tbrMain_ButtonClick(object sender, ToolBarButtonClickEventArgs e)
-        {
-            switch (tbrMain.Buttons.IndexOf(e.Button))
-            {
-                case 0:
-                    Close();
-                    break;
-                case 1:
-                    DeleteItem();
-                    break;
-                case 2:
-                    Print();
-                    break;
-            }
-        }
+        private BindingSource BSource { get; set; }
+        
+        private BindingList<DocNomenclatureItem> Items { get; set; }
+        
+        private Guid ProductId { get; set; }
+
+        private string Number { get; set; }
 
         protected override void FormLoad(object sender, EventArgs e)
         {
             base.FormLoad(sender, e);
-            tbrMain.ImageList = ImgList;
-            btnBack.ImageIndex = (int)Images.Back;
-            btnPrint.ImageIndex = (int) Images.Print;
-            btnDelete.ImageIndex = (int) Images.Remove;
-            BarcodeFunc = BarcodeReaction;
+            base.ActivatePanels(new List<int>() { (int)Images.Back, (int)Images.Inspect, /*(int)Images.Remove, (int)Images.Print,*/ (int)Images.InfoProduct, (int)Images.RDP });//, pnlToolBar_ButtonClick);
             // Оформление грида
             var tableStyle = new DataGridTableStyle { MappingName = BSource.GetListName(null) };
             tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
@@ -87,79 +78,183 @@ namespace gamma_mob
             gridPalletItems.TableStyles.Add(tableStyle);
         }
 
-        private Guid ProductId { get; set; }
-
-        private void BarcodeReaction(string barcode)
+        protected override void ActionByBarcode(string barcode)
         {
-            Invoke((MethodInvoker)(() => edtNumber.Text = barcode));
-            UIServices.SetBusyState(this);
-            AddProductByBarcode(barcode);
-            UIServices.SetNormalState(this);
-        }
-
-        private void Print()
-        {
-            UIServices.SetBusyState(this);
-            try
+            if (Number == String.Empty)
             {
-                var client = new PrinterServiceClient();
-                client.PrintPallet(ProductId.ToString());
-            }
-            catch (Exception)
-            {
-                Shared.ShowMessageError(@"Служба печати не доступна");
-            }
-            UIServices.SetNormalState(this);
-        }
-
-        private void DeleteItem()
-        {
-            if (!Items.Any() || gridPalletItems.CurrentRowIndex < 0) return;
-            var item = Items[gridPalletItems.CurrentRowIndex];
-            UIServices.SetBusyState(this);
-            if (!Db.DeleteItemFromPallet(ProductId, item.NomenclatureId, item.CharacteristicId))
-            {
-                Shared.ShowMessageError(@"Не удалось связаться с базой");
-            }
-            else
-            {
-                Items.Remove(item);
-            }
-            UIServices.SetNormalState(this);
-        }
-
-        private void AddProductByBarcode(string barcode)
-        {
-            UIServices.SetBusyState(this);
-            int quantity;
-            using (var form = new SetPacksNumberDialog())
-            {
-                var dlgResult = form.ShowDialog();
-                if (dlgResult != DialogResult.OK)
+                int placeId = Shared.PlaceId;
+                Guid? placeZoneId = null;
+                using (var formPlaceZone = new ChooseEndPointDialog(placeId))
                 {
-                    Shared.ShowMessageInformation(@"Не было указано количество пачек");
-                    UIServices.SetNormalState(this);
+                    DialogResult resultPlaceZone = formPlaceZone.ShowDialog();
+                    if (resultPlaceZone != DialogResult.OK)
+                    {
+                        Shared.ShowMessageInformation(@"Не выбрана зона склада.");
+                        return;
+                    }
+                    else
+                    {
+                        placeId = formPlaceZone.EndPointInfo.PlaceId;
+                        placeZoneId = formPlaceZone.EndPointInfo.PlaceZoneId;
+                    }
+                }
+                var result = Db.CreateNewPallet(ProductId, DocOrderId, placeId, placeZoneId);
+                if (result == null)
+                {
+                    Shared.ShowMessageError("Непредвиденная ошибка при выполнении операции");
+                    return;
+                } else if (!String.IsNullOrEmpty(result.ResultMessage))
+                {
+                    Shared.ShowMessageError(result.ResultMessage);
                     return;
                 }
-                quantity = form.Quantity;
+                Number = result.Number;
+                Text = "Паллета " +  Number;
+                NotifyPropertyChanged("Text");
+                (ParentForm as PalletsForm).AddPalletToPallets(new PalletListItem(ProductId, Number, (DateTime)result.Date, result.Person));
             }
-            var result = Db.AddItemToPallet(ProductId, DocOrderId, barcode, quantity);
+            AddNomenclatureByBarcode(barcode);
+        }
+
+        protected override void OpenDetails()
+        {
+            if (!ConnectionState.CheckConnection())
+            {
+                Shared.ShowMessageError(@"Нет связи с сервером" + Environment.NewLine + ConnectionState.GetConnectionState());
+                return;
+            }
+            if (gridPalletItems == null || gridPalletItems.CurrentRowIndex < 0)
+            {
+                Shared.ShowMessageError(@"Выберите номенклатуру!");
+                return;
+            }
+            var good = Items[gridPalletItems.CurrentRowIndex];
+            var form = new PalletItemProductsForm(ProductId, good.NomenclatureId, good.NomenclatureName, good.CharacteristicId, good.QualityId, this, new RefreshPalletItemsDelegate(RefreshPallet));
+            if (!form.IsDisposed)
+            {
+                BarcodeFunc = null;
+                DialogResult result = form.ShowDialog();
+                if (form.IsRefreshQuantity)
+                    RefreshPallet(ProductId, true);
+            }
+        }
+
+        private void RefreshPallet(Guid productId, bool showMessage)
+        {
+            if (!RefreshPalletItems(productId))
+            {
+                if (showMessage)
+                    Shared.ShowMessageInformation(@"Не удалось получить информацию о документе!" + Environment.NewLine + "Попробуйте ещё раз обновить!");
+                else
+                    Shared.SaveToLogInformation(@"Не удалось получить информацию о документе!" + Environment.NewLine + "Попробуйте ещё раз обновить!");
+                //Close();
+                return;
+            }
+        }
+
+        private bool RefreshPalletItems(Guid productId)
+        {
+            List<DocNomenclatureItem> list = Db.GetPalletItems(productId);
+            if (Shared.LastQueryCompleted == false)// || list == null)
+            {
+               // MessageBox.Show(@"Не удалось получить информацию о текущем документе");
+                if (Items == null)
+                    Items = new BindingList<DocNomenclatureItem>();
+                if (BSource == null)
+                    BSource = new BindingSource { DataSource = Items };
+                return false;
+            }
+            Items = new BindingList<DocNomenclatureItem>(list) ?? new BindingList<DocNomenclatureItem>();
+            if (BSource == null)
+                BSource = new BindingSource {DataSource = Items};
+            else
+            {
+                BSource.DataSource = Items;
+            }
+
+            gridPalletItems.DataSource = BSource;
+            gridPalletItems.UnselectAll();
+            
+            return true;
+        }
+
+        private void AddNomenclatureByBarcode(string barcode)
+        {
+            //UIServices.SetBusyState(this);
+
+            {
+                {
+                    Cursor.Current = Cursors.WaitCursor;
+                    DbProductIdFromBarcodeResult getProductResult = Shared.Barcodes1C.GetProductFromBarcodeOrNumberInBarcodes(barcode, false);
+                    Cursor.Current = Cursors.Default;
+
+                    if (getProductResult == null || getProductResult.ProductKindId == null || (Shared.FactProductKinds.Contains((ProductKind)getProductResult.ProductKindId) && (getProductResult.ProductId == null || getProductResult.ProductId == Guid.Empty)))
+                    {
+                        Shared.ShowMessageError(@"Продукция не найдена по ШК! " + barcode + " (Локальные база ШК " + Shared.Barcodes1C.GetCountBarcodes + "; посл.обн " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodesMoscowTimeZone.ToString(System.Globalization.CultureInfo.InvariantCulture) + ")");
+                    }
+                    else
+                    {
+                        if (getProductResult.ProductKindId == ProductKind.ProductMovement && (getProductResult.ProductId == null || getProductResult.ProductId == Guid.Empty))
+                        {
+                            //if (CheckIsCreatePalletMovementFromBarcodeScan())
+                            {
+                                base.ChooseNomenclatureCharacteristic(this.ChooseNomenclatureCharacteristicBarcodeReactionInAddNomenclature, new AddProductReceivedEventHandlerParameter() { barcode = barcode, endPointInfo = EndPointInfo, getProductResult = getProductResult });
+                            }
+                        }
+                        else
+                        {
+                            AddNomenclatureByBarcode(barcode, getProductResult);
+                        }
+                    }
+                }
+            }
+        }
+
+        private void AddNomenclatureByBarcode(string barcode, DbProductIdFromBarcodeResult getProductResult)
+        {
+            var scanId = Shared.ScannedBarcodes.AddScannedBarcode(barcode, new EndPointInfo(), DocDirection, DocOrderId, getProductResult);
+            if (scanId == null || scanId == Guid.Empty)
+                Shared.ShowMessageError("Ошибка2 при сохранении отсканированного штрих-кода");
+            else 
+                AddNomenclatureByBarcode(scanId, barcode, getProductResult);
+        }
+
+        private bool? AddNomenclatureByBarcode(Guid? scanId, string barcode, DbProductIdFromBarcodeResult getProductResult)
+        {
+            Shared.SaveToLogInformation(@"AddNomenclature " + barcode + @"; scanId-" + scanId.ToString() + @"; Q-" + getProductResult.CountProducts);
+            Cursor.Current = Cursors.WaitCursor;
+            Shared.ScannedBarcodes.UploadedScan(scanId, (Guid?)null);
+            var addResult = Db.AddItemToPallet(scanId, ProductId, DocOrderId, (int?)getProductResult.ProductKindId, getProductResult.NomenclatureId, getProductResult.CharacteristicId, getProductResult.QualityId, getProductResult.CountProducts, getProductResult.FromProductId);
+            //var addResult = Db.AddItemToPallet(ProductId, DocOrderId, barcode, getProductResult.CountProducts);
             if (Shared.LastQueryCompleted == false)
             {
-                Shared.ShowMessageError(@"Нет связи с базой");
-            }      
-            else if (result != null && !String.IsNullOrEmpty(result.ResultMessage))
+                Shared.SaveToLogError(@"AddItemToPallet.LastQueryCompleted is null (scanId = " + scanId.ToString() + ")");
+                return null;
+            }
+            if (addResult == null)
             {
-                    Shared.ShowMessageError(result.ResultMessage);
+                Shared.ShowMessageError(@"Не удалось добавить номенклатуру" + Environment.NewLine + barcode + " в продукт "+ ProductId.ToString());
+                Shared.ScannedBarcodes.ClearLastBarcode();
+                return false;
+            }
+            if (addResult.ResultMessage == string.Empty)
+            {
+                //Shared.ScannedBarcodes.UploadedScan(scanId, addResult.Product == null ? (Guid?)null : addResult.Product.ProductId);
+                //UpdateGrid(addResult, getProductResult.ProductKindId, endPointInfo, scanId);
+                Invoke((UpdateInventarisationGridInvoker)(UpdateGrid),
+                          new object[] { addResult.NomenclatureId, addResult.CharacteristicId, addResult.QualityId, addResult.NomenclatureName, 
+                                addResult.ShortNomenclatureName, addResult.Quantity, null});
             }
             else
             {
-                if (result != null)
-                Invoke((UpdateInventarisationGridInvoker)(UpdateGrid),
-                           new object[] { result.NomenclatureId, result.CharacteristicId, result.QualityId, result.NomenclatureName, 
-                                result.ShortNomenclatureName, result.Quantity, null});
+                //Shared.ScannedBarcodes.UploadedScanWithError(scanId, addResult.ResultMessage, addResult.Product == null ? (Guid?)null : addResult.Product.ProductId);
+                Shared.ShowMessageError(@"ШК: " + barcode + Environment.NewLine + addResult.ResultMessage);
+                Shared.ScannedBarcodes.ClearLastBarcode();
             }
+            //Shared.ScannedBarcodes.UploadedScan(scanId, addResult.Product == null ? (Guid?)null : addResult.Product.ProductId);
+            //Shared.ScannedBarcodes.UploadedScan(scanId, (Guid?)null);
             UIServices.SetNormalState(this);
+            return true;
         }
 
         private void UpdateGrid(Guid nomenclatureId, Guid characteristicId, Guid qualityId, string nomenclatureName,
@@ -188,13 +283,32 @@ namespace gamma_mob
             gridPalletItems.CurrentRowIndex = index;
             gridPalletItems.Select(index);
         }
-        
-        private void btnAddProduct_Click(object sender, EventArgs e)
+
+        private void ChooseNomenclatureCharacteristicBarcodeReactionInAddNomenclature(AddProductReceivedEventHandlerParameter param)
         {
-            AddProductByBarcode(edtNumber.Text);
+            base.ReturnAddProductBeforeChoosedNomenclatureCharacteristic -= ChooseNomenclatureCharacteristicBarcodeReactionInAddNomenclature;
+            BarcodeFunc = this.BarcodeReaction;
+            if (param != null)
+                AddNomenclatureByBarcode(param.barcode, param.getProductResult);
         }
 
-        
-        
+        private void gridPalletItems_DoubleClick(object sender, EventArgs e)
+        {
+            OpenDetails();
+        }
+
+        #region Члены INotifyPropertyChanged
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void NotifyPropertyChanged(String info)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(info));
+            }
+        }
+
+        #endregion
     }
 }

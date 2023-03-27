@@ -57,7 +57,8 @@ namespace gamma_mob
             {
                 HeaderText = "Дата",
                 MappingName = "Date",
-                Width = 80
+                Width = 80,
+                Format = "dd.MM.yy"
             });
             tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
             {

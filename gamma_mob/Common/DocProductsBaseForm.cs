@@ -18,8 +18,6 @@ namespace gamma_mob
             InitializeComponent();
         }
 
-        private RefreshDocProductDelegate RefreshDocOrder;
-
         public DocProductsBaseForm(Guid docShipmentOrderId, Guid nomenclatureId, string nomenclatureName
             , Guid characteristicId, Guid qualityId, Form parentForm)
             : this()
@@ -81,8 +79,25 @@ namespace gamma_mob
                 Close();
                 return;
             }
+        }
 
-            
+        public DocProductsBaseForm(Guid productId, Guid nomenclatureId, string nomenclatureName
+            , Guid characteristicId, Guid qualityId, Form parentForm, RefreshPalletItemsDelegate refreshPalletItems)
+            : this()
+        {
+            lblNomenclature.Text = nomenclatureName;
+            ParentForm = parentForm;
+            ProductId = productId;
+            NomenclatureId = nomenclatureId;
+            CharacteristicId = characteristicId;
+            QualityId = qualityId;
+            RefreshPalletItems = refreshPalletItems;
+            if (!RefreshDatGrid())
+            {
+                Shared.ShowMessageError(@"Не удалось получить информацию");
+                Close();
+                return;
+            }
         }
 
         protected int PlaceId { get; set; }
@@ -97,6 +112,10 @@ namespace gamma_mob
         protected Guid? PlaceZoneId { get; set; }
         public bool IsRefreshQuantity = false;
         protected decimal Quantity { get; set; }
+        protected Guid ProductId { get; set; }
+
+        private RefreshDocProductDelegate RefreshDocOrder;
+        private RefreshPalletItemsDelegate RefreshPalletItems;
 
         private BindingList<ProductBase> AcceptedProducts { get; set; }
         //private BindingSource BSource { get; set; }

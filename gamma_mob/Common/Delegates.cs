@@ -18,6 +18,6 @@ namespace gamma_mob.Common
     public delegate void RefreshDocOrderDelegate(Guid docId);
 
     public delegate void RefreshDocProductDelegate(Guid docId, bool showMessage);
-    
 
+    public delegate void RefreshPalletItemsDelegate(Guid productId, bool showMessage);
 }

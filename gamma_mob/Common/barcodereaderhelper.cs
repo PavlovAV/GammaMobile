@@ -1,7 +1,3 @@
-// Вспомогательный класс для поддержки сканирования в терминалах CipherLab
-// CP30, CP50, CP60, 9200, 9700 и CP55.
-// (c) 2014-2015 Aleksandr Samusenko
-
 using System;
 using System.Reflection;
 using System.Runtime.InteropServices;

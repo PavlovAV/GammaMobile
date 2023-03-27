@@ -89,13 +89,14 @@
             // btnComplectPallet
             // 
             this.btnComplectPallet.Font = new System.Drawing.Font("Tahoma", 14F, System.Drawing.FontStyle.Regular);
-            this.btnComplectPallet.Location = new System.Drawing.Point(3, 268);
+            this.btnComplectPallet.Location = new System.Drawing.Point(3, 218);
             this.btnComplectPallet.Name = "btnComplectPallet";
             this.btnComplectPallet.Size = new System.Drawing.Size(232, 30);
             this.btnComplectPallet.TabIndex = 5;
             this.btnComplectPallet.TabStop = false;
             this.btnComplectPallet.Text = "Комплектация паллеты";
             this.btnComplectPallet.Visible = false;
+            this.btnComplectPallet.Click += new System.EventHandler(this.btnComplectPallet_Click);
             // 
             // btnCloseShift
             // 
@@ -128,7 +129,7 @@
             // btnCloseApp
             // 
             this.btnCloseApp.Font = new System.Drawing.Font("Tahoma", 14F, System.Drawing.FontStyle.Regular);
-            this.btnCloseApp.Location = new System.Drawing.Point(3, 218);
+            this.btnCloseApp.Location = new System.Drawing.Point(3, 249);
             this.btnCloseApp.Name = "btnCloseApp";
             this.btnCloseApp.Size = new System.Drawing.Size(232, 30);
             this.btnCloseApp.TabIndex = 9;

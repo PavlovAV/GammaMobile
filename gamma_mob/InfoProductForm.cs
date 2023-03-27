@@ -15,8 +15,9 @@ namespace gamma_mob
         {
             InitializeComponent();
             lblUserInfo.Text = "Логин: " + Settings.UserName + " (" + Shared.PersonName +")";
-            textBox1.Text = "БД ШК создана:" + Db.GetLocalDbBarcodesDateCreated().ToString(System.Globalization.CultureInfo.InvariantCulture);
-            textBox1.Text = textBox1.Text + Environment.NewLine + "Последнее обновление данных: " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodesMoscowTimeZone.ToString(CultureInfo.InvariantCulture)
+            textBox1.Text = "Версия: " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+            textBox1.Text += Environment.NewLine + "БД ШК создана: " + Db.GetLocalDbBarcodesDateCreated().ToString(System.Globalization.CultureInfo.InvariantCulture);
+            textBox1.Text += Environment.NewLine + "Последнее обновление данных: " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodesMoscowTimeZone.ToString(CultureInfo.InvariantCulture)
                 + Environment.NewLine + Shared.Barcodes1C.GetCountBarcodes
                 + Environment.NewLine + Environment.NewLine + Environment.NewLine 
                 + "Просканируйте \r\nштрих-код\r\nпродукции";

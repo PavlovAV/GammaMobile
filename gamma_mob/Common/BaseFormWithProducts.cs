@@ -11,75 +11,32 @@ using System.Drawing;
 
 namespace gamma_mob.Common
 {
-    public abstract class BaseFormWithProducts : BaseFormWithChooseNomenclatureCharacteristic
+    public abstract class BaseFormWithProducts : BaseFormWithBarcodeScan
     {        
         #region Panels
 
-        public System.Windows.Forms.TextBox edtNumber { get; private set; }
+/*        public System.Windows.Forms.TextBox edtNumber { get; private set; }
         private System.Windows.Forms.Button btnAddProduct;
         private System.Windows.Forms.PictureBox imgConnection;
         private System.Windows.Forms.Panel pnlSearch;
-
+*/
         private System.Windows.Forms.Label lblBufferCount;
         private System.Windows.Forms.Label lblCollected;
         private System.Windows.Forms.Label lblPercentBreak;
         private System.Windows.Forms.Panel pnlInfo;
         
-        public void ActivatePanels()
+        public override void ActivatePanels()
         {
-            ActivatePanelSearch();
+            base.ActivatePanels();
+            ActivatePanelInfo();
         }
 
-        public void ActivatePanels(List<int> pnlToolBar_ActivButtons)
+        public override void ActivatePanels(List<int> pnlToolBar_ActivButtons)
         {
-            ActivatePanelSearch();
+            base.ActivatePanels(pnlToolBar_ActivButtons);
             ActivatePanelInfo();
-            base.ActivateToolBar(pnlToolBar_ActivButtons);
         }
         
-        private void ActivatePanelSearch()
-        {
-            var pnlElementHeight = Shared.ToolBarHeight - 2;
-            edtNumber = new System.Windows.Forms.TextBox()
-            {
-                Location = new System.Drawing.Point(0, 1),
-                Name = "edtNumber",
-                Size = new System.Drawing.Size(127, pnlElementHeight),
-                TabIndex = 1
-            };
-            btnAddProduct = new System.Windows.Forms.Button()
-            {
-                Location = new System.Drawing.Point(133, 1),
-                Name = "btnAddProduct",
-                Size = new System.Drawing.Size(72, pnlElementHeight),
-                TabIndex = 2,
-                Text = "Добавить"
-            };
-            btnAddProduct.Click += new System.EventHandler(btnAddProduct_Click);
-            imgConnection = new System.Windows.Forms.PictureBox()
-            {
-                Location = new System.Drawing.Point(211, 1),
-                Name = "imgConnection",
-                Size = new System.Drawing.Size(pnlElementHeight, pnlElementHeight)
-            };
-            pnlSearch = new System.Windows.Forms.Panel()
-            {
-                Dock = System.Windows.Forms.DockStyle.Top,
-                Location = new System.Drawing.Point(0, Shared.ToolBarHeight),
-                Name = "pnlSearch",
-                Size = new System.Drawing.Size(638, Shared.ToolBarHeight)
-            };
-            pnlSearch.SuspendLayout();
-            SuspendLayout();
-            pnlSearch.Controls.Add(btnAddProduct);
-            pnlSearch.Controls.Add(imgConnection);
-            pnlSearch.Controls.Add(edtNumber);
-            this.Controls.Add(pnlSearch);
-            pnlSearch.ResumeLayout(false);
-            ResumeLayout(false);
-            var c = this;
-        }
-
         private void ActivatePanelInfo()
         {
             var pnlElementHeight = (int)(Shared.ToolBarHeight * 0.7) - 2;
@@ -184,7 +141,6 @@ namespace gamma_mob.Common
             }
         }
 
-
         #endregion
 
         #region Connection
@@ -225,7 +181,6 @@ namespace gamma_mob.Common
         protected override void FormLoad(object sender, EventArgs e)
         {
             base.FormLoad(sender, e);
-            BarcodeFunc = BarcodeReaction;
             //Подписка на событие восстановления связи
             ConnectionState.OnConnectionRestored += ConnectionRestored;//UnloadOfflineProducts;
             //Подписка на событие потери связи
@@ -253,7 +208,6 @@ namespace gamma_mob.Common
 
         protected override void FormActivated(object sender, EventArgs e)
         {
-            BarcodeFunc = BarcodeReaction;
             base.FormActivated(sender, e);
             RefreshCollected();
         }
@@ -310,11 +264,6 @@ namespace gamma_mob.Common
         /// <param name="fromBuffer">ШК из буфера невыгруженных</param>
         protected void AddProductByBarcode(string barcode, bool fromBuffer)
         {
-            if (barcode.Length < Shared.MinLengthProductBarcode)
-            {
-                Shared.ShowMessageError(@"Ошибка при сканировании ШК " + barcode + Environment.NewLine + @"Штрих-код должен быть длиннее 12 символов");
-            }
-            else
             {
                 {
                     Cursor.Current = Cursors.WaitCursor;
@@ -457,10 +406,9 @@ namespace gamma_mob.Common
 
         protected abstract bool CheckIsCreatePalletMovementFromBarcodeScan();
 
-        public void btnAddProduct_Click(object sender, EventArgs e)
+        protected override void ActionByBarcode(string barcode)
         {
-            Shared.SaveToLogInformation(@"Выбрано Добавить ШК: " + edtNumber.Text);
-            AddProductByBarcode(edtNumber.Text, false);
+            AddProductByBarcode(barcode, false);
         }
 
         /// <summary>
@@ -557,21 +505,7 @@ namespace gamma_mob.Common
             if (param != null)
                 AddProductByBarcode(param.barcode, param.endPointInfo, param.fromBuffer, param.getProductResult);
         }
-
-        protected void BarcodeReaction(string barcode)
-        {
-            Invoke((MethodInvoker)(() => edtNumber.Text = barcode));
-            if (this.InvokeRequired)
-            {
-                Invoke((MethodInvoker)delegate()
-                {
-                    this.btnAddProduct_Click(new object(), new EventArgs());
-                });
-            }
-            else
-                btnAddProduct_Click(new object(), new EventArgs());
-        }
-        
+                
         #endregion
     }
 }

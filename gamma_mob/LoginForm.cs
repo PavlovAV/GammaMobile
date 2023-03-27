@@ -121,9 +121,9 @@ namespace gamma_mob
             }
 #endif
 
-            //#if DEBUG
-//            AuthorizeByBarcode("00000000000056");
-//#endif
+#if DEBUG
+            AuthorizeByBarcode("00000000000057");
+#endif
         }
 
         protected override void OnFormClosing(object sender, CancelEventArgs e)
@@ -218,10 +218,12 @@ namespace gamma_mob
                 return;
             }
             Shared.IsFindBarcodeFromFirstLocalAndNextOnline = (person.b1 ?? false);
+            Shared.IsAvailabilityCreateNewPalletNotOnOrder = (person.b2 ?? false);
             if (person.UserName.Contains("0"))
             {
                using (var form = new ChooseShiftDialog())
                 {
+#if !DEBUG
                     DialogResult result = form.ShowDialog();
                     if (result != DialogResult.OK || form.ShiftId < 1)
                     {
@@ -230,10 +232,15 @@ namespace gamma_mob
                         ConnectionLost(@"Не указан номер смены." + Environment.NewLine + @"Попробуйте еще раз!");
                         return;
                     }
-
                     Settings.UserName = person.UserName.Replace("0", form.ShiftId.ToString());
                     Settings.Password = "123456";
                     Shared.ShiftId = form.ShiftId;
+#endif
+#if DEBUG
+                    Shared.ShiftId = 1;
+                    Settings.UserName = person.UserName.Replace("0", Shared.ShiftId.ToString());
+                    Settings.Password = "123456";
+#endif
                 }
             }
             else
@@ -270,6 +277,7 @@ namespace gamma_mob
 
             Shared.PersonId = person.PersonID;
             Shared.PersonName = person.Name;
+            Shared.PlaceId = person.PlaceID;
             Invoke(
                 (MethodInvoker)
                 (() => lblMessage.Text = "Вы авторизовались " + Environment.NewLine + "как " + person.Name + " (" + Settings.UserName + ")" +

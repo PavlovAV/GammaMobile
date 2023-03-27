@@ -7,7 +7,7 @@ using gamma_mob.Models;
 
 namespace gamma_mob
 {
-    public partial class PalletsForm : BaseForm
+    public partial class PalletsForm : BaseFormWithToolBar
     {
         private PalletsForm()
         {
@@ -16,17 +16,17 @@ namespace gamma_mob
             InitializeComponent();
         }
 
-        private PalletsForm(Form parentForm) : this()
+        public PalletsForm(Form parentForm) : this()
         {
             ParentForm = parentForm;
         }
 
         private BindingSource BSource { get; set; }
 
-        public PalletsForm(Form parentForm, Guid docOrderId) : this(parentForm)
+        public PalletsForm(Form parentForm, Guid docOrderId, DocDirection docDirection) : this(parentForm)
         {
             DocOrderId = docOrderId;
-            GetOrderPallets(docOrderId);
+            DocDirection = docDirection;
         }
 
         private void GetOrderPallets(Guid docOrderId)
@@ -44,11 +44,19 @@ namespace gamma_mob
             UIServices.SetNormalState(this);
         }
 
+        public void AddPalletToPallets(PalletListItem pallet)
+        {
+            if (Pallets != null)
+                Pallets.Add(pallet);
+        }
+
         private BindingList<PalletListItem> Pallets { get; set; }
 
         private Guid DocOrderId { get; set; }
 
-        private void tbrMain_ButtonClick(object sender, ToolBarButtonClickEventArgs e)
+        private DocDirection DocDirection { get; set; }
+
+/*        private void tbrMain_ButtonClick(object sender, ToolBarButtonClickEventArgs e)
         {
             switch (tbrMain.Buttons.IndexOf(e.Button))
             {
@@ -69,17 +77,24 @@ namespace gamma_mob
                     break;
             }
         }
-
+*/
         protected override void FormLoad(object sender, EventArgs e)
         {
             base.FormLoad(sender, e);
-            // установка иконок на кнопки
-            tbrMain.ImageList = ImgList;
-            btnBack.ImageIndex = (int)Images.Back;
-            btnRefresh.ImageIndex = (int)Images.Refresh;
-            btnAdd.ImageIndex = (int) Images.Add;
-            btnEdit.ImageIndex = (int) Images.Edit;
-            btnDelete.ImageIndex = (int) Images.Remove;
+            base.ActivateToolBar(new List<int>() { (int)Images.Back, (int)Images.Refresh, (int)Images.DocPlus, (int)Images.Edit, (int)Images.Remove, (int)Images.InfoProduct, (int)Images.RDP });
+
+            /*            // установка иконок на кнопки
+                        tbrMain.ImageList = ImgList;
+                        btnBack.ImageIndex = (int)Images.Back;
+                        btnRefresh.ImageIndex = (int)Images.Refresh;
+                        btnAdd.ImageIndex = (int) Images.Add;
+                        btnEdit.ImageIndex = (int) Images.Edit;
+                        btnDelete.ImageIndex = (int) Images.Remove;*/
+        }
+
+        private void PalletsForm_Load(object sender, EventArgs e)
+        {
+            GetOrderPallets(DocOrderId);
             // Оформление грида
             var tableStyle = new DataGridTableStyle { MappingName = BSource.GetListName(null) };
             tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
@@ -91,18 +106,25 @@ namespace gamma_mob
             {
                 HeaderText = "Дата",
                 MappingName = "Date",
-                Width = 80
+                Width = 60,
+                Format = "dd.MM.yy"
             });
             tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
             {
                 HeaderText = "Номер",
                 MappingName = "Number",
-                Width = 140
+                Width = 100
+            });
+            tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
+            {
+                HeaderText = "Создал",
+                MappingName = "Person",
+                Width = 60
             });
             gridPallets.TableStyles.Add(tableStyle);
         }
 
-        private void DeletePallet()
+        protected override void RemoveToolBarButton()
         {
             var pallet = Pallets[gridPallets.CurrentRowIndex];
             if (pallet == null) return;
@@ -120,33 +142,40 @@ namespace gamma_mob
 
         private void gridPallets_DoubleClick(object sender, EventArgs e)
         {
-            EditPallet();
+            EditToolBarButton();
         }
 
-        private void NewPallet()
+        protected override void NewToolBarButton()
         {
             var productId = Guid.NewGuid();
-            var result = Db.CreateNewPallet(productId, DocOrderId);
+            /*var result = Db.CreateNewPallet(productId, DocOrderId);
             if (!String.IsNullOrEmpty(result))
             {
                 Shared.ShowMessageError(result);
                 return;
-            }
+            }*/
             var pallet = new Pallet
                 {
                     DocOrderId = DocOrderId,
                     ProductId = productId,
+                    DocDirection = DocDirection,
+                    Number = String.Empty,
                     IsConfirmed = false,
                     Items = new List<DocNomenclatureItem>()
                 };
             OpenPallet(pallet);
         }
 
-        private void EditPallet()
+        protected override void EditToolBarButton()
         {
             if (!ConnectionState.CheckConnection())
             {
                 Shared.ShowMessageError(@"Нет связи с сервером" + Environment.NewLine + ConnectionState.GetConnectionState());
+                return;
+            }
+            if (gridPallets == null || gridPallets.CurrentRowIndex < 0)
+            {
+                Shared.ShowMessageError(@"Список паллет пуст. Создайте паллету.");
                 return;
             }
             var listItem = Pallets[gridPallets.CurrentRowIndex];
@@ -155,6 +184,8 @@ namespace gamma_mob
                 {
                     ProductId = listItem.ProductId,
                     DocOrderId = DocOrderId,
+                    DocDirection = DocDirection,
+                    Number = listItem.Number
                 };
             pallet.Items = Db.GetPalletItems(pallet.ProductId);
             OpenPallet(pallet);
@@ -176,6 +207,11 @@ namespace gamma_mob
                     Hide();
             }
             UIServices.SetNormalState(this);
+        }
+
+        protected override void RefreshToolBarButton()
+        {
+            GetOrderPallets(DocOrderId);
         }
         
     }

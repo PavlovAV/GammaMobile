@@ -1,4 +1,5 @@
-﻿namespace gamma_mob
+﻿using gamma_mob.Common;
+namespace gamma_mob
 {
     partial class DocInventarisationListForm
     {
@@ -35,7 +36,7 @@
             // 
             this.gridInventarisations.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
             this.gridInventarisations.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.gridInventarisations.Location = new System.Drawing.Point(0, 24);
+            this.gridInventarisations.Location = new System.Drawing.Point(0, Shared.ToolBarHeight);
             this.gridInventarisations.Name = "gridInventarisations";
             this.gridInventarisations.Size = new System.Drawing.Size(638, 431);
             this.gridInventarisations.TabIndex = 2;

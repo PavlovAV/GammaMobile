@@ -165,7 +165,7 @@ namespace gamma_mob
         protected override void FormLoad(object sender, EventArgs e)
         {
             base.FormLoad(sender, e);
-            base.ActivatePanels(new List<int>() { (int)Images.Back, (int)Images.Inspect, (int)Images.Refresh, (int)Images.UploadToDb, /*(int)Images.Pallet, */(int)Images.Question, (int)Images.InfoProduct });//, pnlToolBar_ButtonClick);
+            base.ActivatePanels(new List<int>() { (int)Images.Back, (int)Images.Inspect, (int)Images.Refresh, (int)Images.UploadToDb, (int)Images.Pallet, (int)Images.Question, (int)Images.InfoProduct });//, pnlToolBar_ButtonClick);
         }
 
         protected override void RefreshToolBarButton()
@@ -189,7 +189,7 @@ namespace gamma_mob
 
         protected override void PalletToolBarButton() 
         {
-            var form = new PalletsForm(this, DocId);
+            var form = new PalletsForm(this, DocId, DocDirection);
             if (!form.IsDisposed)
             {
                 BarcodeFunc = null;

@@ -15,6 +15,10 @@ namespace gamma_mob
         public MainForm()
         {
             InitializeComponent();
+            if (Shared.IsAvailabilityCreateNewPalletNotOnOrder)
+                btnComplectPallet.Visible = Shared.IsAvailabilityCreateNewPalletNotOnOrder;
+            else
+                btnCloseApp.Top = btnComplectPallet.Top;
             if (Shared.ShiftId > 0)
             {
                 //btnCloseShift.Visible = true;
@@ -409,6 +413,39 @@ namespace gamma_mob
                         if (docOrders != null && !docOrders.IsDisposed)
                         {
                             DialogResult result = docOrders.ShowDialog();
+                        }
+                        //docOrders.Show();
+                        //if (docOrders.Enabled)
+                        //    Hide();
+                        break;
+                }
+            }
+            else
+            {
+                Shared.ShowMessageError(@"Нет связи с БД. Повторите попытку в зоне покрытия WiFi" + Environment.NewLine + ConnectionState.GetConnectionState());
+            }
+            Cursor.Current = Cursors.Default;
+        }
+
+        private void btnComplectPallet_Click(object sender, EventArgs e)
+        {
+            Cursor.Current = Cursors.WaitCursor;
+            if (ConnectionState.CheckConnection())
+            {
+                switch (Db.CheckSqlConnection())
+                {
+                    case 2:
+                        Shared.ShowMessageError(@"Нет связи с БД. Повторите попытку в зоне покрытия WiFi" + Environment.NewLine + ConnectionState.GetConnectionState());
+                        break;
+                    case 1:
+                        WrongUserPass();
+                        break;
+                    default:
+                        var palletsForm = new PalletsForm(this);
+                        if (palletsForm != null && !palletsForm.IsDisposed)
+                        {
+                            BarcodeFunc = null;
+                            DialogResult result = palletsForm.ShowDialog();
                         }
                         //docOrders.Show();
                         //if (docOrders.Enabled)

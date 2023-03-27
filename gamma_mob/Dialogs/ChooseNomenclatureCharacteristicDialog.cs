@@ -271,7 +271,8 @@ namespace gamma_mob.Dialogs
                 }
                 Shared.SaveToLogInformation(@"Db.GetProductNomenclature return " + res.ToString() + @"(ChooseNomenclatureList.Count = " + ChooseNomenclatureList.Count);
             }
-            return ((res ?? Guid.Empty) == Guid.Empty ? false : ChooseNomenclatureList.Find(n => n.NomenclatureId == (Guid)res) != null);
+            var resFind = ChooseNomenclatureList.Find(n => n.NomenclatureId == (Guid)res);
+            return ((res ?? Guid.Empty) == Guid.Empty ? false : resFind != null);
             //var ret = ChooseNomenclatureList.Find(n => n.NomenclatureId == nomenclatureId) != null;
             //Shared.SaveToLogInformation(@"CheckNomenclatureInNomenclatureList return " + ret.ToString() + @"(ChooseNomenclatureList.Count = " + ChooseNomenclatureList.Count);
             //return ret;

@@ -202,11 +202,12 @@ namespace gamma_mob.Common
                                 }
                                 else
                                 {
-                                    if (Db.CheckWhetherProductCanBeWithdrawal(getFromProductResult.ProductId, form.Quantity))
+                                    var ret = Db.CheckWhetherProductCanBeWithdrawal(getFromProductResult.ProductId, form.Quantity);
+                                    if (ret == String.Empty)
                                         getFromProductResult.CountProducts = form.Quantity;
                                     else
                                     {
-                                        Shared.ShowMessageError(@"Ошибка! Недостаточно количества продукта в паллете для списания!");
+                                        Shared.ShowMessageError(ret);
                                         //return;
                                         Param = null;
                                     }

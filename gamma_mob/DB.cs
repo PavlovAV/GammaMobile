@@ -1376,10 +1376,12 @@ namespace gamma_mob
                         UserName = row["UserName"].ToString(),
                         b1 = row.IsNull("b1") ? (bool?)null : Convert.ToBoolean(row["b1"]),
                         b2 = row.IsNull("b2") ? (bool?)null : Convert.ToBoolean(row["b2"]),
+                        //b3 = row.IsNull("b3") ? (bool?)null : Convert.ToBoolean(row["b3"]),
                         i1 = row.IsNull("i1") ? (int?)null : Convert.ToInt32(row["i1"]),
                         i2 = row.IsNull("i2") ? (int?)null : (int?)Convert.ToInt32(row["i2"]),
                         s1 = row.IsNull("s1") ? null : row["s1"].ToString(),
-                        s2 = row.IsNull("s2") ? null : row["s2"].ToString()
+                        s2 = row.IsNull("s2") ? null : row["s2"].ToString(),
+                        PlaceID = Convert.ToInt32(row["PlaceID"])
                     };
                 }
             }
@@ -1425,6 +1427,57 @@ namespace gamma_mob
                     new SqlParameter("@IsMovementForOrder", SqlDbType.Bit)
                         {
                             Value = (bool) isMovementForOrder
+                        }
+                };
+            //DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure);
+            //return table;
+            using (DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure))
+            {
+                if (table != null && table.Rows.Count > 0)
+                {
+                    list = new BindingList<ProductBase>();
+                    foreach (DataRow row in table.Rows)
+                    {
+                        list.Add(new ProductBase
+                        {
+                            Number = row["Number"].ToString(),
+                            Barcode = row["BarCode"].ToString(),
+                            MovementId = row.IsNull("MovementID") ? Guid.Empty : new Guid(row["MovementID"].ToString()),
+                            Date = Convert.ToDateTime(row["Date"]),
+                            OutPlace = row["OutPlace"].ToString(),
+                            InPlace = row["InPlace"].ToString(),
+                            IsProductR = row.IsNull("IsProductR") ? false : Convert.ToBoolean(row["IsProductR"]),
+                            Quantity = row["Quantity"].ToString()
+                        });
+                    }
+                }
+            }
+
+            return list;
+        }
+
+        public static BindingList<ProductBase> PalletItemProducts(Guid productId, Guid nomenclatureId,
+                                                             Guid characteristicId, Guid qualityId)
+        {
+            BindingList<ProductBase> list = null;
+            const string sql = "[mob_GetPalletItemProducts]";
+            var parameters = new List<SqlParameter>
+                {
+                    new SqlParameter("@ProductID", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = productId
+                        },
+                    new SqlParameter("@NomenclatureID", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = nomenclatureId
+                        },
+                    new SqlParameter("@CharacteristicID", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = characteristicId
+                        },
+                    new SqlParameter("@QualityID", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = qualityId
                         }
                 };
             //DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure);
@@ -2046,6 +2099,47 @@ namespace gamma_mob
             return result;
         }
 
+        public static DbDeleteOperationProductResult DeleteProductItemFromPalletOnMovementID(Guid scanId)
+        {
+            DbDeleteOperationProductResult result = null;
+            const string sql = "dbo.[mob_DelProductFromPalletItemOnMovementID]";
+            var parameters = new List<SqlParameter>
+                {
+                    new SqlParameter("@MovementID", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = scanId
+                        }
+                };
+            using (DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure))
+            {
+                if (table != null && table.Rows.Count > 0)
+                {
+                    result = new DbDeleteOperationProductResult
+                    {
+                        AlreadyMadeChanges = Convert.ToBoolean(table.Rows[0]["AlreadyRemoved"]),
+                        ResultMessage = table.Rows[0]["ResultMessage"].ToString(),
+                        DocIsConfirmed = table.Rows[0].IsNull("IsConfirmed") ? false : Convert.ToBoolean(table.Rows[0]["IsConfirmed"]),
+                        ProductKindId = table.Rows[0].IsNull("ProductKindID") ? (int?)null : Convert.ToInt16(table.Rows[0]["ProductKindID"]),
+                        PlaceZoneId = table.Rows[0].IsNull("PlaceZoneID") ? new Guid() : new Guid(table.Rows[0]["PlaceZoneID"].ToString())
+                    };
+                    if (!table.Rows[0].IsNull("NomenclatureID"))
+                    {
+                        result.Product = new Product
+                        {
+                            ProductId = new Guid(table.Rows[0]["ProductID"].ToString()),
+                            NomenclatureId = new Guid(table.Rows[0]["NomenclatureID"].ToString()),
+                            CharacteristicId = new Guid(table.Rows[0]["CharacteristicID"].ToString()),
+                            QualityId = new Guid(table.Rows[0]["QualityID"].ToString()),
+                            Quantity = Convert.ToDecimal(table.Rows[0]["Quantity"]),
+                            NomenclatureName = table.Rows[0]["NomenclatureName"].ToString(),
+                            ShortNomenclatureName = table.Rows[0]["ShortNomenclatureName"].ToString()
+                        };
+                    }
+                }
+            }
+            return result;
+        }
+
         public static DbDeleteOperationProductResult DeleteProductFromInventarisationOnInvProductID(Guid scanId)
         {
             DbDeleteOperationProductResult result = null;
@@ -2388,7 +2482,7 @@ namespace gamma_mob
                         },
                     new SqlParameter("@InPlaceZoneID", SqlDbType.UniqueIdentifier)
                         {
-                            Value = endPointInfo.PlaceZoneId
+                            Value = endPointInfo != null && endPointInfo.PlaceZoneId != null ? (endPointInfo.PlaceZoneId as object) : DBNull.Value
                         }
                 };
             using (DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure))
@@ -3258,33 +3352,62 @@ namespace gamma_mob
         /// <summary>
         /// Добавление в паллету
         /// </summary>
-        /// <param name="barcode">шк номенклатуры</param>
+        /// <param name="scanId">id операции сканирования</param>
         /// <param name="productId">Id паллеты</param>
         /// <param name="docOrderId">id приказа</param>
-        /// <param name="quantity">Количество пачек</param>
+        /// <param name="getProductResult">номенклатура с количеством</param>
         /// <returns></returns>
-        internal static AddPalletItemResult AddItemToPallet(Guid productId, Guid docOrderId, string barcode, int quantity)
+        internal static AddPalletItemResult AddItemToPallet(Guid? scanId, Guid productId, Guid docOrderId, int? productKindId, Guid nomenclatureId, Guid characteristicId
+            , Guid qualityId, int quantity, Guid? fromProductId)
         {
             AddPalletItemResult result = null;
             const string sql = "dbo.mob_AddItemToPallet";
             var parameters = new List<SqlParameter>
                 {
-                    new SqlParameter("@DocOrderId", SqlDbType.UniqueIdentifier)
-                    {
-                        Value = docOrderId
-                    },
-                    new SqlParameter("@ProductId", SqlDbType.UniqueIdentifier)
-                    {
-                        Value = productId
-                    },
-                    new SqlParameter("@Barcode", SqlDbType.VarChar)
-                    {
-                        Value = barcode
-                    },
-                    new SqlParameter("@Quantity", SqlDbType.Int)
-                    {
-                        Value = quantity
-                    }
+                    new SqlParameter("@ScanID", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = (scanId as object) ?? DBNull.Value
+                        },
+                    new SqlParameter("@DocOrderID", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = docOrderId
+                        },
+                    new SqlParameter("@PersonID", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = Shared.PersonId
+                        },
+                    new SqlParameter("@ProductID", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = productId
+                        },
+                    new SqlParameter("@ProductKindID", SqlDbType.Int)
+                        {
+                            Value = productKindId
+                        },
+                    new SqlParameter("@NomenclatureID", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = nomenclatureId
+                        },
+                    new SqlParameter("@CharacteristicID", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = characteristicId
+                        },
+                    new SqlParameter("@QualityID", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = qualityId
+                        },
+                    new SqlParameter("@QuantityRos", SqlDbType.Int)
+                        {
+                            Value = quantity
+                        },
+                    new SqlParameter("@ShiftId", SqlDbType.TinyInt)
+                        {
+                            Value = Shared.ShiftId
+                        },
+                    new SqlParameter("@FromProductID", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = (fromProductId as object) ?? DBNull.Value
+                        }
                 };
             using (DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure))
             {
@@ -3346,21 +3469,16 @@ namespace gamma_mob
                 {
                     foreach (DataRow row in table.Rows)
                     {
-                        pallets.Add(new PalletListItem
-                            {
-                                ProductId = new Guid(row["ProductId"].ToString()),
-                                Date = Convert.ToDateTime(row["Date"]),
-                                Number = row["Number"].ToString()
-                            });
+                        pallets.Add(new PalletListItem(new Guid(row["ProductId"].ToString()), row["Number"].ToString(), Convert.ToDateTime(row["Date"]), row["PersonName"].ToString()));
                     }
                 }
             }
             return pallets;
         }
 
-        internal static string CreateNewPallet(Guid productId, Guid docOrderId)
+        internal static DbCreateNewPalletResult CreateNewPallet(Guid productId, Guid docOrderId, int placeId, Guid? placeZoneId)
         {
-            var result = "";
+            DbCreateNewPalletResult result = null;
             const string sql = "dbo.mob_CreateNewPallet";
             var parameters = new List<SqlParameter>
                 {
@@ -3371,13 +3489,47 @@ namespace gamma_mob
                     new SqlParameter("@DocOrderId", SqlDbType.UniqueIdentifier)
                         {
                             Value = docOrderId
+                        },
+                    new SqlParameter("@PlaceID", SqlDbType.Int)
+                        {
+                            Value = placeId,
+                        },
+                    new SqlParameter("@PlaceZoneID", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = placeZoneId,
+                        },
+                    new SqlParameter("@ShiftID", SqlDbType.TinyInt)
+                        {
+                            Value = Shared.ShiftId
+                        },
+                    new SqlParameter("@PersonID", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = Shared.PersonId
                         }
                 };
             using (DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure))
             {
-                if (table == null)
+                if (table != null && table.Rows.Count > 0)
                 {
-                    result = "Не удалось создать паллету, возможно была потеряна связь";
+                    result = new DbCreateNewPalletResult
+                    {
+                        ProductID = table.Rows[0].IsNull("ProductID") ? Guid.Empty : new Guid(table.Rows[0]["ProductID"].ToString()),
+                        Number = table.Rows[0].IsNull("ProductID") ? String.Empty : table.Rows[0]["Number"].ToString(),
+                        Date = table.Rows[0].IsNull("ProductID") ? (DateTime?)null : Convert.ToDateTime(table.Rows[0]["Date"]),
+                        Person = table.Rows[0].IsNull("ProductID") ? String.Empty : table.Rows[0]["PersonName"].ToString(),
+                        ResultMessage = table.Rows[0]["ResultMessage"].ToString()
+                    };
+                }
+                else
+                {
+                    result = new DbCreateNewPalletResult
+                    {
+                        ProductID = null,
+                        Number = String.Empty,
+                        Date = null,
+                        Person = String.Empty,
+                        ResultMessage = "Не удалось создать паллету, возможно была потеряна связь"
+                    };
                 }
             }
             return result;
@@ -3959,18 +4111,18 @@ namespace gamma_mob
         //    return Convert.ToInt32(command.ExecuteScalar());
         //}
 
-        public static bool CheckWhetherProductCanBeWithdrawal(Guid productID, int countWithdrawal)
+        public static string CheckWhetherProductCanBeWithdrawal(Guid productID, int countWithdrawal)
         {
             using (var command = new SqlCommand())
             {
-                bool checkResult = false;
+                string checkResult = String.Empty;
                 try
                 {
                     using (var connection = new SqlConnection(ConnectionString))
                     {
                         connection.Open();
                         command.Connection = connection;
-                        var sql = "SELECT dbo.CheckWhetherProductCanBeWithdrawal(@ProductID, @CountWithdrawal)";
+                        var sql = "SELECT dbo.CheckWhetherProductCanBeWithdrawalV1(@ProductID, @CountWithdrawal)";
                         command.CommandText = sql;
                         command.Parameters.Add(new SqlParameter("@ProductID", SqlDbType.UniqueIdentifier)
                                 {
@@ -3980,7 +4132,7 @@ namespace gamma_mob
                                 {
                                     Value = countWithdrawal
                                 });
-                        checkResult = Convert.ToBoolean(command.ExecuteScalar());
+                        checkResult = Convert.ToString(command.ExecuteScalar());
                         connection.Close();
                     }
                 }

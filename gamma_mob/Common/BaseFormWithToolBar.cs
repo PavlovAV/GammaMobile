@@ -64,6 +64,9 @@ namespace gamma_mob.Common
                 case (int)Images.DocPlus:
                     NewToolBarButton();
                     break;
+                case (int)Images.Add:
+                    AddToolBarButton();
+                    break;
                 case (int)Images.Edit:
                     EditToolBarButton();
                     break;
@@ -102,6 +105,8 @@ namespace gamma_mob.Common
 
         protected virtual void NewToolBarButton() { }
 
+        protected virtual void AddToolBarButton() { }
+        
         protected virtual void EditToolBarButton() { }
         
         protected virtual void RemoveToolBarButton() { }

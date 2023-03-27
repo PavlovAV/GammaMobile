@@ -54,6 +54,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\Program Files (x86)\Datalogic\SDK\DotNet\Datalogic.API.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Windowsce.Forms" />
     <Reference Include="mscorlib" />
     <Reference Include="OpenNETCF, Version=2.3.12317.0, Culture=neutral, PublicKeyToken=e60dbea84bb431b7, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -67,6 +68,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\SDF_Binaries\OpenNETCF.Windows.Forms.dll</HintPath>
     </Reference>
+    <Reference Include="Reader_Ce_Net, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.Configuration, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="System.Core" />
@@ -85,8 +87,14 @@
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="SystemApi_Ce_Net, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common\barcodereaderhelper.cs" />
+    <Compile Include="Common\BarcodeScannerCipherlab.cs" />
+    <Compile Include="Common\BaseFormWithBarcodeScan.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Common\BaseFormWithChooseEndpoint.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -96,12 +104,14 @@
     <Compile Include="Common\BaseFormWithToolBar.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Common\BarcodeScannerFalcon.cs" />
     <Compile Include="Common\ButtonIntId.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Common\BaseFormWithChooseNomenclatureCharacteristic.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Common\IBarcodeScanner.cs" />
     <Compile Include="Common\PanelToolBar.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -122,6 +132,7 @@
     <Compile Include="Common\DocProductsBaseForm.Designer.cs">
       <DependentUpon>DocProductsBaseForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Common\scancodeterminalid.cs" />
     <Compile Include="Dialogs\ChooseShiftDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -260,6 +271,7 @@
     <Compile Include="Models\Barcodes1C.cs" />
     <Compile Include="Models\CashedBarcodes.cs" />
     <Compile Include="Models\CashedBarcode.cs" />
+    <Compile Include="Models\DbCreateNewPalletResult.cs" />
     <Compile Include="Models\DbDeleteOperationProductResult.cs" />
     <Compile Include="Models\DbInventarisationOperationProductResult.cs" />
     <Compile Include="Models\DbOrderOperationProductResult.cs" />
@@ -288,6 +300,12 @@
     </Compile>
     <Compile Include="PalletForm.Designer.cs">
       <DependentUpon>PalletForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PalletItemProductsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PalletItemProductsForm.Designer.cs">
+      <DependentUpon>PalletItemProductsForm.cs</DependentUpon>
     </Compile>
     <Compile Include="PalletsForm.cs">
       <SubType>Form</SubType>

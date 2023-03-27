@@ -1,4 +1,5 @@
-﻿namespace gamma_mob
+﻿using gamma_mob.Common;
+namespace gamma_mob
 {
     partial class DocOrdersForm
     {
@@ -37,7 +38,7 @@
                         | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.gridDocShipmentOrders.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
-            this.gridDocShipmentOrders.Location = new System.Drawing.Point(0, 23);
+            this.gridDocShipmentOrders.Location = new System.Drawing.Point(0, Shared.ToolBarHeight);
             this.gridDocShipmentOrders.Name = "gridDocShipmentOrders";
             this.gridDocShipmentOrders.RowHeadersVisible = false;
             this.gridDocShipmentOrders.Size = new System.Drawing.Size(638, 432);

@@ -45,7 +45,7 @@ namespace gamma_mob
             gridPalletItems.DataSource = BSource;
         }
         
-        private Guid DocOrderId { get; set; }
+        private Guid? DocOrderId { get; set; }
 
         private DocDirection DocDirection { get; set; }
 

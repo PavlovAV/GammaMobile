@@ -59,6 +59,8 @@ namespace gamma_mob.Common
 
         public static bool IsAvailabilityCreateNewPalletNotOnOrder { get; set; }
 
+        public static bool IsAvailabilityChoiseNomenclatureForMovingGroupPack { get; set; }
+
         public static List<Warehouse> Warehouses
         {
             get

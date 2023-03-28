@@ -219,6 +219,7 @@ namespace gamma_mob
             }
             Shared.IsFindBarcodeFromFirstLocalAndNextOnline = (person.b1 ?? false);
             Shared.IsAvailabilityCreateNewPalletNotOnOrder = (person.b2 ?? false);
+            Shared.IsAvailabilityChoiseNomenclatureForMovingGroupPack = (person.b3 ?? false);
             if (person.UserName.Contains("0"))
             {
                using (var form = new ChooseShiftDialog())

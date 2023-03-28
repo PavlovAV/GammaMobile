@@ -1376,7 +1376,7 @@ namespace gamma_mob
                         UserName = row["UserName"].ToString(),
                         b1 = row.IsNull("b1") ? (bool?)null : Convert.ToBoolean(row["b1"]),
                         b2 = row.IsNull("b2") ? (bool?)null : Convert.ToBoolean(row["b2"]),
-                        //b3 = row.IsNull("b3") ? (bool?)null : Convert.ToBoolean(row["b3"]),
+                        b3 = row.IsNull("b3") ? (bool?)null : Convert.ToBoolean(row["b3"]),
                         i1 = row.IsNull("i1") ? (int?)null : Convert.ToInt32(row["i1"]),
                         i2 = row.IsNull("i2") ? (int?)null : (int?)Convert.ToInt32(row["i2"]),
                         s1 = row.IsNull("s1") ? null : row["s1"].ToString(),
@@ -3357,7 +3357,7 @@ namespace gamma_mob
         /// <param name="docOrderId">id приказа</param>
         /// <param name="getProductResult">номенклатура с количеством</param>
         /// <returns></returns>
-        internal static AddPalletItemResult AddItemToPallet(Guid? scanId, Guid productId, Guid docOrderId, int? productKindId, Guid nomenclatureId, Guid characteristicId
+        internal static AddPalletItemResult AddItemToPallet(Guid? scanId, Guid productId, Guid? docOrderId, int? productKindId, Guid nomenclatureId, Guid characteristicId
             , Guid qualityId, int quantity, Guid? fromProductId)
         {
             AddPalletItemResult result = null;
@@ -3370,7 +3370,7 @@ namespace gamma_mob
                         },
                     new SqlParameter("@DocOrderID", SqlDbType.UniqueIdentifier)
                         {
-                            Value = docOrderId
+                            Value = (docOrderId as object) ?? DBNull.Value
                         },
                     new SqlParameter("@PersonID", SqlDbType.UniqueIdentifier)
                         {
@@ -3452,15 +3452,19 @@ namespace gamma_mob
             return coefficient;
         }
 
-        internal static BindingList<PalletListItem> GetOrderPallets(Guid docOrderId)
+        internal static BindingList<PalletListItem> GetNewPalletsByPerson(Guid? docOrderId)
         {
             var pallets = new BindingList<PalletListItem>();
             const string sql = "dbo.mob_GetOrderPallets";
             var parameters = new List<SqlParameter>
                 {
+                    new SqlParameter("@PersonId", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = Shared.PersonId
+                        },
                     new SqlParameter("@DocOrderId", SqlDbType.UniqueIdentifier)
                         {
-                            Value = docOrderId
+                            Value = (docOrderId  as object) ?? DBNull.Value
                         }
                 };
             using (DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure))
@@ -3476,7 +3480,7 @@ namespace gamma_mob
             return pallets;
         }
 
-        internal static DbCreateNewPalletResult CreateNewPallet(Guid productId, Guid docOrderId, int placeId, Guid? placeZoneId)
+        internal static DbCreateNewPalletResult CreateNewPallet(Guid productId, Guid? docOrderId, int placeId, Guid? placeZoneId)
         {
             DbCreateNewPalletResult result = null;
             const string sql = "dbo.mob_CreateNewPallet";
@@ -3488,7 +3492,7 @@ namespace gamma_mob
                         },
                     new SqlParameter("@DocOrderId", SqlDbType.UniqueIdentifier)
                         {
-                            Value = docOrderId
+                            Value = (docOrderId as object) ?? DBNull.Value
                         },
                     new SqlParameter("@PlaceID", SqlDbType.Int)
                         {

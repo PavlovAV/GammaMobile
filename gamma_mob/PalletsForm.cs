@@ -23,16 +23,16 @@ namespace gamma_mob
 
         private BindingSource BSource { get; set; }
 
-        public PalletsForm(Form parentForm, Guid docOrderId, DocDirection docDirection) : this(parentForm)
+        public PalletsForm(Form parentForm, Guid? docOrderId, DocDirection docDirection) : this(parentForm)
         {
             DocOrderId = docOrderId;
             DocDirection = docDirection;
         }
 
-        private void GetOrderPallets(Guid docOrderId)
+        private void GetOrderPallets(Guid? docOrderId)
         {
             UIServices.SetBusyState(this);
-            Pallets = Db.GetOrderPallets(docOrderId);
+            Pallets = Db.GetNewPalletsByPerson(docOrderId);
             if (Pallets == null)
             {
                 Shared.ShowMessageError(@"Не удалось получить информацию о скомплектованных паллетах");
@@ -52,7 +52,7 @@ namespace gamma_mob
 
         private BindingList<PalletListItem> Pallets { get; set; }
 
-        private Guid DocOrderId { get; set; }
+        private Guid? DocOrderId { get; set; }
 
         private DocDirection DocDirection { get; set; }
 

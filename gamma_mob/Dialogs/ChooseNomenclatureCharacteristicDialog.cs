@@ -15,7 +15,7 @@ namespace gamma_mob.Dialogs
         public ChooseNomenclatureCharacteristicDialog()
         {
             InitializeComponent();
-            if (!Shared.IsScanGroupPackOnlyFromProduct)
+            if (!Shared.IsScanGroupPackOnlyFromProduct && Shared.IsAvailabilityChoiseNomenclatureForMovingGroupPack)
             {
                 gridChoose.Visible = true;
                 label4.Text = "Выберите номенклатуру или отсканируйте паллету, из которой упаковка/коробка, или зону стеллажа"; ;

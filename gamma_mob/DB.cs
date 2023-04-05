@@ -12,6 +12,7 @@ using System.IO;
 using System.Net;
 using OpenNETCF.Windows.Forms;
 using OpenNETCF.ComponentModel;
+//using CipherLab.SystemApi;
 
 namespace gamma_mob
 {
@@ -28,9 +29,22 @@ namespace gamma_mob
                 {
                     try
                     {
-                        _deviceName = Datalogic.API.Device.GetSerialNumber();
+                        if (Program.deviceName.Contains("CPT"))
+                        {
+                            int b1 = 0;
+                            DataType.DataStruct.SYSINFO sysInfo = new DataType.DataStruct.SYSINFO();
+                            b1 = SystemAPI.Function.GetSysInfo(ref sysInfo);
+                            _deviceName = sysInfo.SerialNum.ToString();
+                            /*
+                            Cipherlab.SystemAPI.Member.SysInfo sysInfo = new Cipherlab.SystemAPI.Member.SysInfo();
+                            b1 = Cipherlab.SystemAPI.Member.GetSysInfo(ref sysInfo);
+                            _deviceName = sysInfo.SerialNum;
+                            */ 
+                        }
+                        else
+                            _deviceName = Datalogic.API.Device.GetSerialNumber();
                     }
-                    catch
+                    catch (Exception e)
                     {
                         _deviceName = "Error";
                     }

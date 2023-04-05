@@ -38,8 +38,8 @@ namespace gamma_mob
             EndPointInfo = endPointInfo;
             if (endPointInfo.IsSettedDefaultPlaceZoneId)
             {
-                lblZoneName.Text = "Зона по умолчанию: " + EndPointInfo.PlaceZoneName;
-                lblZoneName.Visible = true;
+                lblZoneName.Text = "Зона: " + EndPointInfo.PlaceZoneName;
+                pnlZone.Visible = true;
             }
 
             Shared.SaveToLogInformation(@"EndPointInfo.PlaceId-" + EndPointInfo.PlaceId + @"; EndPointInfo.PlaceZoneId-" + EndPointInfo.PlaceZoneId);
@@ -292,6 +292,26 @@ namespace gamma_mob
                     Shared.SaveToLogInformation(@"Не удалось получить информацию о документе!" + Environment.NewLine + @"Попробуйте ещё раз обновить!", docId, null);
                 //Close();
                 return;
+            }
+        }
+
+        private void btnChangeZone_Click(object sender, EventArgs e)
+        {
+            using (var formPlaceZone = new ChooseEndPointDialog(EndPointInfo.PlaceId))
+            {
+                DialogResult resultPlaceZone = formPlaceZone.ShowDialog();
+                if (resultPlaceZone != DialogResult.OK)
+                {
+                    Shared.ShowMessageInformation(@"Не выбрана новая зона склада.");
+                    //endPointInfo.IsSettedDefaultPlaceZoneId = false;
+                }
+                else
+                {
+                    EndPointInfo = formPlaceZone.EndPointInfo;
+                    lblZoneName.Text = "Зона: " + EndPointInfo.PlaceZoneName;
+                    EndPointInfo.IsSettedDefaultPlaceZoneId = true;
+
+                }
             }
         }
     }

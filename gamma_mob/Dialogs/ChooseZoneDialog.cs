@@ -54,29 +54,34 @@ namespace gamma_mob.Dialogs
         private void ChooseZoneDialog_Load(object sender, EventArgs e)
         {
             var placeZones = Db.GetWarehousePlaceZones(PlaceId);
-            Height = 30 + placeZones.Count * 30;
-            Width = Screen.PrimaryScreen.WorkingArea.Width;
-            if (Height > Screen.PrimaryScreen.WorkingArea.Height) Height = Screen.PrimaryScreen.WorkingArea.Height;
-            Location = new Point(0, (Screen.PrimaryScreen.WorkingArea.Height - Height) / 2);
-            for (int i = 0; i < placeZones.Count; i++)
+            if (placeZones != null)
             {
-                var button = new ButtonGuidId(placeZones[i].PlaceZoneId);
-                button.Click += btnOK_Click;
-                /*button.Text = placeZones[i].Name;
-                button.Width = Convert.ToInt32(GraphFuncs.TextSize(placeZones[i].Name, button.Font).Width + 8);
-                button.Height = 30;
-                button.Left = (Width - button.Width) / 2;
-                button.Top = 2*(i+1) + 30 * i;
-                */
-                button.Font = new Font("Tahoma", 10, FontStyle.Regular);
-                button.Text = placeZones[i].Name.Length <= 11 ? placeZones[i].Name : (placeZones[i].Name.Substring(0, 11).Substring(10,1) == " " ? placeZones[i].Name.Substring(0, 10) : placeZones[i].Name.Substring(0, 11)) + Environment.NewLine + placeZones[i].Name.Substring(11, Math.Min(11, placeZones[i].Name.Length - 11));
-                button.Width = (Width - 5 - 20) / 2;
-                button.Height = 32;
-                button.Left = 5 + (button.Width + 6) * (i % 2);
-                button.Top = 2 + 33 * Convert.ToInt32(Math.Floor(i / 2));
-                Shared.MakeButtonMultiline(button);
-                Controls.Add(button);
+                Height = 30 + placeZones.Count * 30;
+                Width = Screen.PrimaryScreen.WorkingArea.Width;
+                if (Height > Screen.PrimaryScreen.WorkingArea.Height) Height = Screen.PrimaryScreen.WorkingArea.Height;
+                Location = new Point(0, (Screen.PrimaryScreen.WorkingArea.Height - Height) / 2);
+                for (int i = 0; i < placeZones.Count; i++)
+                {
+                    var button = new ButtonGuidId(placeZones[i].PlaceZoneId);
+                    button.Click += btnOK_Click;
+                    /*button.Text = placeZones[i].Name;
+                    button.Width = Convert.ToInt32(GraphFuncs.TextSize(placeZones[i].Name, button.Font).Width + 8);
+                    button.Height = 30;
+                    button.Left = (Width - button.Width) / 2;
+                    button.Top = 2*(i+1) + 30 * i;
+                    */
+                    button.Font = new Font("Tahoma", 10, FontStyle.Regular);
+                    button.Text = placeZones[i].Name.Length <= 11 ? placeZones[i].Name : (placeZones[i].Name.Substring(0, 11).Substring(10, 1) == " " ? placeZones[i].Name.Substring(0, 10) : placeZones[i].Name.Substring(0, 11)) + Environment.NewLine + placeZones[i].Name.Substring(11, Math.Min(11, placeZones[i].Name.Length - 11));
+                    button.Width = (Width - 5 - 20) / 2;
+                    button.Height = 32;
+                    button.Left = 5 + (button.Width + 6) * (i % 2);
+                    button.Top = 2 + 33 * Convert.ToInt32(Math.Floor(i / 2));
+                    Shared.MakeButtonMultiline(button);
+                    Controls.Add(button);
+                }
             }
+            else
+                Shared.ShowMessageError(@"Внимание! Ошибка при обновлении зон склада." + Environment.NewLine + @"Попробуйте еще раз.");
         }
 
         private void btnOK_Click(object sender, EventArgs e)

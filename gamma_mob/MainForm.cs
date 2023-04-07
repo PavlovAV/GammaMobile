@@ -270,7 +270,7 @@ namespace gamma_mob
                                     else
                                     {
                                         var resultMessage = Db.CloseShiftWarehouse(Shared.PersonId, Shared.ShiftId);
-                                        if (Shared.LastQueryCompleted == false)
+                                        if (Shared.LastQueryCompleted == false || resultMessage == null)
                                         {
                                             Shared.ShowMessageError(@"Смена не закрыта!" + Environment.NewLine + @"Произошла ошибка." + Environment.NewLine + @"Попробуйте снова.");
                                             return;

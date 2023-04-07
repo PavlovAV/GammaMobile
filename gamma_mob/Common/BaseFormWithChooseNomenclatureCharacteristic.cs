@@ -194,7 +194,7 @@ namespace gamma_mob.Common
                             {
                                 DialogResult result = form.ShowDialog();
                                 Invoke((MethodInvoker)Activate);
-                                if (result != DialogResult.OK || form.Quantity == null)
+                                if (result != DialogResult.OK || form.Quantity == 0)
                                 {
                                     Shared.ShowMessageError(@"Не указано количество продукта. Продукт не добавлен!");
                                     //return;

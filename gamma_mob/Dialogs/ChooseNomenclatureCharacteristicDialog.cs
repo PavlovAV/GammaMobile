@@ -19,13 +19,12 @@ namespace gamma_mob.Dialogs
             {
                 gridChoose.Visible = true;
                 label4.Text = "Выберите номенклатуру или отсканируйте паллету, из которой упаковка/коробка, или зону стеллажа"; ;
-                btnOK.Visible = true;
             }
             else
             {
                 gridChoose.Visible = false;
                 label4.Text = "Отсканируйте паллету, из которой упаковка/коробка, или зону стеллажа"; ;
-                btnOK.Visible = false;
+                btnOK.Text = "Отмена";
             }
         }
 
@@ -34,31 +33,6 @@ namespace gamma_mob.Dialogs
         {
             Barcode = barcode;
             Shared.SaveToLogInformation("Open ChooseNomenclatureCharacteristicDialog ('" + barcode + "')");
-            /*
-            List<ChooseNomenclatureItem> list = Shared.Barcodes1C.GetNomenclaturesFromBarcodeInBarcodes(barcode);
-            ChooseNomenclatureList = list;
-            if (BSource == null)
-                BSource = new BindingSource { DataSource = ChooseNomenclatureList };
-            else
-            {
-                BSource.DataSource = ChooseNomenclatureList;
-            }
-            gridChoose.DataSource = BSource;
-
-            var tableStyle = new DataGridTableStyle { MappingName = BSource.GetListName(null) };
-            var columnStyle = new DataGridTextBoxColumn();  
-            columnStyle.HeaderText = "Наименование";
-            columnStyle.MappingName = "Name";
-            columnStyle.Width = 200;
-            tableStyle.GridColumnStyles.Add(columnStyle);
-            gridChoose.TableStyles.Add(tableStyle);
-            //columnStyle.TextBox.Multiline=true;
-            //columnStyle.TextBox.WordWrap = true;
-
-            for (int i = 0; i < gridChoose.BindingContext[gridChoose.DataSource].Count; i++)
-            {
-                SetGridRowHeight(gridChoose, i, (int)gridChoose.Font.Size*3*3);
-            }*/
         }
 
         public ChooseNomenclatureCharacteristicDialog(string barcode, Form parentForm)
@@ -123,7 +97,7 @@ namespace gamma_mob.Dialogs
         private bool setNomenclaturId()
         {
             var good = ChooseNomenclatureList[gridChoose.CurrentRowIndex];
-            if (good == null)
+            if (good == null || gridChoose.Visible == false)
             {
                 return false; 
             }
@@ -139,7 +113,7 @@ namespace gamma_mob.Dialogs
             {
                 DialogResult result = form.ShowDialog();
                 Invoke((MethodInvoker)Activate);
-                if (result != DialogResult.OK || form.Quantity == null)
+                if (result != DialogResult.OK || form.Quantity == 0)
                 {
                     Shared.ShowMessageInformation(@"Не указано количество продукта. Продукт не добавлен!");
                     return false;
@@ -181,25 +155,6 @@ namespace gamma_mob.Dialogs
                 Close();
                 return;
             }
-            /*
-            if (EndPointInfo == null || EndPointInfo.PlaceId == null)
-            {
-                if (!CreatePlaceButtons())
-                {
-                    DialogResult = DialogResult.Abort;
-                    Close();
-                    return;
-                }
-            }
-            else
-            {
-                if (!SetNomenclatureCharacteristicId(EndPointInfo))
-                {
-                    DialogResult = DialogResult.Abort;
-                    Close();
-                    return;
-                }
-            }*/
         }
 
         protected override void OnFormClosing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -261,7 +216,10 @@ namespace gamma_mob.Dialogs
         {
             Guid? res = Db.GetProductNomenclature(productId);
             if ((res ?? Guid.Empty) == Guid.Empty)
+            {
                 Shared.SaveToLogError(@"Db.GetProductNomenclature is null", null, productId);
+                return false;
+            }
             else
             {
                 if (ChooseNomenclatureList == null || ChooseNomenclatureList.Count == 0)
@@ -272,12 +230,10 @@ namespace gamma_mob.Dialogs
                     });
                 }
                 Shared.SaveToLogInformation(@"Db.GetProductNomenclature return " + res.ToString() + @"(ChooseNomenclatureList.Count = " + ChooseNomenclatureList.Count);
+
+                var resFind = ChooseNomenclatureList.Find(n => n.NomenclatureId == (Guid)res);
+                return resFind != null;
             }
-            var resFind = ChooseNomenclatureList.Find(n => n.NomenclatureId == (Guid)res);
-            return ((res ?? Guid.Empty) == Guid.Empty ? false : resFind != null);
-            //var ret = ChooseNomenclatureList.Find(n => n.NomenclatureId == nomenclatureId) != null;
-            //Shared.SaveToLogInformation(@"CheckNomenclatureInNomenclatureList return " + ret.ToString() + @"(ChooseNomenclatureList.Count = " + ChooseNomenclatureList.Count);
-            //return ret;
         }
 
         public void btnAddBarcode_Click(object sender, EventArgs e)

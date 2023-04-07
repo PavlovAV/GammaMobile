@@ -115,7 +115,7 @@
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "ChooseNomenclatureCharacteristicDialog";
-            this.Text = "Ввод количества";
+            this.Text = "Выбор паллеты-донора";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.panel1.ResumeLayout(false);
             this.pnlBarcode.ResumeLayout(false);

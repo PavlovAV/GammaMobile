@@ -31,6 +31,7 @@
             this.lblCount = new System.Windows.Forms.Label();
             this.edtQuantity = new System.Windows.Forms.NumericUpDown();
             this.btnOK = new System.Windows.Forms.Button();
+            this.btnCancel = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // lblCount
@@ -57,19 +58,29 @@
             // 
             // btnOK
             // 
-            this.btnOK.Location = new System.Drawing.Point(69, 89);
+            this.btnOK.Location = new System.Drawing.Point(13, 102);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(100, 35);
             this.btnOK.TabIndex = 3;
             this.btnOK.Text = "OK";
             this.btnOK.Click += new System.EventHandler(this.btnOK_Click);
             // 
+            // btnCancel
+            // 
+            this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.btnCancel.Location = new System.Drawing.Point(124, 102);
+            this.btnCancel.Name = "btnCancel";
+            this.btnCancel.Size = new System.Drawing.Size(100, 35);
+            this.btnCancel.TabIndex = 5;
+            this.btnCancel.Text = "Отмена";
+            // 
             // SetCountProductsDialog
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.AutoScroll = true;
-            this.ClientSize = new System.Drawing.Size(238, 132);
+            this.ClientSize = new System.Drawing.Size(238, 146);
+            this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnOK);
             this.Controls.Add(this.edtQuantity);
             this.Controls.Add(this.lblCount);
@@ -85,5 +96,6 @@
         private System.Windows.Forms.Label lblCount;
         private System.Windows.Forms.NumericUpDown edtQuantity;
         private System.Windows.Forms.Button btnOK;
+        private System.Windows.Forms.Button btnCancel;
     }
 }

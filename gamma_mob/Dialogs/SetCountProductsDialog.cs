@@ -9,7 +9,7 @@ namespace gamma_mob.Dialogs
         public SetCountProductsDialog()
         {
             InitializeComponent();
-            edtQuantity.Minimum = Convert.ToDecimal(0.001);
+            edtQuantity.Minimum = 1;
             Shared.SaveToLogInformation("Open SetCountProductsDialog");
         }
 

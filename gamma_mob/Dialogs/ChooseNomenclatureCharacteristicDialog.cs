@@ -33,6 +33,7 @@ namespace gamma_mob.Dialogs
             : this()
         {
             Barcode = barcode;
+            Shared.SaveToLogInformation("Open ChooseNomenclatureCharacteristicDialog ('" + barcode + "')");
             /*
             List<ChooseNomenclatureItem> list = Shared.Barcodes1C.GetNomenclaturesFromBarcodeInBarcodes(barcode);
             ChooseNomenclatureList = list;
@@ -64,6 +65,7 @@ namespace gamma_mob.Dialogs
             : this(barcode)
         {
             ParentForm = parentForm;
+            Shared.SaveToLogInformation("Open ChooseNomenclatureCharacteristicDialog (barcode, '" + parentForm.Name + "')");
         }
 
         public void SetGridRowHeight(DataGrid dg, int nRow, int cy)

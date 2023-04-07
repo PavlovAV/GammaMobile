@@ -204,7 +204,10 @@ namespace gamma_mob.Common
                                 {
                                     var ret = Db.CheckWhetherProductCanBeWithdrawal(getFromProductResult.ProductId, form.Quantity);
                                     if (ret == String.Empty)
+                                    {
                                         getFromProductResult.CountProducts = form.Quantity;
+                                        Shared.SaveToLogInformation(@"Установлено кол-во " + form.Quantity);
+                                    }
                                     else
                                     {
                                         Shared.ShowMessageError(ret);

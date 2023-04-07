@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
+using gamma_mob.Common;
 
 namespace gamma_mob.Dialogs
 {
@@ -8,20 +9,30 @@ namespace gamma_mob.Dialogs
         public SetCountProductsDialog()
         {
             InitializeComponent();
-            //lblCount.Text = "Укажите количество" + MaxCount != null ? " (максимально " + MaxCount + ")" : "";
+            edtQuantity.Minimum = Convert.ToDecimal(0.001);
+            Shared.SaveToLogInformation("Open SetCountProductsDialog");
         }
 
-        public SetCountProductsDialog(string maxCount)
+        public SetCountProductsDialog(int maxCount, string measure)
+            : this(maxCount.ToString() + " " + measure)
+        {
+            edtQuantity.Maximum = Convert.ToDecimal(maxCount);
+        }
+
+        public SetCountProductsDialog(decimal? maxCount, string measure)
+            : this(Convert.ToDecimal(maxCount).ToString("0.###") + " " + measure)
+        {
+            edtQuantity.Maximum = maxCount ?? 0;
+        }
+        
+        private SetCountProductsDialog(string maxCount)
             : this()
         {
-            lblCount.Text = "Укажите количество" + " (максимально " + (maxCount.Length == 0  ? "(null)" : Convert.ToDecimal(maxCount).ToString("0.###")) + ")";
-            MaxCount = maxCount;
-            edtQuantity.Maximum = maxCount.Length == 0 ? 0 : Convert.ToDecimal(maxCount);
+            lblCount.Text = "Укажите количество" + " (максимально " + maxCount + ")";
+            Shared.SaveToLogInformation("Open SetCountProductsDialog ('" + maxCount + "')");
         }
 
         public int Quantity { get; set; }
-
-        private string MaxCount { get; set; }
 
         private void btnOK_Click(object sender, EventArgs e)
         {

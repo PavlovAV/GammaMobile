@@ -33,6 +33,11 @@ namespace gamma_mob
             DocDirection = pallet.DocDirection;
             Number = pallet.Number;
             Text = "Паллета " + Number;
+            if (Program.deviceName.Contains("CPT"))
+            {
+                lblPallet.Text = Text;
+                lblPallet.Visible = true;
+            }
             var list = pallet.Items;
             if (Shared.LastQueryCompleted == false || list == null)
             {

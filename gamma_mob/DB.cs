@@ -32,14 +32,10 @@ namespace gamma_mob
                         if (Program.deviceName.Contains("CPT"))
                         {
                             int b1 = 0;
-                            DataType.DataStruct.SYSINFO sysInfo = new DataType.DataStruct.SYSINFO();
-                            b1 = SystemAPI.Function.GetSysInfo(ref sysInfo);
-                            _deviceName = sysInfo.SerialNum.ToString();
-                            /*
                             Cipherlab.SystemAPI.Member.SysInfo sysInfo = new Cipherlab.SystemAPI.Member.SysInfo();
                             b1 = Cipherlab.SystemAPI.Member.GetSysInfo(ref sysInfo);
                             _deviceName = sysInfo.SerialNum;
-                            */ 
+                             
                         }
                         else
                             _deviceName = Datalogic.API.Device.GetSerialNumber();

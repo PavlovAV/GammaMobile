@@ -29,16 +29,7 @@ namespace gamma_mob
                 {
                     try
                     {
-                        if (Program.deviceName.Contains("CPT"))
-                        {
-                            int b1 = 0;
-                            Cipherlab.SystemAPI.Member.SysInfo sysInfo = new Cipherlab.SystemAPI.Member.SysInfo();
-                            b1 = Cipherlab.SystemAPI.Member.GetSysInfo(ref sysInfo);
-                            _deviceName = sysInfo.SerialNum;
-                             
-                        }
-                        else
-                            _deviceName = Datalogic.API.Device.GetSerialNumber();
+                        _deviceName = Shared.Device.GetDeviceName();
                     }
                     catch (Exception e)
                     {
@@ -58,10 +49,7 @@ namespace gamma_mob
                 {
                     try
                     {
-                        IPHostEntry ipEntry = Dns.GetHostByName(Dns.GetHostName());
-                        IPAddress[] addr = ipEntry.AddressList;
-
-                        _deviceIP = addr[0].ToString();
+                        _deviceIP = Shared.Device.GetDeviceIP();
                     }
                     catch
                     {
@@ -3348,7 +3336,7 @@ namespace gamma_mob
                                   select new DocNomenclatureItem
                                       {
                                           NomenclatureId = new Guid(row["NomenclatureId"].ToString()),
-                                          CharacteristicId = new Guid(row["CharacteristicId"].ToString()),
+                                          CharacteristicId = row.IsNull("CharacteristicId") ? Guid.Empty : new Guid(row["CharacteristicId"].ToString()),
                                           QualityId = new Guid(row["QualityId"].ToString()),
                                           CollectedQuantity = Convert.ToInt32(row["Quantity"]), 
                                           ShortNomenclatureName = row["ShortNomenclatureName"].ToString(), 
@@ -3430,7 +3418,7 @@ namespace gamma_mob
                     if (!table.Rows[0].IsNull("NomenclatureId"))
                     {
                         result.NomenclatureId = new Guid(table.Rows[0]["NomenclatureId"].ToString());
-                        result.CharacteristicId = new Guid(table.Rows[0]["CharacteristicId"].ToString());
+                        result.CharacteristicId = table.Rows[0].IsNull("CharacteristicId") ? Guid.Empty : new Guid(table.Rows[0]["CharacteristicId"].ToString());
                         result.QualityId = new Guid(table.Rows[0]["QualityId"].ToString());
                         result.NomenclatureName = table.Rows[0]["NomenclatureName"].ToString();
                         result.ShortNomenclatureName = table.Rows[0]["ShortNomenclatureName"].ToString();

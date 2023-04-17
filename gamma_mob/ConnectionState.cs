@@ -3,7 +3,6 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text.RegularExpressions;
 using System.Threading;
-using Datalogic.API;
 using OpenNETCF.Net.NetworkInformation;
 using gamma_mob.Common;
 using System.Data.SqlClient;
@@ -109,12 +108,7 @@ namespace gamma_mob
 #if DEBUG
            return true;
 #endif
-           if (Program.deviceName.Contains("CPT"))
-           {
-               IsConnected = true;
-               return true;
-           }
-           if (!Device.GetWiFiPowerStatus())
+           if (!Shared.Device.GetWiFiPowerStatus())
             {
                 IsConnected = false; 
                 return false;
@@ -122,9 +116,9 @@ namespace gamma_mob
             else
             {
                 uint quality;
-                if (Device.WiFiGetSignalQuality(out quality))
+                if (Shared.Device.WiFiGetSignalQuality(out quality))
                 {
-                    if (quality < 8)
+                    if (quality < 24)
                     {
                         stateConnection = @"Низкий уровень сигнала";
                         IsConnected = false;

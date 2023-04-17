@@ -20,7 +20,7 @@
     </FormFactorID>
     <StartupObject>gamma_mob.Program</StartupObject>
     <ApplicationIcon>Pixture-Ware-House-PalletTruck.ico</ApplicationIcon>
-    <SignAssembly>true</SignAssembly>
+    <SignAssembly>false</SignAssembly>
     <AssemblyOriginatorKeyFile>sn.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -68,7 +68,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\SDF_Binaries\OpenNETCF.Windows.Forms.dll</HintPath>
     </Reference>
-    <Reference Include="Reader_Ce_Net, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL" />
+    <Reference Include="ReaderDllMobile_Net, Version=0.0.0.2, Culture=neutral, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.Configuration, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="System.Core" />
@@ -87,7 +87,7 @@
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="SystemApi_Ce_Net, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL" />
+    <Reference Include="SystemMobile_Net, Version=1.0.0.5, Culture=neutral, processorArchitecture=MSIL" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Common\barcodereaderhelper.cs" />
@@ -111,7 +111,10 @@
     <Compile Include="Common\BaseFormWithChooseNomenclatureCharacteristic.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Common\DeviceCipherlab.cs" />
+    <Compile Include="Common\DeviceDatalogic.cs" />
     <Compile Include="Common\IBarcodeScanner.cs" />
+    <Compile Include="Common\IDevice.cs" />
     <Compile Include="Common\PanelToolBar.cs">
       <SubType>Component</SubType>
     </Compile>

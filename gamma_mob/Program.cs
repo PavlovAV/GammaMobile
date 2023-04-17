@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
 using System.Threading;
-using Datalogic.API;
 using OpenNETCF.Threading;
 using OpenNETCF.Windows.Forms;
 using gamma_mob.Common;
@@ -26,11 +25,6 @@ namespace gamma_mob
             bool isNew;
             _mutex = new NamedMutex(false, "gammamob", out isNew);
             if (!isNew) return;
-            if (deviceName.Contains("Falcon"))
-            {
-                Decode.SetWedge(WedgeType.Barcode, false);
-            }
-
             var loginForm = new LoginForm();
             if (loginForm.ShowDialog() == DialogResult.OK)
             {

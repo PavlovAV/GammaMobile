@@ -8,7 +8,6 @@ using gamma_mob.Common;
 using gamma_mob.Models;
 using System.IO;
 using System.Reflection;
-using Datalogic.API;
 using OpenNETCF.Net.NetworkInformation;
 using Microsoft.Win32;
 using System.Net;
@@ -24,24 +23,6 @@ namespace gamma_mob
         public LoginForm()
         {
             InitializeComponent();
-
-           
-
-            //if (!ConnectionState.CheckConnection()) return;
-            ///*if (Db.CheckSqlConnection() != 1) return;
-            //WrongUserPass();
-            // * */
-            //switch (Db.CheckSqlConnection())
-            //{
-            //    case 2:
-            //        ConnectionError();
-            //        return;
-            //    case 1:
-            //        WrongUserPass();
-            //        return;
-            //}
-
-
         }
 
         private string barcode;
@@ -61,7 +42,7 @@ namespace gamma_mob
             try
             {
                 Shared.SaveToLogStartProgramInformation(@"Version " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version);
-                Shared.SaveToLogStartProgramInformation(@"Model " + Datalogic.API.Device.GetModel().ToString());
+                Shared.SaveToLogStartProgramInformation(@"Model " + Shared.Device.GetModel());
                 var strHostName = Dns.GetHostName();
                 Shared.SaveToLogStartProgramInformation(@"HostName " + strHostName);
 
@@ -85,12 +66,12 @@ namespace gamma_mob
                 }
                 Shared.SaveToLogStartProgramInformation(@"DbBarcodes created:" + Db.GetLocalDbBarcodesDateCreated().ToString(System.Globalization.CultureInfo.InvariantCulture));
                 Shared.UpdateBatterySerialumber();
-                var batterySuspendTimeout = Device.GetBatterySuspendTimeout();
+                var batterySuspendTimeout = Shared.Device.GetBatterySuspendTimeout();
                 Shared.SaveToLogStartProgramInformation(@"BatterySuspendTimeout " + batterySuspendTimeout.ToString());
-                Shared.SaveToLogStartProgramInformation(@"BatteryLevel " + Device.GetBatteryLevel().ToString());
-                Shared.SaveToLogStartProgramInformation(@"WiFiPowerStatus " + Device.GetWiFiPowerStatus().ToString());
+                Shared.SaveToLogStartProgramInformation(@"BatteryLevel " + Shared.Device.GetBatteryLevel().ToString());
+                Shared.SaveToLogStartProgramInformation(@"WiFiPowerStatus " + Shared.Device.GetWiFiPowerStatus().ToString());
                 if (batterySuspendTimeout != 600)
-                    Shared.SaveToLogStartProgramInformation(@"SetBatterySuspendTimeout(600) " + Device.SetBatterySuspendTimeout(600).ToString());
+                    Shared.SaveToLogStartProgramInformation(@"SetBatterySuspendTimeout(600) " + Shared.Device.SetBatterySuspendTimeout(600).ToString());
                 
                 UInt64 userFreeBytes, totalDiskBytes, totalFreeBytesExecutable, totalFreeBytesUpdatable;
                 GetDiskFreeSpaceEx(@"\", out userFreeBytes, out totalDiskBytes, out totalFreeBytesExecutable);
@@ -122,7 +103,7 @@ namespace gamma_mob
 #endif
 
 #if DEBUG
-            AuthorizeByBarcode("00000000000057");
+            AuthorizeByBarcode("00000000000048");
 #endif
         }
 
@@ -462,13 +443,13 @@ namespace gamma_mob
 
         private void btnTestWiFi_Click(object sender, EventArgs e)
         {
-            if (Device.GetWiFiPowerStatus())
+            if (Shared.Device.GetWiFiPowerStatus())
             {
                 uint quality;
-                if (Device.WiFiGetSignalQuality(out quality))
+                if (Shared.Device.WiFiGetSignalQuality(out quality))
                 {
                     lblMessage.Text = "WiFi уровень сигнала " + quality.ToString();
-                    if (quality < 3)
+                    if (quality < 10)
                     {
                         lblMessage.Text = lblMessage.Text + " (низкий)";
                     }

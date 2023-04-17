@@ -56,7 +56,11 @@ namespace Scancode
 			ms_terminalModel=TerminalID.Model;
 			ms_terminalPlatform=TerminalID.Platform;
 			
-			if (ms_terminalModel == TerminalModel.CL_CP55 || ms_terminalModel == TerminalModel.CL_CP60 || ms_terminalModel == TerminalModel.CL_9700)
+			if (ms_terminalModel == TerminalModel.CL_9700)
+            {
+                ms_uDecodeMsg = 49174;
+            }
+            else if (ms_terminalModel == TerminalModel.CL_CP55 || ms_terminalModel == TerminalModel.CL_CP60) // || ms_terminalModel == TerminalModel.CL_9700)
             {
                 ms_uDecodeMsg = Win32API.WM_USER + 20; //WM_USER + 20
             }
@@ -80,7 +84,7 @@ namespace Scancode
 		protected override void WndProc(ref Microsoft.WindowsCE.Forms.Message msg)
 		{
 			if(ms_uDecodeMsg!=0 &&
-				msg.Msg==ms_uDecodeMsg &&
+                msg.Msg == ms_uDecodeMsg &&
 				msg.WParam.ToInt32()==7 // 7 - DC_READER_BC
 				) {
 				int barcodeTypeID;
@@ -1834,7 +1838,7 @@ namespace Scancode
 	/// </summary>
 	internal class Win32API
 	{
-        internal const uint WM_USER = 0;
+        internal const uint WM_USER = 0x0400;
 		/// <summary>
 		/// Константа Win32 API
 		/// </summary>

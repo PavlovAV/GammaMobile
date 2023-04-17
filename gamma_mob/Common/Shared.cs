@@ -18,10 +18,26 @@ namespace gamma_mob.Common
     public class Shared
     {
         private static List<Warehouse> _warehouses;
-
+        
         static Shared()
         {
             LoadImages();
+        }
+
+        private static IDevice _device { get; set; }
+        public static IDevice Device
+        {
+            get
+            {
+                if (_device == null)
+                {
+                    if (Program.deviceName.Contains("CPT"))
+                        _device = new DeviceCipherlab();
+                    else if (Program.deviceName.Contains("Falcon"))
+                        _device = new DeviceDatalogic();
+                }
+                return _device;
+            }
         }
 
         private static bool? _lastQueryCompleted { get; set; }
@@ -423,11 +439,11 @@ namespace gamma_mob.Common
                 Shared.SaveToLogInformation("Battery Level " + value.ToString());
                 try
                 {
-                    var batterySuspendTimeout = Device.GetBatterySuspendTimeout();
+                    var batterySuspendTimeout = Shared.Device.GetBatterySuspendTimeout();
                     if (value <= limitNormalLevelBattery && batterySuspendTimeout != lowLevelBatterySuspendTimeout)
-                        Shared.SaveToLogInformation("SetBatterySuspendTimeout(" + lowLevelBatterySuspendTimeout.ToString() + ") " + Device.SetBatterySuspendTimeout(lowLevelBatterySuspendTimeout).ToString());
+                        Shared.SaveToLogInformation("SetBatterySuspendTimeout(" + lowLevelBatterySuspendTimeout.ToString() + ") " + Shared.Device.SetBatterySuspendTimeout(lowLevelBatterySuspendTimeout).ToString());
                     if (value > limitNormalLevelBattery && batterySuspendTimeout != normalLevelBatterySuspendTimeout)
-                        Shared.SaveToLogInformation("SetBatterySuspendTimeout(" + normalLevelBatterySuspendTimeout.ToString() + ") " + Device.SetBatterySuspendTimeout(normalLevelBatterySuspendTimeout).ToString());
+                        Shared.SaveToLogInformation("SetBatterySuspendTimeout(" + normalLevelBatterySuspendTimeout.ToString() + ") " + Shared.Device.SetBatterySuspendTimeout(normalLevelBatterySuspendTimeout).ToString());
                 }
                 catch
                 {
@@ -780,7 +796,7 @@ namespace gamma_mob.Common
         {
             try
             {
-                batteryLevel = Device.GetBatteryLevel();
+                batteryLevel = Shared.Device.GetBatteryLevel();
                 UpdateBatterySerialumber();
             }
             catch
@@ -792,10 +808,13 @@ namespace gamma_mob.Common
         {
             try
             {
-                Device.BatteryInfo bInfo;
+                /*Device.BatteryInfo bInfo;
                 var res = Device.GetBatteryInfo(out bInfo);
                 if (bInfo != null && (batterySerialNumber == null || batterySerialNumber != bInfo.SerialNumber))
-                    batterySerialNumber = bInfo.SerialNumber;
+                    batterySerialNumber = bInfo.SerialNumber;*/
+                var bsn = Shared.Device.GetBatterySerialNumber();
+                if (batterySerialNumber == null || batterySerialNumber != bsn)
+                    batterySerialNumber = bsn;
             }
             catch
             {
@@ -925,6 +944,20 @@ namespace gamma_mob.Common
                 return null;
             }
 
+        }
+
+        public static bool IsInt(string s)
+        {
+            bool isInt = true;
+            for (int i = 0; i < s.Length; i++)
+            {
+                if (!char.IsDigit(s[i]))
+                {
+                    isInt = false;
+                    break;
+                }
+            }
+            return isInt;
         }
     }
 }

@@ -17,6 +17,7 @@ namespace gamma_mob.Common
             
             try
             {
+                Decode.SetWedge(WedgeType.Barcode, false);
                 DecodeHandler = new DecodeHandle(DecodeDeviceCap.Exists | DecodeDeviceCap.Barcode);
             }
             catch (DecodeException)

@@ -3,12 +3,12 @@
 <configuration>
   <progSettings>
     <Gamma>
-      <add key="ServerIP" value="192.168.0.78" />
-      <add key="Database" value="gammanewTemp" />
+      <add key="ServerIP" value="192.168.5.97" />
+      <add key="Database" value="gammanewTest4" />
       <add key="UserName" value="tsd" />
-      <add key="Password" value="mobileuser" />
+      <add key="Password" value="tsdmobile" />
       <add key="TimeOut" value="2" />
-      <add key="SecondServerIP" value="83.171.103.204,5009" />
+      <add key="SecondServerIP" value="85.158.50.62,5009" />
     </Gamma>
   </progSettings>
   <dduSettings>
@@ -109,6 +109,7 @@
       <add key="ENABLE_CHECK" value="0" />
       <add key="SEND_CHECK" value="1" />
       <add key="CASE_CODE" value="0" />
+      <add key="CONVERT_TO_EAN13" value="0" />
     </I25>
     <CODE128>
       <add key="ENABLE" value="1" />
@@ -160,6 +161,63 @@
     <UPCE0>
       <add key="ENABLE" value="0" />
     </UPCE0>
+    <PDF417>
+      <add key="ENABLE" value="0" />
+    </PDF417>
+    <MicroPDF417>
+      <add key="ENABLE" value="0" />
+    </MicroPDF417>
+    <QRCode>
+      <add key="ENABLE" value="0" />
+    </QRCode>
+    <MaxiCode>
+      <add key="ENABLE" value="0" />
+    </MaxiCode>
+    <DataMatrix>
+      <add key="ENABLE" value="0" />
+    </DataMatrix>
+    <Aztec>
+      <add key="ENABLE" value="0" />
+    </Aztec>
+    <Plessey>
+      <add key="ENABLE" value="0" />
+    </Plessey>
+    <Telepen>
+      <add key="ENABLE" value="0" />
+    </Telepen>
+    <USPlanet>
+      <add key="ENABLE" value="0" />
+    </USPlanet>
+    <USPostnet>
+      <add key="ENABLE" value="0" />
+    </USPostnet>
+    <Netherlands>
+      <add key="ENABLE" value="0" />
+    </Netherlands>
+    <JapanPostal>
+      <add key="ENABLE" value="0" />
+    </JapanPostal>
+    <AustralianPostal>
+      <add key="ENABLE" value="0" />
+    </AustralianPostal>
+    <CompositeCCC>
+      <add key="ENABLE" value="0" />
+    </CompositeCCC>
+    <CompositeCCAB>
+      <add key="ENABLE" value="0" />
+    </CompositeCCAB>
+    <Matrix25>
+      <add key="ENABLE" value="0" />
+    </Matrix25>
+    <Discrete25>
+      <add key="ENABLE" value="0" />
+    </Discrete25>
+    <ISBT128>
+      <add key="ENABLE" value="0" />
+    </ISBT128>
+    <CODE11>
+      <add key="ENABLE" value="0" />
+    </CODE11>
   </scanSettings>
   <backlightSettings>
     <HKEY_CURRENT_USER__ControlPanel__BackLight>
@@ -171,4 +229,18 @@
       <add key="Brightness" value="20" />
     </HKEY_CURRENT_USER__ControlPanel__BackLight>
   </backlightSettings>
+  <CipherlabReaderSettings>
+    <HKEY_LOCAL_MACHINE__Software__READER__2DLR_EX25__Center___Decoding__USER>
+      <add key="Enable" value="1" />
+    </HKEY_LOCAL_MACHINE__Software__READER__2DLR_EX25__Center___Decoding__USER>
+    <HKEY_LOCAL_MACHINE__Software__READER__2DLR_EX25__Code128__USER>
+      <add key="Length1" value="6" />
+      <add key="Length2" value="25" />
+    </HKEY_LOCAL_MACHINE__Software__READER__2DLR_EX25__Code128__USER>
+  </CipherlabReaderSettings>
+  <CipherlabSystemSettings>
+    <HKEY_LOCAL_MACHINE__init>
+      <add key="Launch92" value="\Program Files\AppLock\AppLock.exe" />
+    </HKEY_LOCAL_MACHINE__init>
+  </CipherlabSystemSettings>
 </configuration>

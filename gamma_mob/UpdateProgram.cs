@@ -18,7 +18,8 @@ namespace gamma_mob
     {
         private static readonly string program = @"gamma_mob";
         private static readonly string executablePath = Application2.StartupPath + @"\";
-        private static readonly string updateRootPath = @"\FlashDisk\";
+        private static readonly string updateRootPath = (Program.deviceName.Contains("Falcon")) ? @"\FlashDisk\" :
+            (Program.deviceName.Contains("CPT")) ? @"\USER_DATA\" : "";
         private static readonly string updatePath = updateRootPath + @"GammaUpdate\"; //executablePath + @"update\";
 
         private static string errorMessage { get; set; }
@@ -121,22 +122,26 @@ namespace gamma_mob
         {
             try
             {
-                FileInfo fileInf = new FileInfo(executablePath + file.FileName);
+                string executeFullName = executablePath + file.DirName + @"\" + file.FileName;
+                string updateFullName = (updatePath + file.DirName + @"\" + file.FileName)
+                .Replace(@"\..\", @"\ParentDir\").Replace(@"\..\", @"\ParentDir\").Replace(@"\..\", @"\ParentDir\")
+                .Replace(@"\.\", @"\").Replace(@"\.\", @"\").Replace(@"\.\", @"\");
+                FileInfo fileInf = new FileInfo(executeFullName);
                 if (file.Action)
-                    if (fileInf.Exists && file.MD5 == ComputeMD5Checksum(executablePath + file.FileName))
+                    if (fileInf.Exists && file.MD5 == ComputeMD5Checksum(executeFullName))
                     {
                         return false;
                         //Console.WriteLine("Файл '{0}' не сохранен, так как изменений нет.", file.Title);
                     }
                     else
-                        if (new FileInfo(updatePath + file.FileName).Exists && file.MD5 == ComputeMD5Checksum(updatePath + file.FileName))
+                        if (new FileInfo(updateFullName).Exists && file.MD5 == ComputeMD5Checksum(updateFullName))
                         {
                             return false;
                             //Console.WriteLine("Файл '{0}' не сохранен, так как уже загружен.", updatePath + file.Title);
                         }
                         else
                         {
-                            if (new FileInfo(updatePath + file.FileName + @".tmp").Exists && file.MD5 == ComputeMD5Checksum(updatePath + file.FileName + @".tmp"))
+                            if (new FileInfo(updateFullName + @".tmp").Exists && file.MD5 == ComputeMD5Checksum(updateFullName + @".tmp"))
                             {
                                 return false;
                                 //Console.WriteLine("Файл '{0}' не сохранен, так как уже загружен.", updatePath + file.FileName + @".tmp");
@@ -170,7 +175,10 @@ namespace gamma_mob
 
         private static void SaveFile(FileOfRepositary file)
         {
-            DirectoryInfo dirInfo = new DirectoryInfo(updatePath);
+            string updateDir = (updatePath + file.DirName + @"\")
+                .Replace(@"\..\", @"\ParentDir\").Replace(@"\..\", @"\ParentDir\").Replace(@"\..\", @"\ParentDir\")
+                .Replace(@"\.\", @"\").Replace(@"\.\", @"\").Replace(@"\.\", @"\");
+            DirectoryInfo dirInfo = new DirectoryInfo(updateDir);
             if (!dirInfo.Exists)
             {
                 try
@@ -185,24 +193,26 @@ namespace gamma_mob
             }
             try
             {
-                FileInfo fileInf = new FileInfo(executablePath + file.FileName);
+                string executeFullName = executablePath + file.DirName + @"\" + file.FileName;
+                string updateFullName = updateDir + file.FileName.Replace(@".\", @"");
+                FileInfo fileInf = new FileInfo(executeFullName);
                 if (file.Action)
                 {
                     {
                         //MessageBox.Show(file.Title + " - " + file.Image.Length.ToString());
-                        DirectoryInfo di = new DirectoryInfo(updatePath + file.DirName);
+                        DirectoryInfo di = new DirectoryInfo(updateDir);
                         if (!(di.Exists))
                             di.Create();
-                        using (System.IO.FileStream fs = new System.IO.FileStream(updatePath + file.FileName + @".tmp", FileMode.Create))
+                        using (System.IO.FileStream fs = new System.IO.FileStream(updateFullName + @".tmp", FileMode.Create))
                         {
                             //fs.Write(image, 0, image.Length);
                             fs.Write(file.Image, 0, file.Image.Length);
                             //Console.WriteLine("Файл '{0}' сохранен.", file.Title);
                         }
                     }
-                    FileInfo fi = new FileInfo(updatePath + file.FileName + @".tmp");
-                    if (file.MD5 == ComputeMD5Checksum(updatePath + file.FileName + @".tmp"))
-                        fi.MoveTo(updatePath + file.FileName);
+                    FileInfo fi = new FileInfo(updateFullName + @".tmp");
+                    if (file.MD5 == ComputeMD5Checksum(updateFullName + @".tmp"))
+                        fi.MoveTo(updateFullName);
                     else
                     {
                         //MessageBox.Show("Не совпадает MD5" + updatePath + file.FileName + @".tmp");
@@ -219,7 +229,7 @@ namespace gamma_mob
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
                 //Console.WriteLine("Ошибка! Файл '{0}' не обработан!", file.Title);
             }
@@ -227,7 +237,10 @@ namespace gamma_mob
 
         private static void LoadFile(FileOfRepositary file)
         {
-            DirectoryInfo dirInfo = new DirectoryInfo(updatePath);
+            string updateDir = (updatePath + file.DirName + @"\")
+                .Replace(@"\..\", @"\ParentDir\").Replace(@"\..\", @"\ParentDir\").Replace(@"\..\", @"\ParentDir\")
+                .Replace(@"\.\", @"\").Replace(@"\.\", @"\").Replace(@"\.\", @"\");
+            DirectoryInfo dirInfo = new DirectoryInfo(updateDir);
                 if (!dirInfo.Exists)
                 {
                     try
@@ -242,38 +255,40 @@ namespace gamma_mob
                 }
             try
             {
-                FileInfo fileInf = new FileInfo(executablePath + file.FileName);
+                string executeFullName = executablePath + file.DirName + @"\" + file.FileName;
+                string updateFullName = updateDir + file.FileName.Replace(@".\", @"");
+                FileInfo fileInf = new FileInfo(executeFullName);
                 if (file.Action)
-                    if (fileInf.Exists && file.MD5 == ComputeMD5Checksum(executablePath + file.FileName))
+                    if (fileInf.Exists && file.MD5 == ComputeMD5Checksum(executeFullName))
                     {
                         //Console.WriteLine("Файл '{0}' не сохранен, так как изменений нет.", file.Title);
                     }
                     else
-                        if (new FileInfo(updatePath + file.FileName).Exists && file.MD5 == ComputeMD5Checksum(updatePath + file.FileName))
+                        if (new FileInfo(updateFullName).Exists && file.MD5 == ComputeMD5Checksum(updateFullName))
                         {
                             //Console.WriteLine("Файл '{0}' не сохранен, так как уже загружен.", updatePath + file.Title);
                         }
                         else
                         {
-                            if (new FileInfo(updatePath + file.FileName + @".tmp").Exists && file.MD5 == ComputeMD5Checksum(updatePath + file.FileName + @".tmp"))
+                            if (new FileInfo(updateFullName + @".tmp").Exists && file.MD5 == ComputeMD5Checksum(updateFullName + @".tmp"))
                             {
                                 //Console.WriteLine("Файл '{0}' не сохранен, так как уже загружен.", updatePath + file.FileName + @".tmp");
                             }
                             else
                             {
                                 //MessageBox.Show(file.Title + " - " + file.Image.Length.ToString());
-                                DirectoryInfo di = new DirectoryInfo(updatePath + file.DirName);
+                                DirectoryInfo di = new DirectoryInfo(updateDir);
                                 if (!(di.Exists))
                                     di.Create();
-                                using (System.IO.FileStream fs = new System.IO.FileStream(updatePath + file.FileName + @".tmp", FileMode.Create))
+                                using (System.IO.FileStream fs = new System.IO.FileStream(updateFullName + @".tmp", FileMode.Create))
                                 {
                                     fs.Write(file.Image, 0, file.Image.Length);
                                     //Console.WriteLine("Файл '{0}' сохранен.", file.Title);
                                 }
                             }
-                            FileInfo fi = new FileInfo(updatePath + file.FileName + @".tmp");
-                            if (file.MD5 == ComputeMD5Checksum(updatePath + file.FileName + @".tmp"))
-                                fi.MoveTo(updatePath + file.FileName);
+                            FileInfo fi = new FileInfo(updateFullName + @".tmp");
+                            if (file.MD5 == ComputeMD5Checksum(updateFullName + @".tmp"))
+                                fi.MoveTo(updateFullName);
                             else
                             {
                                 //MessageBox.Show("Не совпадает MD5" + updatePath + file.FileName + @".tmp");
@@ -319,7 +334,7 @@ namespace gamma_mob
                             string sql = "SELECT FileID, DirName, FileName, Title, MD5, Action, CommandTimeOut, FileSize FROM [dbo].[mob_GetRepositoryOfProgramFiles] (@Program, @DeviceID)";
                             SqlCommand command = new SqlCommand(sql, connection);
                             command.Parameters.Add("@Program", SqlDbType.NVarChar, 50);
-                            command.Parameters["@Program"].Value = program;
+                            command.Parameters["@Program"].Value = program + @"#" + Program.deviceName;
                             command.Parameters.Add("@DeviceID", SqlDbType.NVarChar, 50);
                             command.Parameters["@DeviceID"].Value = Db.deviceName;
 
@@ -387,7 +402,7 @@ namespace gamma_mob
                                                     reader_image.Close();
                                                 }
                                             SaveFile(file);
-                                            //MessageBox.Show("Файл успешно скачан для обновления с БД! " + file_name);
+                                            Shared.SaveToLogInformation("File '" + filename + "' downloaded successfully in LoadUpdate");
                                         }
                                     }
                                 }
@@ -437,17 +452,20 @@ namespace gamma_mob
         {
             try
             {
+                string currentFileName = fileName.Replace(updatePath, executablePath)
+                        .Replace(@"\ParentDir", @"\..").Replace(@"\ParentDir", @"\..").Replace(@"\ParentDir", @"\..")
+                        .Replace(@"\CurrentDir", @"\.").Replace(@"\CurrentDir", @"\.").Replace(@"\CurrentDir", @"\.");
                 FileInfo fileInfNew = new FileInfo(fileName);
-                FileInfo fileInfCurrent = new FileInfo(fileName.Replace(updatePath,executablePath));
-                FileInfo fileInfCurrentOld = new FileInfo(fileName.Replace(updatePath,executablePath)+@".old");
+                FileInfo fileInfCurrent = new FileInfo(currentFileName);
+                FileInfo fileInfCurrentOld = new FileInfo(currentFileName + @".old");
                 //удалить предыдущий
                 if (fileInfCurrentOld.Exists)
                     fileInfCurrentOld.Delete();
                 //переименовать текущий
                 if (fileInfCurrent.Exists)
-                    fileInfCurrent.MoveTo(fileName.Replace(updatePath,executablePath)+@".old");
+                    fileInfCurrent.MoveTo(currentFileName + @".old");
                 //скопировать bak в нормальный
-                fileInfNew.MoveTo(fileName.Replace(updatePath,executablePath));
+                fileInfNew.MoveTo(currentFileName);
             }
             catch
             {
@@ -463,7 +481,9 @@ namespace gamma_mob
                 foreach (string s in dirs)
                 {
                     //обработать подпапку
-                    DirectoryInfo di = new DirectoryInfo(s.Replace(updatePath,executablePath));
+                    DirectoryInfo di = new DirectoryInfo(s.Replace(updatePath, executablePath)
+                        .Replace(@"\ParentDir", @"\..").Replace(@"\ParentDir", @"\..").Replace(@"\ParentDir", @"\..")
+                        .Replace(@"\CurrentDir", @"\.").Replace(@"\CurrentDir", @"\.").Replace(@"\CurrentDir", @"\."));
                     if (!(di.Exists))
                         di.Create();
                     ApplyUpdateFiles(s);

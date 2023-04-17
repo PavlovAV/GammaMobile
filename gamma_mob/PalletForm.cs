@@ -116,6 +116,8 @@ namespace gamma_mob
                 Number = result.Number;
                 Text = "Паллета " +  Number;
                 NotifyPropertyChanged("Text");
+                lblPallet.Text = Text;
+                NotifyPropertyChanged("lblPallet");
                 (ParentForm as PalletsForm).AddPalletToPallets(new PalletListItem(ProductId, Number, (DateTime)result.Date, result.Person));
             }
             AddNomenclatureByBarcode(barcode);

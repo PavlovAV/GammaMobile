@@ -135,6 +135,7 @@
             this.btnCloseApp.TabIndex = 9;
             this.btnCloseApp.TabStop = false;
             this.btnCloseApp.Text = "Выход";
+            this.btnCloseApp.Visible = false;
             this.btnCloseApp.Click += new System.EventHandler(this.btnCloseApp_Click);
             // 
             // btnUserInfo

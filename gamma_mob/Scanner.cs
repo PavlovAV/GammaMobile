@@ -38,7 +38,7 @@ namespace gamma_mob
             // Initialize event
             _dcdEvent = new DecodeEvent(_hDcd, reqType, ctlInvoker);
             _dcdEvent.Scanned += dcdEvent_Scanned;
-            SerialNumber = Device.GetSerialNumber();
+            SerialNumber = Shared.Device.GetDeviceName();
         }
 
         public string SerialNumber { get; private set; }

@@ -8,11 +8,10 @@ using gamma_mob.Common;
 using System.Runtime.InteropServices;
 using Microsoft.Win32;
 using System.IO;
-using OpenNETCF.Net.NetworkInformation;
 
 namespace gamma_mob.Common
 {
-    public class DeviceCipherlab : IDevice
+    public class DeviceCipherlab : Device, IDeviceExtended
     {
         #region WIN32
         // http://msdn.microsoft.com/en-us/library/aa926903.aspx
@@ -132,7 +131,13 @@ namespace gamma_mob.Common
 
         #region IDevice Members
 
-        public string GetDeviceName()
+        public override void EnableWiFi()
+        {
+            int b1 = 0;
+            b1 = Cipherlab.SystemAPI.Member.SetWiFiPower(1);
+        }
+
+        public override string GetDeviceName()
         {
             int b1 = 0;
             Cipherlab.SystemAPI.Member.SysInfo sysInfo = new Cipherlab.SystemAPI.Member.SysInfo();
@@ -225,8 +230,7 @@ namespace gamma_mob.Common
 
         public bool UpdateDeviceSettings(NameValueCollection m_settings)
         {
-            bool reboot = false;
-//#if !DEBUG
+            reboot = false;
             int b1 = 0;
             int errCode = new int();
             int checkPar1 = new int(), checkPar2 = new int(), checkPar3 = new int(), checkPar4 = new int(), checkPar5 = new int(), checkPar6 = new int(), checkPar7 = new int(), checkPar8 = new int(), checkPar9 = new int(), checkPar10 = new int(), checkPar11 = new int(), checkPar12 = new int(), checkPar13 = new int(), checkPar14 = new int();
@@ -235,33 +239,46 @@ namespace gamma_mob.Common
                 if (item.ToString().Substring(0, 9) == "Cipherlab")
                     try
                     {
-                        var key = item.ToString().Replace("CipherlabReaderSettings.", "").Replace("CipherlabSystemSettings.", "");
+                        var index = item.ToString().IndexOf(".");
+                        var set = item.ToString().Substring(0, index);
+                        var key = item.ToString().Replace(set + ".", "");
                         var l = key.IndexOf(".");
-                        var keyName = key.Substring(0, l).Replace("___", " ").Replace("__", "\\");
+                        var keyName = key.Substring(0, l).Replace("__", "\\").Replace("SkbOp", "{").Replace("SkbCl", "}");
                         var valueName = key.Substring(l + 1, key.Length - l - 1);
                         var val = m_settings.Get(item.ToString());
-                        var regVal = Registry.GetValue(keyName, valueName, "not exist");
-                        if (regVal == null || val != regVal.ToString())
+                        string regVal = String.Empty;
+                        var a1 = (Registry.GetValue(keyName, "Size", "not exist") ?? String.Empty).ToString();
+                        var a2 = m_settings.Get(item.ToString().Replace(".Data 0", ".Size"));
+                        regVal = (Registry.GetValue(keyName, valueName, "not exist") ?? String.Empty).ToString();
+                        if ((item.ToString() == @"CipherlabSystemSettings.HKEY_LOCAL_MACHINE__init.Launch92")
+                            && (regVal == null || val != regVal))
                         {
-                            if ((item.ToString() == @"CipherlabSystemSettings.HKEY_LOCAL_MACHINE__init.Launch92")
-                                //|| (item.ToString() == @"CipherlabSystemSettings.HKEY_LOCAL_MACHINE__Software__READER__2DLR_EX25__Center___Decoding__USER.Enable")
-                                //|| (item.ToString() == @"CipherlabSystemSettings.HKEY_LOCAL_MACHINE__Software__READER__2DLR_EX25__Code128__USER.Length1")
-                                )
+                            if ((new FileInfo(@"\WINDOWS\CipherLabSettings\AppLock\AppLock_Applications.xml")).Exists)
                             {
-                                if ((new FileInfo(@"\WINDOWS\CipherLabSettings\AppLock\AppLock_Applications.xml")).Exists)
-                                {
-                                    Registry.SetValue(keyName, valueName, val, RegistryValueKind.String);
-                                    reboot = true;
-                                    Shared.SaveToLogError("Set rebooting after update registry (" + item + ")");
-                                }
+                                base.UpdateRegistry(keyName, valueName, val, RegistryValueKind.String);
                             }
-                            else 
-                                Registry.SetValue(keyName, valueName, val, valueName == "Launch92" || val == "" || !Shared.IsInt(val) ? RegistryValueKind.String : RegistryValueKind.DWord);
+                        }
+                        else
+                        {
+                            if (regVal == null || val != regVal)
+                            {
+                                base.UpdateRegistry(keyName, valueName, val);
+                            }
                         }
                     }
                     catch (Exception ex)
                     {
-                        Shared.SaveToLogError("Error Update registry (" + item + ")");
+                        Shared.SaveToLogError("Error Update registry " + item);
+                    }
+                else
+                    if (wirelessAdapterName != String.Empty && item.ToString().Substring(0, wirelessAdapterName.Length) == wirelessAdapterName)
+                    {
+                        base.UpdateWiFiProfileSettings(item.ToString(), m_settings.Get(item.ToString()));
+                    }
+                else
+                    if (item.ToString().Substring(0, 11) == "networkSett" && wirelessAdapterName != String.Empty)
+                    {
+                        base.UpdateNetworkSettings(item.ToString(), m_settings.Get(item.ToString()));
                     }
                 else
                     if (item.ToString().Substring(0, 11) == "scanSetting")

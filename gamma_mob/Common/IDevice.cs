@@ -3,30 +3,25 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Collections.Specialized;
+using Microsoft.Win32;
 
 namespace gamma_mob.Common
 {
     public interface IDevice
     {
+        bool reboot {get; set;}
+
         string GetDeviceName();
 
-        string GetDeviceIP();
+        void EnableWiFi();
 
-        bool GetWiFiPowerStatus();
+        void UpdateRegistry(string keyName, string valueName, string val);
 
-        bool WiFiGetSignalQuality(out uint quality);
+        void UpdateRegistry(string keyName, string valueName, string val, RegistryValueKind? valueKind);
 
-        string GetModel();
+        void UpdateWiFiProfileSettings(string item, string val);
 
-        int GetBatterySuspendTimeout();
-
-        int GetBatteryLevel();
-
-        bool SetBatterySuspendTimeout(uint timeout);
-
-        string GetBatterySerialNumber();
-
-        bool UpdateDeviceSettings(NameValueCollection m_settings);
+        void UpdateNetworkSettings(string item, string val);
 
     }
 }

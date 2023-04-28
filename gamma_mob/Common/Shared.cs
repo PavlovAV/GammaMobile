@@ -24,8 +24,8 @@ namespace gamma_mob.Common
             LoadImages();
         }
 
-        private static IDevice _device { get; set; }
-        public static IDevice Device
+        private static IDeviceExtended _device { get; set; }
+        public static IDeviceExtended Device
         {
             get
             {

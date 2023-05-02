@@ -112,7 +112,7 @@ namespace gamma_mob.Common
                         var set = item.ToString().Substring(0, index);
                         var key = item.ToString().Replace(set + ".", "");
                         var l = key.IndexOf(".");
-                        var keyName = key.Substring(0, l).Replace("__", "\\").Replace("SkbOp", "{").Replace("SkbCl", "}");
+                        var keyName = key.Substring(0, l).Replace("___", " ").Replace("__", "\\").Replace("SkbOp", "{").Replace("SkbCl", "}");
                         var valueName = key.Substring(l + 1, key.Length - l - 1);
                         var val = m_settings.Get(item.ToString());
                         string regVal = String.Empty;

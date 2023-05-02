@@ -109,8 +109,8 @@
     </EAN13>
     <I25>
       <add key="ENABLE" value="1" />
-      <add key="MIN_LENGTH" value="6" />
-      <add key="MAX_LENGTH" value="25" />
+      <add key="MIN_LENGTH" value="14" />
+      <add key="MAX_LENGTH" value="16" />
       <add key="ENABLE_CHECK" value="0" />
       <add key="SEND_CHECK" value="1" />
       <add key="CASE_CODE" value="0" />
@@ -118,14 +118,14 @@
     </I25>
     <CODE128>
       <add key="ENABLE" value="1" />
-      <add key="MIN_LENGTH" value="6" />
-      <add key="MAX_LENGTH" value="25" />
+      <add key="MIN_LENGTH" value="14" />
+      <add key="MAX_LENGTH" value="16" />
       <add key="ENABLE_GS1_128" value="1" />
     </CODE128>
     <CODE39>
       <add key="ENABLE" value="1" />
-      <add key="MIN_LENGTH" value="6" />
-      <add key="MAX_LENGTH" value="25" />
+      <add key="MIN_LENGTH" value="14" />
+      <add key="MAX_LENGTH" value="16" />
       <add key="ENABLE_CHECK" value="0" />
       <add key="SEND_CHECK" value="1" />
       <add key="FULL_ASCII" value="1" />
@@ -228,7 +228,11 @@
     </PICKLIST>
     <IMAGER_ILLUMINATE>
       <add key="ENABLE" value="1" />
-    </IMAGER_ILLUMINATE>  
+    </IMAGER_ILLUMINATE>
+    <Vibration>
+      <add key="ENABLE" value="1" />
+      <add key="TIME" value="1" />
+    </Vibration>  
 </scanSettings>
   <backlightSettings>
     <HKEY_CURRENT_USER__ControlPanel__BackLight>
@@ -280,10 +284,11 @@
   <CipherlabReaderSettings>
     <HKEY_LOCAL_MACHINE__Software__READER__2DLR_EX25__Center___Decoding__USER>
       <add key="Enable" value="1" />
+      <add key="CenterDecodingTolerance" value="2" />
     </HKEY_LOCAL_MACHINE__Software__READER__2DLR_EX25__Center___Decoding__USER>
     <HKEY_LOCAL_MACHINE__Software__READER__2DLR_EX25__Code128__USER>
-      <add key="Length1" value="6" />
-      <add key="Length2" value="25" />
+      <add key="Length1" value="14" />
+      <add key="Length2" value="16" />
     </HKEY_LOCAL_MACHINE__Software__READER__2DLR_EX25__Code128__USER>
   </CipherlabReaderSettings>
   <CipherlabSystemSettings>

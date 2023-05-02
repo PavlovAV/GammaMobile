@@ -243,7 +243,7 @@ namespace gamma_mob.Common
                         var set = item.ToString().Substring(0, index);
                         var key = item.ToString().Replace(set + ".", "");
                         var l = key.IndexOf(".");
-                        var keyName = key.Substring(0, l).Replace("__", "\\").Replace("SkbOp", "{").Replace("SkbCl", "}");
+                        var keyName = key.Substring(0, l).Replace("___", " ").Replace("__", "\\").Replace("SkbOp", "{").Replace("SkbCl", "}");
                         var valueName = key.Substring(l + 1, key.Length - l - 1);
                         var val = m_settings.Get(item.ToString());
                         string regVal = String.Empty;
@@ -700,6 +700,24 @@ namespace gamma_mob.Common
                                     if (b1 == 0 && checkPar1 != val)
                                     {
                                         b1 = Reader.engine2D_SE4500.Code11_2D_SE4500('w', ref val);
+                                        if (b1 == 0)
+                                            errCode = Reader.ReaderEngineAPI.GetErrorCode();
+                                    }
+                                    break;
+                                case "scanSettings.Vibration.ENABLE":
+                                    b1 = Reader.other.NotificationSettings('r', ref checkPar1, ref checkPar2, ref checkPar3, ref checkPar4);
+                                    if (b1 == 0 && checkPar2 != val)
+                                    {
+                                        b1 = Reader.other.NotificationSettings('w', ref checkPar1, ref val, ref checkPar3, ref checkPar4);
+                                        if (b1 == 0)
+                                            errCode = Reader.ReaderEngineAPI.GetErrorCode();
+                                    }
+                                    break;
+                                case "scanSettings.Vibration.TIME":
+                                    b1 = Reader.other.NotificationSettings('r', ref checkPar1, ref checkPar2, ref checkPar3, ref checkPar4);
+                                    if (b1 == 0 && checkPar3 != val)
+                                    {
+                                        b1 = Reader.other.NotificationSettings('w', ref checkPar1, ref checkPar2, ref val, ref checkPar4);
                                         if (b1 == 0)
                                             errCode = Reader.ReaderEngineAPI.GetErrorCode();
                                     }

@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Windows.Forms;
 using gamma_mob.Models;
 using gamma_mob.Properties;
+using gamma_mob.Dialogs;
 using System;
 using System.Linq;
 using System.IO;
@@ -850,7 +851,8 @@ namespace gamma_mob.Common
 
         public static bool ShowMessageError(string message, string technicalMessage, Guid? docID, Guid? productID)
         {
-            MessageBox.Show(message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Hand, MessageBoxDefaultButton.Button3);
+            (new MessageBoxDialog(message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Hand, MessageBoxDefaultButton.Button1))
+                .Show();
             Shared.SaveToLogError(message, docID, productID);
             return true;
         }
@@ -860,9 +862,13 @@ namespace gamma_mob.Common
             return ShowMessageQuestion(message, @"", null, null);
         }
 
-        public static DialogResult ShowMessageQuestion(string message, string technicalMessage, Guid? docID, Guid? productID)
+       public static DialogResult ShowMessageQuestion(string message, string technicalMessage, Guid? docID, Guid? productID)
         {
-            var res = MessageBox.Show(message, "Вопрос", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
+            DialogResult res = DialogResult.No;
+            using (var m = new MessageBoxDialog(message, "Вопрос", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2))
+            {
+                res = m.ShowDialog();
+            }
             Shared.SaveToLogQuestion(message + " => Ответ: " + res, docID, productID);
             return res;
         }
@@ -874,7 +880,8 @@ namespace gamma_mob.Common
 
         public static bool ShowMessageInformation(string message, string technicalMessage, Guid? docID, Guid? productID)
         {
-            MessageBox.Show(message,"Информация", MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button3);
+            (new MessageBoxDialog(message, "Информация", MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1))
+                .Show();
             Shared.SaveToLogInformation(message, docID, productID);
             return true;
         }

@@ -23,5 +23,7 @@ namespace gamma_mob.Common
 
         void UpdateNetworkSettings(string item, string val);
 
+        void PlayBeep(byte millisecond);
+
     }
 }

@@ -150,6 +150,12 @@
     <Compile Include="Dialogs\ChoosePasswordDialog.Designer.cs">
       <DependentUpon>ChoosePasswordDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="Dialogs\MessageBoxDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\MessageBoxDialog.Designer.cs">
+      <DependentUpon>MessageBoxDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="DocMovementProductsForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -370,6 +376,10 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\ChooseNomenclatureCharacteristicDialog.resx">
       <DependentUpon>ChooseNomenclatureCharacteristicDialog.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\MessageBoxDialog.resx">
+      <DependentUpon>MessageBoxDialog.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\SetCountProductsDialog.resx">

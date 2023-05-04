@@ -37,6 +37,7 @@
             this.btnSetExternalNet = new System.Windows.Forms.Button();
             this.btnSetInternalNet = new System.Windows.Forms.Button();
             this.btnUpdateProgram = new System.Windows.Forms.Button();
+            this.btnExit = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // btnHelp
@@ -133,11 +134,22 @@
             this.btnUpdateProgram.Visible = false;
             this.btnUpdateProgram.Click += new System.EventHandler(this.btnUpdateProgram_Click);
             // 
+            // btnExit
+            // 
+            this.btnExit.Location = new System.Drawing.Point(83, 272);
+            this.btnExit.Name = "btnExit";
+            this.btnExit.Size = new System.Drawing.Size(63, 20);
+            this.btnExit.TabIndex = 11;
+            this.btnExit.Text = "Выход";
+            this.btnExit.Visible = false;
+            this.btnExit.Click += new System.EventHandler(this.btnExit_Click);
+            // 
             // LoginForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(238, 295);
+            this.Controls.Add(this.btnExit);
             this.Controls.Add(this.btnUpdateProgram);
             this.Controls.Add(this.btnSetExternalNet);
             this.Controls.Add(this.btnSetInternalNet);
@@ -165,5 +177,6 @@
         private System.Windows.Forms.Button btnSetExternalNet;
         private System.Windows.Forms.Button btnSetInternalNet;
         private System.Windows.Forms.Button btnUpdateProgram;
+        private System.Windows.Forms.Button btnExit;
     }
 }

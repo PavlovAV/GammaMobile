@@ -4,11 +4,19 @@ using System.Collections.Generic;
 using System.Text;
 using OpenNETCF.Net.NetworkInformation;
 using Microsoft.Win32;
+using System.Runtime.InteropServices;
 
 namespace gamma_mob.Common
 {
     public class Device : IDevice
     {
+        #region WIN32
+        
+        [DllImport("Coredll.dll")]
+        private static extern void MessageBeep(int Flags);
+
+        #endregion
+
         #region IDevice Members
 
         public bool reboot { get; set; }
@@ -199,6 +207,16 @@ namespace gamma_mob.Common
             {
                 Shared.SaveToLogError("Error Update registry " + item);
             }
+        }
+
+
+        public void PlayBeep(byte millisecond)
+        {
+            try
+            {
+                MessageBeep(millisecond);
+            }
+            catch { }
         }
 
         #endregion

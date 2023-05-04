@@ -102,9 +102,9 @@ namespace gamma_mob
             }
 #endif
 
-#if DEBUG
-            AuthorizeByBarcode("00000000000048");
-#endif
+//#if DEBUG
+//            AuthorizeByBarcode("00000000000048");
+//#endif
         }
 
         protected override void OnFormClosing(object sender, CancelEventArgs e)
@@ -396,6 +396,11 @@ namespace gamma_mob
                 btnSetExternalNet.Visible = true;
                 btnSetInternalNet.Visible = true;
                 btnUpdateProgram.Visible = true;
+                if (Shared.Device is DeviceCipherlab)
+                {
+                    btnExit.Location = new System.Drawing.Point(btnExit.Left, Height + btnExit.Height + 5);
+                    btnExit.Visible = true;
+                }
                 RefreshBtnSetNetEnabled();
                 try
                 {
@@ -427,6 +432,7 @@ namespace gamma_mob
                 btnSetExternalNet.Visible = false;
                 btnSetInternalNet.Visible = false;
                 btnUpdateProgram.Visible = false;
+                btnExit.Visible = false;
                 try
                 {
                     var cerdispProcess = Shared.GetProcessRunning(@"cerdisp");
@@ -606,6 +612,11 @@ namespace gamma_mob
         {
             UpdateProgram.DropFlagUpdateLoading();
             UpdateProgram.LoadUpdate(new object());
+        }
+
+        private void btnExit_Click(object sender, EventArgs e)
+        {
+            Close();
         }
     }
 }

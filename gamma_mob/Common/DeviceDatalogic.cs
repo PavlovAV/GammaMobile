@@ -29,10 +29,22 @@ namespace gamma_mob.Common
 
         public string GetDeviceIP()
         {
-            IPHostEntry ipEntry = Dns.GetHostByName(Dns.GetHostName());
-            IPAddress[] addr = ipEntry.AddressList;
-
-            return addr[0].ToString();
+            string ipAdress = String.Empty;
+            try
+            {
+                IPHostEntry ipEntry = Dns.GetHostByName(base.GetHostName());
+                IPAddress[] addr = ipEntry.AddressList;
+                for (int i = 0; i < addr.Length; i++)
+                {
+                    if (addr[i].AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+                        if (addr.Length > 1)
+                            ipAdress = ipAdress + "   " + i.ToString() + ": " + addr[i].ToString();
+                        else
+                            ipAdress = addr[i].ToString();
+                }
+            }
+            catch { }
+            return ipAdress;
         }
 
         public bool GetWiFiPowerStatus()

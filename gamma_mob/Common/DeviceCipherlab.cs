@@ -279,6 +279,71 @@ namespace gamma_mob.Common
                     if (item.ToString().Substring(0, 11) == "networkSett" && wirelessAdapterName != String.Empty)
                     {
                         base.UpdateNetworkSettings(item.ToString(), m_settings.Get(item.ToString()));
+                       /* рабочий вариант через библиотеку cipherlab
+                        try
+                        {
+                            var key = item.ToString().Replace("networkSettings.DeviceIP.", "");
+                            var devN = GetDeviceName();
+                            if (key == GetDeviceName())
+                            {
+                                Cipherlab.SystemAPI.Member.WlanAdptInfo wlanAdptInfo = new Cipherlab.SystemAPI.Member.WlanAdptInfo();
+                                b1 = Cipherlab.SystemAPI.Member.GetWlanIpInfo(ref wlanAdptInfo);
+                                bool editable = false;
+                                var val = m_settings.Get(item.ToString());
+                                if (val == "DHCP")
+                                {
+                                    if (wlanAdptInfo.fUseDHCP == 0)
+                                    {
+                                        wlanAdptInfo.fUseDHCP = 1;
+                                        b1 = Cipherlab.SystemAPI.Member.SetWlanIpInfo(ref wlanAdptInfo);
+                                        reboot = true;
+                                    }
+                                }
+                                else if (val.Length > 0)
+                                {
+                                    if (wlanAdptInfo.fUseDHCP == 1)
+                                    {
+                                        wlanAdptInfo.fUseDHCP = 0;
+                                        editable = true;
+                                    }
+                                    var index1 = val.IndexOf("_");
+                                    var ip = val.Substring(0, index1);
+                                    if (wlanAdptInfo.IPAddr != ip)
+                                    {
+                                        wlanAdptInfo.IPAddr = ip;
+                                        editable = true;
+                                    }
+                                    var index2 = val.IndexOf("#");
+                                    if (index2 > 0)
+                                    {
+                                        var mask = val.Substring(index1 + 1, index2 - index1 - 1);
+                                        if (wlanAdptInfo.SubnetMask != mask)
+                                        {
+                                            wlanAdptInfo.SubnetMask = mask;
+                                            editable = true;
+                                        }
+                                        if (index2 < val.Length)
+                                        {
+                                            var strGateway = val.Substring(index2 + 1, val.Length - index2 - 1);
+                                            if (wlanAdptInfo.Gateway != strGateway)
+                                            {
+                                                wlanAdptInfo.Gateway = strGateway;
+                                                editable = true;
+                                            }
+                                        }
+                                    }
+                                    if (editable)
+                                    {
+                                        b1 = Cipherlab.SystemAPI.Member.SetWlanIpInfo(ref wlanAdptInfo);
+                                        reboot = true;
+                                    }
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Shared.SaveToLogError("Error Update registry " + item);
+                        }*/
                     }
                 else
                     if (item.ToString().Substring(0, 11) == "scanSetting")

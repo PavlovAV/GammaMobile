@@ -12,6 +12,8 @@ namespace gamma_mob.Common
         bool reboot {get; set;}
 
         string GetDeviceName();
+        
+        string GetHostName();
 
         void EnableWiFi();
 

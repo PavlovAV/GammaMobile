@@ -43,18 +43,8 @@ namespace gamma_mob
             {
                 Shared.SaveToLogStartProgramInformation(@"Version " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version);
                 Shared.SaveToLogStartProgramInformation(@"Model " + Shared.Device.GetModel());
-                var strHostName = Dns.GetHostName();
-                Shared.SaveToLogStartProgramInformation(@"HostName " + strHostName);
-
-                IPHostEntry ipEntry = Dns.GetHostByName(strHostName);
-                IPAddress[] addr = ipEntry.AddressList;
-                string ipAdress = "";
-                for (int i = 0; i < addr.Length; i++)
-                {
-                    ipAdress = ipAdress+ "   " + i.ToString() + ": " + addr[i].ToString();
-                }
-                Shared.SaveToLogStartProgramInformation(@"IpAdress " + ipAdress);
-
+                Shared.SaveToLogStartProgramInformation(@"HostName " + Shared.Device.GetHostName());
+                Shared.SaveToLogStartProgramInformation(@"IpAdress " + Shared.Device.GetDeviceIP());
                 var cerdispProcess = Shared.GetProcessRunning(@"cerdisp");
                 if (cerdispProcess != null)
                 {
@@ -402,23 +392,8 @@ namespace gamma_mob
                     btnExit.Visible = true;
                 }
                 RefreshBtnSetNetEnabled();
-                try
-                {
-                    var strHostName = Dns.GetHostName();
-                    lblMessage.Text = lblMessage.Text + Environment.NewLine + "Имя ТСД: " + strHostName;
-
-                    IPHostEntry ipEntry = Dns.GetHostByName(strHostName);
-                    IPAddress[] addr = ipEntry.AddressList;
-
-                    for (int i = 0; i < addr.Length; i++)
-                    {
-                        lblMessage.Text = lblMessage.Text + Environment.NewLine + "IP адрес " + i.ToString() + ": " + addr[i].ToString();
-                    }
-                }
-                catch
-                {
-                    lblMessage.Text = lblMessage.Text + Environment.NewLine + "Ошибка при определении IP адреса";
-                }
+                lblMessage.Text = lblMessage.Text + Environment.NewLine + "Имя ТСД: " + Shared.Device.GetHostName() + " (s/n " + Shared.Device.GetDeviceName() + ")" ;
+                lblMessage.Text = lblMessage.Text + Environment.NewLine + "IP адрес " + Shared.Device.GetDeviceIP();
             }
             else
             {

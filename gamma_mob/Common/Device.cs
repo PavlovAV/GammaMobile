@@ -5,6 +5,7 @@ using System.Text;
 using OpenNETCF.Net.NetworkInformation;
 using Microsoft.Win32;
 using System.Runtime.InteropServices;
+using System.Net;
 
 namespace gamma_mob.Common
 {
@@ -29,6 +30,17 @@ namespace gamma_mob.Common
         public virtual string GetDeviceName()
         {
             return "Error";
+        }
+
+        public virtual string GetHostName()
+        {
+            string strHostName = String.Empty;
+            try
+            {
+                strHostName = Dns.GetHostName();
+            }
+            catch { }
+            return strHostName;
         }
 
         private string _wirelessAdapterName { get; set;}

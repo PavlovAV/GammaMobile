@@ -168,8 +168,8 @@ namespace gamma_mob.Common
             Cipherlab.SystemAPI.Member.CF10G_STATUS cfs = new Cipherlab.SystemAPI.Member.CF10G_STATUS();
             b1 = Cipherlab.SystemAPI.Member.GetCurrentStatus(ref cfs);
 
-            quality = (uint)(100 + cfs.rssi);
-            return this.GetWiFiPowerStatus();
+            quality = cfs.rssi < -100 ? 0 : (uint)(100 + cfs.rssi);
+            return quality > 0 && this.GetWiFiPowerStatus();
         }
 
         public string GetModel()

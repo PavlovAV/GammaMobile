@@ -44,7 +44,7 @@
             this.pnlButtons.Controls.Add(this.btnOK);
             this.pnlButtons.Controls.Add(this.btnCancel);
             this.pnlButtons.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.pnlButtons.Location = new System.Drawing.Point(0, 397);
+            this.pnlButtons.Location = new System.Drawing.Point(0, 157);
             this.pnlButtons.Name = "pnlButtons";
             this.pnlButtons.Size = new System.Drawing.Size(638, 58);
             // 
@@ -78,7 +78,7 @@
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(638, 397);
+            this.panel1.Size = new System.Drawing.Size(638, 157);
             // 
             // lblMessage
             // 
@@ -87,7 +87,7 @@
             this.lblMessage.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular);
             this.lblMessage.Location = new System.Drawing.Point(0, 31);
             this.lblMessage.Name = "lblMessage";
-            this.lblMessage.Size = new System.Drawing.Size(638, 366);
+            this.lblMessage.Size = new System.Drawing.Size(638, 126);
             this.lblMessage.Text = "Сообщение";
             // 
             // lblWin
@@ -105,7 +105,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.AutoScroll = true;
-            this.ClientSize = new System.Drawing.Size(638, 455);
+            this.ClientSize = new System.Drawing.Size(638, 215);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.pnlButtons);
             this.Location = new System.Drawing.Point(0, 40);
@@ -113,8 +113,7 @@
             this.MinimizeBox = false;
             this.Name = "MessageBoxDialog";
             this.Text = "Окно сообщения";
-            this.TopMost = true;
-            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.pnlButtons.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
             this.ResumeLayout(false);

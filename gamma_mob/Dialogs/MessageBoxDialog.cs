@@ -11,7 +11,8 @@ namespace gamma_mob.Dialogs
             InitializeComponent();
             Text = caption;
             lblMessage.Text = text;
-            var xCenterWindow = Screen.PrimaryScreen.Bounds.Width / 2;
+            Size = new System.Drawing.Size(Screen.PrimaryScreen.WorkingArea.Width, (int)(Screen.PrimaryScreen.WorkingArea.Height / 1.5));
+            var xCenterWindow = Screen.PrimaryScreen.WorkingArea.Width / 2;
             btnOK.Location = new System.Drawing.Point(xCenterWindow - (btnOK.Width / 2), btnOK.Location.Y);
             switch (buttons)
             {

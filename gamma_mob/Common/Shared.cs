@@ -756,7 +756,7 @@ namespace gamma_mob.Common
             }
 
         }
-
+        
         public static object lockerForUnloadOfflineProducts = new object();
 
         private static System.Threading.Timer _timerForUnloadOfflineProducts { get; set; }
@@ -852,7 +852,7 @@ namespace gamma_mob.Common
         public static bool ShowMessageError(string message, string technicalMessage, Guid? docID, Guid? productID)
         {
             (new MessageBoxDialog(message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Hand, MessageBoxDefaultButton.Button1))
-                .Show();
+                .ShowDialog();
             Shared.SaveToLogError(message, docID, productID);
             return true;
         }
@@ -881,7 +881,7 @@ namespace gamma_mob.Common
         public static bool ShowMessageInformation(string message, string technicalMessage, Guid? docID, Guid? productID)
         {
             (new MessageBoxDialog(message, "Информация", MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1))
-                .Show();
+                .ShowDialog();
             Shared.SaveToLogInformation(message, docID, productID);
             return true;
         }

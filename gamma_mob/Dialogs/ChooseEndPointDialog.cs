@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace gamma_mob.Dialogs
 {
-    public partial class ChooseEndPointDialog : BaseForm
+    public partial class ChooseEndPointDialog : BaseFormWithToolBar
     {
         private ChooseEndPointDialog()
         {
@@ -102,6 +102,7 @@ namespace gamma_mob.Dialogs
         protected override void FormLoad(object sender, EventArgs e)
         {
             base.FormLoad(sender, e);
+            base.ActivateToolBar(new List<int>() { (int)Images.Back});
             BarcodeFunc = ChoosePlaceZoneFromBarcode;
             if (EndPointInfo == null || EndPointInfo.PlaceId == null)
             {
@@ -178,12 +179,12 @@ namespace gamma_mob.Dialogs
             {
                 var button = new ButtonIntId(Shared.Warehouses[i].WarehouseId);
                 button.Click += btnUsedPlace_Click;
-                button.Font = new Font("Tahoma",12,FontStyle.Regular);
+                button.Font = new Font("Tahoma",10,FontStyle.Regular);
                 button.Text = Shared.Warehouses[i].WarehouseName.Length <= 11 ? Shared.Warehouses[i].WarehouseName : (Shared.Warehouses[i].WarehouseName.Substring(0, 11).Substring(10, 1) == " " ? Shared.Warehouses[i].WarehouseName.Substring(0, 10) : Shared.Warehouses[i].WarehouseName.Substring(0, 11)) + Environment.NewLine + Shared.Warehouses[i].WarehouseName.Substring(11, Math.Min(11, Shared.Warehouses[i].WarehouseName.Length - 11));
                 button.Width = (Width - 5 - 20) / 2;
-                button.Height = 37;
+                button.Height = 33;
                 button.Left = 5 + (button.Width + 6) * (i % 2);
-                button.Top = 2 + 38 * Convert.ToInt32(Math.Floor(i / 2));
+                button.Top = 30 + 34 * Convert.ToInt32(Math.Floor(i / 2));
                 Shared.MakeButtonMultiline(button);
                 Controls.Add(button);
             }
@@ -243,7 +244,7 @@ namespace gamma_mob.Dialogs
                 //if (Height > Screen.PrimaryScreen.WorkingArea.Height || maxCells == 0) Height = Screen.PrimaryScreen.WorkingArea.Height;
                 //Location = new Point(0, (Screen.PrimaryScreen.WorkingArea.Height - Height) / 2);
                 var buttonWidth = maxCells == 0 ? (placeZoneRows.Count <= 7 ? (width - 5 - 20) : (width - 5 - 20) / 2) : (width / placeZoneRows.Count - 10) < 50 ? (width - 5 - 20) / 3 : width / placeZoneRows.Count - 10;
-                var buttonHeight = 32;//maxCells == 0 ? 50 : (Height-30)/maxCells - 2;
+                var buttonHeight = 33;//maxCells == 0 ? 50 : (Height-30)/maxCells - 2;
                 for (int i = 0; i < placeZoneRows.Count; i++)
                 {
                     if (placeZoneCells[i] == null || placeZoneCells[i].Count == 0)
@@ -289,9 +290,9 @@ namespace gamma_mob.Dialogs
                 button.Font = new Font("Tahoma", 10, FontStyle.Regular);
                 button.Text = placeZoneName.Length <= 11 ? placeZoneName : (placeZoneName.Substring(0, 11).Substring(10, 1) == " " ? placeZoneName.Substring(0, 10) : placeZoneName.Substring(0, 11)) + Environment.NewLine + placeZoneName.Substring(11, Math.Min(11, placeZoneName.Length - 11));
                 button.Width = (width - 5 - 20) / 2;
-                button.Height = 32;
+                button.Height = 33;
                 button.Left = 5 + (button.Width + 6) * (i % 2);
-                button.Top = 25 + 2 + 33 * Convert.ToInt32(Math.Floor(i / 2));
+                button.Top = 28 + 2 + 34 * Convert.ToInt32(Math.Floor(i / 2));
                 Shared.MakeButtonMultiline(button);
             }
             else
@@ -304,7 +305,7 @@ namespace gamma_mob.Dialogs
                     button.Height = (int)height;// Height - 34;
                     button.Font = new Font("Tahoma", 10, FontStyle.Regular); //new Font(button.Font.Name, 10, button.Font.Style);
                     button.Left = (int)maxCells == 0 ? 2 + (button.Width + 6) * Convert.ToInt32(Math.Floor(i / 7)) : 2 * (i + 1) + width * i;// * (i + 1) + buttonWidth * i;
-                    button.Top = (int)maxCells == 0 ? 25 + ((int)height + 2) * (i % 7) : 27;
+                    button.Top = (int)maxCells == 0 ? 28 + ((int)height + 2) * (i % 7) : 32;
                     Shared.MakeButtonMultiline(button);
                 }
                 else
@@ -315,7 +316,7 @@ namespace gamma_mob.Dialogs
                     button.Height = (int)height;
                     button.Font = new Font("Tahoma", 10, FontStyle.Regular); //new Font(button.Font.Name, 10, button.Font.Style);
                     button.Left = 2 * (i + 1) + width * i;
-                    button.Top = 25 + 2 * ((int)k + 1) + (int)height * (int)k;
+                    button.Top = 28 + 2 * ((int)k + 1) + (int)height * (int)k;
                     Shared.MakeButtonMultiline(button);
                 }
             }

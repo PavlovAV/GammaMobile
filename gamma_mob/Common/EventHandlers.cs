@@ -1,4 +1,5 @@
 ﻿using gamma_mob.Models;
+using System.Windows.Forms;
 namespace gamma_mob.Common
 {
     public delegate void BarcodeReceivedEventHandler(string barcode);
@@ -11,5 +12,11 @@ namespace gamma_mob.Common
         public EndPointInfo endPointInfo { get; set; }
         public bool fromBuffer { get; set; }
         public DbProductIdFromBarcodeResult getProductResult { get; set; }
+    }
+    public delegate void QuestionResultEventHandler(QuestionResultEventHandlerParameter param);
+    public class QuestionResultEventHandlerParameter
+    {
+        public DialogResult dialogResult { get; set; }
+        public EndPointInfo endPointInfo { get; set; }
     }
 }

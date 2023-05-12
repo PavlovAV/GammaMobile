@@ -8,7 +8,7 @@ using gamma_mob.Dialogs;
 
 namespace gamma_mob.Common
 {
-    public abstract class BaseFormWithToolBar : BaseForm
+    public abstract class BaseFormWithToolBar : BaseFormWithShowMessage
     {
         private Common.PanelToolBar _pnlToolBar { get; set; }
         public Common.PanelToolBar PnlToolBar

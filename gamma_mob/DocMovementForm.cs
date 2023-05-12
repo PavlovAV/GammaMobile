@@ -41,7 +41,11 @@ namespace gamma_mob
                 lblZoneName.Text = "Зона: " + EndPointInfo.PlaceZoneName;
                 pnlZone.Visible = true;
             }
-
+            else if (endPointInfo.IsAvailabilityPlaceZoneId && !endPointInfo.IsSettedDefaultPlaceZoneId)
+            {
+                ShowMessageInformation(@"Не выбрана зона склада по умолчанию.");
+            }
+            
             Shared.SaveToLogInformation(@"EndPointInfo.PlaceId-" + EndPointInfo.PlaceId + @"; EndPointInfo.PlaceZoneId-" + EndPointInfo.PlaceZoneId);
 
             AcceptedProducts = new BindingList<MovementProduct>();

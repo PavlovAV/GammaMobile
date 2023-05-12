@@ -101,6 +101,9 @@
     <Compile Include="Common\BaseFormWithProducts.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Common\BaseFormWithShowMessage.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Common\BaseFormWithToolBar.cs">
       <SubType>Form</SubType>
     </Compile>

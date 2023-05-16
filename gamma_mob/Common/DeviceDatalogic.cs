@@ -37,7 +37,7 @@ namespace gamma_mob.Common
                 for (int i = 0; i < addr.Length; i++)
                 {
                     if (addr[i].AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
-                        if (addr.Length > 1)
+                        if (addr.Count(a => a.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork) > 1)
                             ipAdress = ipAdress + "   " + i.ToString() + ": " + addr[i].ToString();
                         else
                             ipAdress = addr[i].ToString();

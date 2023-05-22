@@ -136,7 +136,12 @@ namespace gamma_mob
                 DialogResult result = form.ShowDialog();
                 if (result != DialogResult.OK) return;
                 endPointInfo = form.EndPointInfo;
-                if ((endPointInfo.IsAvailabilityPlaceZoneId && endPointInfo.PlaceZoneId == null) || (endPointInfo.IsAvailabilityChildPlaceZoneId && endPointInfo.PlaceZoneId != null))
+                if (!endPointInfo.IsAvailabilityPlaceZoneId)
+                {
+                    endPointInfo.IsSettedDefaultPlaceZoneId = false;
+                    btnDocMovementClicked(endPointInfo);
+                }
+                else if ((endPointInfo.IsAvailabilityPlaceZoneId && endPointInfo.PlaceZoneId == null) || (endPointInfo.IsAvailabilityChildPlaceZoneId && endPointInfo.PlaceZoneId != null))
                 {
                     string message = (endPointInfo.IsAvailabilityChildPlaceZoneId && endPointInfo.PlaceZoneId != null) ? "Вы не до конца указали зону. Попробуете еще раз?" : "Вы будете указывать зону сейчас?";
                     ShowMessageQuestion(btnDocMovementClick, new QuestionResultEventHandlerParameter { endPointInfo = endPointInfo}, message);

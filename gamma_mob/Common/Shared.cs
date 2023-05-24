@@ -92,6 +92,21 @@ namespace gamma_mob.Common
             }
         }
 
+        private static int? _countRowUploadToServerInOnePackage { get; set; }
+        public static int CountRowUploadToServerInOnePackage
+        {
+            get
+            {
+                if (_countRowUploadToServerInOnePackage == null)
+                {
+                    var countRowUploadToServerInOnePackage = Db.GetProgramSettings("CountRowUploadToServerInOnePackage");
+                    if (countRowUploadToServerInOnePackage != null && countRowUploadToServerInOnePackage != String.Empty)
+                        _countRowUploadToServerInOnePackage = Convert.ToInt32(countRowUploadToServerInOnePackage);
+                }
+                return _countRowUploadToServerInOnePackage ?? 1;
+            }
+        }
+
         private static bool? _isScanGroupPackOnlyFromProduct { get; set; }
         public static bool IsScanGroupPackOnlyFromProduct
         {

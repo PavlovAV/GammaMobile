@@ -1098,10 +1098,12 @@ namespace gamma_mob
             {
                 if (table != null && table.Rows.Count > 0)
                 {
-                    foreach (DataRow row in table.Rows)
+                    if (Shared.CountRowUploadToServerInOnePackage == 1)
                     {
-                        const string sql = "INSERT INTO LogFromMobileDevices(DeviceName, DeviceIP, UserName,PersonId,LogId,LogDate,Log,Barcode,PlaceId,DocTypeId,IsUploaded,DocId,PlaceZoneId,ToDelete,IsDeleted,ProductId,ProductKindId,NomenclatureId,CharacteristicId,QualityId,Quantity,FromProductId) VALUES(@DeviceName, @DeviceIP, @UserName,@PersonId,@LogId,@LogDate,@Log,@Barcode,@PlaceId,@DocTypeId,@IsUploaded,@DocId,@PlaceZoneId,@ToDelete,@IsDeleted,@ProductId,@ProductKindId,@NomenclatureId,@CharacteristicId,@QualityId,@Quantity,@FromProductId)";
-                        var parameters = new List<SqlParameter>
+                        foreach (DataRow row in table.Rows)
+                        {
+                            const string sql = "INSERT INTO LogFromMobileDevices(DeviceName, DeviceIP, UserName,PersonId,LogId,LogDate,Log,Barcode,PlaceId,DocTypeId,IsUploaded,DocId,PlaceZoneId,ToDelete,IsDeleted,ProductId,ProductKindId,NomenclatureId,CharacteristicId,QualityId,Quantity,FromProductId) VALUES(@DeviceName, @DeviceIP, @UserName,@PersonId,@LogId,@LogDate,@Log,@Barcode,@PlaceId,@DocTypeId,@IsUploaded,@DocId,@PlaceZoneId,@ToDelete,@IsDeleted,@ProductId,@ProductKindId,@NomenclatureId,@CharacteristicId,@QualityId,@Quantity,@FromProductId)";
+                            var parameters = new List<SqlParameter>
                         {
                             new SqlParameter("@DeviceName", SqlDbType.Text)
                                 {
@@ -1192,12 +1194,82 @@ namespace gamma_mob
                                     Value = row["FromProductId"], // row.IsNull("FromProductId") ? (Guid?)null : new Guid(row["FromProductId"].ToString()),
                                 }
                         };
-                        if (ExecuteSilentlyNonQuery(sql, parameters, CommandType.Text))
+                            if (ExecuteSilentlyNonQuery(sql, parameters, CommandType.Text))
                             {
                                 var g = row.IsNull("LogId") ? "" : new Guid(row["LogId"].ToString()).ToString();
-                                var sqlCEUpdate = "UPDATE Logs SET IsUploadedToServer = 1 WHERE LogId = '"+g+"'";
+                                var sqlCEUpdate = "UPDATE Logs SET IsUploadedToServer = 1 WHERE LogId = '" + g + "'";
                                 var r = ExecuteCeNonQuery(sqlCEUpdate, new List<SqlCeParameter>(), CommandType.Text, ConnectServerCe.LogServer);
                             };
+                        }
+                    }
+                    else
+                    // Вариант для добавления логов в БД пакетом по несколько строк. Поле DateAdd в БД не должно быть первичным ключем, так как при пакетном добавлении значение для всех строк будет одинаковое
+                    {
+                        string sql = String.Empty;
+                        int i = 1;
+                        string value = String.Empty;
+                        string logIds = String.Empty;
+                        foreach (DataRow row in table.Rows)
+                        {
+                            if (row["LogId"].ToString() != String.Empty)
+                            {
+                                logIds += (logIds.Length == 0 ? "'" : ",'") + row["LogId"] + "'";
+                            }
+                            value = "('" + (deviceName ?? "NULL") + "','" + (deviceIP ?? "NULL") + "'"
+                                + "," + (row["UserName"].ToString() == String.Empty ? "NULL" : "'" + row["UserName"] + "'")
+                                + "," + (row["PersonId"].ToString() == String.Empty ? "NULL" : "'" + row["PersonId"] + "'")
+                                + "," + (row["LogId"].ToString() == String.Empty ? "NULL" : "'" + row["LogId"] + "'")
+                                + "," + (row["LogDate"].ToString() == String.Empty ? "NULL" : "'" + ((DateTime)row["LogDate"]).ToString("yyyyMMdd HH:mm:ss.fff") + "'")
+                                + "," + (row["Log"].ToString() == String.Empty ? "NULL" : "'" + row["Log"] + "'")
+                                + "," + (row["Barcode"].ToString() == String.Empty ? "NULL" : "'" + row["Barcode"] + "'")
+                                + "," + (row["PlaceId"].ToString() == String.Empty ? "NULL" : row["PlaceId"])
+                                + "," + (row["DocTypeId"].ToString() == String.Empty ? "NULL" : row["DocTypeId"])
+                                + "," + (row["IsUploaded"].ToString() == String.Empty ? "NULL" : ((bool)row["IsUploaded"] ? "1" : "0"))
+                                + "," + (row["DocId"].ToString() == String.Empty ? "NULL" : "'" + row["DocId"] + "'")
+                                + "," + (row["PlaceZoneId"].ToString() == String.Empty ? "NULL" : "'" + row["PlaceZoneId"] + "'")
+                                + "," + (row["ToDelete"].ToString() == String.Empty ? "NULL" : ((bool)row["ToDelete"] ? "1" : "0"))
+                                + "," + (row["IsDeleted"].ToString() == String.Empty ? "NULL" : ((bool)row["IsDeleted"] ? "1" : "0"))
+                                + "," + (row["ProductId"].ToString() == String.Empty ? "NULL" : "'" + row["ProductId"] + "'")
+                                + "," + (row["ProductKindId"].ToString() == String.Empty ? "NULL" : row["ProductKindId"])
+                                + "," + (row["NomenclatureId"].ToString() == String.Empty ? "NULL" : "'" + row["NomenclatureId"] + "'")
+                                + "," + (row["CharacteristicId"].ToString() == String.Empty ? "NULL" : "'" + row["CharacteristicId"] + "'")
+                                + "," + (row["QualityId"].ToString() == String.Empty ? "NULL" : "'" + row["QualityId"] + "'")
+                                + "," + (row["Quantity"].ToString() == String.Empty ? "NULL" : row["Quantity"])
+                                + "," + (row["FromProductId"].ToString() == String.Empty ? "NULL" : "'" + row["FromProductId"] + "'")
+                                + ")";
+                            if (value.Length > 0)
+                            {
+                                if (i > 1)
+                                    sql += ",";
+                                sql += Environment.NewLine + value;
+                            }
+                            value = string.Empty;
+                            i++;
+                            if (i > Shared.CountRowUploadToServerInOnePackage)
+                            {
+                                i = 1;
+                                sql = "INSERT INTO LogFromMobileDevices(DeviceName, DeviceIP, UserName,PersonId,LogId,LogDate,Log,Barcode,PlaceId,DocTypeId,IsUploaded,DocId,PlaceZoneId,ToDelete,IsDeleted,ProductId,ProductKindId,NomenclatureId,CharacteristicId,QualityId,Quantity,FromProductId) VALUES" + sql;
+                                if (ExecuteSilentlyNonQuery(sql, new List<SqlParameter>(), CommandType.Text))
+                                {
+                                    var sqlCEUpdate = "UPDATE Logs SET IsUploadedToServer = 1 WHERE LogId in (" + logIds + ")";
+                                    var r = ExecuteCeNonQuery(sqlCEUpdate, new List<SqlCeParameter>(), CommandType.Text, ConnectServerCe.LogServer);
+                                };
+                                sql = String.Empty;
+                                logIds = String.Empty;
+                            }
+                        }
+                        if (i > 1)
+                        {
+                            sql = "INSERT INTO LogFromMobileDevices(DeviceName, DeviceIP, UserName,PersonId,LogId,LogDate,Log,Barcode,PlaceId,DocTypeId,IsUploaded,DocId,PlaceZoneId,ToDelete,IsDeleted,ProductId,ProductKindId,NomenclatureId,CharacteristicId,QualityId,Quantity,FromProductId) VALUES"
+                                + sql;
+                            if (ExecuteSilentlyNonQuery(sql, new List<SqlParameter>(), CommandType.Text))
+                            {
+                                var sqlCEUpdate = "UPDATE Logs SET IsUploadedToServer = 1 WHERE LogId in (" + logIds + ")";
+                                var r = ExecuteCeNonQuery(sqlCEUpdate, new List<SqlCeParameter>(), CommandType.Text, ConnectServerCe.LogServer);
+                            };
+                            sql = String.Empty;
+                            logIds = String.Empty;
+                        }
                     }
                 }
             }

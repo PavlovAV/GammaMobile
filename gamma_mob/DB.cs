@@ -1220,7 +1220,7 @@ namespace gamma_mob
                                 + "," + (row["PersonId"].ToString() == String.Empty ? "NULL" : "'" + row["PersonId"] + "'")
                                 + "," + (row["LogId"].ToString() == String.Empty ? "NULL" : "'" + row["LogId"] + "'")
                                 + "," + (row["LogDate"].ToString() == String.Empty ? "NULL" : "'" + ((DateTime)row["LogDate"]).ToString("yyyyMMdd HH:mm:ss.fff") + "'")
-                                + "," + (row["Log"].ToString() == String.Empty ? "NULL" : "'" + row["Log"] + "'")
+                                + "," + (row["Log"].ToString() == String.Empty ? "NULL" : "'" + row["Log"].ToString().Replace("'","''") + "'")
                                 + "," + (row["Barcode"].ToString() == String.Empty ? "NULL" : "'" + row["Barcode"] + "'")
                                 + "," + (row["PlaceId"].ToString() == String.Empty ? "NULL" : row["PlaceId"])
                                 + "," + (row["DocTypeId"].ToString() == String.Empty ? "NULL" : row["DocTypeId"])

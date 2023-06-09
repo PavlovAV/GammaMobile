@@ -2520,7 +2520,7 @@ namespace gamma_mob
                         },
                     new SqlParameter("@IsDocOut", SqlDbType.Bit)
                         {
-                            Value = docDirection == DocDirection.DocOut
+                            Value = docDirection == DocDirection.DocOut || docDirection == DocDirection.DocOutIn
                         },
                     new SqlParameter("@ProductKindID", SqlDbType.Int)
                         {

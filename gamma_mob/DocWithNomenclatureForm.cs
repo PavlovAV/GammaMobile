@@ -41,7 +41,7 @@ namespace gamma_mob
         /// <param name="fileName">Имя файла для хранения информации о невыгруженных продуктах</param>
         /// <param name="docDirection">Направление движения продукции(in, out, outin)</param>
         public DocWithNomenclatureForm(Guid docOrderId, Form parentForm, string orderNumber, OrderType orderType,
-            DocDirection docDirection, bool isMovementForOrder, int maxAllowedPercentBreak)
+            DocDirection docDirection, bool isMovementForOrder, int maxAllowedPercentBreak, bool isControlExec, DateTime? startExec)
             : this(parentForm)
         {
             OrderType = orderType;
@@ -115,15 +115,18 @@ namespace gamma_mob
 
             MaxAllowedPercentBreak = maxAllowedPercentBreak;
 
+            IsControlExec = isControlExec;
+            StartExec = startExec;
+
             if (!Shared.InitializationData()) Shared.ShowMessageInformation(@"Внимание! Не обновлены" + Environment.NewLine + @" данные с сервера.");
             if (Shared.TimerForUnloadOfflineProducts == null) Shared.ShowMessageInformation(@"Внимание! Не запущена автоматическая" + Environment.NewLine + @"выгрузка на сервер.");
             OnUpdateBarcodesIsNotUploaded();
         }
 
         public DocWithNomenclatureForm(Guid docOrderId, Form parentForm, string orderNumber, OrderType orderType,
-            DocDirection docDirection, bool isMovementForOrder, int maxAllowedPercentBreak, EndPointInfo endPointInfo)
+            DocDirection docDirection, bool isMovementForOrder, int maxAllowedPercentBreak, EndPointInfo endPointInfo, bool isControlExec, DateTime? startExec)
             : this(docOrderId, parentForm, orderNumber, orderType,
-            docDirection, isMovementForOrder, maxAllowedPercentBreak) 
+            docDirection, isMovementForOrder, maxAllowedPercentBreak, isControlExec, startExec) 
         {
             EndPointInfo = endPointInfo;
             if (endPointInfo.IsSettedDefaultPlaceZoneId)
@@ -132,7 +135,6 @@ namespace gamma_mob
                 lblZoneName.Visible = true;
             }
             Shared.SaveToLogInformation(@"EndPointInfo.PlaceId-" + EndPointInfo.PlaceId + @"; EndPointInfo.PlaceZoneId-" + EndPointInfo.PlaceZoneId);
-
         }
 
         // Устанавливаем цвет фона для ячейки Собрано при превышении собранного количества над требуемым!
@@ -165,7 +167,7 @@ namespace gamma_mob
         protected override void FormLoad(object sender, EventArgs e)
         {
             base.FormLoad(sender, e);
-            base.ActivatePanels(new List<int>() { (int)Images.Back, (int)Images.Inspect, (int)Images.Refresh, (int)Images.UploadToDb, (int)Images.Pallet, (int)Images.Question, (int)Images.InfoProduct });//, pnlToolBar_ButtonClick);
+            base.ActivatePanels(new List<int>() { (int)Images.Back, (int)Images.Inspect, (int)Images.Refresh, (int)Images.UploadToDb, (int)Images.Pallet, (int)Images.Question, (int)Images.InfoProduct});//, pnlToolBar_ButtonClick);
         }
 
         protected override void RefreshToolBarButton()
@@ -184,7 +186,7 @@ namespace gamma_mob
                     var resultMessage = Db.FindDocOrderNomenclatureStoragePlaces(DocId, nomenclatureItem.NomenclatureId, nomenclatureItem.CharacteristicId, nomenclatureItem.QualityId)
                                         ?? "Не удалось получить информацию о расположении продукции";
                     if (resultMessage != null)
-                        Shared.ShowMessageError(resultMessage);
+                        Shared.ShowMessageInformation(resultMessage);
         }
 
         protected override void PalletToolBarButton() 
@@ -380,5 +382,9 @@ namespace gamma_mob
             OpenDetails();
         }
 
+        private void btnChangeZone_Click(object sender, EventArgs e)
+        {
+            //ChangeZone();
+        }
     }
 }

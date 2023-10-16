@@ -22,5 +22,9 @@ namespace gamma_mob.Models
         public string InPlaceName { get; set; }
         public int? OutPlaceID { get; set; }
         public int? InPlaceID { get; set; }
+        public bool IsControlExec { get; set; }
+        public DateTime? StartExec { get; set; }
+        public DateTime? EndExec { get; set; }
+        public string State { get; set; }
     }
 }

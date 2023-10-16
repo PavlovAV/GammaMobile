@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using gamma_mob.Models;
 using gamma_mob.Dialogs;
 using System.ComponentModel;
+using System.Globalization;
 
 namespace gamma_mob
 {
@@ -79,6 +80,12 @@ namespace gamma_mob
                 Width = -1
             });
             tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
+            {
+                HeaderText = " ",
+                MappingName = "State",
+                Width = 14
+            });
+            tableStyle.GridColumnStyles.Add(new DataGridTextBoxColumn
                 {
                     HeaderText = "Номер",
                     MappingName = "Number",
@@ -124,7 +131,7 @@ namespace gamma_mob
         protected override void FormLoad(object sender, EventArgs e)
         {
             base.FormLoad(sender, e);
-            base.ActivateToolBar(new List<int>() { (int)Images.Back, (int)Images.Edit, (int)Images.Refresh, (int)Images.InfoProduct, (int)Images.RDP });//, pnlToolBar_ButtonClick);
+            base.ActivateToolBar(new List<int>() { (int)Images.Back, (int)Images.Edit, (int)Images.Refresh, (int)Images.InfoProduct, (int)Images.RDP, (int)Images.Remove });//, pnlToolBar_ButtonClick);
         }
 
         protected override void EditToolBarButton()
@@ -238,11 +245,36 @@ namespace gamma_mob
                         }
                         //}
                     }
+                    if (selectedDocOrder.IsControlExec && selectedDocOrder.StartExec == null)
+                    {
+                        if (Shared.ShowMessageQuestion(@"Вы начинаете погрузку? (приказ " + selectedDocOrder.Number + ")") == DialogResult.Yes)
+                        {
+                            UIServices.SetBusyState(this);
+                            var result = Db.UpdateStartExecInDocOrder(selectedDocOrder.DocOrderId, Shared.PersonId);
+                            UIServices.SetNormalState(this);
+                            if (result == null)
+                            {
+                                Shared.ShowMessageError("Ошибка при сохранении времени начала погрузки. Попробуйте еще раз.");
+                            }
+                            else
+                            {
+                                try
+                                {
+                                    CultureInfo culture = new CultureInfo("ru-RU");
+                                    selectedDocOrder.StartExec = Convert.ToDateTime(result, culture);
+                                }
+                                catch 
+                                {
+                                    Shared.ShowMessageError(result);
+                                }
+                            }
+                        }
+                    }
                     var docOrderForm = inPlaceID == null
                         ? new DocWithNomenclatureForm(selectedDocOrder.DocOrderId, this, selectedDocOrder.Number,
-                        selectedDocOrder.OrderType, DocDirection, IsMovementForOrder, Shared.MaxAllowedPercentBreak)
+                        selectedDocOrder.OrderType, DocDirection, IsMovementForOrder, Shared.MaxAllowedPercentBreak, selectedDocOrder.IsControlExec, selectedDocOrder.StartExec)
                         : new DocWithNomenclatureForm(selectedDocOrder.DocOrderId, this, selectedDocOrder.Number,
-                        selectedDocOrder.OrderType, DocDirection, IsMovementForOrder, Shared.MaxAllowedPercentBreak, endPointInfo);
+                        selectedDocOrder.OrderType, DocDirection, IsMovementForOrder, Shared.MaxAllowedPercentBreak, endPointInfo, selectedDocOrder.IsControlExec, selectedDocOrder.StartExec);
                     docOrderForm.Show();
                     if (!docOrderForm.IsDisposed && docOrderForm.Enabled)
                         Hide();
@@ -252,6 +284,52 @@ namespace gamma_mob
             } 
             Cursor.Current = Cursors.Default;
             
+        }
+
+        protected override void RemoveToolBarButton()
+        {
+            int row = gridDocShipmentOrders.CurrentRowIndex;
+            if (row >= 0)
+            {
+                DocOrder selectedDocOrder = null;
+                foreach (var item in DocOrders)
+                {
+                    if (item.DocOrderId == new Guid(gridDocShipmentOrders[row, 0].ToString()))
+                    {
+                        selectedDocOrder = item;
+                        break;
+                    }
+                }
+                /*var id = new Guid(gridDocShipmentOrders[row, 0].ToString());
+                var orderType = (OrderType) Convert.ToInt32(gridDocShipmentOrders[row, 1]);
+                var inPlaceId = gridDocShipmentOrders[row, 3] == null ? (int?)null : Convert.ToInt32(gridDocShipmentOrders[row, 3]);
+                 */
+                if (selectedDocOrder != null && selectedDocOrder.IsControlExec)
+                {
+                    if (Shared.ShowMessageQuestion(@"Вы закончили погрузку? (приказ " + selectedDocOrder.Number+ ")") == DialogResult.Yes)
+                    {
+                        UIServices.SetBusyState(this);
+                        var result = Db.UpdateEndExecInDocOrder(selectedDocOrder.DocOrderId, Shared.PersonId);
+                        UIServices.SetNormalState(this);
+                        if (result == null)
+                        {
+                            Shared.ShowMessageError("Ошибка при сохранении времени окончания погрузки. Попробуйте еще раз.");
+                        }
+                        else
+                        {
+                            try
+                            {
+                                CultureInfo culture = new CultureInfo("ru-RU");
+                                selectedDocOrder.EndExec = Convert.ToDateTime(result, culture);
+                            }
+                            catch
+                            {
+                                Shared.ShowMessageError(result);
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }

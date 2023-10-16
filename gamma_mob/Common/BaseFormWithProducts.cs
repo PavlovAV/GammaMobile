@@ -255,8 +255,12 @@ namespace gamma_mob.Common
                     (() => lblCollected.Text = Collected.ToString(CultureInfo.InvariantCulture)));
             }
         }
-   
 
+        protected bool IsControlExec { get; set; }
+        protected DateTime? StartExec { get; set; }
+        protected int? countScan { get; set; }
+ 
+        
         /// <summary>
         ///     Добавление продукта по штрихкоду
         /// </summary>
@@ -276,6 +280,37 @@ namespace gamma_mob.Common
                     }
                     else
                     {
+                        if (!fromBuffer)
+                        {
+                            if ((this is DocWithNomenclatureForm) && IsControlExec && StartExec == null && (countScan ?? 3) > 2)
+                            {
+                                countScan = 0;
+                                if (Shared.ShowMessageQuestion(@"Вы не отметили, что погрузка начата. Вы уже начали погрузку?") == DialogResult.Yes)
+                                {
+                                    UIServices.SetBusyState(this);
+                                    var result = Db.UpdateStartExecInDocOrder(DocId, Shared.PersonId);
+                                    UIServices.SetNormalState(this);
+                                    if (result == null)
+                                    {
+                                        Shared.ShowMessageError("Ошибка при сохранении времени начала погрузки. Попробуйте еще раз.");
+                                    }
+                                    else
+                                    {
+                                        try
+                                        {
+                                            CultureInfo culture = new CultureInfo("ru-RU");
+                                            StartExec = Convert.ToDateTime(result, culture);
+                                        }
+                                        catch
+                                        {
+                                            Shared.ShowMessageError(result);
+                                        }
+                                    }
+                                }
+                            }
+                            countScan++;
+                        }
+
                         if (getProductResult.ProductKindId == ProductKind.ProductMovement && (getProductResult.ProductId == null || getProductResult.ProductId == Guid.Empty))
                         {
                             if (CheckIsCreatePalletMovementFromBarcodeScan())

@@ -32,7 +32,7 @@
             this.btnOK = new System.Windows.Forms.Button();
             this.btnCancel = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.lblMessage = new System.Windows.Forms.Label();
+            this.lblMessage = new System.Windows.Forms.TextBox();
             this.lblWin = new System.Windows.Forms.Label();
             this.pnlButtons.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -86,9 +86,14 @@
             this.lblMessage.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lblMessage.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular);
             this.lblMessage.Location = new System.Drawing.Point(0, 31);
+            this.lblMessage.Multiline = true;
             this.lblMessage.Name = "lblMessage";
+            this.lblMessage.ReadOnly = true;
+            this.lblMessage.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.lblMessage.Size = new System.Drawing.Size(638, 126);
+            this.lblMessage.TabIndex = 0;
             this.lblMessage.Text = "Сообщение";
+            this.lblMessage.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // lblWin
             // 
@@ -108,12 +113,12 @@
             this.ClientSize = new System.Drawing.Size(638, 215);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.pnlButtons);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Location = new System.Drawing.Point(0, 40);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "MessageBoxDialog";
             this.Text = "Окно сообщения";
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.pnlButtons.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
             this.ResumeLayout(false);
@@ -126,7 +131,8 @@
         private System.Windows.Forms.Button btnOK;
         private System.Windows.Forms.Button btnCancel;
         private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.Label lblMessage;
+        //private System.Windows.Forms.Label lblMessage;
+        private System.Windows.Forms.TextBox lblMessage;
         private System.Windows.Forms.Label lblWin;
     }
 }

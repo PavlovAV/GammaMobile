@@ -1681,7 +1681,11 @@ namespace gamma_mob
                             InPlaceName = row["InPlaceShortName"].ToString(),
                             OrderType = (OrderType)Convert.ToInt32(row["OrderKindID"]),
                             OutPlaceID = row.IsNull("OutPlaceID") ? (int?)null : Convert.ToInt32(row["OutPlaceID"]),
-                            InPlaceID = row.IsNull("InPlaceID") ? (int?)null : Convert.ToInt32(row["InPlaceID"])
+                            InPlaceID = row.IsNull("InPlaceID") ? (int?)null : Convert.ToInt32(row["InPlaceID"]),
+                            IsControlExec = row.IsNull("IsControlExec") ? false : Convert.ToBoolean(row["IsControlExec"]),
+                            StartExec = row.IsNull("StartExec") ? (DateTime?)null : Convert.ToDateTime(row["StartExec"].ToString()),
+                            EndExec = row.IsNull("EndExec") ? (DateTime?)null : Convert.ToDateTime(row["EndExec"].ToString()),
+                            State = row["State"].ToString()
                         });
                     }
                 }
@@ -4277,6 +4281,64 @@ namespace gamma_mob
                         if (!table.Rows[0].IsNull("CountProducts"))
                             result.CountProducts = Convert.ToInt16(table.Rows[0]["CountProducts"]);
                     }
+            }
+            return result;
+        }
+
+        internal static string UpdateStartExecInDocOrder(Guid docOrderId, Guid personId)
+        {
+            string result;
+            const string sql = "dbo.mob_UpdateStartExecInDocOrder";
+            var parameters = new List<SqlParameter>
+                {
+                    new SqlParameter("@DocOrderId", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = docOrderId
+                        },
+                    new SqlParameter("@PersonId", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = personId
+                        }
+                };
+            using (DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure))
+            {
+                if (table != null && table.Rows.Count > 0)
+                {
+                    result = table.Rows[0]["Result"].ToString();
+                }
+                else
+                {
+                    result = "Не удалось сохранить начало погрузки на сервере";
+                }
+            }
+            return result;
+        }
+
+        internal static string UpdateEndExecInDocOrder(Guid docOrderId, Guid personId)
+        {
+            string result;
+            const string sql = "dbo.mob_UpdateEndExecInDocOrder";
+            var parameters = new List<SqlParameter>
+                {
+                    new SqlParameter("@DocOrderId", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = docOrderId
+                        },
+                    new SqlParameter("@PersonId", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = personId
+                        }
+                };
+            using (DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure))
+            {
+                if (table != null && table.Rows.Count > 0)
+                {
+                    result = table.Rows[0]["Result"].ToString();
+                }
+                else
+                {
+                    result = "Не удалось сохранить окончание погрузки на сервере";
+                }
             }
             return result;
         }

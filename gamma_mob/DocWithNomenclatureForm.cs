@@ -331,6 +331,10 @@ namespace gamma_mob
                     if (productKindId == null || productKindId != 3) Collected--;
                 }
                 error_ch = "ch4";
+                if (NomenclatureList.Count > 0 && !NomenclatureList.Any(n => !n.IsCollected))
+                {
+                    Shared.ShowMessageInformation("Собраны все позиции. Не забудьте закрыть заказ.");
+                }
                 CountNomenclatureExceedingMaxPercentWithBreak = 0;
                 error_ch = "ch5";
                 foreach (DocNomenclatureItem item in NomenclatureList)

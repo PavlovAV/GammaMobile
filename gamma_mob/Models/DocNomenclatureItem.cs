@@ -25,6 +25,11 @@ namespace gamma_mob.Models
         public bool IsPercentCollectedExcess { get; set; }
 
         /// <summary>
+        ///     Признак, что номенклатура собрана
+        /// </summary> 
+        public bool IsCollected { get; set; }
+
+        /// <summary>
         ///     Количество для сбора(может быть LoadToTop)
         /// </summary>
         public string Quantity { get; set; }
@@ -48,6 +53,14 @@ namespace gamma_mob.Models
                 }
                 //NotifyPropertyChanged("CollectedQuantity");
                 NotifyPropertyChanged("CollectedQuantityComputedColumn");
+                try
+                {
+                    IsCollected = (Convert.ToDecimal(CollectedQuantityComputedColumn) >= Convert.ToDecimal(Quantity));
+                }
+                catch
+                {
+                    IsCollected = false;
+                }
             }
         }
 

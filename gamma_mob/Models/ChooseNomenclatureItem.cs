@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Collections.Generic;
 
 namespace gamma_mob.Models
 {
@@ -12,6 +13,8 @@ namespace gamma_mob.Models
         public string Name { get; set; }
         public string Barcode { get; set; }
         public Guid BarcodeId { get; set; }
+        public string MeasureUnits { get; set; }
+
         
         #region Члены INotifyPropertyChanged
 

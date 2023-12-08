@@ -41,9 +41,10 @@ namespace gamma_mob
         /// <param name="fileName">Имя файла для хранения информации о невыгруженных продуктах</param>
         /// <param name="docDirection">Направление движения продукции(in, out, outin)</param>
         public DocWithNomenclatureForm(Guid docOrderId, Form parentForm, string orderNumber, OrderType orderType,
-            DocDirection docDirection, bool isMovementForOrder, int maxAllowedPercentBreak, bool isControlExec, DateTime? startExec)
+            DocDirection docDirection, bool isMovementForOrder, int maxAllowedPercentBreak, EndPointInfo startPointInfo, bool isControlExec, DateTime? startExec)
             : this(parentForm)
         {
+            StartPointInfo = startPointInfo;
             OrderType = orderType;
             DocId = docOrderId;
             DocDirection = docDirection;
@@ -124,17 +125,13 @@ namespace gamma_mob
         }
 
         public DocWithNomenclatureForm(Guid docOrderId, Form parentForm, string orderNumber, OrderType orderType,
-            DocDirection docDirection, bool isMovementForOrder, int maxAllowedPercentBreak, EndPointInfo endPointInfo, bool isControlExec, DateTime? startExec)
+            DocDirection docDirection, bool isMovementForOrder, int maxAllowedPercentBreak, EndPointInfo startPointInfo, EndPointInfo endPointInfo, bool isControlExec, DateTime? startExec)
             : this(docOrderId, parentForm, orderNumber, orderType,
-            docDirection, isMovementForOrder, maxAllowedPercentBreak, isControlExec, startExec) 
+            docDirection, isMovementForOrder, maxAllowedPercentBreak, startPointInfo, isControlExec, startExec) 
         {
             EndPointInfo = endPointInfo;
-            if (endPointInfo.IsSettedDefaultPlaceZoneId)
-            {
-                lblZoneName.Text = "Зона по умолчанию: " + EndPointInfo.PlaceZoneName;
-                lblZoneName.Visible = true;
-            }
-            Shared.SaveToLogInformation(@"EndPointInfo.PlaceId-" + EndPointInfo.PlaceId + @"; EndPointInfo.PlaceZoneId-" + EndPointInfo.PlaceZoneId);
+            EndpointSettedInFormConstructor(EndPointInfo, pnlZone);
+            Shared.SaveToLogInformation(@"StartPointInfo.PlaceId-" + StartPointInfo.PlaceId + @"; StartPointInfo.PlaceZoneId-" + StartPointInfo.PlaceZoneId + @"; EndPointInfo.PlaceId-" + EndPointInfo.PlaceId + @"; EndPointInfo.PlaceZoneId-" + EndPointInfo.PlaceZoneId);
         }
 
         // Устанавливаем цвет фона для ячейки Собрано при превышении собранного количества над требуемым!
@@ -213,7 +210,7 @@ namespace gamma_mob
                 return;
             }
             var good = NomenclatureList[gridDocOrder.CurrentRowIndex];
-            var form = new DocShipmentProductsForm(DocId, good.NomenclatureId, good.NomenclatureName, good.CharacteristicId, good.QualityId, this, DocDirection, IsMovementForOrder, OrderType, new RefreshDocProductDelegate(RefreshDocOrder));
+            var form = new DocShipmentProductsForm(DocId, good.NomenclatureId, good.NomenclatureName, good.CharacteristicId, good.QualityId, this, DocDirection, IsMovementForOrder, OrderType, new RefreshDocProductDelegate(RefreshDocOrder), StartPointInfo, EndPointInfo, good.IsEnableAddProductManual);
             if (!form.IsDisposed)
             {
                 BarcodeFunc = null;
@@ -271,7 +268,7 @@ namespace gamma_mob
 
         protected override DbOperationProductResult AddProductId(Guid? scanId, DbProductIdFromBarcodeResult getProductResult, EndPointInfo endPointInfo)
         {
-            var addedProductIdToOrderResult = Db.AddProductIdToOrder(scanId, DocId, OrderType, Shared.PersonId, getProductResult.ProductId, DocDirection, endPointInfo, (int?)getProductResult.ProductKindId, getProductResult.NomenclatureId, getProductResult.CharacteristicId, getProductResult.QualityId, getProductResult.CountProducts, getProductResult.FromProductId);
+            var addedProductIdToOrderResult = Db.AddProductIdToOrder(scanId, DocId, OrderType, Shared.PersonId, getProductResult.ProductId, DocDirection, endPointInfo, (int?)getProductResult.ProductKindId, getProductResult.NomenclatureId, getProductResult.CharacteristicId, getProductResult.QualityId, getProductResult.CountProducts, getProductResult.MeasureUnitId, getProductResult.FromProductId, getProductResult.FromPlaceId, getProductResult.FromPlaceZoneId);
             return addedProductIdToOrderResult == null ? null : (addedProductIdToOrderResult as DbOperationProductResult);
         }
 
@@ -386,9 +383,10 @@ namespace gamma_mob
             OpenDetails();
         }
 
-        private void btnChangeZone_Click(object sender, EventArgs e)
+        protected override List<Nomenclature> GetNomenclatureGoods()
         {
-            //ChangeZone();
+            return NomenclatureList.Select(n => new Nomenclature(n.NomenclatureId, n.CharacteristicId, n.QualityId)).Distinct().ToList();   
         }
+
     }
 }

@@ -15,9 +15,9 @@ namespace gamma_mob
         }
 
         public DocMovementProductsForm(int placeId, Guid personId, Guid nomenclatureId, string nomenclatureName
-            , Guid characteristicId, Guid qualityId, Guid? placeZoneId, Form parentForm)
+            , Guid characteristicId, Guid qualityId, Guid? placeZoneId, Form parentForm, bool isEnableAddProductManual)
             : base(placeId, personId, nomenclatureId, nomenclatureName
-            , characteristicId, qualityId, placeZoneId, parentForm)
+            , characteristicId, qualityId, placeZoneId, parentForm, isEnableAddProductManual)
         {
             
         }

@@ -36,15 +36,7 @@ namespace gamma_mob
             DocDirection = docDirection;
 
             EndPointInfo = endPointInfo;
-            if (endPointInfo.IsSettedDefaultPlaceZoneId)
-            {
-                lblZoneName.Text = "Зона: " + EndPointInfo.PlaceZoneName;
-                pnlZone.Visible = true;
-            }
-            else if (endPointInfo.IsAvailabilityPlaceZoneId && !endPointInfo.IsSettedDefaultPlaceZoneId)
-            {
-                ShowMessageInformation(@"Не выбрана зона склада по умолчанию.");
-            }
+            EndpointSettedInFormConstructor(EndPointInfo, pnlZone);
             
             Shared.SaveToLogInformation(@"EndPointInfo.PlaceId-" + EndPointInfo.PlaceId + @"; EndPointInfo.PlaceZoneId-" + EndPointInfo.PlaceZoneId);
 
@@ -110,7 +102,7 @@ namespace gamma_mob
 
         protected override DbOperationProductResult AddProductId(Guid? scanId, DbProductIdFromBarcodeResult getProductResult, EndPointInfo endPointInfo)
         {
-            var addedMoveProductResult = Db.MoveProduct(scanId, Shared.PersonId, getProductResult.ProductId, endPointInfo, (int?)getProductResult.ProductKindId, getProductResult.NomenclatureId, getProductResult.CharacteristicId, getProductResult.QualityId, getProductResult.CountProducts, getProductResult.FromProductId);
+            var addedMoveProductResult = Db.MoveProduct(scanId, Shared.PersonId, getProductResult.ProductId, endPointInfo, (int?)getProductResult.ProductKindId, getProductResult.NomenclatureId, getProductResult.CharacteristicId, getProductResult.QualityId, getProductResult.CountProducts, getProductResult.MeasureUnitId, getProductResult.FromProductId, getProductResult.FromPlaceId, getProductResult.FromPlaceZoneId);
             return addedMoveProductResult == null ? null : (addedMoveProductResult as DbOperationProductResult);
         }
 
@@ -271,7 +263,7 @@ namespace gamma_mob
             if (row >= 0)
             {
                 var good = AcceptedProducts[row];
-                var form = new DocMovementProductsForm(EndPointInfo.PlaceId, Shared.PersonId, good.NomenclatureId, good.NomenclatureName, good.CharacteristicId, good.QualityId, good.PlaceZoneId, this);
+                var form = new DocMovementProductsForm(EndPointInfo.PlaceId, Shared.PersonId, good.NomenclatureId, good.NomenclatureName, good.CharacteristicId, good.QualityId, good.PlaceZoneId, this, good.IsEnableAddProductManual);
                 if (!form.IsDisposed)
                 {
                     //form.Show();
@@ -299,24 +291,10 @@ namespace gamma_mob
             }
         }
 
-        private void btnChangeZone_Click(object sender, EventArgs e)
+        protected override List<Nomenclature> GetNomenclatureGoods()
         {
-            using (var formPlaceZone = new ChooseEndPointDialog(EndPointInfo.PlaceId))
-            {
-                DialogResult resultPlaceZone = formPlaceZone.ShowDialog();
-                if (resultPlaceZone != DialogResult.OK)
-                {
-                    Shared.ShowMessageInformation(@"Не выбрана новая зона склада.");
-                    //endPointInfo.IsSettedDefaultPlaceZoneId = false;
-                }
-                else
-                {
-                    EndPointInfo = formPlaceZone.EndPointInfo;
-                    lblZoneName.Text = "Зона: " + EndPointInfo.PlaceZoneName;
-                    EndPointInfo.IsSettedDefaultPlaceZoneId = true;
-
-                }
-            }
+            return new List<Nomenclature>();
         }
+
     }
 }

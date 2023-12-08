@@ -14,17 +14,17 @@ namespace gamma_mob
             InitializeComponent();
         }
 
-        public DocInventarisationProductsForm(Guid docShipmentOrderId, Guid nomenclatureId, string nomenclatureName
-            , Guid characteristicId, Guid qualityId, Form parentForm)
-            : base(docShipmentOrderId, nomenclatureId, nomenclatureName
-            , characteristicId, qualityId, parentForm)
+        public DocInventarisationProductsForm(Guid docId, Guid nomenclatureId, string nomenclatureName
+            , Guid characteristicId, Guid qualityId, Form parentForm, bool isEnableAddProductManual)
+            : base(docId, nomenclatureId, nomenclatureName
+            , characteristicId, qualityId, parentForm, isEnableAddProductManual)
         {
 
         }
 
         protected override BindingList<ProductBase> GetProducts()
         {
-            return Db.DocInventarisationNomenclatureProducts(DocShipmentOrderId, NomenclatureId, CharacteristicId, QualityId);
+            return Db.DocInventarisationNomenclatureProducts(DocId, NomenclatureId, CharacteristicId, QualityId);
         }        
 
         protected override DbOperationProductResult RemovalProduct(Guid scanId)

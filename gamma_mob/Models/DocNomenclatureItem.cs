@@ -3,16 +3,16 @@ using System.ComponentModel;
 
 namespace gamma_mob.Models
 {
-    public class DocNomenclatureItem : INotifyPropertyChanged
+    public class DocNomenclatureItem : Nomenclature, INotifyPropertyChanged
     {
         private decimal _collectedQuantity;
         public int CountProductSpools { get; set; }
         public int CountProductSpoolsWithBreak { get; set; }
-        public Guid NomenclatureId { get; set; }
-        public Guid CharacteristicId { get; set; }
-        public Guid QualityId { get; set; }
-        public string NomenclatureName { get; set; }
-        public string ShortNomenclatureName { get; set; }
+        //public Guid NomenclatureId { get; set; }
+        //public Guid CharacteristicId { get; set; }
+        //public Guid QualityId { get; set; }
+        //public string NomenclatureName { get; set; }
+        //public string ShortNomenclatureName { get; set; }
         public int LineNumber { get; set; }
         public int? CoefficientPackage { get; set; }
         public int? CoefficientPallet { get; set; }
@@ -63,6 +63,11 @@ namespace gamma_mob.Models
                 }
             }
         }
+
+        /// <summary>
+        ///     Признак, что по данной номенклатуре можно добавлять перемещение вручную (указав зону, номенклатур, кол-во)
+        /// </summary> 
+        public bool IsEnableAddProductManual { get; set; }
 
         #region Члены INotifyPropertyChanged
 

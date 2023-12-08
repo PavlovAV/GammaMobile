@@ -28,7 +28,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;WindowsCE</DefineConstants>
+    <DefineConstants>DEBUG;WindowsCE,DISABLESCANER</DefineConstants>
     <NoStdLib>true</NoStdLib>
     <NoConfig>true</NoConfig>
     <ErrorReport>prompt</ErrorReport>
@@ -47,6 +47,18 @@
     <FileAlignment>512</FileAlignment>
     <WarningLevel>4</WarningLevel>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DebugWithScaner|AnyCPU' ">
+    <NoStdLib>true</NoStdLib>
+    <NoConfig>true</NoConfig>
+    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\DebugWithScaner\</OutputPath>
+    <DefineConstants>DEBUG;WindowsCE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <DefineConstants>DEBUG;WindowsCE</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Accessibility, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
@@ -120,6 +132,9 @@
     <Compile Include="Common\IBarcodeScanner.cs" />
     <Compile Include="Common\IDevice.cs" />
     <Compile Include="Common\IDeviceExtended.cs" />
+    <Compile Include="Common\NumericUpDownWithButtons.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Common\PanelToolBar.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -140,7 +155,13 @@
     <Compile Include="Common\DocProductsBaseForm.Designer.cs">
       <DependentUpon>DocProductsBaseForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Common\QuantityMeasureUnit.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Common\scancodeterminalid.cs" />
+    <Compile Include="Common\TextBoxNumeric.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Dialogs\ChooseShiftDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -152,6 +173,12 @@
     </Compile>
     <Compile Include="Dialogs\ChoosePasswordDialog.Designer.cs">
       <DependentUpon>ChoosePasswordDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\GetNomenclatureCharacteristicQuantityDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\GetNomenclatureCharacteristicQuantityDialog.Designer.cs">
+      <DependentUpon>GetNomenclatureCharacteristicQuantityDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="Dialogs\MessageBoxDialog.cs">
       <SubType>Form</SubType>
@@ -285,10 +312,13 @@
     <Compile Include="Models\Barcodes1C.cs" />
     <Compile Include="Models\CashedBarcodes.cs" />
     <Compile Include="Models\CashedBarcode.cs" />
+    <Compile Include="Models\MeasureUnitNomenclature.cs" />
     <Compile Include="Models\DbCreateNewPalletResult.cs" />
     <Compile Include="Models\DbDeleteOperationProductResult.cs" />
     <Compile Include="Models\DbInventarisationOperationProductResult.cs" />
     <Compile Include="Models\DbOrderOperationProductResult.cs" />
+    <Compile Include="Models\MeasureUnit.cs" />
+    <Compile Include="Models\Nomenclature.cs" />
     <Compile Include="Models\ProductBase.cs" />
     <Compile Include="Models\ScannedBarcodes.cs" />
     <Compile Include="Models\ScannedBarcode.cs" />
@@ -379,6 +409,10 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\ChooseNomenclatureCharacteristicDialog.resx">
       <DependentUpon>ChooseNomenclatureCharacteristicDialog.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\GetNomenclatureCharacteristicQuantityDialog.resx">
+      <DependentUpon>GetNomenclatureCharacteristicQuantityDialog.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\MessageBoxDialog.resx">

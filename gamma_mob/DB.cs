@@ -1831,7 +1831,8 @@ namespace gamma_mob
                             //SpoolWithBreakPercentColumn = (row.IsNull("CountProductSpools") || Convert.ToDecimal(row["CountProductSpools"]) == 0) ? 0 : (100 * Convert.ToDecimal(row["CountProductSpoolsWithBreak"]) / Convert.ToDecimal(row["CountProductSpools"])),
                             //Quantity = quantity,
                             CollectedQuantity = collectedQuantity,
-                            CollectedQuantityUnits = row.IsNull("QuantityUnits") ? 0 : Convert.ToInt32(row["QuantityUnits"])
+                            CollectedQuantityUnits = row.IsNull("QuantityUnits") ? 0 : Convert.ToInt32(row["QuantityUnits"]),
+                            IsEnableAddProductManual = Convert.ToBoolean(row["IsEnableAddProductManual"])
                             /*Barcode = row["Barcode"].ToString(),
                             Number = row["Number"].ToString(),
                             NomenclatureName = row["ShortNomenclatureName"].ToString(),
@@ -1976,7 +1977,8 @@ namespace gamma_mob
                             //SpoolWithBreakPercentColumn = (row.IsNull("CountProductSpools") || Convert.ToDecimal(row["CountProductSpools"]) == 0) ? 0 : (100 * Convert.ToDecimal(row["CountProductSpoolsWithBreak"]) / Convert.ToDecimal(row["CountProductSpools"])),
                             Quantity = quantity,
                             CollectedQuantity = collectedQuantity,
-                            CollectedQuantityUnits = quantityUnits
+                            CollectedQuantityUnits = quantityUnits,
+                            IsEnableAddProductManual = Convert.ToBoolean(row["IsEnableAddProductManual"])
                         });
                     }
                 }
@@ -1999,6 +2001,44 @@ namespace gamma_mob
                                       WarehouseId = Convert.ToInt32(row["WarehouseID"]),
                                       WarehouseName = row["WarehouseName"].ToString(),
                                       WarehouseZones = GetWarehousePlaceZones(Convert.ToInt32(row["WarehouseID"]))
+                                  });
+                }
+            }
+            return list;
+        }
+
+        public static List<MeasureUnitNomenclature> GetMeasureUnitsForNomenclature(Guid nomenclatureId, Guid characteristicId)
+        {
+            List<MeasureUnitNomenclature> list = null;
+            const string sql = "[mob_GetMeasureUnitsForNomenclature]";
+            var parameters = new List<SqlParameter>
+                {
+                    new SqlParameter("@NomenclatureID", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = nomenclatureId
+                        },
+                    new SqlParameter("@CharacteristicID", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = characteristicId
+                        }
+
+                };
+            using (DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure))
+            {
+                if (table != null && table.Rows.Count > 0)
+                {
+                    list = new List<MeasureUnitNomenclature>();
+                    list.AddRange(from DataRow row in table.Rows
+                                  select new MeasureUnitNomenclature
+                                  {
+                                      MeasureUnitID = new Guid(row["MeasureUnitID"].ToString()),
+                                      Name = row["MeasureUnitName"].ToString(),
+                                      NomenclatureID = new Guid(row["NomenclatureID"].ToString()),
+                                      CharacteristicID = row.IsNull("CharacteristicID") ? new Guid() : new Guid(row["CharacteristicID"].ToString()),
+                                      IsActive = Convert.ToBoolean(row["IsActive"]),
+                                      //Coefficient = Convert.ToInt32(row["Coefficient"])
+                                      Numerator = Convert.ToInt32(row["Numerator"]),
+                                      Denominator = Convert.ToInt32(row["Denominator"])
                                   });
                 }
             }
@@ -2496,10 +2536,10 @@ namespace gamma_mob
 
         public static DbOrderOperationProductResult AddProductIdToOrder(Guid? scanId, Guid docOrderId, OrderType orderType, Guid personId
             , Guid productId, DocDirection docDirection, EndPointInfo endPointInfo, int? productKindId, Guid nomenclatureId, Guid characteristicId
-            , Guid qualityId, int quantity, Guid? fromProductId)
+            , Guid qualityId, int quantity, Guid measureUnitId, Guid? fromProductId, int? fromPlaceId, Guid? fromPlaceZoneId)
         {
             DbOrderOperationProductResult result = null;
-            const string sql = "dbo.[mob_AddScanIdToOrderV2]";
+            const string sql = "dbo.[mob_AddScanIdToOrderV3]";
             var parameters = new List<SqlParameter>
                 {
                     new SqlParameter("@ScanID", SqlDbType.UniqueIdentifier)
@@ -2546,6 +2586,10 @@ namespace gamma_mob
                         {
                             Value = quantity
                         },
+                    new SqlParameter("@MeasureUnitID", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = measureUnitId
+                        },
                     new SqlParameter("@ShiftId", SqlDbType.TinyInt)
                         {
                             Value = Shared.ShiftId
@@ -2557,6 +2601,14 @@ namespace gamma_mob
                     new SqlParameter("@InPlaceZoneID", SqlDbType.UniqueIdentifier)
                         {
                             Value = endPointInfo != null && endPointInfo.PlaceZoneId != null ? (endPointInfo.PlaceZoneId as object) : DBNull.Value
+                        },
+                    new SqlParameter("@FromPlaceID", SqlDbType.Int)
+                        {
+                            Value = (fromPlaceId as object) ?? DBNull.Value
+                        },
+                    new SqlParameter("@FromPlaceZoneID", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = (fromPlaceZoneId as object) ?? DBNull.Value
                         }
                 };
             using (DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure))
@@ -2571,6 +2623,10 @@ namespace gamma_mob
                     };
                     if (!table.Rows[0].IsNull("NomenclatureID"))
                     {
+                        result.OutPlace = table.Rows[0]["OutPlace"].ToString();
+                        result.OutPlaceZone = table.Rows[0]["OutPlaceZone"].ToString();
+                        result.InPlace = table.Rows[0]["InPlace"].ToString();
+                        result.InPlaceZone = table.Rows[0]["InPlaceZone"].ToString();
                         result.Product = new Product
                         {
                             ProductId = new Guid(table.Rows[0]["ProductID"].ToString()),
@@ -2578,6 +2634,7 @@ namespace gamma_mob
                             CharacteristicId = table.Rows[0].IsNull("CharacteristicID") ? Guid.Empty : new Guid(table.Rows[0]["CharacteristicID"].ToString()),
                             QualityId = new Guid(table.Rows[0]["QualityID"].ToString()),
                             Quantity = Convert.ToDecimal(table.Rows[0]["Quantity"]),
+                            //MeasureUnitId = table.Rows[0].IsNull("MeasureUnitID") ? Guid.Empty : new Guid(table.Rows[0]["MeasureUnitID"].ToString()),
                             NomenclatureName = table.Rows[0]["NomenclatureName"].ToString(),
                             ShortNomenclatureName = table.Rows[0]["ShortNomenclatureName"].ToString(),
                             CountProductSpools = table.Rows[0].IsNull("CountProductSpools") ? 0 : Convert.ToInt16(table.Rows[0]["CountProductSpools"]),
@@ -2651,6 +2708,10 @@ namespace gamma_mob
                     };
                     if (acceptProductResult != null & !table.Rows[0].IsNull("NomenclatureID"))
                     {
+                        acceptProductResult.OutPlace = table.Rows[0]["OutPlace"].ToString();
+                        acceptProductResult.OutPlaceZone = table.Rows[0]["OutPlaceZone"].ToString();
+                        acceptProductResult.InPlace = table.Rows[0]["InPlace"].ToString();
+                        acceptProductResult.InPlaceZone = table.Rows[0]["InPlaceZone"].ToString();
                         acceptProductResult.Product = new Product
                         {
                             //ProductId = new Guid(table.Rows[0]["ProductID"].ToString()),
@@ -2670,10 +2731,10 @@ namespace gamma_mob
         }
 
         public static DbMoveOperationProductResult MoveProduct(Guid? scanId, Guid personId, Guid productId, EndPointInfo endPointInfo, int? productKindId, Guid nomenclatureId, Guid characteristicId
-            , Guid qualityId, int quantity, Guid? fromProductId)
+            , Guid qualityId, int quantity, Guid measureUnitId, Guid? fromProductId, int? fromPlaceId, Guid? fromPlaceZoneId)
         {
             DbMoveOperationProductResult acceptProductResult = null;
-            const string sql = "dbo.[mob_AddScanIdToMovementV2]";
+            const string sql = "dbo.[mob_AddScanIdToMovementV3]";
             var parameters = new List<SqlParameter>
                 {
                     new SqlParameter("@ScanID", SqlDbType.UniqueIdentifier)
@@ -2716,6 +2777,10 @@ namespace gamma_mob
                         {
                             Value = quantity
                         },
+                    new SqlParameter("@MeasureUnitID", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = measureUnitId
+                        },
                     new SqlParameter("@ShiftId", SqlDbType.TinyInt)
                         {
                             Value = Shared.ShiftId
@@ -2723,6 +2788,18 @@ namespace gamma_mob
                     new SqlParameter("@FromProductID", SqlDbType.UniqueIdentifier)
                         {
                             Value = (fromProductId as object) ?? DBNull.Value
+                        },
+                    new SqlParameter("@IntoProductID", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = DBNull.Value
+                        },
+                    new SqlParameter("@FromPlaceID", SqlDbType.Int)
+                        {
+                            Value = (fromPlaceId as object) ?? DBNull.Value
+                        },
+                    new SqlParameter("@FromPlaceZoneID", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = (fromPlaceZoneId as object) ?? DBNull.Value
                         }
                 };
             using (DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure))
@@ -2735,7 +2812,7 @@ namespace gamma_mob
                         AlreadyAdded =
                             !table.Rows[0].IsNull("AlreadyAdded") &&
                             Convert.ToBoolean(table.Rows[0]["AlreadyAdded"]),
-                        PlaceZoneId = table.Rows[0].IsNull("PlaceZoneID") ? new Guid() : new Guid(table.Rows[0]["PlaceZoneID"].ToString()),
+                        PlaceZoneId = table.Rows[0].IsNull("InPlaceZoneID") ? new Guid() : new Guid(table.Rows[0]["InPlaceZoneID"].ToString()),
                         ScanId = scanId
                     };
                     if (acceptProductResult != null & !table.Rows[0].IsNull("NomenclatureID"))
@@ -3184,7 +3261,8 @@ namespace gamma_mob
                             NomenclatureName = row["NomenclatureName"].ToString(),
                             CollectedQuantity = Convert.ToDecimal(row["Quantity"]),
                             ShortNomenclatureName = row["ShortNomenclatureName"].ToString(),
-                            CollectedQuantityUnits = row.IsNull("QuantityUnits") ? 0 : Convert.ToInt32(row["QuantityUnits"])
+                            CollectedQuantityUnits = row.IsNull("QuantityUnits") ? 0 : Convert.ToInt32(row["QuantityUnits"]),
+                            IsEnableAddProductManual = Convert.ToBoolean(row["IsEnableAddProductManual"])
                         });
                     }
                 }
@@ -3435,7 +3513,7 @@ namespace gamma_mob
             , Guid qualityId, int quantity, Guid? fromProductId)
         {
             AddPalletItemResult result = null;
-            const string sql = "dbo.mob_AddItemToPallet";
+            const string sql = "dbo.mob_AddItemToPalletV1";
             var parameters = new List<SqlParameter>
                 {
                     new SqlParameter("@ScanID", SqlDbType.UniqueIdentifier)
@@ -4342,5 +4420,133 @@ namespace gamma_mob
             }
             return result;
         }
+
+        public static BindingList<ChooseNomenclatureItem> GetNomenclatureCharacteristicQualityFromId(Guid nomenclatureId, Guid characteristicId, Guid qualityId)
+        {
+            BindingList<ChooseNomenclatureItem> list = null;
+            const string sql = "dbo.mob_GetNomenclatureCharacteristicQualityFromID";
+            var parameters = new List<SqlParameter>
+                {
+                    new SqlParameter("@NomenclatureID", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = nomenclatureId
+                        },
+                        new SqlParameter("@CharacteristicID", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = characteristicId
+                        },
+                        new SqlParameter("@QualityID", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = qualityId
+                        },
+                };
+            using (DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure))
+            {
+                if (table != null && table.Rows.Count > 0)
+                {
+                    list = new BindingList<ChooseNomenclatureItem>();
+                    foreach (DataRow row in table.Rows)
+                    {
+                        list.Add(new ChooseNomenclatureItem
+                        {
+                            NomenclatureId = new Guid(row["1CNomenclatureID"].ToString()),
+                            CharacteristicId = row.IsNull("1CCharacteristicID") ? Guid.Empty : new Guid(row["1CCharacteristicID"].ToString()),
+                            QualityId = new Guid(row["1CQualityID"].ToString()),
+                            Name = row["Name"].ToString(),
+                            Barcode = row["Barcode"].ToString()
+                        });
+                    }
+                }
+            }
+            return list;
+        }
+
+        public static BindingList<ChooseNomenclatureItem> GetNomenclatureInPlaceZone(int placeId, Guid placeZoneId, bool isFilteringOnNomenclature, Guid? nomenclatureId, Guid? characteristicId)
+        {
+            BindingList<ChooseNomenclatureItem> list = new BindingList<ChooseNomenclatureItem>(); 
+            const string sql = "dbo.mob_GetNomenclatureInPlaceZone";
+            var parameters = new List<SqlParameter>
+                {
+                    new SqlParameter("@PlaceID", SqlDbType.Int)
+                        {
+                            Value = placeId
+                        },
+                        new SqlParameter("@PlaceZoneID", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = placeZoneId
+                        },
+                        new SqlParameter("@IsFilteringOnNomenclature", SqlDbType.Bit)
+                        {
+                            Value = isFilteringOnNomenclature
+                        },
+                        new SqlParameter("@NomenclatureID", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = nomenclatureId
+                        },
+                        new SqlParameter("@CharacteristicID", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = characteristicId
+                        }
+                };
+            using (DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure))
+            {
+                if (table != null && table.Rows.Count > 0)
+                {
+                    //list = new BindingList<ChooseNomenclatureItem>();
+                    foreach (DataRow row in table.Rows)
+                    {
+                        list.Add(new ChooseNomenclatureItem
+                        {
+                            NomenclatureId = new Guid(row["1CNomenclatureID"].ToString()),
+                            CharacteristicId = row.IsNull("1CCharacteristicID") ? Guid.Empty : new Guid(row["1CCharacteristicID"].ToString()),
+                            QualityId = new Guid(row["1CQualityID"].ToString()),
+                            Name = row["Name"].ToString(),
+                            Barcode = row["Barcode"].ToString(),
+                            MeasureUnitId = row.IsNull("MeasureUnitID") ? Guid.Empty : new Guid(row["MeasureUnitID"].ToString()),
+                            MeasureUnits = row["MeasureUnits"].ToString()
+                        });
+                    }
+                }
+            }
+            return list;
+        }
+
+        //public static List<MeasureUnit> GetNomenclatureMeasureUnits(Guid nomenclatureId)
+        //{
+        //    List<MeasureUnit> list = null;
+        //    const string sql = "dbo.mob_GetNomenclatureMeasureUnits";
+        //    var parameters = new List<SqlParameter>
+        //        {
+        //            new SqlParameter("@PlaceID", SqlDbType.Int)
+        //                {
+        //                    Value = placeId
+        //                },
+        //                new SqlParameter("@PlaceZoneID", SqlDbType.UniqueIdentifier)
+        //                {
+        //                    Value = placeZoneId
+        //                },
+        //        };
+        //    using (DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure))
+        //    {
+        //        if (table != null && table.Rows.Count > 0)
+        //        {
+        //            list = new BindingList<ChooseNomenclatureItem>();
+        //            foreach (DataRow row in table.Rows)
+        //            {
+        //                list.Add(new ChooseNomenclatureItem
+        //                {
+        //                    NomenclatureId = new Guid(row["1CNomenclatureID"].ToString()),
+        //                    CharacteristicId = row.IsNull("1CCharacteristicID") ? Guid.Empty : new Guid(row["1CCharacteristicID"].ToString()),
+        //                    QualityId = new Guid(row["1CQualityID"].ToString()),
+        //                    Name = row["Name"].ToString(),
+        //                    Barcode = row["Barcode"].ToString(),
+        //                    MeasureUnitId = new Guid(row["MeasureUnitID"].ToString()),
+        //                    MeasureUnits = Db.GetNomenclatureMeasureUnits(new Guid(row["1CNomenclatureID"].ToString()))
+        //                });
+        //            }
+        //        }
+        //    }
+        //    return list;
+        //}
     }
 }

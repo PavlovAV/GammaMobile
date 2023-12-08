@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using System.Linq;
 using System.Windows.Forms;
 using gamma_mob.Common;
 using gamma_mob.Dialogs;
@@ -11,24 +12,34 @@ using System.ComponentModel;
 
 namespace gamma_mob
 {
-    public partial class DocProductsBaseForm : BaseFormWithToolBar
+    public partial class DocProductsBaseForm : BaseFormWithProducts
     {
         protected DocProductsBaseForm()
         {
             InitializeComponent();
+            Shared.MakeButtonMultiline(btnAdd);
+            btnAdd.Text = "Доба" + Environment.NewLine + "вить";
         }
 
-        public DocProductsBaseForm(Guid docShipmentOrderId, Guid nomenclatureId, string nomenclatureName
-            , Guid characteristicId, Guid qualityId, Form parentForm)
+        protected DocProductsBaseForm(Guid nomenclatureId, string nomenclatureName
+            , Guid characteristicId, Guid qualityId, bool isEnableAddProductManual)
             : this()
         {
             lblNomenclature.Text = nomenclatureName;
-            ParentForm = parentForm;
-            DocShipmentOrderId = docShipmentOrderId;
             NomenclatureId = nomenclatureId;
             CharacteristicId = characteristicId;
             QualityId = qualityId;
-            //RefreshDocOrder = refreshDocOrder;
+            pnlQuantity.Visible = isEnableAddProductManual;
+            if (isEnableAddProductManual)
+                qmuQuantity.FillMeasureUnitList(Shared.GetMeasureUnitsForNomenclature(NomenclatureId, CharacteristicId));
+        }
+
+        public DocProductsBaseForm(Guid docShipmentOrderId, Guid nomenclatureId, string nomenclatureName
+            , Guid characteristicId, Guid qualityId, Form parentForm, bool isEnableAddProductManual)
+            : this(nomenclatureId, nomenclatureName, characteristicId, qualityId, isEnableAddProductManual)
+        {
+            ParentForm = parentForm;
+            DocId = docShipmentOrderId;
             if (!RefreshDatGrid())
             {
                 Shared.ShowMessageError(@"Не удалось получить информацию");
@@ -38,19 +49,17 @@ namespace gamma_mob
         }
 
         public DocProductsBaseForm(Guid docShipmentOrderId, Guid nomenclatureId, string nomenclatureName
-            , Guid characteristicId, Guid qualityId, Form parentForm, DocDirection docDirection, bool isMovementForOrder, OrderType orderType, RefreshDocProductDelegate refreshDocOrder)
-            : this()
+            , Guid characteristicId, Guid qualityId, Form parentForm, DocDirection docDirection, bool isMovementForOrder, OrderType orderType, RefreshDocProductDelegate refreshDocOrder, EndPointInfo startPointInfo, EndPointInfo endPointInfo, bool isEnableAddProductManual)
+            : this(nomenclatureId, nomenclatureName, characteristicId, qualityId, isEnableAddProductManual)
         {
-            lblNomenclature.Text = nomenclatureName;
             ParentForm = parentForm;
-            DocShipmentOrderId = docShipmentOrderId;
-            NomenclatureId = nomenclatureId;
-            CharacteristicId = characteristicId;
-            QualityId = qualityId;
+            DocId = docShipmentOrderId;
             DocDirections = docDirection;
             OrderType = orderType;
             IsMovementForOrder = isMovementForOrder;
             RefreshDocOrder = refreshDocOrder;
+            StartPointInfo = startPointInfo;
+            EndPointInfo = endPointInfo;
             if (!RefreshDatGrid())
             {
                 Shared.ShowMessageError(@"Не удалось получить информацию");
@@ -61,18 +70,13 @@ namespace gamma_mob
 
 
         public DocProductsBaseForm(int placeId, Guid personId, Guid nomenclatureId, string nomenclatureName
-            , Guid characteristicId, Guid qualityId, Guid? placeZoneId, Form parentForm)
-            : this()
+            , Guid characteristicId, Guid qualityId, Guid? placeZoneId, Form parentForm, bool isEnableAddProductManual)
+            : this(nomenclatureId, nomenclatureName, characteristicId, qualityId, isEnableAddProductManual)
         {
-            lblNomenclature.Text = nomenclatureName;
             ParentForm = parentForm;
             PlaceId = placeId;
             PersonId = personId;
-            NomenclatureId = nomenclatureId;
-            CharacteristicId = characteristicId;
-            QualityId = qualityId;
             PlaceZoneId = placeZoneId;
-            //RefreshDocOrder = refreshDocOrder;
             if (!RefreshDatGrid())
             {
                 Shared.ShowMessageError(@"Не удалось получить информацию");
@@ -83,14 +87,10 @@ namespace gamma_mob
 
         public DocProductsBaseForm(Guid productId, Guid nomenclatureId, string nomenclatureName
             , Guid characteristicId, Guid qualityId, Form parentForm, RefreshPalletItemsDelegate refreshPalletItems)
-            : this()
+            : this(nomenclatureId, nomenclatureName, characteristicId, qualityId, false)
         {
-            lblNomenclature.Text = nomenclatureName;
             ParentForm = parentForm;
             ProductId = productId;
-            NomenclatureId = nomenclatureId;
-            CharacteristicId = characteristicId;
-            QualityId = qualityId;
             RefreshPalletItems = refreshPalletItems;
             if (!RefreshDatGrid())
             {
@@ -102,7 +102,6 @@ namespace gamma_mob
 
         protected int PlaceId { get; set; }
         protected Guid PersonId { get; set; }
-        protected Guid DocShipmentOrderId { get; set; }
         protected Guid NomenclatureId { get; set; }
         protected Guid CharacteristicId { get; set; }
         protected Guid QualityId { get; set; }
@@ -192,7 +191,6 @@ namespace gamma_mob
         {
             base.FormLoad(sender, e);
             base.ActivateToolBar(new List<int>() { (int)Images.Back, (int)Images.Remove });//, pnlToolBar_ButtonClick);
-            BarcodeFunc = BarcodeReaction;
         }
 
         protected override void RemoveToolBarButton() 
@@ -255,7 +253,7 @@ namespace gamma_mob
             }
         }
 
-        private void BarcodeReaction(string barcode)
+        protected override void ActionByBarcode(string barcode)
         {
             int rowIndex = -1;
             var count = AcceptedProducts.Count;
@@ -290,5 +288,55 @@ namespace gamma_mob
             }
         }
 
+        private void btnAdd_Click(object sender, EventArgs e)
+        {
+            if (ParentForm is BaseFormWithProducts)
+            {
+                var parentForm = (ParentForm as BaseFormWithProducts);
+                if (parentForm.StartPointInfo == null || (parentForm.StartPointInfo.IsAvailabilityPlaceZoneId && !parentForm.StartPointInfo.IsSettedDefaultPlaceZoneId))
+                {
+                    GetNomenclatureCharacteristicQuantityForm = new GetNomenclatureCharacteristicQuantityDialog(StartPointInfo, EndPointInfo, this, NomenclatureId, CharacteristicId, QualityId, qmuQuantity.MeasureUnit, qmuQuantity.Value);//, barcode, fromBuffer, getProductResult, this);
+                    GetNomenclatureCharacteristicQuantityForm.Show();
+                    Param1 = new AddProductReceivedEventHandlerParameter() { barcode = "barcode", endPointInfo = EndPointInfo, fromBuffer = false };
+                    //if (base.ReturnAddProductBeforeGetNomenclatureCharacteristicQuantity == null)
+                        ReturnAddProductBeforeGetNomenclatureCharacteristicQuantity += this.ChooseNomenclatureCharacteristicBarcodeReactionInAddProduct;
+                }
+                else if (parentForm.EndPointInfo == null || (parentForm.EndPointInfo.IsAvailabilityPlaceZoneId && !parentForm.EndPointInfo.IsSettedDefaultPlaceZoneId))
+                {
+                    base.ChooseEndPoint(this.ChoosePlaceZoneBarcodeReactionInAddProduct, new AddProductReceivedEventHandlerParameter() { barcode = "barcode", endPointInfo = EndPointInfo, fromBuffer = false, getProductResult = new DbProductIdFromBarcodeResult() { ProductKindId = ProductKind.ProductMovement, NomenclatureId = NomenclatureId, CharacteristicId = CharacteristicId, MeasureUnitId = qmuQuantity.MeasureUnit.MeasureUnitID, QualityId = Guid.Empty, CountProducts = qmuQuantity.Value, FromPlaceId = StartPointInfo.PlaceId, FromPlaceZoneId = StartPointInfo.PlaceZoneId} });
+                }
+            }
+        }
+
+        protected override bool CheckIsCreatePalletMovementFromBarcodeScan()
+        {
+            return true;
+        }
+
+        protected override string CheckUnloadOfflineProduct(ScannedBarcode offlineProduct)
+        {
+            string ret = "";
+            if (offlineProduct.DocId == null)
+            {
+                ret = @"Ошибка! Не указан документ, куда выгрузить продукт " + offlineProduct.Barcode;
+            }
+            return ret;
+        }
+
+        protected override void UpdateGrid(DbOperationProductResult addResult, ProductKind? productKindId, Guid? docOrderId, EndPointInfo endPointInfo, Guid? scanId)
+        {
+            if (DocId == docOrderId)
+            {
+                ProductBase t = new ProductBase() { Number = DateTime.Now.ToString(), Barcode = "", Date = DateTime.Now, InPlace = endPointInfo.PlaceName + Environment.NewLine + endPointInfo.PlaceZoneName, IsProductR = true, MovementId = scanId ?? Guid.Empty, OutPlace = addResult.OutPlace + Environment.NewLine + addResult.OutPlaceZone, Quantity = Convert.ToDouble(addResult.Product.Quantity) - Math.Floor(Convert.ToDouble(addResult.Product.Quantity)) != 0 ? addResult.Product.Quantity.ToString() : Convert.ToInt32(addResult.Product.Quantity).ToString() };
+                AcceptedProducts.Insert(0,t);
+                IsRefreshQuantity = true;
+            }
+        }
+
+        protected override List<Nomenclature> GetNomenclatureGoods()
+        {
+            return new List<Nomenclature>();
+        }
+            
     }
 }

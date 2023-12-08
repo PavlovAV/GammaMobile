@@ -28,8 +28,8 @@ namespace gamma_mob.Models
         {
             Barcode = barcode;
             ScanId = scanId;
-            PlaceId = endPointInfo.PlaceId;
-            PlaceZoneId = endPointInfo.PlaceZoneId;
+            PlaceId = endPointInfo == null ? 0 : endPointInfo.PlaceId;
+            PlaceZoneId = endPointInfo == null ? (Guid?)null : endPointInfo.PlaceZoneId;
             DocTypeId = docTypeId;
             DocId = docId;
             IsUploaded = IsUploaded;

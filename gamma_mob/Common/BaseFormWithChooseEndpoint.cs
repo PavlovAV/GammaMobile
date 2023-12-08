@@ -12,16 +12,26 @@ namespace gamma_mob.Common
     public abstract class BaseFormWithChooseEndpoint : BaseFormWithToolBar
     {
         /// <summary>
-        ///     Зона склада (заполнена, если ипсользуется, т.е. в складе выделены зоны и эта зона выбрана)
+        ///     Передел-откуда (включая зону, если есть)
         /// </summary>
-        protected EndPointInfo EndPointInfo { get; set; }
+        public EndPointInfo StartPointInfo { get; protected set; }
+        
+        /// <summary>
+        ///     Передел-куда (включая зону, если есть)
+        /// </summary>
+        public EndPointInfo EndPointInfo { get; protected set; }
+
+        private System.Windows.Forms.Panel PnlZone { get; set; }
+        private System.Windows.Forms.Label lblEndPointZoneName { get; set; }
+        private OpenNETCF.Windows.Forms.Button2 btnChangeEndPointZone { get; set; }
+            
 
         protected virtual EndPointInfo GetPlaceZoneId(EndPointInfo endPointInfo)
         {
             return null;
         }
         
-        private ChooseEndPointDialog ChooseEndPointForm;
+        public ChooseEndPointDialog ChooseEndPointForm {get; private set;}
 
         protected event AddProductReceivedEventHandler ReturnAddProductBeforeChoosedPlaceZone;
         protected event ChoosePlaceZoneEventHandler ReturnPlaceZoneBeforeChoosedPlaceZone;
@@ -31,6 +41,7 @@ namespace gamma_mob.Common
         public void ChooseEndPoint()
         {
             ChooseEndPointForm = new ChooseEndPointDialog(EndPointInfo.PlaceId, this);//, barcode, fromBuffer, getProductResult, this);
+            ChooseEndPointForm.TopMost = true;
             ChooseEndPointForm.Show();
             ChooseEndPointForm.SetBarcodeReaction(ChoosePlaceZoneBarcodeReaction);
         }
@@ -60,7 +71,11 @@ namespace gamma_mob.Common
                 {
                     if (ChooseEndPointForm != null)
                     {
-                        var endPointInfo = new EndPointInfo() { PlaceId = placeZone.PlaceId, PlaceZoneId = placeZone.PlaceZoneId, PlaceZoneName = placeZone.Name };
+                        Invoke((MethodInvoker)delegate()
+                        {
+                            ChooseEndPointForm.TopMost = false;
+                        });
+                        var endPointInfo = new EndPointInfo(placeZone.PlaceId, placeZone.PlaceZoneId);//, PlaceZoneName = placeZone.Name };
                         if (ReturnAddProductBeforeChoosedPlaceZone != null && (Param is AddProductReceivedEventHandlerParameter))
                         {
                             Invoke((MethodInvoker)(() => ChooseEndPointForm.ReturnedResult = false));
@@ -105,6 +120,11 @@ namespace gamma_mob.Common
         {
             if (ChooseEndPointForm != null)
             {
+                Invoke((MethodInvoker)delegate()
+                {
+                    ChooseEndPointForm.TopMost = false;
+                });
+                        
                 var endPointInfo = ChooseEndPointForm.EndPointInfo;
                 if (ChooseEndPointForm.DialogResult == DialogResult.OK)
                 {
@@ -131,6 +151,88 @@ namespace gamma_mob.Common
             }
         }
 
-        
+        public EndPointInfo ChangeZone(int placeId)
+        {
+            using (var formPlaceZone = new ChooseEndPointDialog(placeId))
+            {
+                DialogResult resultPlaceZone = formPlaceZone.ShowDialog();
+                if (resultPlaceZone != DialogResult.OK)
+                {
+                    Shared.ShowMessageInformation(@"Не выбрана новая зона склада.");
+                    return null;
+                }
+                else
+                {
+                    return formPlaceZone.EndPointInfo;                    
+                }
+            }
+        }
+
+        public void EndpointSettedInFormConstructor(EndPointInfo endPointInfo, System.Windows.Forms.Panel pnlZone)
+        {
+            initPanelPlaceZone(pnlZone);
+            if (endPointInfo.IsSettedDefaultPlaceZoneId)
+            {
+                if (lblEndPointZoneName != null)
+                    lblEndPointZoneName.Text = " Зона: " + endPointInfo.PlaceZoneName;
+                PnlZone.Visible = true;
+            }
+            else if (endPointInfo.IsAvailabilityPlaceZoneId && !endPointInfo.IsSettedDefaultPlaceZoneId)
+            {
+                if (lblEndPointZoneName != null)
+                    lblEndPointZoneName.Text = " Зона не выбрана";
+                ShowMessageInformation(@"Не выбрана зона хранения по умолчанию.");
+            }
+        }
+
+        private void initPanelPlaceZone(System.Windows.Forms.Panel pnlZone)
+        {
+            if (PnlZone == null)
+            {
+                PnlZone = pnlZone;
+                PnlZone.SuspendLayout();
+                lblEndPointZoneName = new System.Windows.Forms.Label();
+                btnChangeEndPointZone = new OpenNETCF.Windows.Forms.Button2();
+            
+                //
+                // btnChangeEndPointZone
+                // 
+                btnChangeEndPointZone.Dock = System.Windows.Forms.DockStyle.Left;
+                //this.btnChangeEndPointZone.Font = new System.Drawing.Font("Tahoma", 8F, System.Drawing.FontStyle.Bold);
+                //this.btnChangeEndPointZone.ForeColor = System.Drawing.Color.DarkRed;
+                btnChangeEndPointZone.Location = new System.Drawing.Point(0, 0);
+                btnChangeEndPointZone.Name = "btnChangeEndPointZone";
+                btnChangeEndPointZone.Size = new System.Drawing.Size(22, 22);
+                btnChangeEndPointZone.Text = "...";
+                btnChangeEndPointZone.Click += new System.EventHandler(this.btnChangeEndPointZone_Click);
+                // 
+                // lblEndPointZoneName
+                // 
+                lblEndPointZoneName.Dock = System.Windows.Forms.DockStyle.None;
+                lblEndPointZoneName.Font = new System.Drawing.Font("Tahoma", 8F, System.Drawing.FontStyle.Bold);
+                lblEndPointZoneName.ForeColor = System.Drawing.Color.DarkRed;
+                lblEndPointZoneName.Location = new System.Drawing.Point(23, 0);
+                lblEndPointZoneName.Name = "lblEndPointZoneName";
+                lblEndPointZoneName.Size = new System.Drawing.Size(616, 22);
+                lblEndPointZoneName.Text = "lblEndPointZoneName";
+                
+                PnlZone.Controls.Add(btnChangeEndPointZone);
+                PnlZone.Controls.Add(lblEndPointZoneName);
+                PnlZone.ResumeLayout(false);
+            }
+
+        }
+
+        private void btnChangeEndPointZone_Click(object sender, EventArgs e)
+        {
+            var newEndpointInfo = ChangeZone(EndPointInfo.PlaceId);
+            if (newEndpointInfo != null)
+            {
+                EndPointInfo = newEndpointInfo;
+                if (lblEndPointZoneName != null)
+                    lblEndPointZoneName.Text = " Зона: " + EndPointInfo.PlaceZoneName;
+                EndPointInfo.IsSettedDefaultPlaceZoneId = true;
+            }
+        }
     }
 }

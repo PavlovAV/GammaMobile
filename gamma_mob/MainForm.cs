@@ -93,7 +93,8 @@ namespace gamma_mob
         protected override void OnFormClosing(object sender, CancelEventArgs e)
         {
             base.OnFormClosing(sender, e);
-            Scanner.Dispose();
+            if (Scanner != null)
+                Scanner.Dispose();
         }
 
         private void btnExtAccept_Click(object sender, EventArgs e)
@@ -143,7 +144,7 @@ namespace gamma_mob
                 }
                 else if ((endPointInfo.IsAvailabilityPlaceZoneId && endPointInfo.PlaceZoneId == null) || (endPointInfo.IsAvailabilityChildPlaceZoneId && endPointInfo.PlaceZoneId != null))
                 {
-                    string message = (endPointInfo.IsAvailabilityChildPlaceZoneId && endPointInfo.PlaceZoneId != null) ? "Вы не до конца указали зону. Попробуете еще раз?" : "Вы будете указывать зону сейчас?";
+                    string message = (endPointInfo.IsAvailabilityChildPlaceZoneId && endPointInfo.PlaceZoneId != null) ? "Вы не до конца указали зону. Попробуете еще раз?" : "Вы будете сейчас указывать зону хранения по умолчанию?";
                     ShowMessageQuestion(btnDocMovementClick, new QuestionResultEventHandlerParameter { endPointInfo = endPointInfo}, message);
                 }
                 else if (endPointInfo.PlaceZoneId != null)

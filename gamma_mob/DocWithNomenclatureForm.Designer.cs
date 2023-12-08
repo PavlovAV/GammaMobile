@@ -28,67 +28,53 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.pnlGrid = new System.Windows.Forms.Panel(); 
             this.pnlZone = new System.Windows.Forms.Panel();
             this.gridDocOrder = new System.Windows.Forms.DataGrid();
-            this.lblZoneName = new System.Windows.Forms.Label();
-            this.btnChangeZone = new OpenNETCF.Windows.Forms.Button2();
             this.pnlZone.SuspendLayout();
+            this.pnlGrid.SuspendLayout(); 
             this.SuspendLayout();
+            // 
+            // pnlGrid
+            // 
+            this.pnlGrid.Controls.Add(this.gridDocOrder);
+            this.pnlGrid.Controls.Add(this.pnlZone);
+            this.pnlGrid.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pnlGrid.Location = new System.Drawing.Point(0, 54);
+            this.pnlGrid.Name = "pnlGrid";
+            this.pnlGrid.Size = new System.Drawing.Size(638, 353);
             // 
             // pnlZone
             // 
-            this.pnlZone.Controls.Add(this.btnChangeZone);
-            this.pnlZone.Controls.Add(this.lblZoneName);
             this.pnlZone.Dock = System.Windows.Forms.DockStyle.Top;
-            this.pnlZone.Location = new System.Drawing.Point(0, 54);
+            this.pnlZone.Location = new System.Drawing.Point(0, 0);
             this.pnlZone.Name = "pnlZone";
             this.pnlZone.Size = new System.Drawing.Size(638, 24);
+            this.pnlZone.Visible = false;
             // 
             // gridDocOrder
             // 
             this.gridDocOrder.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
             this.gridDocOrder.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.gridDocOrder.Location = new System.Drawing.Point(0, 54);
+            this.gridDocOrder.Location = new System.Drawing.Point(0, 0);
             this.gridDocOrder.Name = "gridDocOrder";
             this.gridDocOrder.PreferredRowHeight = 32;
             this.gridDocOrder.RowHeadersVisible = false;
-            this.gridDocOrder.Size = new System.Drawing.Size(638, 341);
+            this.gridDocOrder.Size = new System.Drawing.Size(638, 455);
             this.gridDocOrder.TabIndex = 4;
             this.gridDocOrder.DoubleClick += new System.EventHandler(this.gridDocOrder_DoubleClick);
             this.gridDocOrder.CurrentCellChanged += new System.EventHandler(this.gridDocOrder_CurrentCellChanged);
-            //
-            // btnChangeZone
-            // 
-            this.btnChangeZone.Dock = System.Windows.Forms.DockStyle.Left;
-            //this.btnChangeZone.Font = new System.Drawing.Font("Tahoma", 8F, System.Drawing.FontStyle.Bold);
-            //this.btnChangeZone.ForeColor = System.Drawing.Color.DarkRed;
-            this.btnChangeZone.Location = new System.Drawing.Point(0, 0);
-            this.btnChangeZone.Name = "btnChangeZone";
-            this.btnChangeZone.Size = new System.Drawing.Size(22, 22);
-            this.btnChangeZone.Text = "...";
-            this.btnChangeZone.Visible = false;
-            this.btnChangeZone.Click += new System.EventHandler(this.btnChangeZone_Click);
-            //
-            // lblZoneName
-            // 
-            this.lblZoneName.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblZoneName.Font = new System.Drawing.Font("Tahoma", 8F, System.Drawing.FontStyle.Bold);
-            this.lblZoneName.ForeColor = System.Drawing.Color.DarkRed;
-            this.lblZoneName.Location = new System.Drawing.Point(23, 0);
-            this.lblZoneName.Name = "lblZoneName";
-            this.lblZoneName.Size = new System.Drawing.Size(638, 22);
-            this.lblZoneName.Text = "lblZoneName";
-            this.lblZoneName.Visible = false;
             // 
             // DocWithNomenclatureForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(638, 455);
-            this.Controls.Add(this.pnlZone);
-            this.Controls.Add(this.gridDocOrder); 
+            this.Controls.Add(this.pnlGrid);
             this.Name = "DocWithNomenclatureForm";
             this.Text = "title";
+            this.pnlZone.ResumeLayout(false);
+            this.pnlGrid.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -96,8 +82,7 @@
         #endregion
 
         private System.Windows.Forms.DataGrid gridDocOrder;
+        private System.Windows.Forms.Panel pnlGrid;
         private System.Windows.Forms.Panel pnlZone;
-        private System.Windows.Forms.Label lblZoneName;
-        private OpenNETCF.Windows.Forms.Button2 btnChangeZone;
-    }
+     }
 }

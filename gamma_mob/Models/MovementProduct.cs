@@ -3,14 +3,14 @@ using System.ComponentModel;
 
 namespace gamma_mob.Models
 {
-    public class MovementProduct
+    public class MovementProduct : Nomenclature, INotifyPropertyChanged
     {
         private decimal _collectedQuantity;
-        public Guid NomenclatureId { get; set; }
-        public Guid CharacteristicId { get; set; }
-        public Guid QualityId { get; set; }
-        public string NomenclatureName { get; set; }
-        public string ShortNomenclatureName { get; set; }
+        //public Guid NomenclatureId { get; set; }
+        //public Guid CharacteristicId { get; set; }
+        //public Guid QualityId { get; set; }
+        //public string NomenclatureName { get; set; }
+        //public string ShortNomenclatureName { get; set; }
         public Guid? PlaceZoneId { get; set; }
         public int? ProductKindId { get; set; }
         public int? CoefficientPackage { get; set; }
@@ -29,6 +29,12 @@ namespace gamma_mob.Models
                 NotifyPropertyChanged("CollectedQuantityComputedColumn");
             }
         }
+
+        /// <summary>
+        ///     Признак, что по данной номенклатуре можно добавлять перемещение вручную (указав зону, номенклатур, кол-во)
+        /// </summary> 
+        public bool IsEnableAddProductManual { get; set; }
+
         #region Члены INotifyPropertyChanged
 
         public event PropertyChangedEventHandler PropertyChanged;

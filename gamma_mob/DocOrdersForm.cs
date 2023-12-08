@@ -210,7 +210,7 @@ namespace gamma_mob
                     }
                     else if (selectedDocOrder.InPlaceID != null)
                     {
-                        endPointInfo = new EndPointInfo() { PlaceId = (int)selectedDocOrder.InPlaceID };
+                        endPointInfo = new EndPointInfo((int)selectedDocOrder.InPlaceID);
                         //using (var form = new ChooseEndPointDialog(false))
                         //{
                         //    DialogResult result = form.ShowDialog();
@@ -218,7 +218,7 @@ namespace gamma_mob
                         //    endPointInfo = form.EndPointInfo;
                         if ((endPointInfo.IsAvailabilityPlaceZoneId && endPointInfo.PlaceZoneId == null) || (endPointInfo.IsAvailabilityChildPlaceZoneId && endPointInfo.PlaceZoneId != null))
                         {
-                            string message = (endPointInfo.IsAvailabilityChildPlaceZoneId && endPointInfo.PlaceZoneId != null) ? "Вы не до конца указали зону. Попробуете еще раз?" : "Вы будете указывать зону сейчас?";
+                            string message = (endPointInfo.IsAvailabilityChildPlaceZoneId && endPointInfo.PlaceZoneId != null) ? "Вы не до конца указали зону. Попробуете еще раз?" : "Вы будете сейчас указывать зону хранения по умолчанию?";
                             var dialogResult = Shared.ShowMessageQuestion(message);
                             if (dialogResult == DialogResult.Yes)
                             {
@@ -245,6 +245,7 @@ namespace gamma_mob
                         }
                         //}
                     }
+                    EndPointInfo startPointInfo = selectedDocOrder.OutPlaceID == null ? null : new EndPointInfo((int)selectedDocOrder.OutPlaceID);
                     if (selectedDocOrder.IsControlExec && selectedDocOrder.StartExec == null)
                     {
                         if (Shared.ShowMessageQuestion(@"Вы начинаете погрузку? (приказ " + selectedDocOrder.Number + ")") == DialogResult.Yes)
@@ -272,9 +273,9 @@ namespace gamma_mob
                     }
                     var docOrderForm = inPlaceID == null
                         ? new DocWithNomenclatureForm(selectedDocOrder.DocOrderId, this, selectedDocOrder.Number,
-                        selectedDocOrder.OrderType, DocDirection, IsMovementForOrder, Shared.MaxAllowedPercentBreak, selectedDocOrder.IsControlExec, selectedDocOrder.StartExec)
+                        selectedDocOrder.OrderType, DocDirection, IsMovementForOrder, Shared.MaxAllowedPercentBreak, startPointInfo, selectedDocOrder.IsControlExec, selectedDocOrder.StartExec)
                         : new DocWithNomenclatureForm(selectedDocOrder.DocOrderId, this, selectedDocOrder.Number,
-                        selectedDocOrder.OrderType, DocDirection, IsMovementForOrder, Shared.MaxAllowedPercentBreak, endPointInfo, selectedDocOrder.IsControlExec, selectedDocOrder.StartExec);
+                        selectedDocOrder.OrderType, DocDirection, IsMovementForOrder, Shared.MaxAllowedPercentBreak, startPointInfo, endPointInfo, selectedDocOrder.IsControlExec, selectedDocOrder.StartExec);
                     docOrderForm.Show();
                     if (!docOrderForm.IsDisposed && docOrderForm.Enabled)
                         Hide();

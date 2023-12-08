@@ -24,10 +24,7 @@ namespace gamma_mob.Dialogs
         public ChooseEndPointDialog(int placeId) : this()
         {
             IsRequiredPlaceZone = true;
-            EndPointInfo = new EndPointInfo
-            {
-                PlaceId = placeId
-            };
+            EndPointInfo = new EndPointInfo(placeId);
         }
 
 
@@ -48,11 +45,7 @@ namespace gamma_mob.Dialogs
 
         private void btnUsedPlace_Click(object sender, EventArgs e)
         {
-            EndPointInfo = new EndPointInfo
-            {
-                PlaceId = Convert.ToInt32((sender as ButtonIntId).Id),
-                PlaceName = Convert.ToString((sender as ButtonIntId).Text.Replace("\r\n", ""))
-            };
+            EndPointInfo = new EndPointInfo(Convert.ToInt32((sender as ButtonIntId).Id),Convert.ToString((sender as ButtonIntId).Text.Replace("\r\n", "")));
                 
             if (!IsRequiredPlaceZone)
             {
@@ -154,7 +147,7 @@ namespace gamma_mob.Dialogs
             var placeZone = Shared.PlaceZones.Where(p => p.Barcode == barcode && p.IsValid).FirstOrDefault();
             if (placeZone != null)
             {
-                EndPointInfo = GetPlaceZoneChildId(new EndPointInfo() { PlaceId = placeZone.PlaceId, PlaceZoneId = placeZone.PlaceZoneId, PlaceZoneName = placeZone.Name });
+                EndPointInfo = GetPlaceZoneChildId(new EndPointInfo(placeZone.PlaceId));
                 Invoke((MethodInvoker)(() => DialogResult = DialogResult.OK));
             }
             else

@@ -43,9 +43,8 @@ namespace gamma_mob
             DocDirection = docDirection;
             DocId = docInventarisationId;
 
-            EndPointInfo = new EndPointInfo
+            EndPointInfo = new EndPointInfo(placeId)
             {
-                PlaceId = placeId,
                 IsSettedDefaultPlaceZoneId = false,
                 IsAvailabilityChildPlaceZoneId = false
             };
@@ -68,7 +67,7 @@ namespace gamma_mob
                         {
                             EndPointInfo = form.EndPointInfo;
                             EndPointInfo.IsSettedDefaultPlaceZoneId = true;
-                            lblZoneName.Text = "Зона по умолчанию: " + EndPointInfo.PlaceZoneName;
+                            lblZoneName.Text = "Зона по умолчани: " + EndPointInfo.PlaceZoneName;
                             lblZoneName.Visible = true;
                         }
                     }
@@ -285,7 +284,7 @@ namespace gamma_mob
             {
                 var good = NomenclatureList[row];
                 //var form = new DocInventarisationNomenclatureProductsForm(DocInventarisationId, good.NomenclatureId, good.NomenclatureName, good.CharacteristicId, good.QualityId, this);
-                var form = new DocInventarisationProductsForm(DocId, good.NomenclatureId, good.NomenclatureName, good.CharacteristicId, good.QualityId, this);//, new RefreshDocProductDelegate(RefreshDocInventarisation));
+                var form = new DocInventarisationProductsForm(DocId, good.NomenclatureId, good.NomenclatureName, good.CharacteristicId, good.QualityId, this, good.IsEnableAddProductManual );//, new RefreshDocProductDelegate(RefreshDocInventarisation));
                 if (!form.IsDisposed)
                 {
                     //form.Show();
@@ -384,6 +383,11 @@ namespace gamma_mob
                 ret = @"Ошибка! Не указан документ, куда выгрузить продукт " + offlineProduct.Barcode;
             }
             return ret;
+        }
+
+        protected override List<Nomenclature> GetNomenclatureGoods()
+        {
+            return NomenclatureList.Select(n => new Nomenclature(n.NomenclatureId, n.CharacteristicId, n.QualityId)).Distinct().ToList();
         }
 
     }   

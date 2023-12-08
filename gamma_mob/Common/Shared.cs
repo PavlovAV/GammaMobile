@@ -92,6 +92,23 @@ namespace gamma_mob.Common
             }
         }
 
+
+        private static List<MeasureUnitNomenclature> _measureUnits = new List<MeasureUnitNomenclature>();
+        public static List<MeasureUnit> GetMeasureUnitsForNomenclature(Guid nomenclatureId, Guid characteristicId)
+        {
+            if (_measureUnits == null || _measureUnits.Count == 0 || !_measureUnits.Any(m => m.NomenclatureID == nomenclatureId && m.CharacteristicID == characteristicId))
+            {
+                List<MeasureUnitNomenclature> list = Db.GetMeasureUnitsForNomenclature(nomenclatureId, characteristicId);
+                if (list != null)
+                {
+                    foreach (var measure in list)
+                        if (!_measureUnits.Any(m => m.NomenclatureID == measure.NomenclatureID && m.CharacteristicID == measure.CharacteristicID && m.MeasureUnitID == measure.MeasureUnitID))
+                            _measureUnits.Add(measure);
+                }
+            }
+            return _measureUnits.Where(m => m.NomenclatureID == nomenclatureId && m.CharacteristicID == characteristicId).Select(m => new MeasureUnit() { MeasureUnitID = m.MeasureUnitID, Name = m.Name, IsActive = m.IsActive, Numerator = m.Numerator, Denominator = m.Denominator }).ToList();
+        }
+        
         private static int? _countRowUploadToServerInOnePackage { get; set; }
         public static int CountRowUploadToServerInOnePackage
         {

@@ -66,7 +66,10 @@ namespace gamma_mob.Common
             this.Controls.Add(pnlSearch);
             pnlSearch.ResumeLayout(false);
             ResumeLayout(false);
-            var c = this;
+#if DEBUG
+            if (edtNumber.Text.Length == 0)
+                edtNumber.Text = "000008016032";
+#endif
         }
 
         #endregion

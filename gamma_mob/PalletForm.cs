@@ -219,7 +219,7 @@ namespace gamma_mob
 
         private void AddNomenclatureByBarcode(string barcode, DbProductIdFromBarcodeResult getProductResult)
         {
-            var scanId = Shared.ScannedBarcodes.AddScannedBarcode(barcode, new EndPointInfo(), DocDirection, DocOrderId, getProductResult);
+            var scanId = Shared.ScannedBarcodes.AddScannedBarcode(barcode, null, DocDirection, DocOrderId, getProductResult);
             if (scanId == null || scanId == Guid.Empty)
                 Shared.ShowMessageError("Ошибка2 при сохранении отсканированного штрих-кода");
             else 

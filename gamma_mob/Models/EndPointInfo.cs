@@ -5,6 +5,23 @@ namespace gamma_mob.Models
 {
     public class EndPointInfo
     {
+        public EndPointInfo(int placeId)
+        {
+            PlaceId = placeId;
+        }
+
+        public EndPointInfo(int placeId, string placeName)
+        {
+            PlaceId = placeId;
+            PlaceName = placeName;
+        }
+
+        public EndPointInfo(int placeId, Guid? placeZoneId)
+        {
+            PlaceId = placeId;
+            PlaceZoneId = placeZoneId;
+        }
+
         private int _placeId { get; set; }
         public int PlaceId 
         {
@@ -38,6 +55,7 @@ namespace gamma_mob.Models
             {
                 _placeZoneId = value;
                 var placeZone = Shared.PlaceZones.Find(p => p.PlaceZoneId == value);
+                PlaceZoneName = placeZone == null ? @"" : placeZone.Name;
                 PlaceZoneBarcode = placeZone == null ? @"" : placeZone.Barcode;
                 if (value != null)
                     IsAvailabilityChildPlaceZoneId = (Db.GetPlaceZoneChilds((Guid)value).Count > 0);

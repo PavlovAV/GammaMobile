@@ -15,7 +15,9 @@ namespace gamma_mob.Common
         {
             InitializeComponent();
             if (DesignMode.IsTrue) return;
+#if !DISABLESCANER
             Scanner = BarcodeScanner.Scanner;
+#endif
         }
 
         protected static BarcodeScanner Scanner { get; set; }
@@ -30,11 +32,13 @@ namespace gamma_mob.Common
                 //if ((value != null && Scanner.BarcodeReceived != null && value == BarcodeFunc)
                 //    || (value == null && Scanner.BarcodeReceived == null && BarcodeFunc == null))
                 //    return;
-                Scanner.CurrentScanner.BarcodeReceived -= BarcodeFunc;
+                if (Scanner != null) 
+                    Scanner.CurrentScanner.BarcodeReceived -= BarcodeFunc;
                 _barcodeFunc = value;
                 if (value == null) return;
                 if (DesignMode.IsTrue) return;
-                Scanner.CurrentScanner.BarcodeReceived += BarcodeFunc;
+                if (Scanner != null) 
+                    Scanner.CurrentScanner.BarcodeReceived += BarcodeFunc;
             }
         }
 

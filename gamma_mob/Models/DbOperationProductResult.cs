@@ -15,5 +15,9 @@ namespace gamma_mob.Models
         public int? ProductKindId { get; set; }
         public Guid? PlaceZoneId { get; set; }
         public Guid? ScanId { get; set; }
+        public string OutPlace { get; set; }
+        public string OutPlaceZone { get; set; }
+        public string InPlace { get; set; }
+        public string InPlaceZone { get; set; }
     }
 }

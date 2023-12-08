@@ -157,6 +157,7 @@ namespace gamma_mob.Common
 
         private void ShowConnection(ConnectState conState)
         {
+            if (imgConnection != null)
             switch (conState)
             {
                 case ConnectState.ConInProgress:
@@ -259,8 +260,8 @@ namespace gamma_mob.Common
         protected bool IsControlExec { get; set; }
         protected DateTime? StartExec { get; set; }
         protected int? countScan { get; set; }
- 
-        
+
+        protected GetNomenclatureCharacteristicQuantityDialog GetNomenclatureCharacteristicQuantityForm;
         /// <summary>
         ///     Добавление продукта по штрихкоду
         /// </summary>
@@ -270,100 +271,133 @@ namespace gamma_mob.Common
         {
             {
                 {
-                    Cursor.Current = Cursors.WaitCursor;
-                    DbProductIdFromBarcodeResult getProductResult = Shared.Barcodes1C.GetProductFromBarcodeOrNumberInBarcodes(barcode, false);
-                    Cursor.Current = Cursors.Default;
-
-                    if (getProductResult == null || getProductResult.ProductKindId == null || (Shared.FactProductKinds.Contains((ProductKind)getProductResult.ProductKindId) && (getProductResult.ProductId == null || getProductResult.ProductId == Guid.Empty)))
+                    var placeZones = Shared.PlaceZones.Where(p => p.Barcode == barcode); // && (StartPointInfo == null || (StartPointInfo != null && p.PlaceId == StartPointInfo.PlaceId)));
+                    if (!fromBuffer && placeZones != null && placeZones.Count() > 0)
                     {
-                        Shared.ShowMessageError(@"Продукция не найдена по ШК! " + barcode + " (Локальные база ШК " + Shared.Barcodes1C.GetCountBarcodes + "; посл.обн " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodesMoscowTimeZone.ToString(System.Globalization.CultureInfo.InvariantCulture) + ")");
+                        if (placeZones.FirstOrDefault(p => (StartPointInfo == null || (StartPointInfo != null && p.PlaceId == StartPointInfo.PlaceId))) == null)
+                            Shared.ShowMessageError(@"Найденная по ШК " + barcode + " зона не принадлежит складу отгрузки!" + Environment.NewLine + "Невозможно определить зону склада");
+                        else if (placeZones.Count() > 1)
+                            Shared.ShowMessageError(@"По ШК " + barcode + " найдено несколько зон!" + Environment.NewLine + "Невозможно определить зону склада");
+                        else
+                        {
+                            var placeZone = placeZones.FirstOrDefault();
+                            GetNomenclatureCharacteristicQuantityForm = new GetNomenclatureCharacteristicQuantityDialog(new EndPointInfo(placeZone.PlaceId, placeZone.PlaceZoneId), EndPointInfo, this, false, true, GetNomenclatureGoods());//, barcode, fromBuffer, getProductResult, this);
+                            GetNomenclatureCharacteristicQuantityForm.Show();
+                            Param1 = new AddProductReceivedEventHandlerParameter() { barcode = barcode, endPointInfo = EndPointInfo, fromBuffer = fromBuffer };
+                            if (ReturnAddProductBeforeGetNomenclatureCharacteristicQuantity == null)
+                                ReturnAddProductBeforeGetNomenclatureCharacteristicQuantity += this.ChooseNomenclatureCharacteristicBarcodeReactionInAddProduct;
+                        }
+                    }
+                    else if (!fromBuffer && Shared.Warehouses.Any(p => p.Barcode == barcode && (StartPointInfo == null || (StartPointInfo != null && p.WarehouseId == StartPointInfo.PlaceId))))
+                    {
+                        if (Shared.Warehouses.Count(p => p.Barcode == barcode && (StartPointInfo == null || (StartPointInfo != null && p.WarehouseId == StartPointInfo.PlaceId))) > 1)
+                            Shared.ShowMessageError(@"По ШК " + barcode + " найдено несколько переделов!" + Environment.NewLine + "Невозможно определить передел");
+                        else
+                        {
+                            GetNomenclatureCharacteristicQuantityForm = new GetNomenclatureCharacteristicQuantityDialog(new EndPointInfo(/*Shared.Warehouses.First(p => p.Barcode == barcode && (StartPointInfo == null || (StartPointInfo != null && p.PlaceId == StartPointInfo.PlaceId))).WarehouseId*/StartPointInfo.PlaceId), EndPointInfo, this, false, true, GetNomenclatureGoods());//, barcode, fromBuffer, getProductResult, this);
+                            GetNomenclatureCharacteristicQuantityForm.Show();
+                            Param1 = new AddProductReceivedEventHandlerParameter() { barcode = barcode, endPointInfo = EndPointInfo, fromBuffer = fromBuffer };
+                            if (ReturnAddProductBeforeGetNomenclatureCharacteristicQuantity == null)
+                                ReturnAddProductBeforeGetNomenclatureCharacteristicQuantity += this.ChooseNomenclatureCharacteristicBarcodeReactionInAddProduct;
+                        }
                     }
                     else
                     {
-                        if (!fromBuffer)
+                        Cursor.Current = Cursors.WaitCursor;
+                        DbProductIdFromBarcodeResult getProductResult = Shared.Barcodes1C.GetProductFromBarcodeOrNumberInBarcodes(barcode, false);
+                        Cursor.Current = Cursors.Default;
+
+                        if (getProductResult == null || getProductResult.ProductKindId == null || (Shared.FactProductKinds.Contains((ProductKind)getProductResult.ProductKindId) && (getProductResult.ProductId == null || getProductResult.ProductId == Guid.Empty)))
                         {
-                            if ((this is DocWithNomenclatureForm) && IsControlExec && StartExec == null && (countScan ?? 3) > 2)
+                            Shared.ShowMessageError(@"Продукция не найдена по ШК! " + barcode + " (Локальные база ШК " + Shared.Barcodes1C.GetCountBarcodes + "; посл.обн " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodesMoscowTimeZone.ToString(System.Globalization.CultureInfo.InvariantCulture) + ")");
+                        }
+                        else
+                        {
+                            if (!fromBuffer)
                             {
-                                countScan = 0;
-                                if (Shared.ShowMessageQuestion(@"Вы не отметили, что погрузка начата. Вы уже начали погрузку?") == DialogResult.Yes)
+                                if ((this is DocWithNomenclatureForm) && IsControlExec && StartExec == null && (countScan ?? 3) > 2)
                                 {
-                                    UIServices.SetBusyState(this);
-                                    var result = Db.UpdateStartExecInDocOrder(DocId, Shared.PersonId);
-                                    UIServices.SetNormalState(this);
-                                    if (result == null)
+                                    countScan = 0;
+                                    if (Shared.ShowMessageQuestion(@"Вы не отметили, что погрузка начата. Вы уже начали погрузку?") == DialogResult.Yes)
                                     {
-                                        Shared.ShowMessageError("Ошибка при сохранении времени начала погрузки. Попробуйте еще раз.");
-                                    }
-                                    else
-                                    {
-                                        try
+                                        UIServices.SetBusyState(this);
+                                        var result = Db.UpdateStartExecInDocOrder(DocId, Shared.PersonId);
+                                        UIServices.SetNormalState(this);
+                                        if (result == null)
                                         {
-                                            CultureInfo culture = new CultureInfo("ru-RU");
-                                            StartExec = Convert.ToDateTime(result, culture);
+                                            Shared.ShowMessageError("Ошибка при сохранении времени начала погрузки. Попробуйте еще раз.");
                                         }
-                                        catch
+                                        else
                                         {
-                                            Shared.ShowMessageError(result);
+                                            try
+                                            {
+                                                CultureInfo culture = new CultureInfo("ru-RU");
+                                                StartExec = Convert.ToDateTime(result, culture);
+                                            }
+                                            catch
+                                            {
+                                                Shared.ShowMessageError(result);
+                                            }
                                         }
                                     }
                                 }
+                                countScan++;
                             }
-                            countScan++;
-                        }
 
-                        if (getProductResult.ProductKindId == ProductKind.ProductMovement && (getProductResult.ProductId == null || getProductResult.ProductId == Guid.Empty))
-                        {
-                            if (CheckIsCreatePalletMovementFromBarcodeScan())
+                            if (getProductResult.ProductKindId == ProductKind.ProductMovement && (getProductResult.ProductId == null || getProductResult.ProductId == Guid.Empty))
                             {
-                                base.ChooseNomenclatureCharacteristic(this.ChooseNomenclatureCharacteristicBarcodeReactionInAddProduct, new AddProductReceivedEventHandlerParameter() { barcode = barcode, endPointInfo = EndPointInfo, fromBuffer = fromBuffer, getProductResult = getProductResult });
-                                /*if (getProductResult.NomenclatureId == null || getProductResult.NomenclatureId == Guid.Empty || getProductResult.CharacteristicId == null || getProductResult.CharacteristicId == Guid.Empty || getProductResult.QualityId == null || getProductResult.QualityId == Guid.Empty)
+                                if (CheckIsCreatePalletMovementFromBarcodeScan())
                                 {
-                                    using (var form = new ChooseNomenclatureCharacteristicDialog(barcode))
+                                    base.ChooseNomenclatureCharacteristic(this.ChooseNomenclatureCharacteristicBarcodeReactionInAddProduct, new AddProductReceivedEventHandlerParameter() { barcode = barcode, endPointInfo = EndPointInfo, fromBuffer = fromBuffer, getProductResult = getProductResult });
+                                    /*if (getProductResult.NomenclatureId == null || getProductResult.NomenclatureId == Guid.Empty || getProductResult.CharacteristicId == null || getProductResult.CharacteristicId == Guid.Empty || getProductResult.QualityId == null || getProductResult.QualityId == Guid.Empty)
+                                    {
+                                        using (var form = new ChooseNomenclatureCharacteristicDialog(barcode))
+                                        {
+                                            DialogResult result = form.ShowDialog();
+                                            Invoke((MethodInvoker)Activate);
+                                            if (result != DialogResult.OK || form.NomenclatureId == null || form.CharacteristicId == null || form.QualityId == null)
+                                            {
+                                                MessageBox.Show(@"Не выбран продукт. Продукт не добавлен!", @"Продукт не добавлен",
+                                                                MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
+                                                return;
+                                            }
+                                            else
+                                            {
+                                                getProductResult.NomenclatureId = form.NomenclatureId;
+                                                getProductResult.CharacteristicId = form.CharacteristicId;
+                                                getProductResult.QualityId = form.QualityId;
+                                            }
+                                        }
+                                    }
+                                    using (var form = new SetCountProductsDialog())
                                     {
                                         DialogResult result = form.ShowDialog();
                                         Invoke((MethodInvoker)Activate);
-                                        if (result != DialogResult.OK || form.NomenclatureId == null || form.CharacteristicId == null || form.QualityId == null)
+                                        if (result != DialogResult.OK || form.Quantity == null)
                                         {
-                                            MessageBox.Show(@"Не выбран продукт. Продукт не добавлен!", @"Продукт не добавлен",
+                                            MessageBox.Show(@"Не указано количество продукта. Продукт не добавлен!", @"Продукт не добавлен",
                                                             MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
                                             return;
                                         }
                                         else
                                         {
-                                            getProductResult.NomenclatureId = form.NomenclatureId;
-                                            getProductResult.CharacteristicId = form.CharacteristicId;
-                                            getProductResult.QualityId = form.QualityId;
+                                            getProductResult.CountProducts = form.Quantity;
                                         }
-                                    }
+                                    }*/
                                 }
-                                using (var form = new SetCountProductsDialog())
-                                {
-                                    DialogResult result = form.ShowDialog();
-                                    Invoke((MethodInvoker)Activate);
-                                    if (result != DialogResult.OK || form.Quantity == null)
-                                    {
-                                        MessageBox.Show(@"Не указано количество продукта. Продукт не добавлен!", @"Продукт не добавлен",
-                                                        MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
-                                        return;
-                                    }
-                                    else
-                                    {
-                                        getProductResult.CountProducts = form.Quantity;
-                                    }
-                                }*/
-                            }
-                        }
-                        else
-                        {
-                            AddProductByBarcode(barcode, fromBuffer, getProductResult);
-                            /*if (EndPointInfo != null && EndPointInfo.IsAvailabilityPlaceZoneId && !EndPointInfo.IsSettedDefaultPlaceZoneId)
-                            {
-                                base.ChooseEndPoint(this.ChoosePlaceZoneBarcodeReactionInAddProduct, new AddProductReceivedEventHandlerParameter() { barcode = barcode, endPointInfo = EndPointInfo, fromBuffer = fromBuffer, getProductResult = getProductResult });
                             }
                             else
                             {
-                                AddProductByBarcode(barcode, EndPointInfo, fromBuffer, getProductResult);
-                            }*/
+                                AddProductByBarcode(barcode, fromBuffer, getProductResult);
+                                /*if (EndPointInfo != null && EndPointInfo.IsAvailabilityPlaceZoneId && !EndPointInfo.IsSettedDefaultPlaceZoneId)
+                                {
+                                    base.ChooseEndPoint(this.ChoosePlaceZoneBarcodeReactionInAddProduct, new AddProductReceivedEventHandlerParameter() { barcode = barcode, endPointInfo = EndPointInfo, fromBuffer = fromBuffer, getProductResult = getProductResult });
+                                }
+                                else
+                                {
+                                    AddProductByBarcode(barcode, EndPointInfo, fromBuffer, getProductResult);
+                                }*/
+                            }
                         }
                     }
                 }
@@ -390,7 +424,7 @@ namespace gamma_mob.Common
             }
             else
             {
-                var scanId = Shared.ScannedBarcodes.AddScannedBarcode(barcode, endPointInfo ?? new EndPointInfo(), DocDirection, DocId, getProductResult);
+                var scanId = Shared.ScannedBarcodes.AddScannedBarcode(barcode, endPointInfo, DocDirection, DocId, getProductResult);
                 if (scanId == null || scanId == Guid.Empty)
                     Shared.ShowMessageError("Ошибка1 при сохранении отсканированного штрих-кода");
 
@@ -402,7 +436,6 @@ namespace gamma_mob.Common
         {
             Shared.SaveToLogInformation(@"Add " + barcode + @"; scanId-" + scanId.ToString() + @"; Q-" + getProductResult.CountProducts + @"; F-" + fromBuffer.ToString());
             Cursor.Current = Cursors.WaitCursor;
-
             var addResult = AddProductId(scanId, getProductResult, endPointInfo);
             if (Shared.LastQueryCompleted == false)
             {
@@ -440,6 +473,8 @@ namespace gamma_mob.Common
         protected virtual void UpdateGrid(DbOperationProductResult addResult, ProductKind? productKindId, Guid? id, EndPointInfo endPointInfo, Guid? scanId) { }
 
         protected abstract bool CheckIsCreatePalletMovementFromBarcodeScan();
+
+        protected abstract List<Nomenclature> GetNomenclatureGoods();
 
         protected override void ActionByBarcode(string barcode)
         {
@@ -514,7 +549,7 @@ namespace gamma_mob.Common
                 }
                 else
                 {
-                    if (AddProductByBarcode(offlineProduct.ScanId, offlineProduct.Barcode, new EndPointInfo() { PlaceId = (int)offlineProduct.PlaceId, PlaceZoneId = offlineProduct.PlaceZoneId }, true, new DbProductIdFromBarcodeResult() { ProductId = offlineProduct.ProductId ?? new Guid(), ProductKindId = (ProductKind?)offlineProduct.ProductKindId, NomenclatureId = offlineProduct.NomenclatureId ?? new Guid(), CharacteristicId = offlineProduct.CharacteristicId ?? new Guid(), QualityId = offlineProduct.QualityId ?? new Guid(), CountProducts = offlineProduct.Quantity ?? 0, FromProductId = offlineProduct.FromProductId }, (Guid)offlineProduct.DocId) == null)
+                    if (AddProductByBarcode(offlineProduct.ScanId, offlineProduct.Barcode, new EndPointInfo((int)offlineProduct.PlaceId, offlineProduct.PlaceZoneId), true, new DbProductIdFromBarcodeResult() { ProductId = offlineProduct.ProductId ?? new Guid(), ProductKindId = (ProductKind?)offlineProduct.ProductKindId, NomenclatureId = offlineProduct.NomenclatureId ?? new Guid(), CharacteristicId = offlineProduct.CharacteristicId ?? new Guid(), QualityId = offlineProduct.QualityId ?? new Guid(), CountProducts = offlineProduct.Quantity ?? 0, FromProductId = offlineProduct.FromProductId }, (Guid)offlineProduct.DocId) == null)
                         break;
                 }
             }            
@@ -525,15 +560,18 @@ namespace gamma_mob.Common
 
         #region Barcode
 
-        private void ChooseNomenclatureCharacteristicBarcodeReactionInAddProduct(AddProductReceivedEventHandlerParameter param)
+        protected void ChooseNomenclatureCharacteristicBarcodeReactionInAddProduct(AddProductReceivedEventHandlerParameter param)
         {
             base.ReturnAddProductBeforeChoosedNomenclatureCharacteristic -= ChooseNomenclatureCharacteristicBarcodeReactionInAddProduct;
             BarcodeFunc = this.BarcodeReaction;
             if (param != null)
-                AddProductByBarcode(param.barcode, param.fromBuffer, param.getProductResult);
+                if (param.endPointInfo == null)
+                    AddProductByBarcode(param.barcode, param.fromBuffer, param.getProductResult);
+                else
+                    AddProductByBarcode(param.barcode, param.endPointInfo, param.fromBuffer, param.getProductResult);
         }
 
-        private void ChoosePlaceZoneBarcodeReactionInAddProduct(AddProductReceivedEventHandlerParameter param)
+        protected void ChoosePlaceZoneBarcodeReactionInAddProduct(AddProductReceivedEventHandlerParameter param)
         {
             base.ReturnAddProductBeforeChoosedPlaceZone -= ChoosePlaceZoneBarcodeReactionInAddProduct;
             BarcodeFunc = this.BarcodeReaction;
@@ -542,5 +580,68 @@ namespace gamma_mob.Common
         }
                 
         #endregion
+
+        public event AddProductReceivedEventHandler ReturnAddProductBeforeGetNomenclatureCharacteristicQuantity;
+        protected Object Param1;
+
+        public void ClosingGetNomenclatureCharacteristicQuantityDialog()
+        {
+            if (GetNomenclatureCharacteristicQuantityForm != null)
+            {
+                var getFromProductResult = new DbProductIdFromBarcodeResult()
+                {
+                    NomenclatureId = GetNomenclatureCharacteristicQuantityForm.NomenclatureId,
+                    CharacteristicId = GetNomenclatureCharacteristicQuantityForm.CharacteristicId,
+                    QualityId = GetNomenclatureCharacteristicQuantityForm.QualityId,
+                    CountProducts = GetNomenclatureCharacteristicQuantityForm.CountProducts,
+                    MeasureUnitId = GetNomenclatureCharacteristicQuantityForm.MeasureUnitId,
+                    FromProductId = null,
+                    FromPlaceId = GetNomenclatureCharacteristicQuantityForm.StartPointInfo.PlaceId,
+                    FromPlaceZoneId = GetNomenclatureCharacteristicQuantityForm.StartPointInfo.PlaceZoneId,
+                    ProductKindId = ProductKind.ProductMovement
+                };
+                if (GetNomenclatureCharacteristicQuantityForm.DialogResult == DialogResult.OK)
+                {
+                    if (ReturnAddProductBeforeGetNomenclatureCharacteristicQuantity != null && (Param1 is AddProductReceivedEventHandlerParameter))
+                    {
+                        (Param1 as AddProductReceivedEventHandlerParameter).endPointInfo = GetNomenclatureCharacteristicQuantityForm.EndPointInfo;
+                        (Param1 as AddProductReceivedEventHandlerParameter).getProductResult = getFromProductResult;
+                        Invoke((MethodInvoker)delegate()
+                        {
+                            ReturnAddProductBeforeGetNomenclatureCharacteristicQuantity((Param1 as AddProductReceivedEventHandlerParameter));
+                        });
+                    }
+                    //else if (ReturnNomenclatureCharacteristicBeforeChoosedNomenclatureCharacteristic != null)
+                    //{
+                    //    Invoke((MethodInvoker)delegate()
+                    //    {
+                    //        ReturnNomenclatureCharacteristicBeforeChoosedNomenclatureCharacteristic(getFromProductResult);
+                    //    });
+                    //}
+                    else
+                        Shared.ShowMessageError(@"Ошибка! Попробуйте еще раз или выберите номенклатуру");
+                }
+                else
+                {
+                    if (ReturnAddProductBeforeGetNomenclatureCharacteristicQuantity != null)
+                    {
+                        Invoke((MethodInvoker)delegate()
+                        {
+                            ReturnAddProductBeforeGetNomenclatureCharacteristicQuantity((null as AddProductReceivedEventHandlerParameter));
+                        });
+                    }
+                    //else if (ReturnNomenclatureCharacteristicBeforeChoosedNomenclatureCharacteristic != null)
+                    //{
+                    //    Invoke((MethodInvoker)delegate()
+                    //    {
+                    //        ReturnNomenclatureCharacteristicBeforeChoosedNomenclatureCharacteristic(null as DbProductIdFromBarcodeResult);
+                    //    });
+                    //}
+                    else
+                        Shared.ShowMessageError(@"Ошибка! Попробуйте еще раз или выберите номенклатуру");
+                }
+            }
+        }
+
     }
 }

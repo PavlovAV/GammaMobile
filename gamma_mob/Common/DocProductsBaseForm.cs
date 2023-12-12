@@ -305,6 +305,10 @@ namespace gamma_mob
                 {
                     base.ChooseEndPoint(this.ChoosePlaceZoneBarcodeReactionInAddProduct, new AddProductReceivedEventHandlerParameter() { barcode = "barcode", endPointInfo = EndPointInfo, fromBuffer = false, getProductResult = new DbProductIdFromBarcodeResult() { ProductKindId = ProductKind.ProductMovement, NomenclatureId = NomenclatureId, CharacteristicId = CharacteristicId, MeasureUnitId = qmuQuantity.MeasureUnit.MeasureUnitID, QualityId = Guid.Empty, CountProducts = qmuQuantity.Value, FromPlaceId = StartPointInfo.PlaceId, FromPlaceZoneId = StartPointInfo.PlaceZoneId} });
                 }
+                else if (parentForm.StartPointInfo != null && parentForm.EndPointInfo != null)
+                {
+                    AddProductByBarcode("barcode", EndPointInfo, false, new DbProductIdFromBarcodeResult() { ProductKindId = ProductKind.ProductMovement, NomenclatureId = NomenclatureId, CharacteristicId = CharacteristicId, MeasureUnitId = qmuQuantity.MeasureUnit.MeasureUnitID, QualityId = Guid.Empty, CountProducts = qmuQuantity.Value, FromPlaceId = StartPointInfo.PlaceId, FromPlaceZoneId = StartPointInfo.PlaceZoneId });
+                }
             }
         }
 

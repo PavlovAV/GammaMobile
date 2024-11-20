@@ -15,9 +15,9 @@ namespace gamma_mob
         }
 
         public DocInventarisationProductsForm(Guid docId, Guid nomenclatureId, string nomenclatureName
-            , Guid characteristicId, Guid qualityId, Form parentForm, bool isEnableAddProductManual)
+            , Guid characteristicId, Guid qualityId, byte? productKindId, Form parentForm, bool isEnableAddProductManual)
             : base(docId, nomenclatureId, nomenclatureName
-            , characteristicId, qualityId, parentForm, isEnableAddProductManual)
+            , characteristicId, qualityId, productKindId, parentForm, isEnableAddProductManual)
         {
 
         }

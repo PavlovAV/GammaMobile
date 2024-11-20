@@ -13,6 +13,16 @@ using System.Runtime.InteropServices;
 using Datalogic.API;
 using System.Reflection;
 using Microsoft.Win32;
+using System.Diagnostics;
+
+using gamma_mob.Common;
+
+using OpenNETCF.Net.NetworkInformation;
+
+using System.Net;
+using System.Data.SqlClient;
+using System.Data;
+
 
 namespace gamma_mob.Common
 {
@@ -24,6 +34,8 @@ namespace gamma_mob.Common
         {
             LoadImages();
         }
+
+        //public static readonly FileStream _txtLogFile = new FileStream(@"\Temp\TxtLogFile.txt", FileMode.Append, FileAccess.Write, FileShare.Write);
 
         private static IDeviceExtended _device { get; set; }
         public static IDeviceExtended Device
@@ -41,6 +53,58 @@ namespace gamma_mob.Common
             }
         }
 
+        private static SqlConnection _connection { get; set; }
+        public static SqlConnection Connection
+        {
+            get
+            {
+                //if (_connection == null || _connection.ConnectionString == String.Empty || _connection.ConnectionString != Db.GetConnectionString())
+                //{
+                //    if (_connection != null && _connection.ConnectionString != String.Empty)
+                //    {
+                //        //_connection.StateChange -= HandleSqlConnectionDrop;
+                //        _connection.Close();
+                //    }
+                //    _connection = new SqlConnection(Db.GetConnectionString());
+                //    //_connection.StateChange += HandleSqlConnectionDrop;
+                //}
+                _connection = new SqlConnection(Db.GetConnectionString());
+                return _connection;
+            }
+        }
+
+        private static SqlConnection _connectionCheckStatus { get; set; }
+        public static SqlConnection ConnectionCheckStatus
+        {
+            get
+            {
+                if (_connectionCheckStatus == null || _connectionCheckStatus.ConnectionString == String.Empty || _connectionCheckStatus.ConnectionString != Db.GetConnectionString())
+                {
+                    _connectionCheckStatus = new SqlConnection(Db.GetConnectionString());
+                    _connectionCheckStatus.StateChange += HandleSqlConnectionCheckStatus;
+                }
+                return _connectionCheckStatus;
+            }
+        }
+
+        //public static bool Shared.ConnectionOpenned {get; private set;}
+
+        private static void HandleSqlConnectionCheckStatus(object connection, StateChangeEventArgs args)
+        {
+            System.Diagnostics.Debug.WriteLine("DB change detected: " + args.OriginalState + " => " + args.CurrentState);
+            if (args.OriginalState == System.Data.ConnectionState.Open && args.CurrentState == System.Data.ConnectionState.Closed)
+            {
+                //Shared.ConnectionOpenned = false;
+                //ConnectionState.StartChecker();
+                ConnectionState.ConnectionLost();
+            }
+            //else if (args.OriginalState == System.Data.ConnectionState.Closed && args.CurrentState == System.Data.ConnectionState.Open)
+            //{
+            //    //ConnectionOpenned = true;
+            //    ConnectionState.StopChecker();
+            //}
+        }
+
         private static bool? _lastQueryCompleted { get; set; }
         public static bool? LastQueryCompleted 
         {
@@ -53,10 +117,12 @@ namespace gamma_mob.Common
                 if (value != _lastQueryCompleted)
                 {
                     _lastQueryCompleted = value;
-                    if (value == false)
-                    {
-                        ConnectionState.StartChecker();
-                    }
+                    //if (value == false)
+                    //{
+                    //    //ConnectionState.StartChecker();
+                    //    //if (Connection.State == System.Data.ConnectionState.Open)
+                    //    //    Connection.Close();
+                    //}
                 }
             }
         }
@@ -77,6 +143,10 @@ namespace gamma_mob.Common
         public static bool IsAvailabilityCreateNewPalletNotOnOrder { get; set; }
 
         public static bool IsAvailabilityChoiseNomenclatureForMovingGroupPack { get; set; }
+        
+        public static bool IsNotUpdateCashedBarcodesOnFirst { get; set; }
+
+        public static VisibleButtonsOnMainWindow VisibledButtonsOnMainWindow { get; set; }
 
         public static List<Warehouse> Warehouses
         {
@@ -106,9 +176,9 @@ namespace gamma_mob.Common
                             _measureUnits.Add(measure);
                 }
             }
-            return _measureUnits.Where(m => m.NomenclatureID == nomenclatureId && m.CharacteristicID == characteristicId).Select(m => new MeasureUnit() { MeasureUnitID = m.MeasureUnitID, Name = m.Name, IsActive = m.IsActive, Numerator = m.Numerator, Denominator = m.Denominator }).ToList();
+            return _measureUnits.Where(m => m.NomenclatureID == nomenclatureId && m.CharacteristicID == characteristicId).Select(m => new MeasureUnit() { MeasureUnitID = m.MeasureUnitID, Name = m.Name, IsActive = m.IsActive, Numerator = m.Numerator, Denominator = m.Denominator, IsInteger = m.IsInteger }).ToList();
         }
-        
+
         private static int? _countRowUploadToServerInOnePackage { get; set; }
         public static int CountRowUploadToServerInOnePackage
         {
@@ -116,7 +186,7 @@ namespace gamma_mob.Common
             {
                 if (_countRowUploadToServerInOnePackage == null)
                 {
-                    var countRowUploadToServerInOnePackage = Db.GetProgramSettings("CountRowUploadToServerInOnePackage");
+                    var countRowUploadToServerInOnePackage = Db.GetProgramSettings("CountRowsUploadToServerInOnePackage");
                     if (countRowUploadToServerInOnePackage != null && countRowUploadToServerInOnePackage != String.Empty)
                         _countRowUploadToServerInOnePackage = Convert.ToInt32(countRowUploadToServerInOnePackage);
                 }
@@ -157,6 +227,21 @@ namespace gamma_mob.Common
                         _maxAllowedPercentBreak = Convert.ToInt32(maxAllowedPercentBreak);
                 }
                 return _maxAllowedPercentBreak ?? 0;
+            }
+        }
+        
+        private static int? _maxCountRowInPackOnFirstUpdateCashedBarcodes {get; set;}
+        public static int MaxCountRowInPackOnFirstUpdateCashedBarcodes 
+        { 
+            get
+            {
+                if (_maxCountRowInPackOnFirstUpdateCashedBarcodes == null)
+                {
+                    var maxCountRowInPackOnFirstUpdateCashedBarcodes = Db.GetProgramSettings("MaxCountRowInPackOnFirstUpdateCashedBarcodes");
+                    if (maxCountRowInPackOnFirstUpdateCashedBarcodes != null && maxCountRowInPackOnFirstUpdateCashedBarcodes != String.Empty) 
+                        _maxCountRowInPackOnFirstUpdateCashedBarcodes = Convert.ToInt32(maxCountRowInPackOnFirstUpdateCashedBarcodes);
+                }
+                return _maxCountRowInPackOnFirstUpdateCashedBarcodes ?? 500;
             }
         }
 
@@ -319,6 +404,8 @@ namespace gamma_mob.Common
             ImgList.Images.Add(Resources.delete);
             ImgList.Images.Add(Resources.InfoProduct);
             ImgList.Images.Add(Resources.RDP);
+            //ImgList.Images.Add(Resources.backOnline); 
+            ImgList.Images.Add(Resources.backOffline); 
         }
 
         private const int BS_MULTILINE = 0x00002000;
@@ -436,7 +523,7 @@ namespace gamma_mob.Common
                 if (_placeZones == null)
                 {
                     List<PlaceZone> list = Db.GetPlaceZones();
-                    if (list == null) return null;
+                    if (list == null) return new List<PlaceZone>();
                     _placeZones = list;
                 }
                 return _placeZones;
@@ -488,10 +575,33 @@ namespace gamma_mob.Common
 
         public static bool InitializationData()
         {
-            Shared.DeleteOldUploadedToServerLogs();
+        //    Cursor.Current = Cursors.WaitCursor;
+        //    Control.Invoke(
+        //            (MethodInvoker)
+        //            (() => lblMessage.Text = "Идет выгрузка\r\nлогов на сервер..."));
+        //    Shared.DeleteOldUploadedToServerLogs();
+        //    var res = true;
+        //    Invoke((MethodInvoker)(() => lblMessage.Text = "Идет загрузка\r\nштрих-кодов с сервера..."));
+        //    res = res & Shared.Barcodes1C == null;
+        //    Invoke((MethodInvoker)(() => lblMessage.Text = "Идет загрузка\r\nскладов с сервера..."));
+        //    res = res & Shared.Warehouses == null;
+        //    Invoke((MethodInvoker)(() => lblMessage.Text = "Идет загрузка\r\nзон склада с сервера..."));
+        //    res = res & Shared.PlaceZones == null;
+        //    Invoke((MethodInvoker)(() => lblMessage.Text = "Обновление\r\nштрих-кодов с сервера..."));
+        //    res = res & Shared.Barcodes1C.UpdateBarcodes(true) == null;
+        //    Invoke((MethodInvoker)(() => lblMessage.Text = "Идет загрузка\r\nмак. % брака с сервера..."));
+        //    res = res & Shared.MaxAllowedPercentBreak == null;
+        //    Invoke((MethodInvoker)(() => lblMessage.Text = "Идет загрузка периода\r\nзагрузки ШК с сервера..."));
+        //    res = res & Shared.TimerPeriodForBarcodesUpdate == null;
+        //    Invoke((MethodInvoker)(() => lblMessage.Text = "Идет загрузка периода\r\nпопыток выгрузки на сервера..."));
+        //    res = res & Shared.TimerPeriodForUnloadOfflineProducts == null;
+        //    Invoke((MethodInvoker)(() => lblMessage.Text = "Инициализация\r\nсканирования на ТСД..."));
+        //    res = res & Shared.ScannedBarcodes == null;
+        //    Invoke((MethodInvoker)(() => lblMessage.Text = "Загрузка закончена"));
             return !(Shared.Barcodes1C == null || Shared.PlaceZones == null || Shared.Warehouses == null || Shared.PlaceZones == null || Shared.Barcodes1C.UpdateBarcodes(true) == null/*Shared.Barcodes1C.InitCountBarcodes() == null ||*/
                 || Shared.MaxAllowedPercentBreak == null || Shared.TimerPeriodForBarcodesUpdate == null || Shared.TimerPeriodForUnloadOfflineProducts == null
                 || Shared.ScannedBarcodes == null );// // Shared.TimerForBarcodesUpdate == null);
+            Cursor.Current = Cursors.Default;
         }
 
         //public static string _logFile { get; private set; }
@@ -625,12 +735,12 @@ namespace gamma_mob.Common
             
         }
 
-        public static void SaveToLog(Guid scanId, DateTime dateScanned, string barcode, int placeId, Guid? placeZoneId, int docTypeId, Guid? docId, bool isUploaded, Guid? productId, int? productKindId, Guid? nomenclatureId, Guid? characteristicId, Guid? qualityId, int? quantity, Guid? fromProductId)
+        public static void SaveToLog(Guid scanId, DateTime dateScanned, string barcode, int placeId, Guid? placeZoneId, int docTypeId, Guid? docId, bool? isUploaded, Guid? productId, int? productKindId, Guid? nomenclatureId, Guid? characteristicId, Guid? qualityId, int? quantity, int? quantityFractional, Guid? measureUnitId, Guid? fromProductId, int? fromPlaceId, Guid? fromPlaceZoneId, int? newWeight, DateTime? validUntilDate)
         {
 
             try
             {
-                Db.AddMessageToLog(scanId, dateScanned, barcode, placeId, placeZoneId, docTypeId, docId, isUploaded, productId, productKindId, nomenclatureId, characteristicId, qualityId, quantity, fromProductId);
+                Db.AddMessageToLog(scanId, dateScanned, barcode, placeId, placeZoneId, docTypeId, docId, isUploaded, productId, productKindId, nomenclatureId, characteristicId, qualityId, quantity, quantityFractional, measureUnitId, fromProductId, fromPlaceId, fromPlaceZoneId, newWeight, validUntilDate);
             }
             catch (Exception err)
             {
@@ -638,12 +748,12 @@ namespace gamma_mob.Common
             }
         }
 
-        public static void SaveToLog(Guid scanId, DateTime dateScanned, string barcode, int placeId, Guid? placeZoneId, int docTypeId, Guid? docId, bool isUploaded, Guid? productId, int? productKindId, Guid? nomenclatureId, Guid? characteristicId, Guid? qualityId, int? quantity)
+        public static void SaveToLog(Guid scanId, DateTime dateScanned, string barcode, int placeId, Guid? placeZoneId, int docTypeId, Guid? docId, bool? isUploaded, Guid? productId, int? productKindId, Guid? nomenclatureId, Guid? characteristicId, Guid? qualityId, int? quantity, int? quantityFractional)
         {
 
             try
             {
-                Db.AddMessageToLog(scanId, dateScanned, barcode, placeId, placeZoneId, docTypeId, docId, isUploaded, productId, productKindId, nomenclatureId, characteristicId, qualityId, quantity, null);
+                Db.AddMessageToLog(scanId, dateScanned, barcode, placeId, placeZoneId, docTypeId, docId, isUploaded, productId, productKindId, nomenclatureId, characteristicId, qualityId, quantity, quantityFractional, null, null, null, null, null, null);
             }
             catch (Exception err)
             {
@@ -651,7 +761,20 @@ namespace gamma_mob.Common
             }
         }
 
-        public static void SaveToLog(Guid scanId, bool isUploaded, string log)
+        public static void SaveToLog(Guid scanId, DateTime dateScanned, string barcode, int placeId, Guid? placeZoneId, int docTypeId, Guid? docId, bool? isUploaded, Guid? productId, int? productKindId, Guid? nomenclatureId, Guid? characteristicId, Guid? qualityId, int? quantity)
+        {
+
+            try
+            {
+                Db.AddMessageToLog(scanId, dateScanned, barcode, placeId, placeZoneId, docTypeId, docId, isUploaded, productId, productKindId, nomenclatureId, characteristicId, qualityId, quantity, null, null, null, null, null, null, null);
+            }
+            catch (Exception err)
+            {
+                //MessageBox.Show(err.Message);
+            }
+        }
+
+        public static void SaveToLog(Guid scanId, bool? isUploaded, string log)
         {
 
             try
@@ -664,7 +787,7 @@ namespace gamma_mob.Common
             }
         }
 
-        public static void SaveToLog(Guid scanId, bool isUploaded, bool isDeleted, string log)
+        public static void SaveToLog(Guid scanId, bool? isUploaded, bool isDeleted, string log)
         {
 
             try
@@ -699,7 +822,7 @@ namespace gamma_mob.Common
             }
             catch (Exception err)
             {
-               // MessageBox.Show(err.Message);
+                MessageBox.Show(err.Message);
             }
         }
 
@@ -712,7 +835,7 @@ namespace gamma_mob.Common
             }
             catch (Exception err)
             {
-                // MessageBox.Show(err.Message);
+                 MessageBox.Show(err.Message);
             }
         }
 
@@ -998,5 +1121,6 @@ namespace gamma_mob.Common
             }
             return isInt;
         }
+
     }
 }

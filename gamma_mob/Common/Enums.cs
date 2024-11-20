@@ -1,4 +1,5 @@
-﻿namespace gamma_mob.Common
+﻿using System;
+namespace gamma_mob.Common
 {
     public enum Images
     {
@@ -21,7 +22,8 @@
         Add,
         Remove,
         InfoProduct,
-        RDP
+        RDP,
+        BackOffline
     }
 
     public enum ConnectState
@@ -70,7 +72,11 @@
         /// <summary>
         /// инвентаризация
         /// </summary>
-        Inventarisation
+        Inventarisation,
+        /// <summary>
+        /// Поступление товаров
+        /// </summary>
+        Purchase
     }
 
 
@@ -119,5 +125,22 @@
         /// Остатки продукции
         /// </summary>
         ProductRest
+    }
+
+    [Flags]
+    public enum VisibleButtonsOnMainWindow
+    {
+        NONE = 0,
+        btnDocOrder = 1,
+        btnDocTransfer = 2,
+        btnDocMovement = 4,
+        btnExtAccept = 8,
+        btnMovementForOrder = 16,
+        btnInventarisation = 32,
+        btnCloseShift = 64,
+        btnComplectPallet = 128,
+        btnCloseApp = 256,
+        btnInfoProduct = 512,
+        ALL = ~NONE
     }
 }

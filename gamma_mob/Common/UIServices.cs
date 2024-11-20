@@ -11,12 +11,24 @@ namespace gamma_mob.Common
     {
         public static void SetBusyState(Form form)
         {
-            form.Invoke((MethodInvoker)(() => Cursor.Current = Cursors.WaitCursor));
+            try
+            {
+            if (!form.IsDisposed) 
+                form.Invoke((MethodInvoker)(() => Cursor.Current = Cursors.WaitCursor));
+            }
+            catch (ObjectDisposedException ex)
+            { }
         }
 
         public static void SetNormalState(Form form)
         {
-            form.Invoke((MethodInvoker) (() => Cursor.Current = Cursors.Default));
+            try
+            {
+            if (!form.IsDisposed)
+                form.Invoke((MethodInvoker)(() => Cursor.Current = Cursors.Default));
+            }
+            catch (ObjectDisposedException ex)
+            { }
         }
     }
 }

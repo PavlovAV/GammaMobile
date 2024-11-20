@@ -44,7 +44,7 @@ namespace gamma_mob
         public static bool IsConnected
         {
             get { return _isConnected; }
-            set 
+            private set 
             {
                 if (ipAddress == null && value && !_isConnected)
                 {
@@ -56,6 +56,14 @@ namespace gamma_mob
                     }
                     catch (Exception)
                     { }
+                }
+                if (!value && _isConnected)
+                { 
+                    if (OnConnectionLost != null) OnConnectionLost(); 
+                }
+                else if (value && !_isConnected)
+                { 
+                    if (OnConnectionRestored != null) OnConnectionRestored(); 
                 }
                 _isConnected = value;
                 
@@ -188,34 +196,203 @@ namespace gamma_mob
         {
             get
             {
-                try
-                {
-                    TcpClient TcpClient = new TcpClient();
-                    var client = TcpClient.Client;
-                    var result = client.BeginConnect(iPEndPoint, null, client);
-
-                    var success = result.AsyncWaitHandle.WaitOne(1000, false);
-
-                    if (!success)
+                //Db.AddTimeStampToLog("Start GetServerPortEnabled");
+                //if (Settings.GetCurrentServerIsExternal())
+                //    return true;
+                //else
+                    try
                     {
-                        throw new Exception("Failed to connect.");
-                    }
+                        TcpClient TcpClient = new TcpClient();
+                        var client = TcpClient.Client;
+                        var result = client.BeginConnect(iPEndPoint, null, client);
 
-                    // we have connected
-                    client.EndConnect(result);
-                    return true;
-                }
-                catch (Exception)
+                        var success = result.AsyncWaitHandle.WaitOne(1000, false);
+
+                        if (!success)
+                        {
+                            throw new Exception("Failed to connect.");
+                        }
+
+                        // we have connected
+                        client.EndConnect(result);
+                        //if (Shared.Connection.State == System.Data.ConnectionState.Closed)
+                        //    Shared.Connection.Open();
+                        //Db.AddTimeStampToLog("SEnd GetServerPortEnabled");
+
+                        return true;
+                    }
+                    catch (Exception ex)
+                    {
+                        Shared.LastQueryCompleted = false;
+                        return false;
+                    }
+                //Db.AddTimeStampToLog("End GetServerPortEnabled");
+            }
+        }
+
+        private static TcpClient TcpClient = new TcpClient();
+        private static Socket client = TcpClient.Client;
+        private static IAsyncResult result;
+        private static bool _checkConnectionAvialabledRunning;
+        private static DateTime lastCheckOpennedConnection { get; set; }
+
+        public static void CheckConnectionAvialabled(object obj)
+        {
+            var n = DateTime.Now.ToString();
+            System.Diagnostics.Debug.Write(n + " !!!!!CheckConnectionAvialabledFromTimer(" + _checkConnectionAvialabledRunning.ToString() + ")!" + Environment.NewLine);
+            if (_checkConnectionAvialabledRunning) return;
+            lock (lockerCheckConnectionAvialabled)
+            {
+                _checkConnectionAvialabledRunning = true;
+                System.Diagnostics.Debug.Write(n + " !!!!!CheckConnectionAvialabled(" + _checkConnectionAvialabledRunning.ToString() + ")!" + Environment.NewLine);
+                //using (var connection = new SqlConnection(Db.GetConnectionString()))
                 {
-                    Shared.LastQueryCompleted = false;
-                    return false;
+                    try
+                    {
+                        System.Diagnostics.Debug.Write("Connection!" + Environment.NewLine);
+                        if (Shared.ConnectionCheckStatus.State != System.Data.ConnectionState.Open)
+                        {
+                            Shared.ConnectionCheckStatus.Open();
+                            lastCheckOpennedConnection = DateTime.Now;
+                            //if (client.Connected)
+                            //    client.Close();
+                            //connection.Close();
+                        }
+                        else if (Shared.ConnectionCheckStatus.State == System.Data.ConnectionState.Open && !IsConnected)
+                        {
+                            Shared.ConnectionCheckStatus.Close();
+                            Shared.ConnectionCheckStatus.Open();
+                            lastCheckOpennedConnection = DateTime.Now;
+                            //if (client.Connected)
+                            //    client.Close();
+                        }
+                        else if (Shared.ConnectionCheckStatus.State == System.Data.ConnectionState.Open && IsConnected
+                            && (DateTime.Now - lastCheckOpennedConnection).Seconds >= 5)
+                        {
+                            TcpClient TcpClient = new TcpClient();
+                            var client = TcpClient.Client;
+                            var result = client.BeginConnect(iPEndPoint, null, client);
+
+                            var success = result.AsyncWaitHandle.WaitOne(1000, false);
+
+                            if (!success)
+                            {
+                                throw new Exception("Failed to connect.");
+                            }
+
+                            // we have connected
+                            client.EndConnect(result);
+                        }
+                        
+                        //else if (Shared.Connection.State == System.Data.ConnectionState.Open && !Shared.LastQueryCompleted)
+                        //{
+                        //    Shared.Connection.
+                        //}
+                        //if (client.Connected)
+                        //{
+                        //    try
+                        //    {
+                        //        //client.Blocking = false;
+                        //        client.SendTo(new byte[1], iPEndPoint);
+                        //    }
+                        //    catch (SocketException exConnect)
+                        //    {
+                        //        if (exConnect.ErrorCode == 10054)
+                        //        {
+                        //            //client.Close();
+                        //            client = TcpClient.Client;
+                        //        }
+                        //    }
+                        //}
+                        //if (!client.Connected)
+                        //{
+                        //    result = client.BeginConnect(iPEndPoint, null, client);
+                        //    var success = result.AsyncWaitHandle.WaitOne(100, false);
+                        //    if (!success)
+                        //    {
+                        //        throw new Exception("Failed to connect.");
+                        //    }
+                        //}
+
+                        if (!IsConnected)
+                        {
+                            lock (Locker) IsConnected = true;
+                        }
+                        //isWorking = false;
+                        //if (OnConnectionRestored != null) OnConnectionRestored();
+
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.Write("Exception!" + Environment.NewLine + ex.Message);
+                        //if (Shared.Connection.State == System.Data.ConnectionState.Open)
+                        //    StopChecker();
+                        var s = ex.Message;
+                        if (IsConnected)
+                        {
+                            lock (Locker) IsConnected = false;
+                            //if (OnConnectionLost != null) OnConnectionLost();
+                        }
+                    }
                 }
+            }
+            _checkConnectionAvialabledRunning = false;
+        }
+
+        public static object lockerCheckConnectionAvialabled = new object();
+
+        private static System.Threading.Timer _timerForCheckConnectionAvialabled { get; set; }
+        public static System.Threading.Timer TimerForCheckConnectionAvialabled
+        {
+            get
+            {
+
+                if (_timerForCheckConnectionAvialabled == null)
+                {
+                    int num = 0;
+                    TimerCallback tm = new TimerCallback(CheckConnectionAvialabled);
+                    // создаем таймер
+                    _timerForCheckConnectionAvialabled = new System.Threading.Timer(tm, num, 0, 100);
+                    _checkerRunning = true;
+                }
+                return _timerForCheckConnectionAvialabled;
+            }
+
+        }
+
+        public static void ConnectionLost()
+        {
+            if (ConnectionState.IsConnected)
+                //lock (Locker) 
+                    ConnectionState.IsConnected = false;
+            else
+                if (OnConnectionLost != null) OnConnectionLost(); 
+        }
+
+        public static void StopChecker()
+        {
+            if (!ConnectionState.IsConnected) lock (Locker) ConnectionState.IsConnected = true;
+            if (_timerForCheckConnectionAvialabled != null && _checkerRunning)
+            {
+                System.Diagnostics.Debug.WriteLine("_timerForCheckConnectionAvialabled.Dispose");
+                _timerForCheckConnectionAvialabled.Change(Timeout.Infinite, Timeout.Infinite);
+                // if (TimerForCheckConnectionAvialabled != null) 
+                //_timerForCheckConnectionAvialabled.Dispose();
+                _checkerRunning = false;
             }
         }
 
         public static void StartChecker()
         {
-            System.Diagnostics.Debug.Write(DateTime.Now.ToString() + " !!!!!StartChecker(" + _checkerRunning.ToString() + ")!"+Environment.NewLine);
+            if (ConnectionState.IsConnected) lock (Locker) ConnectionState.IsConnected = false;
+            if (_timerForCheckConnectionAvialabled == null || !_checkerRunning)//!_checkConnectionAvialabledRunning)
+            {
+                System.Diagnostics.Debug.WriteLine("TimerForCheckConnectionAvialabled.Create");
+                //var t = TimerForCheckConnectionAvialabled;
+                //_checkerRunning = true;
+                _timerForCheckConnectionAvialabled.Change(0, 100);
+            }
+            /*System.Diagnostics.Debug.Write(DateTime.Now.ToString() + " !!!!!StartChecker(" + _checkerRunning.ToString() + ")!"+Environment.NewLine);
             if (_checkerRunning) return;
 
             WaitCallback continuousPing = delegate
@@ -251,7 +428,7 @@ namespace gamma_mob
                             }
                         }
                     }
-                    Thread.Sleep(0);
+                    Thread.Sleep(100);
                 }
                 lock (Locker) _checkerRunning = false;
             };
@@ -259,7 +436,7 @@ namespace gamma_mob
             //var pinger = new Thread(new ThreadStart(continuousPing)) {IsBackground = true};
             //pinger.Start();
             _checkerRunning = true;
-
+            */
         }
 
         public static bool GetIpFromSettings(string server)
@@ -268,7 +445,7 @@ namespace gamma_mob
                 //@"^(?<ip>((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))(\\.*)?$";
                 @"^(?<ip>\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(?<port>,\d{1,5})?$";
             var regEx = new Regex(ippattern);
-            Match match = regEx.Match(server);
+                   Match match = regEx.Match(server);
             if (match.Success)
             {
                 ServerIp = match.Groups["ip"].Value;

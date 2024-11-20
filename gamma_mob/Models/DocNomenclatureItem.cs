@@ -6,6 +6,7 @@ namespace gamma_mob.Models
     public class DocNomenclatureItem : Nomenclature, INotifyPropertyChanged
     {
         private decimal _collectedQuantity;
+        public byte? ProductKindId { get; set; }
         public int CountProductSpools { get; set; }
         public int CountProductSpoolsWithBreak { get; set; }
         //public Guid NomenclatureId { get; set; }

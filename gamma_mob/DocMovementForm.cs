@@ -67,7 +67,7 @@ namespace gamma_mob
                 }
                 else
                 {
-                    if (!Shared.InitializationData()) Shared.ShowMessageInformation(@"Внимание! Не обновлены" + Environment.NewLine + @" данные с сервера.");
+                    if (!Settings.GetCurrentServerIsExternal() && !Shared.InitializationData()) Shared.ShowMessageInformation(@"Внимание! Не обновлены" + Environment.NewLine + @" данные с сервера.");
                     if (Shared.TimerForUnloadOfflineProducts == null) Shared.ShowMessageInformation(@"Внимание! Не запущена автоматическая" + Environment.NewLine + @"выгрузка на сервер.");
                     OnUpdateBarcodesIsNotUploaded();
                 }
@@ -102,19 +102,21 @@ namespace gamma_mob
 
         protected override DbOperationProductResult AddProductId(Guid? scanId, DbProductIdFromBarcodeResult getProductResult, EndPointInfo endPointInfo)
         {
-            var addedMoveProductResult = Db.MoveProduct(scanId, Shared.PersonId, getProductResult.ProductId, endPointInfo, (int?)getProductResult.ProductKindId, getProductResult.NomenclatureId, getProductResult.CharacteristicId, getProductResult.QualityId, getProductResult.CountProducts, getProductResult.MeasureUnitId, getProductResult.FromProductId, getProductResult.FromPlaceId, getProductResult.FromPlaceZoneId);
+            var addedMoveProductResult = Db.MoveProduct(scanId, Shared.PersonId, getProductResult.ProductId, endPointInfo, (int?)getProductResult.ProductKindId, getProductResult.NomenclatureId, getProductResult.CharacteristicId, getProductResult.QualityId, getProductResult.CountProducts, getProductResult.CountFractionalProducts, getProductResult.MeasureUnitId, getProductResult.FromProductId, getProductResult.FromPlaceId, getProductResult.FromPlaceZoneId, getProductResult.NewWeight, getProductResult.ValidUntilDate);
             return addedMoveProductResult == null ? null : (addedMoveProductResult as DbOperationProductResult);
         }
 
-        protected override void UpdateGrid(DbOperationProductResult acceptResult, ProductKind? productKindId, Guid? docId, EndPointInfo endPointInfo, Guid? scanId)
+        protected override void UpdateGrid(DbOperationProductResult acceptResult, ProductKind? productKindId, Guid? docId, EndPointInfo endPointInfo, Guid? scanId, EndPointInfo startPointInfo)
         {
             if (endPointInfo.PlaceId == EndPointInfo.PlaceId)
-                    Invoke((UpdateMovementGridInvoker)(UpdateGrid),
-                        new object[]
+            {
+                Invoke((UpdateMovementGridInvoker)(UpdateGrid),
+                    new object[]
                                    {
                                         acceptResult.Product.NomenclatureId, acceptResult.Product.CharacteristicId, acceptResult.Product.QualityId, acceptResult.Product.NomenclatureName, acceptResult.Product.ShortNomenclatureName, acceptResult.PlaceZoneId,  acceptResult.Product.Quantity
                                        , true, (int?)productKindId, acceptResult.Product.CoefficientPackage, acceptResult.Product.CoefficientPallet
                                    });
+            }
         }
 
         protected override bool CheckIsCreatePalletMovementFromBarcodeScan()
@@ -263,7 +265,7 @@ namespace gamma_mob
             if (row >= 0)
             {
                 var good = AcceptedProducts[row];
-                var form = new DocMovementProductsForm(EndPointInfo.PlaceId, Shared.PersonId, good.NomenclatureId, good.NomenclatureName, good.CharacteristicId, good.QualityId, good.PlaceZoneId, this, good.IsEnableAddProductManual);
+                var form = new DocMovementProductsForm(EndPointInfo.PlaceId, Shared.PersonId, good.NomenclatureId, good.NomenclatureName, good.CharacteristicId, good.QualityId, good.ProductKindId, good.PlaceZoneId, this, good.IsEnableAddProductManual);
                 if (!form.IsDisposed)
                 {
                     //form.Show();

@@ -7,6 +7,7 @@ using gamma_mob.Models;
 using System.IO;
 using System.Reflection;
 using OpenNETCF.Windows.Forms;
+using System.Collections.Generic;
 
 namespace gamma_mob
 {
@@ -19,19 +20,77 @@ namespace gamma_mob
                 btnComplectPallet.Visible = Shared.IsAvailabilityCreateNewPalletNotOnOrder;
             else
                 btnCloseApp.Top = btnComplectPallet.Top;
-            if (Shared.ShiftId > 0)
-            {
-                //btnCloseShift.Visible = true;
-                btnCloseShift.Text = "Закрытие смены";
-                //btnInventarisation.Visible = false;
-            }
-            else
-            {
-                //btnCloseShift.Visible = true;
-                btnCloseShift.Text = "Информация";
-                //btnInventarisation.Visible = true;
-            }
+            //if (Shared.ShiftId > 0)
+            //{
+            //    //btnCloseShift.Visible = true;
+            //    btnCloseShift.Text = "Закрытие смены";
+            //    //btnInventarisation.Visible = false;
+            //}
+            //else
+            //{
+            //    //btnCloseShift.Visible = true;
+            //    btnCloseShift.Text = "Информация";
+            //    //btnInventarisation.Visible = true;
+            //}
             //btnUserInfo.Text = "Логин: " + Settings.UserName + " (" + Shared.PersonName + ")";
+            var btnTop = 1;
+            var listButtons = new SortedList<string,System.Windows.Forms.Button>();
+            foreach (var control in panel1.Controls)
+            {
+                if (control is System.Windows.Forms.Button)
+                {
+                    var name = (control as System.Windows.Forms.Button).Name;
+                    var btn = (control as System.Windows.Forms.Button);
+                    if (name.IndexOf("btn") == 0)
+                        listButtons.Add((control as System.Windows.Forms.Button).TabIndex.ToString(), control as System.Windows.Forms.Button);
+
+                    //var btn = (control as System.Windows.Forms.Button);
+                    //var enumButton = (VisibleButtonsOnMainWindow)Enum.Parse(typeof(VisibleButtonsOnMainWindow), (control as System.Windows.Forms.Button).Name, true);
+                    //if ((Shared.VisibledButtonsOnMainWindow & VisibleButtonsOnMainWindow.btnDocOrder) == VisibleButtonsOnMainWindow.btnDocOrder | (Shared.VisibledButtonsOnMainWindow & VisibleButtonsOnMainWindow.ALL) == VisibleButtonsOnMainWindow.ALL)
+                    //{
+                    //    btn.Location = new System.Drawing.Point(3, btnTop);
+                    //    btnTop += 62;
+                    //    btn.Visible = true;
+                    //}
+                    //else
+                    //    btn.Visible = false;
+                }
+            }
+            foreach (var btn in listButtons)
+            {
+                var enumButton = (VisibleButtonsOnMainWindow)Enum.Parse(typeof(VisibleButtonsOnMainWindow), btn.Value.Name, true);
+                if ((Shared.VisibledButtonsOnMainWindow & enumButton) == enumButton | (Shared.VisibledButtonsOnMainWindow & VisibleButtonsOnMainWindow.ALL) == VisibleButtonsOnMainWindow.ALL)
+                {
+                    btn.Value.Location = new System.Drawing.Point(3, btnTop);
+                    btn.Value.Top = btnTop;
+                    btnTop += 32;
+                    btn.Value.Visible = true;
+                }
+                else
+                    btn.Value.Visible = false;
+            }
+            //if ((Shared.VisibledButtonsOnMainWindow & VisibleButtonsOnMainWindow.btnDocOrder) == VisibleButtonsOnMainWindow.btnDocOrder | (Shared.VisibledButtonsOnMainWindow & VisibleButtonsOnMainWindow.ALL) == VisibleButtonsOnMainWindow.ALL)
+            //{
+            //    btnDocOrder.Location = new System.Drawing.Point(3, btnTop);
+            //    btnTop += 62;
+            //    btnDocOrder.Visible = true;
+            //}
+            //else
+            //    btnDocOrder.Visible = false;
+            //btnDocTransfer.Visible = (Shared.VisibledButtonsOnMainWindow & VisibleButtonsOnMainWindow.btnDocTransfer) == VisibleButtonsOnMainWindow.btnDocTransfer | (Shared.VisibledButtonsOnMainWindow & VisibleButtonsOnMainWindow.ALL) == VisibleButtonsOnMainWindow.ALL;
+            //btnDocMovement.Visible = (Shared.VisibledButtonsOnMainWindow & VisibleButtonsOnMainWindow.btnDocMovement) == VisibleButtonsOnMainWindow.btnDocMovement | (Shared.VisibledButtonsOnMainWindow & VisibleButtonsOnMainWindow.ALL) == VisibleButtonsOnMainWindow.ALL;
+            //btnExtAccept.Visible = (Shared.VisibledButtonsOnMainWindow & VisibleButtonsOnMainWindow.btnExtAccept) == VisibleButtonsOnMainWindow.btnExtAccept | (Shared.VisibledButtonsOnMainWindow & VisibleButtonsOnMainWindow.ALL) == VisibleButtonsOnMainWindow.ALL;
+            //btnMovementForOrder.Visible = (Shared.VisibledButtonsOnMainWindow & VisibleButtonsOnMainWindow.btnMovementForOrder) == VisibleButtonsOnMainWindow.btnMovementForOrder | (Shared.VisibledButtonsOnMainWindow & VisibleButtonsOnMainWindow.ALL) == VisibleButtonsOnMainWindow.ALL;
+            //btnInventarisation.Visible = (Shared.VisibledButtonsOnMainWindow & VisibleButtonsOnMainWindow.btnInventarisation) == VisibleButtonsOnMainWindow.btnInventarisation | (Shared.VisibledButtonsOnMainWindow & VisibleButtonsOnMainWindow.ALL) == VisibleButtonsOnMainWindow.ALL;
+            //btnCloseShift.Visible = (Shared.VisibledButtonsOnMainWindow & VisibleButtonsOnMainWindow.btnCloseShift) == VisibleButtonsOnMainWindow.btnCloseShift | (Shared.VisibledButtonsOnMainWindow & VisibleButtonsOnMainWindow.ALL) == VisibleButtonsOnMainWindow.ALL;
+            //btnComplectPallet.Visible = (Shared.VisibledButtonsOnMainWindow & VisibleButtonsOnMainWindow.btnComplectPallet) == VisibleButtonsOnMainWindow.btnComplectPallet | (Shared.VisibledButtonsOnMainWindow & VisibleButtonsOnMainWindow.ALL) == VisibleButtonsOnMainWindow.ALL;
+            //btnCloseApp.Visible = (Shared.VisibledButtonsOnMainWindow & VisibleButtonsOnMainWindow.btnCloseApp) == VisibleButtonsOnMainWindow.btnCloseApp | (Shared.VisibledButtonsOnMainWindow & VisibleButtonsOnMainWindow.ALL) == VisibleButtonsOnMainWindow.ALL;
+
+            ////Подписка на событие восстановления связи
+            //ConnectionState.OnConnectionRestored += ConnectionRestored;//UnloadOfflineProducts;
+            ////Подписка на событие потери связи
+            //ConnectionState.OnConnectionLost += ConnectionLost;
+
             userInfoTextId = 0;
             if (Shared.TimerForBarcodesUpdate == null)
             {
@@ -93,6 +152,8 @@ namespace gamma_mob
         protected override void OnFormClosing(object sender, CancelEventArgs e)
         {
             base.OnFormClosing(sender, e);
+            //ConnectionState.OnConnectionRestored -= ConnectionRestored;
+            //ConnectionState.OnConnectionLost -= ConnectionLost;
             if (Scanner != null)
                 Scanner.Dispose();
         }
@@ -100,8 +161,10 @@ namespace gamma_mob
         private void btnExtAccept_Click(object sender, EventArgs e)
         {
             Cursor.Current = Cursors.WaitCursor;
+            //Db.AddTimeStampToLog("1:");
             if (ConnectionState.CheckConnection())
             {
+                //Db.AddTimeStampToLog("2:");
                 switch (Db.CheckSqlConnection())
                 {
                     case 2:
@@ -111,7 +174,9 @@ namespace gamma_mob
                         WrongUserPass();
                         break;
                     default:
+                        //Db.AddTimeStampToLog("4:");
                         var docOrders = new DocOrdersForm(this, DocDirection.DocIn);
+                        //Db.AddTimeStampToLog("5:");
                         if (docOrders != null && !docOrders.IsDisposed)
                         {
                             DialogResult result = docOrders.ShowDialog();
@@ -255,15 +320,7 @@ namespace gamma_mob
 
         private void btnCloseShift_Click(object sender, EventArgs e)
         {
-            if (Shared.ShiftId > 0)
-            {
-                ShowMessageQuestion(btnCloseShiftClick, null, @"Вы уверены, что хотите закрыть смену?");
-            }
-            else
-            {
-                var InfoProduct = new InfoProductForm(this);
-                DialogResult result = InfoProduct.ShowDialog();
-            }
+            ShowMessageQuestion(btnCloseShiftClick, null, @"Вы уверены, что хотите закрыть смену?");
         }
 
         private void btnCloseShiftClick(QuestionResultEventHandlerParameter param)
@@ -382,25 +439,37 @@ namespace gamma_mob
                     switch (value)
                     {
                         case 0:
-                            btnUserInfo.Text = "Логин: " + Settings.UserName + " (" + Shared.PersonName + ")";
+                            buttonUserInfo.Text = "Логин: " + Settings.UserName + " (" + Shared.PersonName + ")";
                             break;
                         case 1:
-                            btnUserInfo.Text = "Сервер: " + Settings.CurrentServer;
+                            buttonUserInfo.Text = "Сервер: " + Settings.CurrentServer;
                             break;
                         case 2:
-                            btnUserInfo.Text = "БД: " + Settings.Database;
+                            buttonUserInfo.Text = "БД: " + Settings.Database;
                             break;
                         case 3:
-                            btnUserInfo.Text = "Версия: " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+                            buttonUserInfo.Text = "Версия: " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
                             break;
                         case 4:
-                            btnUserInfo.Text = "БД ШК создан:" + Db.GetLocalDbBarcodesDateCreated().ToString(System.Globalization.CultureInfo.InvariantCulture);
+                            buttonUserInfo.Text = "БД ШК создан:" + Db.GetLocalDbBarcodesDateCreated().ToString(System.Globalization.CultureInfo.InvariantCulture);
                             break;
                         case 5:
-                            btnUserInfo.Text = "БД ШК обновлен: " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodesMoscowTimeZone.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                            buttonUserInfo.Text = "БД ШК обновлен: " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodesMoscowTimeZone.ToString(System.Globalization.CultureInfo.InvariantCulture);
                             break;
                         case 6:
-                            btnUserInfo.Text = "БД ШК кол-во: " + Shared.Barcodes1C.GetCountBarcodes;
+                            buttonUserInfo.Text = "БД ШК кол-во: " + Shared.Barcodes1C.GetCountBarcodes;
+                            break;
+                        case 7:
+                            buttonUserInfo.Text = "IsConnected: " + ConnectionState.IsConnected;
+                            break;
+                        case 8:
+                            buttonUserInfo.Text = "IP:" + Shared.Device.GetDeviceIP();
+                            break;
+                        case 9:
+                            buttonUserInfo.Text = "Имя ТСД: " + Shared.Device.GetHostName();
+                            break;
+                        case 10:
+                            buttonUserInfo.Text = "Сер.номер: " + Shared.Device.GetDeviceName();
                             break;
                     }
                 }
@@ -413,7 +482,7 @@ namespace gamma_mob
 
         private void btnUserInfo_Click(object sender, EventArgs e)
         {
-            userInfoTextId = userInfoTextId == 6 ? (short)0 : (short)(userInfoTextId + 1);
+            userInfoTextId = userInfoTextId == 10 ? (short)0 : (short)(userInfoTextId + 1);
         }
 
         private void btnCloseApp_Click(object sender, EventArgs e)
@@ -485,6 +554,28 @@ namespace gamma_mob
             }
             Cursor.Current = Cursors.Default;
         }
+
+        private void btnInfoProduct_Click(object sender, EventArgs e)
+        {
+            var InfoProduct = new InfoProductForm(this);
+            DialogResult result = InfoProduct.ShowDialog();
+        }
+
+        //private void ConnectionLost()
+        //{
+        //    Invoke(
+        //        (MethodInvoker)
+        //        (() => imgConnection.Image = ImgList.Images[(int)Images.NetworkOffline]));
+        //    ;
+        //}
+
+        //private void ConnectionRestored()
+        //{
+        //    Invoke(
+        //        (MethodInvoker)
+        //        (() => imgConnection.Image = ImgList.Images[(int)Images.NetworkTransmitReceive]));
+        //}
+
 
     }
 }

@@ -18,12 +18,23 @@ namespace gamma_mob.Common
         public virtual void ActivatePanels()
         {
             ActivatePanelSearch();
+            if (!ConnectionState.IsConnected)
+                ConnectionState.ConnectionLost(); 
         }
 
         public virtual void ActivatePanels(List<int> pnlToolBar_ActivButtons)
         {
             ActivatePanelSearch();
             base.ActivateToolBar(pnlToolBar_ActivButtons);
+            if (!ConnectionState.IsConnected)
+                ConnectionState.ConnectionLost(); 
+        }
+
+        public virtual void ActivatePanelsWithoutSearch(List<int> pnlToolBar_ActivButtons)
+        {
+            base.ActivateToolBar(pnlToolBar_ActivButtons);
+            if (!ConnectionState.IsConnected)
+                ConnectionState.ConnectionLost();
         }
 
         private void ActivatePanelSearch()
@@ -49,7 +60,8 @@ namespace gamma_mob.Common
             {
                 Location = new System.Drawing.Point(211, 1),
                 Name = "imgConnection",
-                Size = new System.Drawing.Size(pnlElementHeight, pnlElementHeight)
+                Size = new System.Drawing.Size(pnlElementHeight, pnlElementHeight),
+                SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage
             };
             pnlSearch = new System.Windows.Forms.Panel()
             {
@@ -68,7 +80,8 @@ namespace gamma_mob.Common
             ResumeLayout(false);
 #if DEBUG
             if (edtNumber.Text.Length == 0)
-                edtNumber.Text = "000008016032";
+                //edtNumber.Text = "20804777671007243010000";
+                edtNumber.Text = "240701410801002";
 #endif
         }
 
@@ -99,15 +112,29 @@ namespace gamma_mob.Common
 
         protected virtual void ActionByBarcode(string barcode) {}
 
-        public void btnAddProduct_Click(object sender, EventArgs e)
+        public void AddProductClick()
         {
-            Shared.SaveToLogInformation(@"Выбрано Добавить ШК: " + edtNumber.Text);
             if (edtNumber.Text.Length < Shared.MinLengthProductBarcode)
             {
                 Shared.ShowMessageError(@"Ошибка при сканировании ШК " + edtNumber.Text + Environment.NewLine + @"Штрих-код должен быть длиннее 12 символов");
             }
             else
-                ActionByBarcode(edtNumber.Text);
+            {
+                var edtNumberText = edtNumber.Text;
+                Invoke((MethodInvoker)(() => edtNumber.Text = String.Empty));
+                ActionByBarcode(edtNumberText);
+            }
+        }
+
+        protected virtual void btnAddProductClick()
+        {
+            AddProductClick();
+        }
+
+        public void btnAddProduct_Click(object sender, EventArgs e)
+        {
+            Shared.SaveToLogInformation(@"Выбрано Добавить ШК: " + edtNumber.Text);
+            btnAddProductClick();
         }
 
         protected void BarcodeReaction(string barcode)
@@ -117,11 +144,13 @@ namespace gamma_mob.Common
             {
                 Invoke((MethodInvoker)delegate()
                 {
-                    this.btnAddProduct_Click(new object(), new EventArgs());
+                    AddProductClick();
+                    //this.btnAddProduct_Click(new object(), new EventArgs());
                 });
             }
             else
-                btnAddProduct_Click(new object(), new EventArgs());
+                AddProductClick();
+                //btnAddProduct_Click(new object(), new EventArgs());
         }
 
         #endregion

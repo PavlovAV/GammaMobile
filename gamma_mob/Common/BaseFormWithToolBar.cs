@@ -41,6 +41,7 @@ namespace gamma_mob.Common
             switch (((OpenNETCF.Windows.Forms.Button2)sender).ImageIndex)
             {
                 case (int)Images.Back:
+                case (int)Images.BackOffline:
                     CloseToolBarButton();
                     break;
                 case (int)Images.Inspect:
@@ -121,5 +122,38 @@ namespace gamma_mob.Common
             else
                 Shared.ShowMessageInformation("RDP остановлен");
         }
+
+        protected override void ShowConnection(ConnectState conState)
+        {
+            if (PnlToolBar != null)
+            {
+                foreach (var control in PnlToolBar.Controls)
+                {
+                    if (control is OpenNETCF.Windows.Forms.Button2)
+                    {
+                        var backButton = (control as OpenNETCF.Windows.Forms.Button2);
+                        if (backButton.ImageIndex == (int)Images.Back || backButton.ImageIndex == (int)Images.BackOffline)
+                        {
+                            switch (conState)
+                            {
+                                case ConnectState.ConInProgress:
+                                    if (backButton.ImageIndex == (int)Images.BackOffline) backButton.ImageIndex = (int)Images.Back;
+                                    break;
+                                case ConnectState.NoConInProgress:
+                                    //imgConnection.Image = null;
+                                    break;
+                                case ConnectState.NoConnection:
+                                    if (backButton.ImageIndex == (int)Images.Back) backButton.ImageIndex = (int)Images.BackOffline;
+                                    break;
+                                case ConnectState.ConnectionRestore:
+                                    if (backButton.ImageIndex == (int)Images.BackOffline) backButton.ImageIndex = (int)Images.Back;
+                                    break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
     }
 }

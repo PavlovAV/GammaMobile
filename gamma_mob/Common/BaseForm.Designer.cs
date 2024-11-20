@@ -49,5 +49,7 @@
         }
 
         #endregion
+
+        protected System.Windows.Forms.PictureBox imgConnection;
     }
 }

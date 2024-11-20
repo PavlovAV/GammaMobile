@@ -41,7 +41,7 @@ namespace gamma_mob
         /// <param name="fileName">Имя файла для хранения информации о невыгруженных продуктах</param>
         /// <param name="docDirection">Направление движения продукции(in, out, outin)</param>
         public DocWithNomenclatureForm(Guid docOrderId, Form parentForm, string orderNumber, OrderType orderType,
-            DocDirection docDirection, bool isMovementForOrder, int maxAllowedPercentBreak, EndPointInfo startPointInfo, bool isControlExec, DateTime? startExec)
+            DocDirection docDirection, bool isMovementForOrder, int maxAllowedPercentBreak, EndPointInfo startPointInfo, bool isControlExec, DateTime? startExec, bool checkExistMovementToZone)
             : this(parentForm)
         {
             StartPointInfo = startPointInfo;
@@ -49,23 +49,30 @@ namespace gamma_mob
             DocId = docOrderId;
             DocDirection = docDirection;
             IsMovementForOrder = isMovementForOrder;
-
+            SetCheckExistMovementToZone(checkExistMovementToZone);
             if (!RefreshDocOrderGoods(docOrderId))
             {
                 Shared.ShowMessageInformation(@"Не удалось получить информацию о документе!" + Environment.NewLine + "Попробуйте ещё раз обновить!");
                 //Close();
-                return;
+                //return;
             }
             switch (orderType)
             {
                 case OrderType.ShipmentOrder:
                     Text = "Приказ № " + orderNumber;
+                    IsShowOrderComplitedMessage = !(StartPointInfo == null || StartPointInfo.PlaceId == 36 || StartPointInfo.PlaceId == 37 || StartPointInfo.PlaceId == 38);
                     break;
                 case OrderType.InternalOrder:
                     Text = "Внутрен. заказ № " + orderNumber;
+                    IsShowOrderComplitedMessage = !(StartPointInfo == null || StartPointInfo.PlaceId == 36 || StartPointInfo.PlaceId == 37 || StartPointInfo.PlaceId == 38);
                     break;
                 case OrderType.MovementOrder:
                     Text = "Заказ на перем.№ " + orderNumber;
+                    IsShowOrderComplitedMessage = !(StartPointInfo == null || StartPointInfo.PlaceId == 36 || StartPointInfo.PlaceId == 37 || StartPointInfo.PlaceId == 38);
+                    break;
+                case OrderType.Purchase:
+                    Text = "Приемка № " + orderNumber;
+                    IsShowOrderComplitedMessage = false;
                     break;
             }
             var tableStyle = new DataGridTableStyle {MappingName = BSource.GetListName(null)};
@@ -118,20 +125,20 @@ namespace gamma_mob
 
             IsControlExec = isControlExec;
             StartExec = startExec;
-
-            if (!Shared.InitializationData()) Shared.ShowMessageInformation(@"Внимание! Не обновлены" + Environment.NewLine + @" данные с сервера.");
+            
+            if (!Settings.GetCurrentServerIsExternal() && !Shared.InitializationData()) Shared.ShowMessageInformation(@"Внимание! Не обновлены" + Environment.NewLine + @" данные с сервера.");
             if (Shared.TimerForUnloadOfflineProducts == null) Shared.ShowMessageInformation(@"Внимание! Не запущена автоматическая" + Environment.NewLine + @"выгрузка на сервер.");
             OnUpdateBarcodesIsNotUploaded();
         }
 
         public DocWithNomenclatureForm(Guid docOrderId, Form parentForm, string orderNumber, OrderType orderType,
-            DocDirection docDirection, bool isMovementForOrder, int maxAllowedPercentBreak, EndPointInfo startPointInfo, EndPointInfo endPointInfo, bool isControlExec, DateTime? startExec)
+            DocDirection docDirection, bool isMovementForOrder, int maxAllowedPercentBreak, EndPointInfo startPointInfo, EndPointInfo endPointInfo, bool isControlExec, DateTime? startExec, bool checkExistMovementToZone)
             : this(docOrderId, parentForm, orderNumber, orderType,
-            docDirection, isMovementForOrder, maxAllowedPercentBreak, startPointInfo, isControlExec, startExec) 
+            docDirection, isMovementForOrder, maxAllowedPercentBreak, startPointInfo, isControlExec, startExec, checkExistMovementToZone) 
         {
             EndPointInfo = endPointInfo;
             EndpointSettedInFormConstructor(EndPointInfo, pnlZone);
-            Shared.SaveToLogInformation(@"StartPointInfo.PlaceId-" + StartPointInfo.PlaceId + @"; StartPointInfo.PlaceZoneId-" + StartPointInfo.PlaceZoneId + @"; EndPointInfo.PlaceId-" + EndPointInfo.PlaceId + @"; EndPointInfo.PlaceZoneId-" + EndPointInfo.PlaceZoneId);
+            Shared.SaveToLogInformation(StartPointInfo != null ? @"StartPointInfo.PlaceId-" + StartPointInfo.PlaceId + @"; StartPointInfo.PlaceZoneId-" + StartPointInfo.PlaceZoneId : @"" + EndPointInfo != null ? @"; EndPointInfo.PlaceId-" + EndPointInfo.PlaceId + @"; EndPointInfo.PlaceZoneId-" + EndPointInfo.PlaceZoneId : @"");
         }
 
         // Устанавливаем цвет фона для ячейки Собрано при превышении собранного количества над требуемым!
@@ -148,6 +155,7 @@ namespace gamma_mob
 
         private int MaxAllowedPercentBreak { get; set; }
         public bool IsRefreshQuantity = false;
+        public bool IsShowOrderComplitedMessage = false;
 
         private int _countNomenclatureExceedingMaxPercentWithBreak;
 
@@ -164,7 +172,10 @@ namespace gamma_mob
         protected override void FormLoad(object sender, EventArgs e)
         {
             base.FormLoad(sender, e);
-            base.ActivatePanels(new List<int>() { (int)Images.Back, (int)Images.Inspect, (int)Images.Refresh, (int)Images.UploadToDb, (int)Images.Pallet, (int)Images.Question, (int)Images.InfoProduct});//, pnlToolBar_ButtonClick);
+            if (OrderType != OrderType.Purchase)
+                base.ActivatePanels(new List<int>() { (int)Images.Back, (int)Images.Inspect, (int)Images.Refresh, (int)Images.UploadToDb, (int)Images.Pallet, (int)Images.Question, (int)Images.InfoProduct});//, pnlToolBar_ButtonClick);
+            else
+                base.ActivatePanelsWithoutSearch(new List<int>() { (int)Images.Back, (int)Images.Inspect, (int)Images.Refresh, (int)Images.UploadToDb, (int)Images.Pallet, (int)Images.Question, (int)Images.InfoProduct});//, pnlToolBar_ButtonClick);
         }
 
         protected override void RefreshToolBarButton()
@@ -209,8 +220,13 @@ namespace gamma_mob
                 Shared.ShowMessageError(@"Нет связи с сервером" + Environment.NewLine + ConnectionState.GetConnectionState());
                 return;
             }
+            if (!(gridDocOrder.CurrentRowIndex>=0))
+            {
+                Shared.ShowMessageError(@"Не выбрана запись");
+                return;
+            }
             var good = NomenclatureList[gridDocOrder.CurrentRowIndex];
-            var form = new DocShipmentProductsForm(DocId, good.NomenclatureId, good.NomenclatureName, good.CharacteristicId, good.QualityId, this, DocDirection, IsMovementForOrder, OrderType, new RefreshDocProductDelegate(RefreshDocOrder), StartPointInfo, EndPointInfo, good.IsEnableAddProductManual);
+            var form = new DocShipmentProductsForm(DocId, good.NomenclatureId, good.NomenclatureName, good.CharacteristicId, good.QualityId, good.ProductKindId, this, DocDirection, IsMovementForOrder, OrderType, new RefreshDocProductDelegate(RefreshDocOrder), StartPointInfo, EndPointInfo, good.IsEnableAddProductManual);
             if (!form.IsDisposed)
             {
                 BarcodeFunc = null;
@@ -224,8 +240,11 @@ namespace gamma_mob
         {
             if (!RefreshDocOrderGoods(docId))
             {
-                if (showMessage) 
+                if (showMessage)
+                {
+                    ConnectionState.ConnectionLost();
                     Shared.ShowMessageInformation(@"Не удалось получить информацию о документе!" + Environment.NewLine + "Попробуйте ещё раз обновить!");
+                }
                 else
                     Shared.SaveToLogInformation(@"Не удалось получить информацию о документе!" + Environment.NewLine + "Попробуйте ещё раз обновить!");
                 //Close();
@@ -268,16 +287,18 @@ namespace gamma_mob
 
         protected override DbOperationProductResult AddProductId(Guid? scanId, DbProductIdFromBarcodeResult getProductResult, EndPointInfo endPointInfo)
         {
-            var addedProductIdToOrderResult = Db.AddProductIdToOrder(scanId, DocId, OrderType, Shared.PersonId, getProductResult.ProductId, DocDirection, endPointInfo, (int?)getProductResult.ProductKindId, getProductResult.NomenclatureId, getProductResult.CharacteristicId, getProductResult.QualityId, getProductResult.CountProducts, getProductResult.MeasureUnitId, getProductResult.FromProductId, getProductResult.FromPlaceId, getProductResult.FromPlaceZoneId);
+            var addedProductIdToOrderResult = Db.AddProductIdToOrder(scanId, DocId, OrderType, Shared.PersonId, getProductResult.ProductId, DocDirection, endPointInfo, (int?)getProductResult.ProductKindId, getProductResult.NomenclatureId, getProductResult.CharacteristicId, getProductResult.QualityId, getProductResult.CountProducts, getProductResult.CountFractionalProducts, getProductResult.MeasureUnitId, getProductResult.FromProductId, getProductResult.FromPlaceId, getProductResult.FromPlaceZoneId, getProductResult.NewWeight, getProductResult.ValidUntilDate);
             return addedProductIdToOrderResult == null ? null : (addedProductIdToOrderResult as DbOperationProductResult);
         }
 
-        protected override void UpdateGrid(DbOperationProductResult addResult, ProductKind? productKindId, Guid? docOrderId, EndPointInfo endPointInfo, Guid? scanId)
+        protected override void UpdateGrid(DbOperationProductResult addResult, ProductKind? productKindId, Guid? docOrderId, EndPointInfo endPointInfo, Guid? scanId, EndPointInfo startPointInfo)
         {
             if (DocId == docOrderId)
-                    Invoke((UpdateOrderGridInvoker)(UpdateGrid),
-                       new object[] { addResult.Product.NomenclatureId, addResult.Product.CharacteristicId, addResult.Product.QualityId, addResult.Product.NomenclatureName, 
-                                addResult.Product.ShortNomenclatureName, addResult.Product.Quantity, true, addResult.Product.CountProductSpools, addResult.Product.CountProductSpoolsWithBreak, (int?)productKindId });                
+            {
+                Invoke((UpdateOrderGridInvoker)(UpdateGrid),
+                   new object[] { addResult.Product.NomenclatureId, addResult.Product.CharacteristicId, addResult.Product.QualityId, addResult.Product.NomenclatureName, 
+                                addResult.Product.ShortNomenclatureName, addResult.Product.Quantity, true, addResult.Product.CountProductSpools, addResult.Product.CountProductSpoolsWithBreak, (int?)productKindId });
+            }
         }
      
         private void UpdateGrid(Guid nomenclatureId, Guid characteristicId, Guid qualityId, string nomenclatureName,
@@ -328,7 +349,7 @@ namespace gamma_mob
                     if (productKindId == null || productKindId != 3) Collected--;
                 }
                 error_ch = "ch4";
-                if (NomenclatureList.Count > 0 && !NomenclatureList.Any(n => !n.IsCollected))
+                if (IsShowOrderComplitedMessage && NomenclatureList.Count > 0 && !NomenclatureList.Any(n => !n.IsCollected))
                 {
                     Shared.ShowMessageInformation("Собраны все позиции. Не забудьте закрыть заказ.");
                 }
@@ -386,6 +407,37 @@ namespace gamma_mob
         protected override List<Nomenclature> GetNomenclatureGoods()
         {
             return NomenclatureList.Select(n => new Nomenclature(n.NomenclatureId, n.CharacteristicId, n.QualityId)).Distinct().ToList();   
+        }
+
+        protected override void btnAddProductClick()
+        {
+            Shared.SaveToLogInformation(@"Начало выбора зоны откуда");
+            var res = false;
+            if (StartPointInfo != null && !StartPointInfo.IsAvailabilityPlaceZoneId)
+                res = true;
+            else
+            {
+                if (this.InvokeRequired)
+                {
+                    Invoke((MethodInvoker)delegate()
+                    {
+                        res = this.ChangeStartPointZone_Click(new object(), new EventArgs());
+                    });
+                }
+                else
+                    res = this.ChangeStartPointZone_Click(new object(), new EventArgs());
+            }
+            if (res && StartPointInfo != null)
+            {
+                if (edtNumber.Text == String.Empty && StartPointInfo.PlaceZoneBarcode != "")
+                    Invoke((MethodInvoker)(() => edtNumber.Text = StartPointInfo.PlaceZoneBarcode));
+                AddProductClick();
+                Shared.SaveToLogInformation(@"Выбрано Добавить ШК: " + edtNumber.Text);
+            }
+            else
+            {
+                Shared.ShowMessageError(@"Ошибка! Не выбрана зона Откуда");
+            }
         }
 
     }

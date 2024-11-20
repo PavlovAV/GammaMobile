@@ -15,16 +15,26 @@ namespace gamma_mob.Models
         }
 
         public ScannedBarcode(string barcode, EndPointInfo endPointInfo, int docTypeId, Guid? docId, Guid? productId, int? productKindId, Guid? nomenclatureId, Guid? characteristicId, Guid? qualityId, int? quantity, Guid? fromProductId)
-            :this(barcode, Guid.NewGuid(), endPointInfo, docTypeId, docId, false, false, false, DateTime.Now, productId, productKindId, nomenclatureId, characteristicId, qualityId, quantity, fromProductId)
+            :this(barcode, Guid.NewGuid(), endPointInfo, docTypeId, docId, null, false, false, DateTime.Now, productId, productKindId, nomenclatureId, characteristicId, qualityId, quantity, null, fromProductId, null, null, null, null, null)
         {
         }
 
         public ScannedBarcode(string barcode, Guid scanId, EndPointInfo endPointInfo, int docTypeId, Guid? docId, bool isUploaded, bool toDelete, bool isDeleted, DateTime dateScanned, Guid? productId, int? productKindId, Guid? nomenclatureId, Guid? characteristicId, Guid? qualityId, int? quantity)
-            : this(barcode, scanId, endPointInfo, docTypeId, docId, isUploaded, toDelete, isDeleted, dateScanned, productId, productKindId, nomenclatureId, characteristicId, qualityId, quantity, null)
+            : this(barcode, scanId, endPointInfo, docTypeId, docId, isUploaded, toDelete, isDeleted, dateScanned, productId, productKindId, nomenclatureId, characteristicId, qualityId, quantity, null, null, null, null, null, null, null)
         {
         }
 
-        public ScannedBarcode(string barcode, Guid scanId, EndPointInfo endPointInfo, int docTypeId, Guid? docId, bool isUploaded, bool toDelete, bool isDeleted, DateTime dateScanned, Guid? productId, int? productKindId, Guid? nomenclatureId, Guid? characteristicId, Guid? qualityId, int? quantity, Guid? fromProductId)
+        public ScannedBarcode(string barcode, Guid scanId, EndPointInfo endPointInfo, int docTypeId, Guid? docId, bool isUploaded, bool toDelete, bool isDeleted, DateTime dateScanned, Guid? productId, int? productKindId, Guid? nomenclatureId, Guid? characteristicId, Guid? qualityId, int? quantity, int? quantityFractional)
+            : this(barcode, scanId, endPointInfo, docTypeId, docId, isUploaded, toDelete, isDeleted, dateScanned, productId, productKindId, nomenclatureId, characteristicId, qualityId, quantity, null, null, null, null, null, quantityFractional, null)
+        {
+        }
+
+        public ScannedBarcode(string barcode, EndPointInfo endPointInfo, int docTypeId, Guid? docId, Guid? productId, int? productKindId, Guid? nomenclatureId, Guid? characteristicId, Guid? qualityId, int? quantity, Guid? measureUnitId, Guid? fromProductId, int? fromPlaceId, Guid? fromPlaceZoneId, int? newWeight, int? quantityFractional, DateTime? validUntilDate)
+            : this(barcode, Guid.NewGuid(), endPointInfo, docTypeId, docId, null, false, false, DateTime.Now, productId, productKindId, nomenclatureId, characteristicId, qualityId, quantity, measureUnitId, fromProductId, fromPlaceId, fromPlaceZoneId, newWeight, quantityFractional, validUntilDate)
+        {
+        }
+
+        public ScannedBarcode(string barcode, Guid scanId, EndPointInfo endPointInfo, int docTypeId, Guid? docId, bool? isUploaded, bool toDelete, bool isDeleted, DateTime dateScanned, Guid? productId, int? productKindId, Guid? nomenclatureId, Guid? characteristicId, Guid? qualityId, int? quantity, Guid? measureUnitId, Guid? fromProductId, int? fromPlaceId, Guid? fromPlaceZoneId, int? newWeight, int? quantityFractional, DateTime? validUntilDate)
         {
             Barcode = barcode;
             ScanId = scanId;
@@ -32,7 +42,7 @@ namespace gamma_mob.Models
             PlaceZoneId = endPointInfo == null ? (Guid?)null : endPointInfo.PlaceZoneId;
             DocTypeId = docTypeId;
             DocId = docId;
-            IsUploaded = IsUploaded;
+            IsUploaded = isUploaded;
             ToDelete = toDelete;
             IsDeleted = isDeleted;
             DateScanned = dateScanned;
@@ -42,7 +52,13 @@ namespace gamma_mob.Models
             CharacteristicId = characteristicId;
             QualityId = qualityId;
             Quantity = quantity;
+            MeasureUnitId = measureUnitId;
             FromProductId = fromProductId;
+            FromPlaceId = fromPlaceId;
+            FromPlaceZoneId = fromPlaceZoneId;
+            NewWeight = newWeight;
+            QuantityFractional = quantityFractional;
+            ValidUntilDate = validUntilDate;
         }
 
         /*public ScannedBarcode(string barcode, EndPointInfo endPointInfo, int docTypeId, Guid? docId)
@@ -73,7 +89,7 @@ namespace gamma_mob.Models
         public int DocTypeId { get; set; }
         public Guid ScanId { get; set; }
         public Guid? DocId { get; set; }
-        public bool IsUploaded { get; set; }
+        public bool? IsUploaded { get; set; }
         public Guid? ProductId { get; set; }
         public int? ProductKindId { get; set; }
         /// <summary>
@@ -93,9 +109,37 @@ namespace gamma_mob.Models
         /// </summary>
         public int? Quantity { get; set; }
         /// <summary>
+        /// Единиы измерения продукта (для кип - ГУИД документа приемки)
+        /// </summary>
+        public Guid? MeasureUnitId { get; set; }
+        /// <summary>
         /// ИД паллеты, из которой вытащили упаковку/коробку
         /// </summary>
         public Guid? FromProductId { get; set; }
+        /// <summary>
+        /// Передел, из которого забрали кипу макулатуры
+        /// </summary>
+        public int? FromPlaceId { get; set; }
+        /// <summary>
+        /// Зона передела, из которого забрали кипу макулатуры
+        /// </summary>
+        public Guid? FromPlaceZoneId { get; set; }
+
+        /// <summary>
+        /// Новый вес кипы макулатуры (если на текущий момент не указан, а уже идет подача в РПО)
+        /// </summary>
+        public int? NewWeight { get; set; }
+
+        /// <summary>
+        /// Дробная часть кол-ва продукта (материала), т.е. итоговое кол-во = [Quantity,QuantityFactorial] 
+        /// </summary>
+        public int? QuantityFractional { get; set; }
+
+        /// <summary>
+        /// Дата Годен до.. для материала
+        /// </summary>
+        public DateTime? ValidUntilDate { get; set; }
+                
         public string UploadResult { get; set; }
         public bool ToDelete { get; set; }
         public bool IsDeleted { get; set; }

@@ -7,7 +7,6 @@ namespace gamma_mob.Models
 {
     public class DbOrderOperationProductResult: DbOperationProductResult
     {
-        public bool AlreadyMadeChanges { get; set; }
         /// <summary>
         /// Признак того, что документ, с которым проводилась операция, уже подтвержден
         /// </summary>

@@ -17,12 +17,13 @@ using System.Runtime.InteropServices;
 
 namespace gamma_mob
 {
-    
-    public partial class LoginForm : BaseForm
+
+    public partial class LoginForm : BaseFormWithShowMessage
     {
         public LoginForm()
         {
-            InitializeComponent();
+            InitializeComponent(); 
+            //imgConnection.Image = ImgList.Images[(int)Images.NetworkOffline];
         }
 
         private string barcode;
@@ -34,11 +35,17 @@ namespace gamma_mob
         out ulong lpTotalNumberOfBytes,
         out ulong lpTotalNumberOfFreeBytes);
 
+        private bool initConnectionStarting { get; set; }
 
-        protected override void FormLoad(object sender, EventArgs e)
+        public void InitConnection(object obj)
         {
-            base.FormLoad(sender, e);
-            BarcodeFunc = AuthorizeByBarcode;
+            if (!initConnectionStarting)
+            {
+                initConnectionStarting = true;
+                SetLblMessageText(Environment.NewLine + Environment.NewLine + 
+                        "Идет настройка соединения с сетью...");
+                ConnectionState.GetIpFromSettings(Settings.CurrentServer);
+            var t = ConnectionState.TimerForCheckConnectionAvialabled;
             try
             {
                 Shared.SaveToLogStartProgramInformation(@"Version " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version);
@@ -62,7 +69,7 @@ namespace gamma_mob
                 Shared.SaveToLogStartProgramInformation(@"WiFiPowerStatus " + Shared.Device.GetWiFiPowerStatus().ToString());
                 if (batterySuspendTimeout != 600)
                     Shared.SaveToLogStartProgramInformation(@"SetBatterySuspendTimeout(600) " + Shared.Device.SetBatterySuspendTimeout(600).ToString());
-                
+
                 UInt64 userFreeBytes, totalDiskBytes, totalFreeBytesExecutable, totalFreeBytesUpdatable;
                 GetDiskFreeSpaceEx(@"\", out userFreeBytes, out totalDiskBytes, out totalFreeBytesExecutable);
                 GetDiskFreeSpaceEx(@"\FlashDisk\", out userFreeBytes, out totalDiskBytes, out totalFreeBytesUpdatable);
@@ -74,10 +81,10 @@ namespace gamma_mob
                 Shared.SaveToLogError(@"Error LoginFormLoad");
             }
 
-            //Подписка на событие восстановления связи
-            ConnectionState.OnConnectionRestored += ConnectionRestored;//UnloadOfflineProducts;
-            //Подписка на событие потери связи
-            ConnectionState.OnConnectionLost += ConnectionLost;
+            ////Подписка на событие восстановления связи
+            //ConnectionState.OnConnectionRestored += ConnectionRestored;//UnloadOfflineProducts;
+            ////Подписка на событие потери связи
+            //ConnectionState.OnConnectionLost += ConnectionLost;
 
             ConnectionState.CheckConnection(Settings.CurrentServer);
             if (Shared.TimerForCheckBatteryLevel == null)
@@ -91,68 +98,168 @@ namespace gamma_mob
                 Shared.SaveToLogError(@"Внимание! Не запущена автоматическая проверка на наличие новой версии программы.");
             }
 #endif
+                SetLblMessageText("Просканируйте свой штрих-код");
+            }
+        }
 
-//#if DEBUG
-//            AuthorizeByBarcode("00000000000048");
+        protected override void FormLoad(object sender, EventArgs e)
+        {
+            base.FormLoad(sender, e);
+            BarcodeFunc = AuthorizeByBarcode;
+            //ConnectionState.GetIpFromSettings(Settings.CurrentServer);
+#if DEBUG
+            InitConnection(null);
+            //AuthorizeByBarcode("00000000000217"); //Грузчик мак.участка
+            //AuthorizeByBarcode("00000000000068"); //Лобанов
+            //AuthorizeByBarcode("00000000000088"); //Багрянцев
+            //AuthorizeByBarcode("20100000002142"); //Березгин
+            AuthorizeByBarcode("20100000000223"); //солодухин
+            //AuthorizeByBarcode("20100000001282"); //Шарыпов
+#else
+            TimerCallback tc = new TimerCallback(InitConnection);
+            // создаем таймер
+            var tm = new System.Threading.Timer(tc, null, 1000, Timeout.Infinite);
+#endif
+            
+//            var t = ConnectionState.TimerForCheckConnectionAvialabled;
+//            //if (ConnectionState.CheckConnection(Settings.CurrentServer))
+//            //{
+//            //    switch (Db.CheckSqlConnection())
+//            //    {
+//            //        case 2:
+//            //            ConnectionLost();
+//            //            lblMessage.Text = "Нет связи с БД " + Settings.CurrentServer + Environment.NewLine + ConnectionState.GetConnectionState();
+//            //            break;
+//            //        case 1:
+//            //            lblMessage.Text = "Неверно указан логин или пароль к БД " + Settings.CurrentServer + Environment.NewLine + ConnectionState.GetConnectionState();
+//            //            break;
+//            //        default:
+//            //            lblMessage.Text = "Соединение с БД " + Settings.CurrentServer + " установлено" + Environment.NewLine + ConnectionState.GetConnectionState();
+//            //            break;
+//            //    }
+//            //}
+//            //else
+//            //{
+//            //    lblMessage.Text = "Нет связи с БД " + Settings.CurrentServer + ". Повторите попытку в зоне покрытия WiFi" + Environment.NewLine + ConnectionState.GetConnectionState();
+//            //}
+//            try
+//            {
+//                Shared.SaveToLogStartProgramInformation(@"Version " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version);
+//                Shared.SaveToLogStartProgramInformation(@"Model " + Shared.Device.GetModel());
+//                Shared.SaveToLogStartProgramInformation(@"HostName " + Shared.Device.GetHostName());
+//                Shared.SaveToLogStartProgramInformation(@"IpAdress " + Shared.Device.GetDeviceIP());
+//                var cerdispProcess = Shared.GetProcessRunning(@"cerdisp");
+//                if (cerdispProcess != null)
+//                {
+//                    btnExecRDP.Text = "Останов RDP";
+//                }
+//                else
+//                {
+//                    btnExecRDP.Text = "Запуск RDP";
+//                }
+//                Shared.SaveToLogStartProgramInformation(@"DbBarcodes created:" + Db.GetLocalDbBarcodesDateCreated().ToString(System.Globalization.CultureInfo.InvariantCulture));
+//                Shared.UpdateBatterySerialumber();
+//                var batterySuspendTimeout = Shared.Device.GetBatterySuspendTimeout();
+//                Shared.SaveToLogStartProgramInformation(@"BatterySuspendTimeout " + batterySuspendTimeout.ToString());
+//                Shared.SaveToLogStartProgramInformation(@"BatteryLevel " + Shared.Device.GetBatteryLevel().ToString());
+//                Shared.SaveToLogStartProgramInformation(@"WiFiPowerStatus " + Shared.Device.GetWiFiPowerStatus().ToString());
+//                if (batterySuspendTimeout != 600)
+//                    Shared.SaveToLogStartProgramInformation(@"SetBatterySuspendTimeout(600) " + Shared.Device.SetBatterySuspendTimeout(600).ToString());
+                
+//                UInt64 userFreeBytes, totalDiskBytes, totalFreeBytesExecutable, totalFreeBytesUpdatable;
+//                GetDiskFreeSpaceEx(@"\", out userFreeBytes, out totalDiskBytes, out totalFreeBytesExecutable);
+//                GetDiskFreeSpaceEx(@"\FlashDisk\", out userFreeBytes, out totalDiskBytes, out totalFreeBytesUpdatable);
+//                Shared.SaveToLogStartProgramInformation(@"FreeSpace " + totalFreeBytesExecutable.ToString() + @"/" +
+//                    totalFreeBytesUpdatable.ToString());
+//            }
+//            catch
+//            {
+//                Shared.SaveToLogError(@"Error LoginFormLoad");
+//            }
+
+//            ////Подписка на событие восстановления связи
+//            //ConnectionState.OnConnectionRestored += ConnectionRestored;//UnloadOfflineProducts;
+//            ////Подписка на событие потери связи
+//            //ConnectionState.OnConnectionLost += ConnectionLost;
+
+//            ConnectionState.CheckConnection(Settings.CurrentServer);
+//            if (Shared.TimerForCheckBatteryLevel == null)
+//            {
+//                Shared.SaveToLogError(@"Внимание! Не запущена автоматическая проверка уровня заряда аккумулятора.");
+//            }
+
+//#if !DEBUG
+//            if (Shared.TimerForCheckUpdateProgram == null)
+//            {
+//                Shared.SaveToLogError(@"Внимание! Не запущена автоматическая проверка на наличие новой версии программы.");
+//            }
 //#endif
+
         }
 
         protected override void OnFormClosing(object sender, CancelEventArgs e)
         {
             base.OnFormClosing(sender, e);
-            ConnectionState.OnConnectionRestored -= ConnectionRestored;
-            ConnectionState.OnConnectionLost -= ConnectionLost;
+            //ConnectionState.OnConnectionRestored -= ConnectionRestored;
+            //ConnectionState.OnConnectionLost -= ConnectionLost;
         }
 
-        private void ConnectionLost()
-        {
-            ConnectionLost(string.Empty);
-        }
+        //private void ConnectionLost()
+        //{
+        //    ConnectionLost(string.Empty);
+        //}
 
-        private void ConnectionRestored()
-        {
-            ConnectionRestored(string.Empty);            
-        }
+        //private void ConnectionRestored()
+        //{
+        //    ConnectionRestored(string.Empty);            
+        //}
 
         private void ConnectionLost(string message)
         {
-            Invoke((LoginStateChangeInvoker)(ShowConnection), new object[] { ConnectState.NoConnection, message });
+            SetLblMessageText(message == string.Empty ? "Связь потеряна! \r\n\r\nНайдите зону с устойчивой связью" : message);
+            //Invoke((LoginStateChangeInvoker)(ShowConnection), new object[] { ConnectState.NoConnection, message });
         }
 
         private void ConnectionRestored(string message)
         {
-            Invoke((LoginStateChangeInvoker)(ShowConnection), new object[] { ConnectState.ConnectionRestore, message });
-            //Invoke(new EventHandler(ConnectionRestored));
+            SetLblMessageText(message == string.Empty ? "Связь восстановлена! \r\n\r\nПросканируйте \r\nсвой штрих-код" : message);
+            //Invoke((LoginStateChangeInvoker)(ShowConnection), new object[] { ConnectState.ConnectionRestore, message });
+            ////Invoke(new EventHandler(ConnectionRestored));
         }
 
-        private void ShowConnection(ConnectState conState, string message)
+        //private void ShowConnection(ConnectState conState, string message)
+        //{
+        //    switch (conState)
+        //    {
+        //        //case ConnectState.ConInProgress:
+        //        //    imgConnection.Image = ImgList.Images[(int)Images.NetworkTransmitReceive];
+        //        //    break;
+        //        //case ConnectState.NoConInProgress:
+        //        //    imgConnection.Image = null;
+        //        //    break;
+        //        case ConnectState.NoConnection:
+        //            lblMessage.Text = message == string.Empty ? "Связь потеряна! \r\n\r\nНайдите зону с устойчивой связью" : message ;
+        //            imgConnection.Image = ImgList.Images[(int)Images.NetworkOffline];
+        //            break;
+        //        case ConnectState.ConnectionRestore:
+        //            lblMessage.Text = message == string.Empty ? "Связь восстановлена! \r\n\r\nПросканируйте \r\nсвой штрих-код" : message;
+        //            imgConnection.Image = ImgList.Images[(int)Images.NetworkTransmitReceive];
+        //            //ConnectionRestored();
+        //            break;
+        //    }
+        //    if (conState == ConnectState.NoConnection && message == string.Empty)
+        //        Shared.SaveToLogInformation(message);
+        //}
+
+        private void SetLblMessageText(string text)
         {
-            switch (conState)
-            {
-                //case ConnectState.ConInProgress:
-                //    imgConnection.Image = ImgList.Images[(int)Images.NetworkTransmitReceive];
-                //    break;
-                //case ConnectState.NoConInProgress:
-                //    imgConnection.Image = null;
-                //    break;
-                case ConnectState.NoConnection:
-                    lblMessage.Text = message == string.Empty ? "Связь потеряна! \r\n\r\nНайдите зону с устойчивой связью" : message ;
-                    break;
-                case ConnectState.ConnectionRestore:
-                    lblMessage.Text = message == string.Empty ? "Связь восстановлена! \r\n\r\nПросканируйте \r\nсвой штрих-код" : message;
-                    //ConnectionRestored();
-                    break;
-            }
-            if (conState == ConnectState.NoConnection && message == string.Empty)
-                Shared.SaveToLogInformation(message);
+            Invoke((MethodInvoker)(() => lblMessage.Text = text));
         }
 
         private void AuthorizeByBarcode(string barcode)
         {
-            Invoke(
-                (MethodInvoker)
-                (() => lblMessage.Text = barcode + Environment.NewLine +
-                    "\r\n\r\nИдет проверка сети..."));
+            SetLblMessageText(barcode + Environment.NewLine +
+                    "\r\n\r\nИдет проверка сети...");
             if (!ConnectionState.CheckConnection(Settings.CurrentServer))
             {
                 ConnectionError();
@@ -160,9 +267,11 @@ namespace gamma_mob
             }
             if (!ConnectionState.GetServerPortEnabled)
             {
-                ConnectionLost();
+                //ConnectionState.ConnectionLost();
+                this.ConnectionLost(); 
                 return;
             }
+#if !DEBUG
             switch (Db.CheckSqlConnection())
             {
                 case 2:
@@ -172,12 +281,16 @@ namespace gamma_mob
                     WrongUserPass();
                     return;
             }
-            
+#endif                 
+
             Person person = Db.PersonByBarcode(barcode);
             if (person == null)
             {
                 //MessageBox.Show(@"Неверный шк или нет связи с базой");
-                ConnectionLost(@"Неверный шк или нет связи с базой");
+                if (ConnectionState.IsConnected)
+                    ConnectionLost(@"Неверный шк");
+                else 
+                    ConnectionLost(@"Нет связи с базой данных");
                 return;
             }
 
@@ -191,6 +304,7 @@ namespace gamma_mob
             Shared.IsFindBarcodeFromFirstLocalAndNextOnline = (person.b1 ?? false);
             Shared.IsAvailabilityCreateNewPalletNotOnOrder = (person.b2 ?? false);
             Shared.IsAvailabilityChoiseNomenclatureForMovingGroupPack = (person.b3 ?? false);
+            Shared.IsNotUpdateCashedBarcodesOnFirst = (person.b4 ?? false);
             if (person.UserName.Contains("0"))
             {
                using (var form = new ChooseShiftDialog())
@@ -243,30 +357,58 @@ namespace gamma_mob
                     WrongUserPass();
                     return;
                 case 0:
-                    ConnectionState.IsConnected = true;
+                    //ConnectionState.IsConnected = true;
                     break;
             }
 
             Shared.PersonId = person.PersonID;
             Shared.PersonName = person.Name;
             Shared.PlaceId = person.PlaceID;
-            Invoke(
-                (MethodInvoker)
-                (() => lblMessage.Text = "Вы авторизовались " + Environment.NewLine + "как " + person.Name + " (" + Settings.UserName + ")" +
-                    "\r\n\r\nИдет загрузка данных..."));
+            Shared.VisibledButtonsOnMainWindow = (VisibleButtonsOnMainWindow)person.i1;
+            var ii = (int)(VisibleButtonsOnMainWindow.btnExtAccept
+                    | VisibleButtonsOnMainWindow.btnDocOrder
+                    | VisibleButtonsOnMainWindow.btnDocTransfer
+                    | VisibleButtonsOnMainWindow.btnDocMovement
+                    //| VisibleButtonsOnMainWindow.btnCloseShift
+                    | VisibleButtonsOnMainWindow.btnCloseApp
+                    | VisibleButtonsOnMainWindow.btnInfoProduct
+                    | VisibleButtonsOnMainWindow.btnInventarisation
+                    );
+
+
+            SetLblMessageText("Вы авторизовались " + Environment.NewLine + "как " + person.Name + " (" + Settings.UserName + ")" +
+                    "\r\n\r\nИдет загрузка данных...");
             //Shared.LastTimeBarcodes1C = Db.GetServerDateTime();
             //Shared.Barcodes1C = Db.GetBarcodes1C();
-            
-            if (!Shared.InitializationData())                
+            Cursor.Current = Cursors.WaitCursor;
+            SetLblMessageText(("\r\n\r\nИдет выгрузка\r\nлогов на сервер..."));
+            Shared.DeleteOldUploadedToServerLogs();
+            var res = true;
+            SetLblMessageText(("\r\n\r\nИдет загрузка\r\nштрих-кодов с сервера..."));
+            res = res && Shared.Barcodes1C != null;
+            SetLblMessageText(("\r\n\r\nИдет загрузка\r\nскладов с сервера..."));
+            res = res && Shared.Warehouses != null;
+            SetLblMessageText(("\r\n\r\nИдет загрузка\r\nзон склада с сервера..."));
+            res = res && Shared.PlaceZones != null;
+            SetLblMessageText(("\r\n\r\nОбновление\r\nштрих-кодов с сервера..."));
+            res = res && Shared.Barcodes1C.UpdateBarcodes(true) != null;
+            SetLblMessageText(("\r\n\r\nИдет загрузка\r\nмак. % брака с сервера..."));
+            res = res && Shared.MaxAllowedPercentBreak != null;
+            SetLblMessageText(("\r\n\r\nИдет загрузка периода\r\nзагрузки ШК с сервера..."));
+            res = res && Shared.TimerPeriodForBarcodesUpdate != null;
+            SetLblMessageText(("\r\n\r\nИдет загрузка периода\r\nпопыток выгрузки на сервера..."));
+            res = res && Shared.TimerPeriodForUnloadOfflineProducts != null;
+            SetLblMessageText(("\r\n\r\nИнициализация\r\nсканирования на ТСД..."));
+            res = res && Shared.ScannedBarcodes != null;
+            SetLblMessageText(("Загрузка закончена"));
+            if (!res)//!InitializationData())                
             {
-                Invoke(
-                    (MethodInvoker)
-                    (() => lblMessage.Text = "Просканируйте \r\nсвой штрих-код"));
+                SetLblMessageText("Просканируйте \r\nсвой штрих-код");
                 ConnectionError();
                 return;
             }
             //Thread.Sleep(3000);
-            Invoke((MethodInvoker) (CloseForm));
+            Invoke((MethodInvoker)(CloseForm));
         }
 
         private void CloseForm()
@@ -296,16 +438,16 @@ namespace gamma_mob
             var res = Shared.ExecRDP();
             if (res == null)
             {
-                lblMessage.Text = @"RDP не запущен. Файл cerdisp.exe не найден.";                
+                SetLblMessageText(@"RDP не запущен. Файл cerdisp.exe не найден.");                
             }
             else if ((bool)res)
             {
-                lblMessage.Text = "RDP запущен";
+                SetLblMessageText("RDP запущен");
                 btnExecRDP.Text = "Останов RDP";
             }
             else
             {
-                lblMessage.Text = "RDP остановлен";
+                SetLblMessageText("RDP остановлен");
                 btnExecRDP.Text = "Запуск RDP";
             }
             /*
@@ -373,12 +515,15 @@ namespace gamma_mob
 
         private void btnHelp_Click(object sender, EventArgs e)
         {
+            Db.AddMessageToLog("btnHelp_Click");
+            if (!initConnectionStarting)
+                InitConnection(null);
             if (btnHelp.Text == "Сеть")
             {
                 btnHelp.Text = "Скрыть";
                 lblMessage.Font = new System.Drawing.Font("Tahoma", 10, System.Drawing.FontStyle.Regular);
-                lblMessage.Text = "Версия: " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version + Environment.NewLine + "Сервер: " + Settings.CurrentServer + Environment.NewLine + "БД/логин: " + Settings.Database + "/" + Settings.UserName;
-                lblMessage.Text = lblMessage.Text + Environment.NewLine + "БД ШК создан:" + Db.GetLocalDbBarcodesDateCreated().ToString(System.Globalization.CultureInfo.InvariantCulture);
+                SetLblMessageText("Версия: " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version + Environment.NewLine + "Сервер: " + Settings.CurrentServer + Environment.NewLine + "БД/логин: " + Settings.Database + "/" + Settings.UserName);
+                SetLblMessageText(lblMessage.Text + Environment.NewLine + "БД ШК создан:" + Db.GetLocalDbBarcodesDateCreated().ToString(System.Globalization.CultureInfo.InvariantCulture));
                 btnExecRDP.Visible = true;
                 btnTestPing.Visible = true;
                 btnTestSQL.Visible = true;
@@ -392,14 +537,15 @@ namespace gamma_mob
                     btnExit.Visible = true;
                 }
                 RefreshBtnSetNetEnabled();
-                lblMessage.Text = lblMessage.Text + Environment.NewLine + "Имя ТСД: " + Shared.Device.GetHostName() + " (s/n " + Shared.Device.GetDeviceName() + ")" ;
-                lblMessage.Text = lblMessage.Text + Environment.NewLine + "IP адрес " + Shared.Device.GetDeviceIP();
+                SetLblMessageText(lblMessage.Text + Environment.NewLine + "IsConnected " + ConnectionState.IsConnected);
+                SetLblMessageText(lblMessage.Text + Environment.NewLine + "Имя ТСД: " + Shared.Device.GetHostName() + " (s/n " + Shared.Device.GetDeviceName() + ")" );
+                SetLblMessageText(lblMessage.Text + Environment.NewLine + "IP адрес " + Shared.Device.GetDeviceIP());
             }
             else
             {
                 btnHelp.Text = "Сеть";
                 lblMessage.Font = new System.Drawing.Font("Tahoma", 14, System.Drawing.FontStyle.Regular);
-                lblMessage.Text = "Просканируйте \r\nсвой штрих-код";
+                SetLblMessageText("Просканируйте \r\nсвой штрих-код");
                 btnExecRDP.Visible = false;
                 btnTestPing.Visible = false;
                 btnTestSQL.Visible = false;
@@ -429,20 +575,20 @@ namespace gamma_mob
                 uint quality;
                 if (Shared.Device.WiFiGetSignalQuality(out quality))
                 {
-                    lblMessage.Text = "WiFi уровень сигнала " + quality.ToString();
+                    SetLblMessageText("WiFi уровень сигнала " + quality.ToString());
                     if (quality < 10)
                     {
-                        lblMessage.Text = lblMessage.Text + " (низкий)";
+                        SetLblMessageText(lblMessage.Text + " (низкий)");
                     }
                 }
                 else
                 {
-                    lblMessage.Text = "WiFi ошибка при проверке уровня сигнала";
+                    SetLblMessageText("WiFi ошибка при проверке уровня сигнала");
                 }
             }
             else
             {
-                lblMessage.Text = "WiFi сигнал отсутствует";
+                SetLblMessageText("WiFi сигнал отсутствует");
             }
         }
 
@@ -452,7 +598,7 @@ namespace gamma_mob
             var ServerIp = ConnectionState.GetServerIp();
             if (ServerIp == "")
             {
-                lblMessage.Text = "Не определен IP сервера";
+                SetLblMessageText("Не определен IP сервера");
             }
             else
             {
@@ -463,31 +609,31 @@ namespace gamma_mob
                         PingReply reply = pinger.Send(ServerIp, 200);
                         if (reply.Status != IPStatus.Success)
                         {
-                            lblMessage.Text = "Сервер "+ServerIp+" не пингуется c таймаутом 200 мс";
+                            SetLblMessageText("Сервер "+ServerIp+" не пингуется c таймаутом 200 мс");
                             reply = pinger.Send(ServerIp, 400);
                             if (reply.Status != IPStatus.Success)
                             {
-                                lblMessage.Text = lblMessage.Text + Environment.NewLine + "Сервер " + ServerIp + " не пингуется c таймаутом 400 мс";
+                                SetLblMessageText(lblMessage.Text + Environment.NewLine + "Сервер " + ServerIp + " не пингуется c таймаутом 400 мс");
                                 reply = pinger.Send(ServerIp, 800);
                                 if (reply.Status != IPStatus.Success)
                                 {
-                                    lblMessage.Text = lblMessage.Text + Environment.NewLine + "Сервер " + ServerIp + " не пингуется c таймаутом 800 мс";
+                                    SetLblMessageText(lblMessage.Text + Environment.NewLine + "Сервер " + ServerIp + " не пингуется c таймаутом 800 мс");
                                     reply = pinger.Send(ServerIp, 1600);
                                     if (reply.Status != IPStatus.Success)
                                     {
-                                        lblMessage.Text = lblMessage.Text + Environment.NewLine + "Сервер " + ServerIp + " не пингуется c таймаутом 1600 мс";
+                                        SetLblMessageText(lblMessage.Text + Environment.NewLine + "Сервер " + ServerIp + " не пингуется c таймаутом 1600 мс");
                                     }
                                 }
                             }
                         }
                         if (reply.Status == IPStatus.Success)
                         {
-                            lblMessage.Text = lblMessage.Text + Environment.NewLine + "Сервер " + ServerIp + " пингуется "+reply.ToString();
+                            SetLblMessageText(lblMessage.Text + Environment.NewLine + "Сервер " + ServerIp + " пингуется "+reply.ToString());
                         }
                     }
                     catch (Exception ex) 
                     {
-                        lblMessage.Text = lblMessage.Text + Environment.NewLine + "Ошибка при пинге сервера " + ServerIp + ": " + ex.ToString();
+                        SetLblMessageText(lblMessage.Text + Environment.NewLine + "Ошибка при пинге сервера " + ServerIp + ": " + ex.ToString());
                     }
                 }
             }
@@ -501,19 +647,20 @@ namespace gamma_mob
                 switch (Db.CheckSqlConnection())
                 {
                     case 2:
-                        lblMessage.Text = "Нет связи с БД " + Settings.CurrentServer + Environment.NewLine + ConnectionState.GetConnectionState();
+                        ConnectionLost();
+                        SetLblMessageText("Нет связи с БД " + Settings.CurrentServer + Environment.NewLine + ConnectionState.GetConnectionState());
                         break;
                     case 1:
-                        lblMessage.Text = "Неверно указан логин или пароль к БД " + Settings.CurrentServer + Environment.NewLine + ConnectionState.GetConnectionState();
+                        SetLblMessageText("Неверно указан логин или пароль к БД " + Settings.CurrentServer + Environment.NewLine + ConnectionState.GetConnectionState());
                         break;
                     default:
-                        lblMessage.Text = "Соединение с БД " + Settings.CurrentServer + " установлено" + Environment.NewLine + ConnectionState.GetConnectionState();
+                        SetLblMessageText("Соединение с БД " + Settings.CurrentServer + " установлено" + Environment.NewLine + ConnectionState.GetConnectionState());
                         break;
                 }
             }
             else
             {
-                lblMessage.Text = "Нет связи с БД " + Settings.CurrentServer + ". Повторите попытку в зоне покрытия WiFi" + Environment.NewLine + ConnectionState.GetConnectionState();
+                SetLblMessageText("Нет связи с БД " + Settings.CurrentServer + ". Повторите попытку в зоне покрытия WiFi" + Environment.NewLine + ConnectionState.GetConnectionState());
             }
             Cursor.Current = Cursors.Default;
         }
@@ -529,7 +676,7 @@ namespace gamma_mob
                 {
                     barcode = "0" + barcode;
                 }
-                lblMessage.Text = barcode;
+                SetLblMessageText(barcode);
                 AuthorizeByBarcode(barcode);
                 barcode = String.Empty;
             }
@@ -566,12 +713,12 @@ namespace gamma_mob
                 if ((!isChangeExternalServer) ? Settings.SetCurrentInternalServer() : Settings.SetCurrentExternalServer())
                 {
                     RefreshBtnSetNetEnabled();
-                    lblMessage.Text = "Установлен адрес сервера " + Settings.CurrentServer;
+                    SetLblMessageText("Установлен адрес сервера " + Settings.CurrentServer);
                     Shared.SaveToLogInformation(lblMessage.Text);
                 }
                 else
                 {
-                    lblMessage.Text = "Ошибка при установке адреса сервера " + (!isChangeExternalServer ? Settings.ServerIP : Settings.SecondServerIP);
+                    SetLblMessageText("Ошибка при установке адреса сервера " + (!isChangeExternalServer ? Settings.ServerIP : Settings.SecondServerIP));
                     Shared.SaveToLogError(lblMessage.Text);
                 }
             }

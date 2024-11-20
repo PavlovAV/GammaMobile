@@ -33,7 +33,7 @@ namespace gamma_mob.Common
                 && (MaxValue == null || (MaxValue != null && value <= MaxValue)))
             {
                 Value = value;
-                this.Text = Value.ToString();
+                this.Text = Value == 0 ? "" : Value.ToString();
                 return true;
             }
             else 
@@ -58,7 +58,7 @@ namespace gamma_mob.Common
             {
                 try
                 {
-                    var value = Convert.ToInt32(this.Text);
+                    var value = this.Text == "" ? 0 : Convert.ToInt32(this.Text);
                     if ((MinValue == null || (MinValue != null && value >= MinValue))
                         & (MaxValue == null || (MaxValue != null && value <= MaxValue)))
                     {
@@ -69,7 +69,7 @@ namespace gamma_mob.Common
                     else
                     {
                         undoing = true;
-                        this.Text = Value.ToString();
+                        this.Text = Value == 0 ? "" : Value.ToString();
                         undoing = false;
                     }
                 }

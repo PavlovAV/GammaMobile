@@ -88,7 +88,7 @@ namespace gamma_mob.Dialogs
             // label1
             // 
             this.label1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.label1.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular);
+            this.label1.Font = new System.Drawing.Font("Tahoma", 11F, System.Drawing.FontStyle.Regular);
             this.label1.Location = new System.Drawing.Point(0, 0);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(638, 20);
@@ -162,7 +162,7 @@ namespace gamma_mob.Dialogs
             // lblFromPallet
             // 
             this.lblFromPallet.Dock = System.Windows.Forms.DockStyle.Left;
-            this.lblFromPallet.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular);
+            this.lblFromPallet.Font = new System.Drawing.Font("Tahoma", 11F, System.Drawing.FontStyle.Regular);
             this.lblFromPallet.Location = new System.Drawing.Point(0, 0);
             this.lblFromPallet.Name = "lblFromPallet";
             this.lblFromPallet.Size = new System.Drawing.Size(70, 24);

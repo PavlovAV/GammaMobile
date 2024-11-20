@@ -70,6 +70,7 @@
             // 
             this.gridChoose.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
             this.gridChoose.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.gridChoose.GridLineColor = System.Drawing.SystemColors.ControlDarkDark;
             this.gridChoose.Location = new System.Drawing.Point(0, 84);
             this.gridChoose.Name = "gridChoose";
             this.gridChoose.Size = new System.Drawing.Size(638, 340);

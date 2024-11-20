@@ -15,7 +15,7 @@ namespace gamma_mob.Models
             {
                 Shared.SaveToLogInformation("lastUpdatedTimeBarcodes < 20210210 => " + lastUpdatedTimeBarcodes.ToString());
                 lastUpdatedTimeBarcodes = Convert.ToDateTime("2021/02/10");
-            }
+            }                                                                                                                                                                                                                                                                                                                                                                                                                       
 //#if DEBUG
 //            lastUpdatedTimeBarcodes = Convert.ToDateTime("2021/02/10 09:00:00");
 //#endif
@@ -38,6 +38,9 @@ namespace gamma_mob.Models
 
         public bool UpdateBarcodes(bool isFirst)
         {
+//#if DEBUG
+//            return true;
+//#endif
             System.Diagnostics.Debug.Write(DateTime.Now.ToString() + " !!!!!Db.GetServerDateTime()!" + Environment.NewLine);
             var date = Db.GetServerDateTime();
             if (date == null)
@@ -45,7 +48,7 @@ namespace gamma_mob.Models
             else
             {
                 System.Diagnostics.Debug.Write(DateTime.Now.ToString() + " !!!!!UpdateBarcodes(date)!" + Environment.NewLine);
-                return UpdateBarcodes(date, isFirst);
+                return UpdateBarcodes((DateTime)date, isFirst);
             }
         }
 
@@ -78,10 +81,10 @@ namespace gamma_mob.Models
             {
                 return Db.GetCountBarcodeNomenclatures();
             }
-            set
-            {
-                Db.SetCountBarcodeNomenclatures(value);
-            }
+            //set
+            //{
+            //    Db.SetCountBarcodeNomenclatures(value);
+            //}
         }
 
         private static int? countBarcodeProducts
@@ -90,13 +93,13 @@ namespace gamma_mob.Models
             {
                 return Db.GetCountBarcodeProducts();
             }
-            set
-            {
-                Db.SetCountBarcodeProducts(value);
-            }
+            //set
+            //{
+            //    Db.SetCountBarcodeProducts(value);
+            //}
         }
 
-        public void AddedBarcode(int? kindId)
+        /*public void AddedBarcode(int? kindId)
         {
             if (kindId == null)
                 countBarcodeNomenclatures = countBarcodeNomenclatures + 1;
@@ -134,7 +137,7 @@ namespace gamma_mob.Models
             }
                 return true;
         }
-
+        */
         public string GetCountBarcodes
         {
             get
@@ -145,22 +148,25 @@ namespace gamma_mob.Models
 
         public bool UpdateBarcodes(DateTime date, bool IsFirst)
         {
-            Db.UploadLogToServer();
+            if (0==0 && (!IsFirst || (IsFirst && !Settings.GetCurrentServerIsExternal())))
+                Db.UploadLogToServer();
             if (lastUpdatedTimeBarcodes < date)
             {
-                var _lastDate = Db.UpdateCashedBarcodes(lastUpdatedTimeBarcodes, date, IsFirst);
-                if (_lastDate != null)
+                if (!IsFirst || (IsFirst && !Shared.IsNotUpdateCashedBarcodesOnFirst))
                 {
-                    if (lastUpdatedTimeBarcodes != _lastDate)
-                        lastUpdatedTimeBarcodes = _lastDate;
-                    //if (IsFirst)
-                    //{
-                    //    if (Db.GetCountNomenclatureBarcodes() < 1000)
-                    //        Db.GetBarcodes1C(lastUpdatedTimeBarcodes);
-                    //}
-                    return true;
+                    var _lastDate = Db.UpdateCashedBarcodes(lastUpdatedTimeBarcodes, date, IsFirst);
+                    if (_lastDate != null)
+                    {
+                        if (lastUpdatedTimeBarcodes != _lastDate)
+                            lastUpdatedTimeBarcodes = _lastDate;
+                        //if (IsFirst)
+                        //{
+                        //    if (Db.GetCountNomenclatureBarcodes() < 1000)
+                        //        Db.GetBarcodes1C(lastUpdatedTimeBarcodes);
+                        //}
+                        return true;
+                    }
                 }
-                
             }
             return false;
         }

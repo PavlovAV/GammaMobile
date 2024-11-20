@@ -16,7 +16,13 @@ namespace gamma_mob.Models
         public Guid QualityId { get; set; }
         public int CountProducts { get; set; }
         public Guid? FromProductId { get; set; }
-        public int FromPlaceId { get; set; }
+        public int? FromPlaceId { get; set; }
         public Guid? FromPlaceZoneId { get; set; }
+        public int? NewWeight { get; set; }
+        public bool IsMovementFromPallet { get; set; }
+        public DateTime? ValidUntilDate { get; set; }
+        public Guid? OriginalMeasureUnitId { get; set; }
+        public int? CoeffCountProductOriginalMeasureUnit { get; set; }
+        public int CountFractionalProducts { get; set; }
     }
 }

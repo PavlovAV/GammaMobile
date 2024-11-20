@@ -8,6 +8,7 @@ using gamma_mob.Common;
 using System.Runtime.InteropServices;
 using Microsoft.Win32;
 using System.IO;
+using System.Reflection;
 
 namespace gamma_mob.Common
 {
@@ -129,47 +130,226 @@ namespace gamma_mob.Common
         
         #endregion
 
+        private Assembly assembly_system_net;
+        private Type type_system_net;
+        private Assembly assembly_reader_net;
+        private Type type_reader_engine1D;
+        private Type type_reader_engine2D;
+        private Type type_reader_other;
+
+        public DeviceCipherlab()
+        {
+            //{5.2.29058}
+            //{6.0.0}
+            assembly_system_net = Environment.OSVersion.Version.Major.ToString() == "6" ? Assembly.LoadFrom("SystemCE_Net.dll") : Environment.OSVersion.Version.Major.ToString() == "5" ? Assembly.LoadFrom("SystemMobile_Net.dll") : null;
+            type_system_net = assembly_system_net != null ? assembly_system_net.GetType("Cipherlab.SystemAPI.Member") : null;
+            assembly_reader_net = Environment.OSVersion.Version.Major.ToString() == "6" ? Assembly.LoadFrom("Reader_Ce_Net.dll") : Environment.OSVersion.Version.Major.ToString() == "5" ? Assembly.LoadFrom("ReaderDllMobile_Net.dll") : null;
+            type_reader_engine1D = assembly_reader_net != null ? assembly_reader_net.GetType("Reader.engine1D_SE955") : null;
+            type_reader_engine2D = assembly_reader_net != null ? assembly_reader_net.GetType("Reader.engine2D_SE4500") : null;
+            type_reader_other = assembly_reader_net != null ? assembly_reader_net.GetType("Reader.other") : null;
+        }
+
         #region IDevice Members
 
         public override void EnableWiFi()
         {
-            int b1 = 0;
-            b1 = Cipherlab.SystemAPI.Member.SetWiFiPower(1);
+            //int b1 = 0;
+            //b1 = Cipherlab.SystemAPI.Member.SetWiFiPower(1);
+            if (type_system_net != null)
+            {
+                MethodInfo methodInfo = type_system_net.GetMethod("SetWiFiPower");
+                if (methodInfo != null)
+                {
+                    object result = null;
+                    ParameterInfo[] parameters = methodInfo.GetParameters();
+                    object classInstance = Activator.CreateInstance(type_system_net);
+                    if (parameters.Length == 0)
+                    {
+                        //This works fine
+                        result = methodInfo.Invoke(classInstance, null);
+                    }
+                    else
+                    {
+                        byte par = 1;
+                        object[] parametersArray = new object[] { par };
+
+                        //The invoke does NOT work it throws "Object does not match target type"             
+                        result = methodInfo.Invoke(classInstance, parametersArray);
+                    }
+                }
+            }
+
         }
 
         public override string GetDeviceName()
         {
-            int b1 = 0;
+            //int b1 = 0;
+            string SerialNum = "SerialNum";/*
             Cipherlab.SystemAPI.Member.SysInfo sysInfo = new Cipherlab.SystemAPI.Member.SysInfo();
+#if !DEBUG
             b1 = Cipherlab.SystemAPI.Member.GetSysInfo(ref sysInfo);
             return sysInfo.SerialNum; 
+#else
+            return "SerialNum";
+#endif*/
+            try
+            {
+                if (type_system_net != null)
+                {
+                    MethodInfo methodInfo = type_system_net.GetMethod("GetSysInfo");
+                    var parameterInfo = type_system_net.GetNestedType("SysInfo", BindingFlags.Public);
+                    object[] parametersArray;
+                    if (methodInfo != null)
+                    {
+                        object result = null;
+                        ParameterInfo[] parameters = methodInfo.GetParameters();
+                        object classInstance = Activator.CreateInstance(type_system_net);
+                        //if (parameters.Length == 0)
+                        //{
+                        //This works fine
+                        //    result = methodInfo.Invoke(classInstance, null);
+                        //}
+                        //else
+                        //{
+                        //var t = new parameters[0].ReflectedType();
+                        //var t = parameters[0];
+                        //Type genericType = t.ParameterType;
+                        object parserFunctionParameter = Activator.CreateInstance(parameterInfo);
+                        parametersArray = new object[] { parserFunctionParameter };
+                        //The invoke does NOT work it throws "Object does not match target type"             
+                        result = methodInfo.Invoke(classInstance, parametersArray);
+                        var r = parserFunctionParameter.GetType().GetField("SerialNum", BindingFlags.Public | BindingFlags.Instance);
+                        SerialNum = r.GetValue(parserFunctionParameter).ToString();
+                        //}
+                    }
+                }
+            }
+            catch
+            {
+                SerialNum = "Error";
+            }
+            return SerialNum;
         }
 
         public string GetDeviceIP()
         {
-            int b1 = 0;
-            Cipherlab.SystemAPI.Member.WlanAdptInfo wlanAdptInfo = new Cipherlab.SystemAPI.Member.WlanAdptInfo();
-            b1 = Cipherlab.SystemAPI.Member.GetWlanIpInfo(ref wlanAdptInfo);
+            //int b1 = 0;
+            string IPAddr = "000.000.000.000";
+            //Cipherlab.SystemAPI.Member.WlanAdptInfo wlanAdptInfo = new Cipherlab.SystemAPI.Member.WlanAdptInfo();
+//#if !DEBUG
+//            b1 = Cipherlab.SystemAPI.Member.GetWlanIpInfo(ref wlanAdptInfo);
 
-            return wlanAdptInfo.IPAddr;
+//            return wlanAdptInfo.IPAddr;
+//#else
+//            return "000.000.000.000";
+//#endif
+            try
+            {
+                if (type_system_net != null)
+                {
+                    MethodInfo methodInfo = type_system_net.GetMethod("GetWlanIpInfo");
+                    var parameterInfo = type_system_net.GetNestedType("WlanAdptInfo", BindingFlags.Public);
+                    object[] parametersArray;
+                    if (methodInfo != null)
+                    {
+                        object result = null;
+                        ParameterInfo[] parameters = methodInfo.GetParameters();
+                        object classInstance = Activator.CreateInstance(type_system_net);
+                        object parserFunctionParameter = Activator.CreateInstance(parameterInfo);
+                        parametersArray = new object[] { parserFunctionParameter };
+                        result = methodInfo.Invoke(classInstance, parametersArray);
+                        var r = parserFunctionParameter.GetType().GetField("IPAddr", BindingFlags.Public | BindingFlags.Instance);
+                        IPAddr = r.GetValue(parserFunctionParameter).ToString();
+                        //}
+                    }
+                }
+            }
+            catch
+            {
+                IPAddr = "Error";
+            }
+            return IPAddr;
         }
 
         public bool GetWiFiPowerStatus()
         {
-            int b1 = 0;
+            //int b1 = 0;
             byte onOff = new byte();
-            b1 = Cipherlab.SystemAPI.Member.GetWiFiPower(ref onOff);
-            return onOff == 1;
+            bool WiFiStatus = false;
+//#if !DEBUG
+//            b1 = Cipherlab.SystemAPI.Member.GetWiFiPower(ref onOff);
+//            return onOff == 1;
+//#else
+//            return true;
+//#endif
+            try
+            {
+                if (type_system_net != null)
+                {
+                    MethodInfo methodInfo = type_system_net.GetMethod("GetWiFiPower");
+                    //var parameterInfo = type.GetNestedType("WlanAdptInfo", BindingFlags.Public);
+                    object[] parametersArray;
+                    if (methodInfo != null)
+                    {
+                        object result = null;
+                        ParameterInfo[] parameters = methodInfo.GetParameters();
+                        object classInstance = Activator.CreateInstance(type_system_net);
+                        //object parserFunctionParameter = Activator.CreateInstance(parameterInfo);
+                        parametersArray = new object[] { onOff };
+                        result = methodInfo.Invoke(classInstance, parametersArray);
+                        onOff = Convert.ToByte(parametersArray[0].ToString());
+                        WiFiStatus = onOff == 1;
+                        //var r = parserFunctionParameter.GetType().GetField("IPAddr", BindingFlags.Public | BindingFlags.Instance);
+                        //IPAddr = r.GetValue(parserFunctionParameter).ToString();
+                        //}
+                    }
+                }
+            }
+            catch
+            {
+                WiFiStatus = true;
+            }
+            return WiFiStatus;
         }
 
         public bool WiFiGetSignalQuality(out uint quality)
         {
             int b1 = 0;
-            Cipherlab.SystemAPI.Member.CF10G_STATUS cfs = new Cipherlab.SystemAPI.Member.CF10G_STATUS();
-            b1 = Cipherlab.SystemAPI.Member.GetCurrentStatus(ref cfs);
+            bool ReturnSinalQuality = false;
+            quality = 0;
+            //Cipherlab.SystemAPI.Member.CF10G_STATUS cfs = new Cipherlab.SystemAPI.Member.CF10G_STATUS();
+            //b1 = Cipherlab.SystemAPI.Member.GetCurrentStatus(ref cfs);
 
-            quality = cfs.rssi < -100 ? 0 : (uint)(100 + cfs.rssi);
-            return quality > 0 && this.GetWiFiPowerStatus();
+            //quality = cfs.rssi < -100 ? 0 : (uint)(100 + cfs.rssi);
+            //return quality > 0 && this.GetWiFiPowerStatus();
+            try
+            {
+                if (type_system_net != null)
+                {
+                    MethodInfo methodInfo = type_system_net.GetMethod("GetCurrentStatus");
+                    var parameterInfo = type_system_net.GetNestedType("CF10G_STATUS", BindingFlags.Public);
+                    object[] parametersArray;
+                    if (methodInfo != null)
+                    {
+                        object result = null;
+                        ParameterInfo[] parameters = methodInfo.GetParameters();
+                        object classInstance = Activator.CreateInstance(type_system_net);
+                        object parserFunctionParameter = Activator.CreateInstance(parameterInfo);
+                        parametersArray = new object[] { parserFunctionParameter };
+                        result = methodInfo.Invoke(classInstance, parametersArray);
+                        var r = parserFunctionParameter.GetType().GetField("rssi", BindingFlags.Public | BindingFlags.Instance);
+                        var rssi = r.GetValue(parserFunctionParameter).ToString();
+                        quality = Convert.ToInt32(rssi) < -100 ? (uint)0 : (uint)(100 + Convert.ToInt32(rssi));
+                        ReturnSinalQuality = quality > 0 && this.GetWiFiPowerStatus();
+                        //}
+                    }
+                }
+            }
+            catch
+            {
+                ReturnSinalQuality = true;
+            }
+            return ReturnSinalQuality;
         }
 
         public string GetModel()
@@ -352,6 +532,62 @@ namespace gamma_mob.Common
                         {
                             int val = int.Parse(m_settings.Get(item.ToString()));
                             switch (item.ToString())
+                            {
+                                case "scanSettings.EAN13.ENABLE":
+                                    b1 = Reader.engine1D_SE955.EanJan_1D_SE955('r', ref checkPar1, ref checkPar2, ref checkPar3);//, ref checkPar4, ref checkPar5, ref checkPar6, ref checkPar7, ref checkPar8);
+                                    if (type_reader_engine1D != null)
+                                    {
+                                        MethodInfo methodInfo = null;
+                                        var methods = type_reader_engine1D.GetMethods();
+                                        foreach (var method in methods)
+                                        {
+                                            if (method.Name == "EanJan_1D_SE955" && method.GetParameters().Count() == 4)
+                                            {
+                                                methodInfo = method;
+                                                break;
+                                            }
+                                        }
+                                        //var t = new Type[] { typeof(int), typeof(int).ReflectedType, typeof(int).ReflectedType, typeof(int).ReflectedType };
+                                        //MethodInfo methodInfo = type_reader_engine1D.GetMethod("EanJan_1D_SE955", t);
+                                        //var parameterInfo = type_system_net.GetNestedType("SysInfo", BindingFlags.Public);
+                                        object[] parametersArray;
+                                        if (methodInfo != null)
+                                        {
+                                            object result = null;
+                                            ParameterInfo[] parameters = methodInfo.GetParameters();
+                                            object classInstance = Activator.CreateInstance(type_reader_engine1D);
+                                            //if (parameters.Length == 0)
+                                            //{
+                                            //This works fine
+                                            //    result = methodInfo.Invoke(classInstance, null);
+                                            //}
+                                            //else
+                                            //{
+                                            //var t = new parameters[0].ReflectedType();
+                                            //var t = parameters[0];
+                                            //Type genericType = t.ParameterType;
+                                            //object parserFunctionParameter = Activator.CreateInstance(parameterInfo);
+                                            //parametersArray = new object[] { parserFunctionParameter };
+                                            parametersArray = new object[] { 'r', checkPar1, checkPar2, checkPar3} ;//, checkPar4, checkPar5, checkPar6, checkPar7, checkPar8 };
+                                            //The invoke does NOT work it throws "Object does not match target type"             
+                                            result = methodInfo.Invoke(classInstance, parametersArray);
+                                            //var r = parserFunctionParameter.GetType().GetField("SerialNum", BindingFlags.Public | BindingFlags.Instance);
+                                            //SerialNum = r.GetValue(parserFunctionParameter).ToString();
+                                            if ((int?)result == 0 && checkPar2 != val)
+                                            {
+                                                //b1 = Reader.engine2D_SE4500.EanJan_2D_SE4500_Ex('w', ref checkPar1, ref val, ref checkPar3, ref checkPar4, ref checkPar5, ref checkPar6, ref checkPar7, ref checkPar8, ref checkPar9, ref checkPar10);
+                                                parametersArray = new object[] { 'w', checkPar1, val, checkPar3} ;//, checkPar4, checkPar5, checkPar6, checkPar7, checkPar8 };
+                                                result = methodInfo.Invoke(classInstance, parametersArray);
+                                                //if (result == 0)
+                                                //    errCode = Reader.ReaderEngineAPI.GetErrorCode();
+                                            }
+
+                                            //}
+                                        }
+                                    }
+                                    break;
+                            }
+                           /* switch (item.ToString())
                             {
                                 case "scanSettings.EAN13.ENABLE":
                                     b1 = Reader.engine2D_SE4500.EanJan_2D_SE4500_Ex('r', ref checkPar1, ref checkPar2, ref checkPar3, ref checkPar4, ref checkPar5, ref checkPar6, ref checkPar7, ref checkPar8, ref checkPar9, ref checkPar10);
@@ -790,8 +1026,9 @@ namespace gamma_mob.Common
                             }
                             if (errCode != 0)
                                 Shared.SaveToLogError("Error Update scaner parameter (errCode = " + errCode + ") :" + item + " = " + val);
+                        */
                         }
-                        catch
+                        catch (Exception e)
                         {
                             Shared.SaveToLogError("Error Update scaner parameter: " + item);
                         }

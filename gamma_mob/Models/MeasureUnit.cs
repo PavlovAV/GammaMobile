@@ -11,6 +11,7 @@ namespace gamma_mob.Models
         public int Denominator { get; set; }
         public bool IsActive { get; set; }
         public Guid BaseMeasureUnitID { get; set; }
+        public bool IsInteger { get; set; }
         
         [System.Xml.Serialization.XmlIgnore]
         public decimal Coefficient

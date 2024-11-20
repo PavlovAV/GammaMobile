@@ -38,6 +38,7 @@ namespace gamma_mob
 
         private void DocShipmentOrders_Load(object sender, EventArgs e)
         {
+            //Db.AddTimeStampToLog("Start DocShipmentOrders_Load");
             switch (DocDirection)
             {
                 case DocDirection.DocOut:
@@ -53,7 +54,6 @@ namespace gamma_mob
                         Text = "Заказы на перемещение";
                     break;
             }
-
             GetDocOrders();
             gridDocShipmentOrders.DataSource = BSource;
             var tableStyle = new DataGridTableStyle {MappingName = BSource.GetListName(null)};
@@ -126,6 +126,7 @@ namespace gamma_mob
             }
             gridDocShipmentOrders.TableStyles.Add(tableStyle);
             //Shared.RefreshBarcodes1C();
+            //Db.AddTimeStampToLog("End DocShipmentOrders_Load");
         }
 
         protected override void FormLoad(object sender, EventArgs e)
@@ -146,13 +147,27 @@ namespace gamma_mob
 
         private void GetDocOrders()
         {
+            //Db.AddTimeStampToLog("Start GetDocOrders");
             DocOrders = Db.PersonDocOrders(Shared.PersonId, DocDirection, IsMovementForOrder);
-            if (BSource == null)
-                BSource = new BindingSource(DocOrders, null);
+            if (Shared.LastQueryCompleted == false)
+            {
+                // MessageBox.Show(@"Не удалось получить информацию о текущем документе");
+                if (DocOrders == null)
+                    DocOrders = new BindingList<DocOrder>();
+                if (BSource == null)
+                    BSource = new BindingSource { DataSource = DocOrders };
+                Shared.ShowMessageInformation(@"Не удалось получить информацию о документах!" + Environment.NewLine + "Попробуйте ещё раз обновить!");
+            }
             else
             {
-                BSource.DataSource = DocOrders;
+                if (BSource == null)
+                    BSource = new BindingSource(DocOrders, null);
+                else
+                {
+                    BSource.DataSource = DocOrders;
+                }
             }
+            //Db.AddTimeStampToLog("End GetDocOrders");
         }
 
         private void gridDocShipmentOrders_DoubleClick(object sender, EventArgs e)
@@ -218,23 +233,33 @@ namespace gamma_mob
                         //    endPointInfo = form.EndPointInfo;
                         if ((endPointInfo.IsAvailabilityPlaceZoneId && endPointInfo.PlaceZoneId == null) || (endPointInfo.IsAvailabilityChildPlaceZoneId && endPointInfo.PlaceZoneId != null))
                         {
-                            string message = (endPointInfo.IsAvailabilityChildPlaceZoneId && endPointInfo.PlaceZoneId != null) ? "Вы не до конца указали зону. Попробуете еще раз?" : "Вы будете сейчас указывать зону хранения по умолчанию?";
-                            var dialogResult = Shared.ShowMessageQuestion(message);
-                            if (dialogResult == DialogResult.Yes)
+#if DEBUG
+                            if (endPointInfo.PlaceId == 36)
                             {
-                                using (var formPlaceZone = new ChooseEndPointDialog(endPointInfo.PlaceId))
+                                endPointInfo.PlaceZoneId = new Guid("47516637-DDB5-EE11-8A59-28565A070C02");
+                                endPointInfo.IsSettedDefaultPlaceZoneId = true;
+                            }
+                            else
+#endif
+                            {
+                                string message = (endPointInfo.IsAvailabilityChildPlaceZoneId && endPointInfo.PlaceZoneId != null) ? "Вы не до конца указали зону. Попробуете еще раз?" : "Вы будете сейчас указывать зону хранения по умолчанию?";
+                                var dialogResult = Shared.ShowMessageQuestion(message);
+                                if (dialogResult == DialogResult.Yes)
                                 {
-                                    DialogResult resultPlaceZone = formPlaceZone.ShowDialog();
-                                    if (resultPlaceZone != DialogResult.OK)
+                                    using (var formPlaceZone = new ChooseEndPointDialog(endPointInfo.PlaceId, selectedDocOrder.CheckExistMovementToZone))
                                     {
-                                        Shared.ShowMessageInformation(@"Не выбрана зона склада.");
-                                        endPointInfo.IsSettedDefaultPlaceZoneId = false;
-                                    }
-                                    else
-                                    {
-                                        endPointInfo = formPlaceZone.EndPointInfo;
-                                        endPointInfo.IsSettedDefaultPlaceZoneId = true;
+                                        DialogResult resultPlaceZone = formPlaceZone.ShowDialog();
+                                        if (resultPlaceZone != DialogResult.OK)
+                                        {
+                                            Shared.ShowMessageInformation(@"Не выбрана зона склада.");
+                                            endPointInfo.IsSettedDefaultPlaceZoneId = false;
+                                        }
+                                        else
+                                        {
+                                            endPointInfo = formPlaceZone.EndPointInfo;
+                                            endPointInfo.IsSettedDefaultPlaceZoneId = true;
 
+                                        }
                                     }
                                 }
                             }
@@ -273,9 +298,9 @@ namespace gamma_mob
                     }
                     var docOrderForm = inPlaceID == null
                         ? new DocWithNomenclatureForm(selectedDocOrder.DocOrderId, this, selectedDocOrder.Number,
-                        selectedDocOrder.OrderType, DocDirection, IsMovementForOrder, Shared.MaxAllowedPercentBreak, startPointInfo, selectedDocOrder.IsControlExec, selectedDocOrder.StartExec)
+                        selectedDocOrder.OrderType, DocDirection, IsMovementForOrder, Shared.MaxAllowedPercentBreak, startPointInfo, selectedDocOrder.IsControlExec, selectedDocOrder.StartExec, selectedDocOrder.CheckExistMovementToZone)
                         : new DocWithNomenclatureForm(selectedDocOrder.DocOrderId, this, selectedDocOrder.Number,
-                        selectedDocOrder.OrderType, DocDirection, IsMovementForOrder, Shared.MaxAllowedPercentBreak, startPointInfo, endPointInfo, selectedDocOrder.IsControlExec, selectedDocOrder.StartExec);
+                        selectedDocOrder.OrderType, DocDirection, IsMovementForOrder, Shared.MaxAllowedPercentBreak, startPointInfo, endPointInfo, selectedDocOrder.IsControlExec, selectedDocOrder.StartExec, selectedDocOrder.CheckExistMovementToZone);
                     docOrderForm.Show();
                     if (!docOrderForm.IsDisposed && docOrderForm.Enabled)
                         Hide();

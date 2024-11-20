@@ -24,7 +24,13 @@ namespace gamma_mob.Common
         private System.Windows.Forms.Panel PnlZone { get; set; }
         private System.Windows.Forms.Label lblEndPointZoneName { get; set; }
         private OpenNETCF.Windows.Forms.Button2 btnChangeEndPointZone { get; set; }
-            
+
+        protected bool checkExistMovementToZone { get; private set; }
+
+        protected void SetCheckExistMovementToZone(bool value)
+        {
+            checkExistMovementToZone = value;
+        }
 
         protected virtual EndPointInfo GetPlaceZoneId(EndPointInfo endPointInfo)
         {
@@ -38,28 +44,37 @@ namespace gamma_mob.Common
 
         private Object Param;
 
-        public void ChooseEndPoint()
+        public void ChooseEndPoint(bool checkExistMovementToZone)
         {
-            ChooseEndPointForm = new ChooseEndPointDialog(EndPointInfo.PlaceId, this);//, barcode, fromBuffer, getProductResult, this);
+            ChooseEndPointForm = new ChooseEndPointDialog(EndPointInfo.PlaceId, this, checkExistMovementToZone);//, barcode, fromBuffer, getProductResult, this);
             ChooseEndPointForm.TopMost = true;
             ChooseEndPointForm.Show();
             ChooseEndPointForm.SetBarcodeReaction(ChoosePlaceZoneBarcodeReaction);
         }
+        public void ChooseEndPoint(AddProductReceivedEventHandler returnBeforeChoosedPlaceZone, AddProductReceivedEventHandlerParameter param)
+        {
+            ChooseEndPoint(returnBeforeChoosedPlaceZone, param, false);
+        }
 
-        public void ChooseEndPoint(AddProductReceivedEventHandler returnBeforeChoosedPlaceZone, AddProductReceivedEventHandlerParameter param)// string barcode, EndPointInfo endPointInfo, bool fromBuffer, DbProductIdFromBarcodeResult getProductResult)
+        public void ChooseEndPoint(AddProductReceivedEventHandler returnBeforeChoosedPlaceZone, AddProductReceivedEventHandlerParameter param, bool checkExistMovementToZone)// string barcode, EndPointInfo endPointInfo, bool fromBuffer, DbProductIdFromBarcodeResult getProductResult)
         {
             Param = param;
             ReturnPlaceZoneBeforeChoosedPlaceZone = null;
             ReturnAddProductBeforeChoosedPlaceZone += returnBeforeChoosedPlaceZone;
-            ChooseEndPoint();
+            ChooseEndPoint(checkExistMovementToZone);
         }
 
-        public void ChooseEndPoint(ChoosePlaceZoneEventHandler returnBeforeChoosedPlaceZone)// string barcode, EndPointInfo endPointInfo, bool fromBuffer, DbProductIdFromBarcodeResult getProductResult)
+        public void ChooseEndPoint(ChoosePlaceZoneEventHandler returnBeforeChoosedPlaceZone)
+        {
+            ChooseEndPoint(returnBeforeChoosedPlaceZone, false);
+        }
+
+        public void ChooseEndPoint(ChoosePlaceZoneEventHandler returnBeforeChoosedPlaceZone, bool checkExistMovementToZone)// string barcode, EndPointInfo endPointInfo, bool fromBuffer, DbProductIdFromBarcodeResult getProductResult)
         {
             Param = null;
             ReturnAddProductBeforeChoosedPlaceZone = null;
             ReturnPlaceZoneBeforeChoosedPlaceZone += returnBeforeChoosedPlaceZone;
-            ChooseEndPoint();
+            ChooseEndPoint(checkExistMovementToZone);
         }
 
         protected void ChoosePlaceZoneBarcodeReaction(string barcode)
@@ -151,9 +166,9 @@ namespace gamma_mob.Common
             }
         }
 
-        public EndPointInfo ChangeZone(int placeId)
+        public EndPointInfo ChangeZone(int placeId, bool checkExistMovementToZone)
         {
-            using (var formPlaceZone = new ChooseEndPointDialog(placeId))
+            using (var formPlaceZone = new ChooseEndPointDialog(placeId, checkExistMovementToZone))
             {
                 DialogResult resultPlaceZone = formPlaceZone.ShowDialog();
                 if (resultPlaceZone != DialogResult.OK)
@@ -225,7 +240,7 @@ namespace gamma_mob.Common
 
         private void btnChangeEndPointZone_Click(object sender, EventArgs e)
         {
-            var newEndpointInfo = ChangeZone(EndPointInfo.PlaceId);
+            var newEndpointInfo = ChangeZone(EndPointInfo.PlaceId, checkExistMovementToZone);
             if (newEndpointInfo != null)
             {
                 EndPointInfo = newEndpointInfo;
@@ -233,6 +248,21 @@ namespace gamma_mob.Common
                     lblEndPointZoneName.Text = " Зона: " + EndPointInfo.PlaceZoneName;
                 EndPointInfo.IsSettedDefaultPlaceZoneId = true;
             }
+        }
+
+        protected bool ChangeStartPointZone_Click(object sender, EventArgs e)
+        {
+            var newStartPointInfo = ChangeZone(StartPointInfo != null && StartPointInfo.PlaceId > 0 ? StartPointInfo.PlaceId : Shared.PlaceId, false);
+            if (newStartPointInfo != null)
+            {
+                StartPointInfo = newStartPointInfo;
+                //if (lblStartPointZoneName != null)
+                //    lblStartPointZoneName.Text = " Зона: " + StartPointInfo.PlaceZoneName;
+                //StartPointInfo.IsSettedDefaultPlaceZoneId = true;
+            }
+            else
+                return false;
+            return true;
         }
     }
 }

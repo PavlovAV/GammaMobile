@@ -181,7 +181,7 @@ namespace gamma_mob
             return addedProductIdToInventarisationResult == null ? null : (addedProductIdToInventarisationResult as DbOperationProductResult);
         }
 
-        protected override void UpdateGrid(DbOperationProductResult addResult, ProductKind? productKindId, Guid? docInventarisationId, EndPointInfo endPointInfo, Guid? scanId)
+        protected override void UpdateGrid(DbOperationProductResult addResult, ProductKind? productKindId, Guid? docInventarisationId, EndPointInfo endPointInfo, Guid? scanId, EndPointInfo startPointInfo)
         {
             if (DocId == docInventarisationId)
                     Invoke((UpdateInventarisationGridInvoker)(UpdateGrid),
@@ -284,7 +284,7 @@ namespace gamma_mob
             {
                 var good = NomenclatureList[row];
                 //var form = new DocInventarisationNomenclatureProductsForm(DocInventarisationId, good.NomenclatureId, good.NomenclatureName, good.CharacteristicId, good.QualityId, this);
-                var form = new DocInventarisationProductsForm(DocId, good.NomenclatureId, good.NomenclatureName, good.CharacteristicId, good.QualityId, this, good.IsEnableAddProductManual );//, new RefreshDocProductDelegate(RefreshDocInventarisation));
+                var form = new DocInventarisationProductsForm(DocId, good.NomenclatureId, good.NomenclatureName, good.CharacteristicId, good.QualityId, good.ProductKindId, this, good.IsEnableAddProductManual );//, new RefreshDocProductDelegate(RefreshDocInventarisation));
                 if (!form.IsDisposed)
                 {
                     //form.Show();

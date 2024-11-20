@@ -53,6 +53,7 @@ namespace gamma_mob
             }
 #endif
 */
+
             if (!File.Exists(m_settingsPath) && !File.Exists(m_settingsCPath))
             {
                 Shared.SaveToLogError("Error Settings files in " + m_settingsPath.Replace(@"\Settings.xml", @"\") + " could not be found.");
@@ -153,10 +154,10 @@ namespace gamma_mob
         }
 
         public static string UserName
-        {
-            get { return m_settings.Get("progSettings.Gamma.UserName"); }
+         {
+            get { return m_settings == null ? "NullUserName" : m_settings.Get("progSettings.Gamma.UserName"); }
             set { m_settings.Set("progSettings.Gamma.UserName", value); }
-        }
+         }
 
         public static string Password
         {
@@ -248,7 +249,12 @@ namespace gamma_mob
             }
             return ret;
         }
-        
+
+        public static bool GetCurrentServerIsExternal()
+        {
+            return !(m_settings.Get("progSettings.Gamma.CurrentServer") == ServerIP);
+        }
+
         private static void UpdateDeviceSettings()
         {
             Shared.Device.UpdateDeviceSettings(m_settings);

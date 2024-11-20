@@ -8,5 +8,6 @@ namespace gamma_mob.Models
         public string WarehouseName { get; set; }
         public List<PlaceZone> WarehouseZones { get; set; }
         public string Barcode { get; set; }
+        public int PlaceGroupId { get; set; }
     }
 }

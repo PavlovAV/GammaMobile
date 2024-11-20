@@ -12,6 +12,7 @@ using System.IO;
 using System.Net;
 using OpenNETCF.Windows.Forms;
 using OpenNETCF.ComponentModel;
+using OpenNETCF.Diagnostics;
 //using CipherLab.SystemApi;
 
 namespace gamma_mob
@@ -65,26 +66,26 @@ namespace gamma_mob
         private static string ConnectionCeString (ConnectServerCe serverCe) 
         {
             {
-#if DEBUG
-                string startupPath = Program.deviceName.Contains("Falcon") ? @"\FlashDisk\gamma_mob" : 
-                    Program.deviceName.Contains("CPT") ? @"\USER_DATA\gamma_mob" : "";
-#else
+//#if DEBUG
+//                string startupPath = Program.deviceName.Contains("Falcon") ? @"\FlashDisk\gamma_mob" : 
+//                    Program.deviceName.Contains("CPT") ? @"\USER_DATA\gamma_mob" : "";
+//#else
                         string startupPath = Application2.StartupPath;
-#endif
+//#endif
 
-                DateTime dbCurrentFileBarcodesCreateTime = new DateTime();
-                DateTime dbNewFileBarcodesCreateTime = new DateTime();
-
-                var dbFileLog = startupPath + @"\..\GammaDBLog.sdf";
+                var dbFileLog = /*@"\Temp\GammaDBLog.sdf";*/startupPath + @"\..\GammaDBLog.sdf";
                 var dbFileBarcodes = startupPath + @"\..\..\GammaDBBarcodes.sdf";
                 var dbFileBackupBarcodes = startupPath + @"\..\GammaDBBackupBarcodes.sdf";
 
                 var dbFile = serverCe == ConnectServerCe.LogServer ? dbFileLog 
-                        : serverCe == ConnectServerCe.BarcodesServer ? dbFileBackupBarcodes 
+                        : serverCe == ConnectServerCe.BarcodesServer ? dbFileBarcodes 
                         : serverCe == ConnectServerCe.BackupBarcodesServer ? dbFileBackupBarcodes 
                         : startupPath + @"\GammaDBLocal.sdf";
                 if (!IsNotFirstGetConnectionCeString && !IsInitializationFirstConnectionCeString)
                 {
+                    DateTime dbCurrentFileBarcodesCreateTime = new DateTime();
+                    DateTime dbNewFileBarcodesCreateTime = new DateTime();
+
                     IsInitializationFirstConnectionCeString = true;
 
                     bool isCopyAutostartIni = false;
@@ -290,6 +291,76 @@ namespace gamma_mob
                         //empComBarcodes.ExecuteNonQuery();
                     }
 
+                    if (!ColumnCeExists(empConLog, "Logs", "InPlaceZoneID"))
+                    {
+                        strQuery = "ALTER TABLE Logs ADD column InPlaceZoneID uniqueidentifier";
+                        empComLog.CommandText = strQuery;
+                        empComLog.ExecuteNonQuery();
+                        //strQuery = "UPDATE Settings SET DatabaseCreateTime = GETDATE()";
+                        //empComBarcodes.CommandText = strQuery;
+                        //empComBarcodes.ExecuteNonQuery();
+                    }
+
+                    if (!ColumnCeExists(empConLog, "Logs", "FromPlaceID"))
+                    {
+                        strQuery = "ALTER TABLE Logs ADD column FromPlaceID int";
+                        empComLog.CommandText = strQuery;
+                        empComLog.ExecuteNonQuery();
+                        //strQuery = "UPDATE Settings SET DatabaseCreateTime = GETDATE()";
+                        //empComBarcodes.CommandText = strQuery;
+                        //empComBarcodes.ExecuteNonQuery();
+                    }
+
+                    if (!ColumnCeExists(empConLog, "Logs", "FromPlaceZoneID"))
+                    {
+                        strQuery = "ALTER TABLE Logs ADD column FromPlaceZoneID uniqueidentifier";
+                        empComLog.CommandText = strQuery;
+                        empComLog.ExecuteNonQuery();
+                        //strQuery = "UPDATE Settings SET DatabaseCreateTime = GETDATE()";
+                        //empComBarcodes.CommandText = strQuery;
+                        //empComBarcodes.ExecuteNonQuery();
+                    }
+
+                    if (!ColumnCeExists(empConLog, "Logs", "MeasureUnitID"))
+                    {
+                        strQuery = "ALTER TABLE Logs ADD column MeasureUnitID uniqueidentifier";
+                        empComLog.CommandText = strQuery;
+                        empComLog.ExecuteNonQuery();
+                        //strQuery = "UPDATE Settings SET DatabaseCreateTime = GETDATE()";
+                        //empComBarcodes.CommandText = strQuery;
+                        //empComBarcodes.ExecuteNonQuery();
+                    }
+
+                    if (!ColumnCeExists(empConLog, "Logs", "NewWeight"))
+                    {
+                        strQuery = "ALTER TABLE Logs ADD column NewWeight int";
+                        empComLog.CommandText = strQuery;
+                        empComLog.ExecuteNonQuery();
+                        //strQuery = "UPDATE Settings SET DatabaseCreateTime = GETDATE()";
+                        //empComBarcodes.CommandText = strQuery;
+                        //empComBarcodes.ExecuteNonQuery();
+                    }
+
+                    if (!ColumnCeExists(empConLog, "Logs", "QuantityFractional"))
+                    {
+                        strQuery = "ALTER TABLE Logs ADD column QuantityFractional int";
+                        empComLog.CommandText = strQuery;
+                        empComLog.ExecuteNonQuery();
+                        //strQuery = "UPDATE Settings SET DatabaseCreateTime = GETDATE()";
+                        //empComBarcodes.CommandText = strQuery;
+                        //empComBarcodes.ExecuteNonQuery();
+                    }
+
+                    if (!ColumnCeExists(empConLog, "Logs", "ValidUntilDate"))
+                    {
+                        strQuery = "ALTER TABLE Logs ADD column ValidUntilDate DateTime";
+                        empComLog.CommandText = strQuery;
+                        empComLog.ExecuteNonQuery();
+                        //strQuery = "UPDATE Settings SET DatabaseCreateTime = GETDATE()";
+                        //empComBarcodes.CommandText = strQuery;
+                        //empComBarcodes.ExecuteNonQuery();
+                    }
+
                     if (!TableCeExists(empConBarcodes, "Barcodes"))
                     {
                         strQuery = "CREATE TABLE Barcodes (Barcode nvarchar(100), Name nvarchar(600), NomenclatureID uniqueidentifier, CharacteristicID uniqueidentifier, QualityID uniqueidentifier, MeasureUnitID uniqueidentifier, BarcodeID uniqueidentifier, Number nvarchar(50), KindId tinyint)";
@@ -304,6 +375,14 @@ namespace gamma_mob
                         
                         //Db.GetBarcodes1C();
                     }
+
+                    if (!ColumnCeExists(empConBarcodes, "Barcodes", "IsMovementFromPallet"))
+                    {
+                        strQuery = "ALTER TABLE Barcodes ADD IsMovementFromPallet tinyint";
+                        empComBarcodes.CommandText = strQuery;
+                        empComBarcodes.ExecuteNonQuery();
+                    }
+
 
                     //if (!ColumnCeExists(empCon, "ScannedBarcodes", "DocId"))
                     //{
@@ -454,7 +533,7 @@ namespace gamma_mob
         {
             ConnectionString = "Application Name=mob_gamma v" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version + " / " + deviceName + ";Data Source=" + ipAddress + ";Initial Catalog=" + database + "" +
                                ";Persist Security Info=True;User ID=" + user + "" +
-                               ";Password=" + password + ";Connect Timeout=" + timeout;
+                               ";Password=" + password + ";Connection Timeout=" + timeout;
         }
 
         public static string GetConnectionString()
@@ -466,20 +545,34 @@ namespace gamma_mob
         {
             if (string.IsNullOrEmpty(ConnectionString)) return 1;
             if (!ConnectionState.CheckConnection()) return 1;
-            using (var connection = new SqlConnection(ConnectionString))
+            DateTime? serverDateTime = null;//new DateTime();
+            const string sql = "SELECT 1 AS One";
+            var parameters = new List<SqlParameter>();
+            using (DataTable table = ExecuteSilentlySelectQuery(sql, parameters, CommandType.Text, 2))
             {
+                if (table != null && table.Rows.Count > 0)
+                    return 0;
+                else 
+                    return 2;
+            }
+            //using (var connection = new SqlConnection(ConnectionString))
+            /*{
                 try
                 {
-                    connection.Open();
-                    if (!Shared.IsLocalDateTimeUpdated)
+                    //connection.Open();
+                    //if (!Shared.IsLocalDateTimeUpdated)
                     {
-                        DateTime serverDateTime = Db.GetServerDateTime();
-                        if (serverDateTime != null)
+                        DateTime? serverDateTime = Db.GetServerDateTime();
+                        if (serverDateTime == null)
                         {
-                            Shared.SetSystemDateTime(serverDateTime);
+                            return 2;
+                        }
+                        else
+                        {
+                            Shared.SetSystemDateTime((DateTime)serverDateTime);
                         }
                     }
-                    connection.Close();
+                    //connection.Close();
                 }
                 catch (SqlException ex)
                 {
@@ -487,11 +580,11 @@ namespace gamma_mob
                 }
                 catch (Exception)
                 {
-                    return 1;
+                    return 2;
                 }
-            }
-            
-            return 0;
+            }*/
+            Db.AddMessageToLog("3:" + DateTime.Now);
+            return -1;// 0;
         }
 
         private static bool TableCeExists(SqlCeConnection connection, string tableName)
@@ -555,7 +648,8 @@ namespace gamma_mob
         public static int? GetCountBarcodeNomenclatures()
         {
             int? ret = 0;
-            const string sql = "SELECT CountBarcodeNomenclatures FROM Settings";
+            //const string sql = "SELECT CountBarcodeNomenclatures FROM Settings";
+            const string sql = "SELECT count(*) AS CountBarcodeNomenclatures FROM Barcodes WHERE KindId is null";
             var parameters = new List<SqlCeParameter>();
             using (DataTable table = ExecuteCeSelectQuery(sql, parameters, CommandType.Text, ConnectServerCe.BarcodesServer))
             {
@@ -568,7 +662,7 @@ namespace gamma_mob
             return ret;
         }
         
-        public static bool SetCountBarcodeNomenclatures(int? value)
+        /*public static bool SetCountBarcodeNomenclatures(int? value)
         {
             const string sql = "UPDATE Settings SET CountBarcodeNomenclatures = @Value";
 
@@ -580,12 +674,13 @@ namespace gamma_mob
             parameters.Add(p);
 
             return ExecuteCeNonQuery(sql, parameters, CommandType.Text, ConnectServerCe.BarcodesServer);
-        }
+        }*/
 
         public static int? GetCountBarcodeProducts()
         {
             int? ret = 0;
-            const string sql = "SELECT CountBarcodeProducts FROM Settings";
+            //const string sql = "SELECT CountBarcodeProducts FROM Settings";
+            const string sql = "SELECT count(*) AS CountBarcodeProducts FROM Barcodes WHERE KindId is not null";
             var parameters = new List<SqlCeParameter>();
             using (DataTable table = ExecuteCeSelectQuery(sql, parameters, CommandType.Text, ConnectServerCe.BarcodesServer))
             {
@@ -598,7 +693,7 @@ namespace gamma_mob
             return ret;
         }
 
-        public static bool SetCountBarcodeProducts(int? value)
+        /*public static bool SetCountBarcodeProducts(int? value)
         {
             const string sql = "UPDATE Settings SET CountBarcodeProducts = @Value";
 
@@ -610,13 +705,11 @@ namespace gamma_mob
             parameters.Add(p);
 
             return ExecuteCeNonQuery(sql, parameters, CommandType.Text, ConnectServerCe.BarcodesServer);
-        }
+        }*/
 
         public static bool UpdateBarcodes1C(CashedBarcode item)
         {
-            
             {
-                
                 switch (item.TypeChange)
                 {
                     case 2:
@@ -642,7 +735,7 @@ namespace gamma_mob
                         string sql2 = "DELETE Barcodes WHERE BarcodeId = @BarcodeID";
                         var ret2 = ExecuteCeNonQuery(sql2, parameters2, CommandType.Text, ConnectServerCe.BarcodesServer);
                         var ret2_ = ExecuteCeNonQuery(sql2, parameters2_, CommandType.Text, ConnectServerCe.BackupBarcodesServer);
-                        Shared.Barcodes1C.RemovedBarcode(item.KindId);
+                        //Shared.Barcodes1C.RemovedBarcode(item.KindId);
                         return ret2;
                         break;
                     case 0:
@@ -694,6 +787,11 @@ namespace gamma_mob
                         p08.DbType = DbType.Int16;
                         p08.Value = (item.KindId as object) ?? DBNull.Value;
                         parameters0.Add(p08);
+                        SqlCeParameter p09 = new SqlCeParameter();
+                        p09.ParameterName = "@IsMovementFromPallet";
+                        p09.DbType = DbType.Byte;
+                        p09.Value = (item.IsMovementFromPallet as object) ?? 0;
+                        parameters0.Add(p09);
                         var parameters0_ = new List<SqlCeParameter>();
                         foreach (var par in parameters0)
                         {
@@ -705,11 +803,11 @@ namespace gamma_mob
                                     };
                             parameters0_.Add(pp);
                         }
-                        string sql0 = "INSERT INTO Barcodes (Barcode, Name, NomenclatureID, CharacteristicID, QualityID, MeasureUnitID, BarcodeID, Number, KindId) VALUES (@Barcode, @Name, @NomenclatureID, @CharacteristicID, @QualityID, @MeasureUnitID, @BarcodeID, @Number, @KindID)";
+                        string sql0 = "INSERT INTO Barcodes (Barcode, Name, NomenclatureID, CharacteristicID, QualityID, MeasureUnitID, BarcodeID, Number, KindId, IsMovementFromPallet) VALUES (@Barcode, @Name, @NomenclatureID, @CharacteristicID, @QualityID, @MeasureUnitID, @BarcodeID, @Number, @KindID, @IsMovementFromPallet)";
                         var ret0 = ExecuteCeNonQuery(sql0, parameters0, CommandType.Text, ConnectServerCe.BarcodesServer);
                         var ret0_ = ExecuteCeNonQuery(sql0, parameters0_, CommandType.Text, ConnectServerCe.BackupBarcodesServer);
-                        Shared.Barcodes1C.AddedBarcode(item.KindId);
-                        return ret0;
+                        //Shared.Barcodes1C.AddedBarcode(item.KindId);
+                        return ret0; 
                         break;
                     case 1:
 
@@ -760,6 +858,11 @@ namespace gamma_mob
                         p8.DbType = DbType.Int16;
                         p8.Value = (item.KindId as object) ?? DBNull.Value;
                         parameters1.Add(p8);
+                        SqlCeParameter p9 = new SqlCeParameter();
+                        p9.ParameterName = "@IsMovementFromPallet";
+                        p9.DbType = DbType.Byte;
+                        p9.Value = (item.IsMovementFromPallet as object) ?? 0;
+                        parameters1.Add(p9);
                         var parameters1_ =  new List<SqlCeParameter>();
                         foreach (var par in parameters1)
                         {
@@ -771,14 +874,14 @@ namespace gamma_mob
                                 };
                             parameters1_.Add(pp);
                         }
-                        string sql1 = "UPDATE Barcodes SET Barcode = @Barcode, Name = @Name, NomenclatureID = @NomenclatureID, CharacteristicID = @CharacteristicID, QualityID = @QualityID, MeasureUnitID = @MeasureUnitID, BarcodeID = @BarcodeID, Number = @Number, KindId = @KindID  WHERE BarcodeId = @BarcodeID";
+                        string sql1 = "UPDATE Barcodes SET Barcode = @Barcode, Name = @Name, NomenclatureID = @NomenclatureID, CharacteristicID = @CharacteristicID, QualityID = @QualityID, MeasureUnitID = @MeasureUnitID, BarcodeID = @BarcodeID, Number = @Number, KindId = @KindID, IsMovementFromPallet = @IsMovementFromPallet WHERE BarcodeId = @BarcodeID";
                         var ret1 = ExecuteCeNonQuery(sql1, parameters1, CommandType.Text, ConnectServerCe.BarcodesServer);
                         var ret1_ = ExecuteCeNonQuery(sql1, parameters1_, CommandType.Text, ConnectServerCe.BackupBarcodesServer);
                         return ret1;
                         break;
                 }
 
-            }
+            }            
             return false;
         }
 
@@ -798,11 +901,24 @@ namespace gamma_mob
             return ret;
         }
 
-        public static bool AddMessageToLog(Guid scanId, DateTime dateScanned, string barcode, int placeId, Guid? placeZoneId, int docTypeId, Guid? docId, bool isUploaded, Guid? productId, int? productKindId, Guid? nomenclatureId, Guid? characteristicId, Guid? qualityId, int? quantity, Guid? fromProductId)
+        public static bool RefreshIsUplodedFalase()
+        {
+            const string sql = "UPDATE Logs SET IsUploaded = 0 WHERE IsUploaded is null AND LogDate < @DateScanned";
+            var parameters = new List<SqlCeParameter>
+                {
+                    new SqlCeParameter("@DateScanned", DbType.DateTime)
+                        {
+                            Value = DateTime.Now.AddSeconds(-30)
+                        }
+                };
+            return ExecuteCeNonQuery(sql, parameters, CommandType.Text, ConnectServerCe.LogServer);
+        }
+
+        public static bool AddMessageToLog(Guid scanId, DateTime dateScanned, string barcode, int placeId, Guid? placeZoneId, int docTypeId, Guid? docId, bool? isUploaded, Guid? productId, int? productKindId, Guid? nomenclatureId, Guid? characteristicId, Guid? qualityId, int? quantity, int? quantityFractional, Guid? measureUnitId, Guid? fromProductId, int? fromPlaceId, Guid? fromPlaceZoneId, int? newWeight, DateTime? validUntilDate)
         {
             string sql = (Db.ExistsMessageLogFromLogId(scanId))
-                    ? "UPDATE Logs SET LogDate = @DateScanned, Barcode = @Barcode, PlaceId = @PlaceId, PlaceZoneId = @PlaceZoneId, DocTypeId = @DocTypeId, DocId = @DocId, IsUploaded = @IsUploaded, ProductId = @ProductId, ProductKindId = @ProductKindId, NomenclatureId = @NomenclatureId, CharacteristicId = @CharacteristicId, QualityId = @QualityId, Quantity = @Quantity, FromProductId = @FromProductId WHERE LogId = @ScanId"
-                    : "INSERT INTO Logs (LogId, LogDate, UserName, PersonId, Barcode, PlaceId, PlaceZoneId, DocTypeId, DocId, IsUploaded, ProductId, ProductKindId, NomenclatureId, CharacteristicId, QualityId, Quantity, FromProductId) VALUES (@ScanId, @DateScanned, @UserName, @PersonId, @Barcode, @PlaceId, @PlaceZoneId, @DocTypeId, @DocId, @IsUploaded, @ProductId, @ProductKindId, @NomenclatureId, @CharacteristicId, @QualityId, @Quantity, @FromProductId)";
+                    ? "UPDATE Logs SET LogDate = @DateScanned, Barcode = @Barcode, PlaceId = @PlaceId, PlaceZoneId = @PlaceZoneId, DocTypeId = @DocTypeId, DocId = @DocId, IsUploaded = @IsUploaded, ProductId = @ProductId, ProductKindId = @ProductKindId, NomenclatureId = @NomenclatureId, CharacteristicId = @CharacteristicId, QualityId = @QualityId, Quantity = @Quantity, MeasureUnitId = @MeasureUnitId, FromProductId = @FromProductId, FromPlaceId = @FromPlaceId, FromPlaceZoneId = @FromPlaceZoneId, NewWeight = @NewWeight, QuantityFractional = @QuantityFractional, ValidUntilDate = @ValidUntilDate WHERE LogId = @ScanId"
+                    : "INSERT INTO Logs (LogId, LogDate, UserName, PersonId, Barcode, PlaceId, PlaceZoneId, DocTypeId, DocId, IsUploaded, ProductId, ProductKindId, NomenclatureId, CharacteristicId, QualityId, Quantity, MeasureUnitId, FromProductId, FromPlaceId, FromPlaceZoneId, NewWeight, QuantityFractional, ValidUntilDate) VALUES (@ScanId, @DateScanned, @UserName, @PersonId, @Barcode, @PlaceId, @PlaceZoneId, @DocTypeId, @DocId, @IsUploaded, @ProductId, @ProductKindId, @NomenclatureId, @CharacteristicId, @QualityId, @Quantity, @MeasureUnitId, @FromProductId, @FromPlaceId, @FromPlaceZoneId, @NewWeight, @QuantityFractional, @ValidUntilDate)";
 
             var parameters = new List<SqlCeParameter>
                 {
@@ -844,7 +960,7 @@ namespace gamma_mob
                         },
                     new SqlCeParameter("@IsUploaded", DbType.Boolean)
                         {
-                            Value = isUploaded
+                            Value = (isUploaded as object) ?? DBNull.Value
                         },
                     new SqlCeParameter("@ProductId", SqlDbType.UniqueIdentifier)
                         {
@@ -870,9 +986,33 @@ namespace gamma_mob
                         {
                             Value = (quantity as object) ?? DBNull.Value
                         },
+                    new SqlCeParameter("@MeasureUnitId", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = (measureUnitId as object) ?? DBNull.Value
+                        },
                     new SqlCeParameter("@FromProductId", SqlDbType.UniqueIdentifier)
                         {
                             Value = (fromProductId as object) ?? DBNull.Value
+                        },
+                    new SqlCeParameter("@FromPlaceId", SqlDbType.Int)
+                        {
+                            Value = (fromPlaceId as object) ?? DBNull.Value
+                        },
+                    new SqlCeParameter("@FromPlaceZoneId", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = (fromPlaceZoneId as object) ?? DBNull.Value
+                        },
+                    new SqlCeParameter("@NewWeight", SqlDbType.Int)
+                        {
+                            Value = (newWeight as object) ?? DBNull.Value
+                        },
+                    new SqlCeParameter("@QuantityFractional", SqlDbType.Int)
+                        {
+                            Value = (quantityFractional as object) ?? DBNull.Value
+                        },
+                    new SqlCeParameter("@ValidUntilDate", SqlDbType.DateTime)
+                        {
+                            Value = (validUntilDate as object) ?? DBNull.Value
                         }
 
                 };
@@ -880,8 +1020,12 @@ namespace gamma_mob
             return ExecuteCeNonQuery(sql, parameters, CommandType.Text, ConnectServerCe.LogServer);
         }
 
-        public static bool AddMessageToLog(Guid scanId, bool isUploaded, string log)
+        public static bool AddMessageToLog(Guid scanId, bool? isUploaded, string log)
         {
+            //byte[] buffer = System.Text.Encoding.Default.GetBytes(log + "\r\n");
+            //// запись массива байтов в файл
+            //Shared._txtLogFile.Write(buffer, 0, buffer.Length);
+            
             string sql = (Db.ExistsMessageLogFromLogId(scanId))
                 ? log == string.Empty ? "UPDATE Logs SET IsUploaded = @IsUploaded WHERE LogId = @ScanId" : "UPDATE Logs SET IsUploaded = @IsUploaded, Log = @Log WHERE LogId = @ScanId"
                     : "INSERT INTO Logs (LogId, IsUploaded, Log, UserName, PersonId) VALUES (@ScanId, @IsUploaded, @Log, @UserName, @PersonId)";
@@ -894,7 +1038,7 @@ namespace gamma_mob
                         },
                     new SqlCeParameter("@IsUploaded", DbType.Boolean)
                         {
-                            Value = isUploaded
+                            Value = (isUploaded as object) ?? DBNull.Value
                         },
                     new SqlCeParameter("@Log", DbType.String)
                         {
@@ -915,8 +1059,12 @@ namespace gamma_mob
             return ExecuteCeNonQuery(sql, parameters, CommandType.Text, ConnectServerCe.LogServer);
         }
 
-        public static bool AddMessageToLog(Guid scanId, bool isUploaded, bool isDeleted, string log)
+        public static bool AddMessageToLog(Guid scanId, bool? isUploaded, bool isDeleted, string log)
         {
+            //byte[] buffer = System.Text.Encoding.Default.GetBytes(log + "\r\n");
+            //// запись массива байтов в файл
+            //Shared._txtLogFile.Write(buffer, 0, buffer.Length);
+            
             string sql = (Db.ExistsMessageLogFromLogId(scanId))
                 ? log == string.Empty ? "UPDATE Logs SET IsUploaded = @IsUploaded, IsDeleted = @IsDeleted, ToDelete = CASE WHEN @IsDeleted = 1 AND ToDelete = 0 THEN 1 ELSE ToDelete END WHERE LogId = @ScanId" : "UPDATE Logs SET IsUploaded = @IsUploaded, IsDeleted = @IsDeleted, ToDelete = CASE WHEN @IsDeleted = 1 AND ToDelete = 0 THEN 1 ELSE ToDelete END, Log = @Log WHERE LogId = @ScanId"
                     : "INSERT INTO Logs (LogId, IsUploaded, IsDeleted, Log, UserName, PersonId) VALUES (@ScanId, @IsUploaded, @IsDeleted, @Log, @UserName, @PersonId)";
@@ -929,7 +1077,7 @@ namespace gamma_mob
                         },
                     new SqlCeParameter("@IsUploaded", DbType.Boolean)
                         {
-                            Value = isUploaded
+                            Value = (isUploaded as object) ?? DBNull.Value
                         },
                     new SqlCeParameter("@IsDeleted", DbType.Boolean)
                         {
@@ -956,6 +1104,10 @@ namespace gamma_mob
 
         public static bool AddMessageToLog(string log, Guid? docId, Guid? productId)
         {
+            //byte[] buffer = System.Text.Encoding.Default.GetBytes(log + "\r\n");
+            //// запись массива байтов в файл
+            //Shared._txtLogFile.Write(buffer, 0, buffer.Length);
+            
             const string sql = "INSERT INTO Logs (Log, DocId, ProductId, UserName, PersonId) VALUES (@Log, @DocId, @ProductId, @UserName, @PersonId)";
 
             var parameters = new List<SqlCeParameter>
@@ -988,6 +1140,9 @@ namespace gamma_mob
 
         public static bool AddMessageToLog(string log)
         {
+            //byte[] buffer = System.Text.Encoding.Default.GetBytes(log + "\r\n");
+            //// запись массива байтов в файл
+            //Shared._txtLogFile.Write(buffer, 0, buffer.Length);
             const string sql = "INSERT INTO Logs (Log, UserName, PersonId) VALUES (@log, @UserName, @PersonId)";
 
             var parameters = new List<SqlCeParameter>
@@ -1010,10 +1165,56 @@ namespace gamma_mob
             return ExecuteCeNonQuery(sql, parameters, CommandType.Text, ConnectServerCe.LogServer);
         }
 
+        private static Stopwatch _stopWatch;
+        public static Stopwatch stopWatch 
+        {
+            get
+            {
+                if (_stopWatch == null)
+                {
+                    _stopWatch = new Stopwatch();
+                    _stopWatch.Start();
+                }
+                return _stopWatch;
+            }
+        }
+
+        //private static DateTime? _start;
+        //private static int _startTick;
+
+        public static bool AddTimeStampToLog(string log)
+        {
+            return AddTimeStampToLog(log, false);
+        }
+
+        public static bool AddTimeStampToLog(string log, bool stop)
+        {
+            //if (!stopWatch.IsRunning)
+            //{
+            //    AddMessageToLog(log + ": " +//DateTime timeStamp =
+            //    "Start StopWatch");
+            //    stopWatch.Start();
+            //}
+            
+            AddMessageToLog(DateTime.Now + " " +log + ": " +//DateTime timeStamp =
+                    stopWatch.Elapsed.Milliseconds);
+            if (stop)
+                stopWatch.Stop();
+            else
+            {
+                stopWatch.Reset();
+                stopWatch.Start();
+                AddMessageToLog(DateTime.Now + " " + log + ": " +"Start StopWatch "+
+                    stopWatch.Elapsed.Milliseconds);
+            }
+
+            return true;
+        }
+
         public static List<ScannedBarcode> GetBarcodesForCurrentUser()
         {
             List<ScannedBarcode> list = null;
-            const string sql = "SELECT LogId, LogDate, Barcode, PlaceId, PlaceZoneId, DocTypeId, DocId, IsUploaded, ToDelete, IsDeleted, ProductId, ProductKindId, NomenclatureId, CharacteristicId, QualityId, Quantity FROM Logs WHERE LogDate >= DATEADD(DAY,-4,GETDATE()) AND PersonId = @PersonId AND Barcode IS NOT NULL ORDER BY LogDate";
+            const string sql = "SELECT LogId, LogDate, Barcode, PlaceId, PlaceZoneId, DocTypeId, DocId, IsUploaded, ToDelete, IsDeleted, ProductId, ProductKindId, NomenclatureId, CharacteristicId, QualityId, Quantity, MeasureUnitId, FromProductId, FromPlaceId, FromPlaceZoneId, NewWeight, QuantityFractional, ValidUntilDate FROM Logs WHERE LogDate >= DATEADD(DAY,-4,GETDATE()) AND PersonId = @PersonId AND Barcode IS NOT NULL ORDER BY LogDate";
             
             var parameters = new List<SqlCeParameter>
                 {
@@ -1049,6 +1250,13 @@ namespace gamma_mob
                                 CharacteristicId = row.IsNull("CharacteristicId") ? (Guid?)null : new Guid(row["CharacteristicId"].ToString()),
                                 QualityId = row.IsNull("QualityId") ? (Guid?)null : new Guid(row["QualityId"].ToString()),
                                 Quantity = row.IsNull("Quantity") ? (int?)null : Convert.ToInt32(row["Quantity"]),
+                                MeasureUnitId = row.IsNull("MeasureUnitId") ? (Guid?)null : new Guid(row["MeasureUnitId"].ToString()),
+                                FromProductId = row.IsNull("FromProductId") ? (Guid?)null : new Guid(row["FromProductId"].ToString()),
+                                FromPlaceId = row.IsNull("FromPlaceId") ? (int?)null : Convert.ToInt32(row["FromPlaceId"]),
+                                FromPlaceZoneId = row.IsNull("FromPlaceZoneId") ? (Guid?)null : new Guid(row["FromPlaceZoneId"].ToString()),
+                                NewWeight = row.IsNull("NewWeight") ? (int?)null : Convert.ToInt32(row["NewWeight"]),
+                                QuantityFractional = row.IsNull("QuantityFractional") ? (int?)null : Convert.ToInt32(row["QuantityFractional"]),
+                                ValidUntilDate = row.IsNull("ValidUntilDate") ? (DateTime?)null : Convert.ToDateTime(row["ValidUntilDate"])
                             };
                         list.Add(item);
                     };
@@ -1084,7 +1292,7 @@ namespace gamma_mob
         
         public static void UploadLogToServer()
         {
-            const string sqlCE = "SELECT LogId, LogDate, Log, Barcode, UserName, PersonId, PlaceId, PlaceZoneId, DocTypeId, DocId, IsUploaded, ToDelete, IsDeleted, ProductId, ProductKindId, NomenclatureId, CharacteristicId, QualityId, Quantity, FromProductId FROM Logs WHERE IsUploadedToServer = 0 ORDER BY LogDate";
+            const string sqlCE = "SELECT LogId, LogDate, Log, Barcode, UserName, PersonId, PlaceId, PlaceZoneId, DocTypeId, DocId, IsUploaded, ToDelete, IsDeleted, ProductId, ProductKindId, NomenclatureId, CharacteristicId, QualityId, Quantity, MeasureUnitId, FromProductId, FromPlaceId, FromPlaceZoneId, NewWeight, QuantityFractional, ValidUntilDate FROM Logs WHERE IsUploadedToServer = 0 ORDER BY LogDate";
 
             var parametersCE = new List<SqlCeParameter>();
                 //{
@@ -1102,7 +1310,7 @@ namespace gamma_mob
                     {
                         foreach (DataRow row in table.Rows)
                         {
-                            const string sql = "INSERT INTO LogFromMobileDevices(DeviceName, DeviceIP, UserName,PersonId,LogId,LogDate,Log,Barcode,PlaceId,DocTypeId,IsUploaded,DocId,PlaceZoneId,ToDelete,IsDeleted,ProductId,ProductKindId,NomenclatureId,CharacteristicId,QualityId,Quantity,FromProductId) VALUES(@DeviceName, @DeviceIP, @UserName,@PersonId,@LogId,@LogDate,@Log,@Barcode,@PlaceId,@DocTypeId,@IsUploaded,@DocId,@PlaceZoneId,@ToDelete,@IsDeleted,@ProductId,@ProductKindId,@NomenclatureId,@CharacteristicId,@QualityId,@Quantity,@FromProductId)";
+                            const string sql = "INSERT INTO LogFromMobileDevices(DeviceName, DeviceIP, UserName,PersonId,LogId,LogDate,Log,Barcode,PlaceId,DocTypeId,IsUploaded,DocId,PlaceZoneId,ToDelete,IsDeleted,ProductId,ProductKindId,NomenclatureId,CharacteristicId,QualityId,Quantity,MeasureUnitId,FromProductId,FromPlaceId,FromPlaceZoneId,NewWeight,QuantityFractional, ValidUntilDate) VALUES(@DeviceName, @DeviceIP, @UserName,@PersonId,@LogId,@LogDate,@Log,@Barcode,@PlaceId,@DocTypeId,@IsUploaded,@DocId,@PlaceZoneId,@ToDelete,@IsDeleted,@ProductId,@ProductKindId,@NomenclatureId,@CharacteristicId,@QualityId,@Quantity,@MeasureUnitId,@FromProductId,@FromPlaceId,@FromPlaceZoneId,@NewWeight,@QuantityFractional,@ValidUntilDate)";
                             var parameters = new List<SqlParameter>
                         {
                             new SqlParameter("@DeviceName", SqlDbType.Text)
@@ -1189,9 +1397,33 @@ namespace gamma_mob
                                 {
                                     Value = row["Quantity"], // row.IsNull("Quantity") ? (int?)null : Convert.ToInt32(row["Quantity"]),
                                 },
+                            new SqlParameter("@MeasureUnitId", SqlDbType.UniqueIdentifier)
+                                {
+                                    Value = row["MeasureUnitId"], // row.IsNull("QualityId") ? (Guid?)null : new Guid(row["QualityId"].ToString()),
+                                },
                             new SqlParameter("@FromProductId", SqlDbType.UniqueIdentifier)
                                 {
                                     Value = row["FromProductId"], // row.IsNull("FromProductId") ? (Guid?)null : new Guid(row["FromProductId"].ToString()),
+                                },
+                            new SqlParameter("@FromPlaceId", SqlDbType.Int)
+                                {
+                                    Value = row["FromPlaceId"],
+                                },
+                            new SqlParameter("@FromPlaceZoneId", SqlDbType.UniqueIdentifier)
+                                {
+                                    Value = row["FromPlaceZoneId"],
+                                },
+                            new SqlParameter("@NewWeight", SqlDbType.Int)
+                                {
+                                    Value = row["NewWeight"]
+                                },
+                            new SqlParameter("@QuantityFractional", SqlDbType.Int)
+                                {
+                                    Value = row["QuantityFractional"]
+                                },
+                            new SqlParameter("@ValidUntilDate", SqlDbType.DateTime)
+                                {
+                                    Value = row["ValidUntilDate"]
                                 }
                         };
                             if (ExecuteSilentlyNonQuery(sql, parameters, CommandType.Text))
@@ -1235,20 +1467,26 @@ namespace gamma_mob
                                 + "," + (row["CharacteristicId"].ToString() == String.Empty ? "NULL" : "'" + row["CharacteristicId"] + "'")
                                 + "," + (row["QualityId"].ToString() == String.Empty ? "NULL" : "'" + row["QualityId"] + "'")
                                 + "," + (row["Quantity"].ToString() == String.Empty ? "NULL" : row["Quantity"])
+                                + "," + (row["MeasureUnitId"].ToString() == String.Empty ? "NULL" : "'" + row["MeasureUnitId"] + "'")
                                 + "," + (row["FromProductId"].ToString() == String.Empty ? "NULL" : "'" + row["FromProductId"] + "'")
+                                + "," + (row["FromPlaceId"].ToString() == String.Empty ? "NULL" : "'" + row["FromPlaceId"] + "'")
+                                + "," + (row["FromPlaceZoneId"].ToString() == String.Empty ? "NULL" : "'" + row["FromPlaceZoneId"] + "'")
+                                + "," + (row["NewWeight"].ToString() == String.Empty ? "NULL" : "'" + row["NewWeight"] + "'")
+                                + "," + (row["QuantityFractional"].ToString() == String.Empty ? "NULL" : "'" + row["QuantityFractional"] + "'")
+                                + "," + (row["ValidUntilDate"].ToString() == String.Empty ? "NULL" : "'" + row["ValidUntilDate"] + "'")
                                 + ")";
                             if (value.Length > 0)
                             {
                                 if (i > 1)
                                     sql += ",";
-                                sql += Environment.NewLine + value;
+                                sql += /*Environment.NewLine + */value;
                             }
                             value = string.Empty;
                             i++;
-                            if (i > Shared.CountRowUploadToServerInOnePackage)
+                            if (i > Shared.CountRowUploadToServerInOnePackage || sql.Length > 2500)
                             {
                                 i = 1;
-                                sql = "INSERT INTO LogFromMobileDevices(DeviceName, DeviceIP, UserName,PersonId,LogId,LogDate,Log,Barcode,PlaceId,DocTypeId,IsUploaded,DocId,PlaceZoneId,ToDelete,IsDeleted,ProductId,ProductKindId,NomenclatureId,CharacteristicId,QualityId,Quantity,FromProductId) VALUES" + sql;
+                                sql = "INSERT INTO LogFromMobileDevices(DeviceName, DeviceIP, UserName,PersonId,LogId,LogDate,Log,Barcode,PlaceId,DocTypeId,IsUploaded,DocId,PlaceZoneId,ToDelete,IsDeleted,ProductId,ProductKindId,NomenclatureId,CharacteristicId,QualityId,Quantity,MeasureUnitId,FromProductId,FromPlaceId,FromPlaceZoneId,NewWeight,QuantityFractional,ValidUntilDate) VALUES" + sql;
                                 if (ExecuteSilentlyNonQuery(sql, new List<SqlParameter>(), CommandType.Text))
                                 {
                                     var sqlCEUpdate = "UPDATE Logs SET IsUploadedToServer = 1 WHERE LogId in (" + logIds + ")";
@@ -1260,7 +1498,7 @@ namespace gamma_mob
                         }
                         if (i > 1)
                         {
-                            sql = "INSERT INTO LogFromMobileDevices(DeviceName, DeviceIP, UserName,PersonId,LogId,LogDate,Log,Barcode,PlaceId,DocTypeId,IsUploaded,DocId,PlaceZoneId,ToDelete,IsDeleted,ProductId,ProductKindId,NomenclatureId,CharacteristicId,QualityId,Quantity,FromProductId) VALUES"
+                            sql = "INSERT INTO LogFromMobileDevices(DeviceName, DeviceIP, UserName,PersonId,LogId,LogDate,Log,Barcode,PlaceId,DocTypeId,IsUploaded,DocId,PlaceZoneId,ToDelete,IsDeleted,ProductId,ProductKindId,NomenclatureId,CharacteristicId,QualityId,Quantity,MeasureUnitId,FromProductId,FromPlaceId,FromPlaceZoneId,NewWeight,QuantityFractional,ValidUntilDate) VALUES"
                                 + sql;
                             if (ExecuteSilentlyNonQuery(sql, new List<SqlParameter>(), CommandType.Text))
                             {
@@ -1409,12 +1647,12 @@ namespace gamma_mob
             return list;
         }
 
-        public static DateTime GetServerDateTime()
+        public static DateTime? GetServerDateTime()
         {
-            DateTime serverDateTime = new DateTime();
+            DateTime? serverDateTime = null;//new DateTime();
             const string sql = "SELECT GETUTCDATE() AS ServerDateTime";
             var parameters = new List<SqlParameter>();
-            using (DataTable table = ExecuteSilentlySelectQuery(sql, parameters, CommandType.Text))
+            using (DataTable table = ExecuteSilentlySelectQuery(sql, parameters, CommandType.Text, 2))
             {
                 if (table != null && table.Rows.Count > 0)
                 {
@@ -1434,7 +1672,7 @@ namespace gamma_mob
                 new SqlParameter("@BarCode", SqlDbType.VarChar)
             };
             parameters[0].Value = barcode;
-            using (DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure))
+            using (DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure, 3))
             {
                 if (table != null && table.Rows.Count > 0)
                 {
@@ -1447,6 +1685,7 @@ namespace gamma_mob
                         b1 = row.IsNull("b1") ? (bool?)null : Convert.ToBoolean(row["b1"]),
                         b2 = row.IsNull("b2") ? (bool?)null : Convert.ToBoolean(row["b2"]),
                         b3 = row.IsNull("b3") ? (bool?)null : Convert.ToBoolean(row["b3"]),
+                        b4 = row.IsNull("b4") ? (bool?)null : Convert.ToBoolean(row["b4"]),
                         i1 = row.IsNull("i1") ? (int?)null : Convert.ToInt32(row["i1"]),
                         i2 = row.IsNull("i2") ? (int?)null : (int?)Convert.ToInt32(row["i2"]),
                         s1 = row.IsNull("s1") ? null : row["s1"].ToString(),
@@ -1517,7 +1756,13 @@ namespace gamma_mob
                             OutPlace = row["OutPlace"].ToString(),
                             InPlace = row["InPlace"].ToString(),
                             IsProductR = row.IsNull("IsProductR") ? false : Convert.ToBoolean(row["IsProductR"]),
-                            Quantity = row["Quantity"].ToString()
+                            Quantity = row["Quantity"].ToString(),
+                            OutPlaceID = row.IsNull("OutPlaceID") ? (int?)null : Convert.ToInt32(row["OutPlaceID"]),
+                            OutPlaceZoneID = row.IsNull("OutPlaceZoneID") ? (Guid?)null : new Guid(row["OutPlaceZoneID"].ToString()),
+                            InPlaceID = row.IsNull("InPlaceID") ? (int?)null : Convert.ToInt32(row["InPlaceID"]),
+                            InPlaceZoneID = row.IsNull("InPlaceZoneID") ? (Guid?)null : new Guid(row["InPlaceZoneID"].ToString()),
+                            DateEnd = row.IsNull("DateEnd") ? (DateTime?)null : Convert.ToDateTime(row["DateEnd"]),
+                            ProductKind = (ProductKind)Convert.ToInt32(row["ProductKindID"])
                         });
                     }
                 }
@@ -1644,6 +1889,7 @@ namespace gamma_mob
 
         public static BindingList<DocOrder> PersonDocOrders(Guid personId, DocDirection docDirection, bool isMovementForOrder)
         {
+            //Db.AddTimeStampToLog("Start PersonDocOrders");
             BindingList<DocOrder> list = null;
             const string sql = "dbo.mob_GetPersonDocOrders";
             var parameters = new List<SqlParameter>
@@ -1685,11 +1931,13 @@ namespace gamma_mob
                             IsControlExec = row.IsNull("IsControlExec") ? false : Convert.ToBoolean(row["IsControlExec"]),
                             StartExec = row.IsNull("StartExec") ? (DateTime?)null : Convert.ToDateTime(row["StartExec"].ToString()),
                             EndExec = row.IsNull("EndExec") ? (DateTime?)null : Convert.ToDateTime(row["EndExec"].ToString()),
-                            State = row["State"].ToString()
+                            State = row["State"].ToString(),
+                            CheckExistMovementToZone = row.IsNull("CheckExistMovementToZone") ? false : Convert.ToBoolean(row["CheckExistMovementToZone"])
                         });
                     }
                 }
             }
+            //Db.AddTimeStampToLog("End PersonDocOrders");
             return list ?? new BindingList<DocOrder>();
         }
 
@@ -1703,7 +1951,22 @@ namespace gamma_mob
 
         public static List<PlaceZone> GetWarehousePlaceZones(int placeId)
         {
+            return GetWarehousePlaceZones(placeId, false);
+        }
+        
+        public static List<PlaceZone> GetWarehousePlaceZones(int placeId, bool checkExistMovementToZone)
+        {
             var placeZones = Shared.PlaceZones.Where(p => p.PlaceId == placeId && p.PlaceZoneParentId == Guid.Empty && p.IsValid).ToList();
+            if (checkExistMovementToZone && placeZones != null && placeZones.Count > 0)
+            {
+                var placeZoneExistMovements = Db.GetPlaceZoneExistMovements(placeZones);
+                foreach (var placeZone in placeZones)
+                {
+                    var zone = placeZoneExistMovements.FirstOrDefault(z => z.PlaceZoneId == placeZone.PlaceZoneId);
+                    if (zone != null)
+                        placeZone.IsExistMovementToZone = zone.IsExistMovementToZone;
+                }
+            }
             return placeZones;
             /*List<PlaceZone> list = null;
             const string sql = "dbo.mob_GetWarehousePlaceZones";
@@ -1726,6 +1989,39 @@ namespace gamma_mob
                 }
             }
             return list;*/
+        }
+
+        public static List<PlaceZone> GetPlaceZoneExistMovements(List<PlaceZone> placeZones)
+        {
+            const string sql = "dbo.mob_GetPlaceZoneExistMovements";
+            var parameters = new List<SqlParameter>
+                {
+                     new SqlParameter("@PlaceId", SqlDbType.Int)
+                        {
+                            Value = placeZones.First().PlaceId
+                        },
+                    new SqlParameter("@PersonID", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = Shared.PersonId
+                        },
+                    new SqlParameter("@ShiftId", SqlDbType.SmallInt)
+                        {
+                            Value = Shared.ShiftId
+                        }
+                };
+            using (DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure))
+            {
+                if (table != null && table.Rows.Count > 0)
+                {
+                    foreach (DataRow row in table.Rows)
+                    {
+                        var zone = placeZones.FirstOrDefault(z => z.PlaceZoneId == new Guid(row["PlaceZoneID"].ToString()));
+                        if (zone != null)
+                            zone.IsExistMovementToZone = Convert.ToBoolean(row["IsExistMovementToZone"]);
+                    }
+                }
+            }
+            return placeZones;
         }
 
         public static List<PlaceZone> GetPlaceZoneChilds(Guid placeZoneId)
@@ -1821,6 +2117,7 @@ namespace gamma_mob
                             CharacteristicId = row.IsNull("1CCharacteristicID") ? new Guid() : new Guid(row["1CCharacteristicID"].ToString()),
                             NomenclatureId = new Guid(row["1CNomenclatureID"].ToString()),
                             QualityId = new Guid(row["1CQualityID"].ToString()),
+                            ProductKindId = row.IsNull("ProductKindID") ? (byte?)null : Convert.ToByte(table.Rows[0]["ProductKindID"]),
                             NomenclatureName = row["NomenclatureName"].ToString(),
                             ShortNomenclatureName = row["ShortNomenclatureName"].ToString(),
                             PlaceZoneId = row.IsNull("PlaceZoneID") ? new Guid() : new Guid(row["PlaceZoneID"].ToString()),
@@ -1957,7 +2254,8 @@ namespace gamma_mob
                         }
                         else
                         {
-                            quantity = row.IsNull("OutQuantity") ? "0" : (row.IsNull("CoefficientPackage") || !(row["OutQuantity"].ToString().All(char.IsDigit))) ? row["OutQuantity"].ToString() : (Convert.ToInt32(row["OutQuantity"]) / Convert.ToInt32(row["CoefficientPackage"])).ToString();
+                            //quantity = row.IsNull("OutQuantity") ? "0" : (row.IsNull("CoefficientPackage") || !(row["OutQuantity"].ToString().All(char.IsDigit))) ? row["OutQuantity"].ToString() : (Convert.ToInt32(row["OutQuantity"]) / Convert.ToInt32(row["CoefficientPackage"])).ToString();
+                            quantity = row.IsNull("Quantity") ? "0" : (row.IsNull("CoefficientPackage") || !(row["Quantity"].ToString().All(char.IsDigit))) ? row["Quantity"].ToString() : (Convert.ToInt32(row["Quantity"]) / Convert.ToInt32(row["CoefficientPackage"])).ToString();
                             collectedQuantity = row.IsNull("InQuantity") ? 0 : Convert.ToDecimal(row["InQuantity"]);
                             quantityUnits = row.IsNull("InQuantityUnits") ? 0 : Convert.ToInt32(row["InQuantityUnits"]);
                         }
@@ -1966,6 +2264,7 @@ namespace gamma_mob
                             CharacteristicId = row.IsNull("1CCharacteristicID") ? new Guid() : new Guid(row["1CCharacteristicID"].ToString()),
                             NomenclatureId = new Guid(row["1CNomenclatureID"].ToString()),
                             QualityId = new Guid(row["1CQualityID"].ToString()),
+                            ProductKindId = row.IsNull("ProductKindID") ? (byte?)null : Convert.ToByte(table.Rows[0]["ProductKindID"]),
                             NomenclatureName = row["NomenclatureName"].ToString(),
                             ShortNomenclatureName = row["ShortNomenclatureName"].ToString(),
                             CountProductSpools = table.Rows[0].IsNull("CountProductSpools") ? 0 : Convert.ToInt32(row["CountProductSpools"]),
@@ -2000,7 +2299,8 @@ namespace gamma_mob
                                   {
                                       WarehouseId = Convert.ToInt32(row["WarehouseID"]),
                                       WarehouseName = row["WarehouseName"].ToString(),
-                                      WarehouseZones = GetWarehousePlaceZones(Convert.ToInt32(row["WarehouseID"]))
+                                      WarehouseZones = GetWarehousePlaceZones(Convert.ToInt32(row["WarehouseID"])),
+                                      PlaceGroupId = Convert.ToInt32(row["PlaceGroupID"])
                                   });
                 }
             }
@@ -2038,7 +2338,8 @@ namespace gamma_mob
                                       IsActive = Convert.ToBoolean(row["IsActive"]),
                                       //Coefficient = Convert.ToInt32(row["Coefficient"])
                                       Numerator = Convert.ToInt32(row["Numerator"]),
-                                      Denominator = Convert.ToInt32(row["Denominator"])
+                                      Denominator = Convert.ToInt32(row["Denominator"]),
+                                      IsInteger = row.IsNull("IsInteger") ? false : Convert.ToBoolean(row["IsInteger"])
                                   });
                 }
             }
@@ -2048,7 +2349,7 @@ namespace gamma_mob
         public static List<PlaceZone> GetPlaceZones()
         {
             List<PlaceZone> list = null;
-            const string sql = "SELECT PlaceID, PlaceZoneID, Name, Barcode, PlaceZoneParentID, v FROM vPlaceZones ORDER BY SortOrder";
+            const string sql = "SELECT PlaceID, PlaceZoneID, Name, Barcode, PlaceZoneParentID, v, RootPlaceID, AllowedUseZonesOfPlaceGroup FROM vPlaceZones ORDER BY SortOrder";
             using (DataTable table = ExecuteSelectQuery(sql, new List<SqlParameter>(), CommandType.Text))
             {
                 if (table != null && table.Rows.Count > 0)
@@ -2063,6 +2364,8 @@ namespace gamma_mob
                                       Barcode = row["Barcode"].ToString(),
                                       PlaceZoneParentId = row.IsNull("PlaceZoneParentID") ? new Guid() : new Guid(row["PlaceZoneParentID"].ToString()),
                                       IsValid = row.IsNull("v") ? false : Convert.ToBoolean(row["v"]),
+                                      RootPlaceId = row.IsNull("RootPlaceID") ? (int?)null : Convert.ToInt32(row["RootPlaceID"]),
+                                      AllowedUseZonesOfPlaceGroup = row.IsNull("AllowedUseZonesOfPlaceGroup") ? false : Convert.ToBoolean(row["AllowedUseZonesOfPlaceGroup"])
                                   });
                 }
             }
@@ -2171,16 +2474,44 @@ namespace gamma_mob
             return result;
         }
 
-
         public static DbDeleteOperationProductResult DeleteProductFromMovementOnMovementID(Guid scanId)
         {
+            return DeleteProductFromMovementOnMovementID(scanId, null, null, null, null, null, null);
+        }
+
+        public static DbDeleteOperationProductResult DeleteProductFromMovementOnMovementID(Guid scanId, DateTime? dateBeg, DateTime? dateEnd, int? outPlaceID, Guid? outPlaceZoneID, int? inPlaceID, Guid? inPlaceZoneID)
+        {
             DbDeleteOperationProductResult result = null;
-            const string sql = "dbo.[mob_DelProductFromMovementOnMovementID]";
+            const string sql = "dbo.[mob_DelProductFromMovementOnMovementIDV1]";
             var parameters = new List<SqlParameter>
                 {
                     new SqlParameter("@MovementID", SqlDbType.UniqueIdentifier)
                         {
                             Value = scanId
+                        },
+                    new SqlParameter("@DateBeg", SqlDbType.DateTime)
+                        {
+                            Value = (dateBeg as Object) ?? DBNull.Value
+                        },
+                        new SqlParameter("@DateEnd", SqlDbType.DateTime)
+                        {
+                            Value = (dateEnd as Object) ?? DBNull.Value
+                        },
+                    new SqlParameter("@OutPlaceID", SqlDbType.Int)
+                        {
+                            Value = (outPlaceID as Object) ?? DBNull.Value
+                        },
+                    new SqlParameter("@OutPlaceZoneID", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = (outPlaceZoneID as Object) ?? DBNull.Value
+                        },
+                    new SqlParameter("@InPlaceID", SqlDbType.Int)
+                        {
+                            Value = (inPlaceID as Object) ?? DBNull.Value
+                        },
+                    new SqlParameter("@InPlaceZoneID", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = (inPlaceZoneID as Object) ?? DBNull.Value
                         }
                 };
             using (DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure))
@@ -2201,7 +2532,7 @@ namespace gamma_mob
                         {
                             ProductId = new Guid(table.Rows[0]["ProductID"].ToString()),
                             NomenclatureId = new Guid(table.Rows[0]["NomenclatureID"].ToString()),
-                            CharacteristicId = new Guid(table.Rows[0]["CharacteristicID"].ToString()),
+                            CharacteristicId = table.Rows[0].IsNull("CharacteristicID") ? Guid.Empty : new Guid(table.Rows[0]["CharacteristicID"].ToString()),
                             QualityId = new Guid(table.Rows[0]["QualityID"].ToString()),
                             Quantity = Convert.ToDecimal(table.Rows[0]["Quantity"]),
                             NomenclatureName = table.Rows[0]["NomenclatureName"].ToString(),
@@ -2242,7 +2573,7 @@ namespace gamma_mob
                         {
                             ProductId = new Guid(table.Rows[0]["ProductID"].ToString()),
                             NomenclatureId = new Guid(table.Rows[0]["NomenclatureID"].ToString()),
-                            CharacteristicId = new Guid(table.Rows[0]["CharacteristicID"].ToString()),
+                            CharacteristicId = table.Rows[0].IsNull("CharacteristicID") ? Guid.Empty : new Guid(table.Rows[0]["CharacteristicID"].ToString()),
                             QualityId = new Guid(table.Rows[0]["QualityID"].ToString()),
                             Quantity = Convert.ToDecimal(table.Rows[0]["Quantity"]),
                             NomenclatureName = table.Rows[0]["NomenclatureName"].ToString(),
@@ -2283,7 +2614,7 @@ namespace gamma_mob
                         {
                             ProductId = new Guid(table.Rows[0]["ProductID"].ToString()),
                             NomenclatureId = new Guid(table.Rows[0]["NomenclatureID"].ToString()),
-                            CharacteristicId = new Guid(table.Rows[0]["CharacteristicID"].ToString()),
+                            CharacteristicId = table.Rows[0].IsNull("CharacteristicID") ? Guid.Empty : new Guid(table.Rows[0]["CharacteristicID"].ToString()),
                             QualityId = new Guid(table.Rows[0]["QualityID"].ToString()),
                             Quantity = Convert.ToDecimal(table.Rows[0]["Quantity"]),
                             NomenclatureName = table.Rows[0]["NomenclatureName"].ToString(),
@@ -2400,7 +2731,7 @@ namespace gamma_mob
         {
             DbProductIdFromBarcodeResult result = null;
 
-            const string sql = "SELECT Barcode, Name, NomenclatureID, CharacteristicID, QualityID, MeasureUnitID, BarcodeID AS ProductID, Number, KindId AS ProductKindID FROM Barcodes WHERE Barcode = @Barcode AND KindId IS NOT NULL";
+            const string sql = "SELECT Barcode, Name, NomenclatureID, CharacteristicID, QualityID, MeasureUnitID, BarcodeID AS ProductID, Number, KindId AS ProductKindID, IsMovementFromPallet FROM Barcodes WHERE Barcode = @Barcode AND KindId IS NOT NULL";
             var parameters = new List<SqlCeParameter>
                 {
                     new SqlCeParameter("@Barcode", DbType.String)
@@ -2425,6 +2756,7 @@ namespace gamma_mob
                         result.MeasureUnitId = (Guid)table.Rows[0]["MeasureUnitID"];
                     if (!table.Rows[0].IsNull("QualityID"))
                         result.QualityId = (Guid)table.Rows[0]["QualityID"];
+                    result.IsMovementFromPallet = table.Rows[0].IsNull("IsMovementFromPallet") ? false : Convert.ToBoolean(table.Rows[0]["IsMovementFromPallet"]);
                     result.CountProducts = 0;
                 }
             }
@@ -2435,7 +2767,7 @@ namespace gamma_mob
         {
             DbProductIdFromBarcodeResult result = null;
 
-            const string sql = "SELECT Barcode, Name, NomenclatureID, CharacteristicID, QualityID, MeasureUnitID, BarcodeID AS ProductID, Number, KindId AS ProductKindID FROM Barcodes WHERE Barcode = @Barcode AND KindId IS NULL";
+            const string sql = "SELECT Barcode, Name, NomenclatureID, CharacteristicID, QualityID, MeasureUnitID, BarcodeID AS ProductID, Number, KindId AS ProductKindID, IsMovementFromPallet FROM Barcodes WHERE Barcode = @Barcode AND KindId IS NULL";
             var parameters = new List<SqlCeParameter>
                 {
                     new SqlCeParameter("@Barcode", DbType.String)
@@ -2460,6 +2792,7 @@ namespace gamma_mob
                         result.MeasureUnitId = (Guid)table.Rows[0]["MeasureUnitID"];
                     if (!table.Rows[0].IsNull("QualityID"))
                         result.QualityId = (Guid)table.Rows[0]["QualityID"];
+                    result.IsMovementFromPallet = table.Rows[0].IsNull("IsMovementFromPallet") ? false : Convert.ToBoolean(table.Rows[0]["IsMovementFromPallet"]);
                     result.CountProducts = 0;
                 }
             }
@@ -2470,7 +2803,7 @@ namespace gamma_mob
         {
             List<DbProductIdFromBarcodeResult> result = null;
 
-            const string sql = "SELECT Barcode, Name, NomenclatureID, CharacteristicID, QualityID, MeasureUnitID, BarcodeID AS ProductID, Number, KindId AS ProductKindID FROM Barcodes WHERE Barcode = @Barcode AND KindId IS NULL";
+            const string sql = "SELECT Barcode, Name, NomenclatureID, CharacteristicID, QualityID, MeasureUnitID, BarcodeID AS ProductID, Number, KindId AS ProductKindID, IsMovementFromPallet FROM Barcodes WHERE Barcode = @Barcode AND KindId IS NULL";
             var parameters = new List<SqlCeParameter>
                 {
                     new SqlCeParameter("@Barcode", DbType.String)
@@ -2491,7 +2824,8 @@ namespace gamma_mob
                                       NomenclatureId = row.IsNull("NomenclatureID") ? new Guid() : new Guid(row["NomenclatureID"].ToString()),
                                       CharacteristicId = row.IsNull("CharacteristicID") ? new Guid() : new Guid(row["CharacteristicID"].ToString()),
                                       MeasureUnitId = row.IsNull("MeasureUnitID") ? new Guid() : new Guid(row["MeasureUnitID"].ToString()),
-                                      QualityId = row.IsNull("QualityID") ? new Guid() : new Guid(row["QualityID"].ToString())
+                                      QualityId = row.IsNull("QualityID") ? new Guid() : new Guid(row["QualityID"].ToString()),
+                                      IsMovementFromPallet = row.IsNull("IsMovementFromPallet") ? false : Convert.ToBoolean(row["IsMovementFromPallet"])
                                   });
                 }
             }
@@ -2503,7 +2837,7 @@ namespace gamma_mob
         {
             DbProductIdFromBarcodeResult result = null;
 
-            const string sql = "mob_GetProductIdFromBarcodeOrNumberV1";
+            const string sql = "mob_GetProductIdFromBarcodeOrNumberV3";
             var parameters = new List<SqlParameter>
                 {
                     new SqlParameter("@Barcode", SqlDbType.VarChar)
@@ -2528,7 +2862,16 @@ namespace gamma_mob
                         result.MeasureUnitId = (Guid)table.Rows[0]["MeasureUnitID"];
                     if (!table.Rows[0].IsNull("QualityID"))
                         result.QualityId = (Guid)table.Rows[0]["QualityID"];
-                    result.CountProducts = 0;
+                    result.IsMovementFromPallet = table.Rows[0].IsNull("IsMovementFromPallet") ? false : Convert.ToBoolean(table.Rows[0]["IsMovementFromPallet"]);
+                    result.CountProducts = table.Rows[0].IsNull("CountProducts") ? 0 : Convert.ToInt32(table.Rows[0]["CountProducts"]);
+                    result.CountFractionalProducts = table.Rows[0].IsNull("CountFractionalProducts") ? 0 : Convert.ToInt32(table.Rows[0]["CountFractionalProducts"]);
+                    if (!table.Rows[0].IsNull("OriginalMeasureUnitID"))
+                        result.OriginalMeasureUnitId = (Guid?)table.Rows[0]["OriginalMeasureUnitID"];
+                    if (!table.Rows[0].IsNull("CoeffCountProductOriginalMeasureUnit"))
+                        result.CoeffCountProductOriginalMeasureUnit = (int?)Convert.ToInt16(table.Rows[0]["CoeffCountProductOriginalMeasureUnit"]);
+                    if (!table.Rows[0].IsNull("ValidUntilDate"))
+                        result.ValidUntilDate = Convert.ToDateTime(table.Rows[0]["ValidUntilDate"]);
+                    
                 }
             }
             return result;
@@ -2536,10 +2879,10 @@ namespace gamma_mob
 
         public static DbOrderOperationProductResult AddProductIdToOrder(Guid? scanId, Guid docOrderId, OrderType orderType, Guid personId
             , Guid productId, DocDirection docDirection, EndPointInfo endPointInfo, int? productKindId, Guid nomenclatureId, Guid characteristicId
-            , Guid qualityId, int quantity, Guid measureUnitId, Guid? fromProductId, int? fromPlaceId, Guid? fromPlaceZoneId)
+            , Guid qualityId, int quantity, int? quantityFractional, Guid measureUnitId, Guid? fromProductId, int? fromPlaceId, Guid? fromPlaceZoneId, int? newWeight, DateTime? validUntilDate)
         {
             DbOrderOperationProductResult result = null;
-            const string sql = "dbo.[mob_AddScanIdToOrderV3]";
+            const string sql = "dbo.[mob_AddScanIdToOrderV6]";
             var parameters = new List<SqlParameter>
                 {
                     new SqlParameter("@ScanID", SqlDbType.UniqueIdentifier)
@@ -2586,6 +2929,10 @@ namespace gamma_mob
                         {
                             Value = quantity
                         },
+                    new SqlParameter("@QuantityFractional", SqlDbType.Int)
+                        {
+                            Value = (quantityFractional as object) ?? DBNull.Value
+                        },
                     new SqlParameter("@MeasureUnitID", SqlDbType.UniqueIdentifier)
                         {
                             Value = measureUnitId
@@ -2609,6 +2956,14 @@ namespace gamma_mob
                     new SqlParameter("@FromPlaceZoneID", SqlDbType.UniqueIdentifier)
                         {
                             Value = (fromPlaceZoneId as object) ?? DBNull.Value
+                        },
+                    new SqlParameter("@NewWeight", SqlDbType.Int)
+                        {
+                            Value = (newWeight as object) ?? DBNull.Value
+                        },
+                    new SqlParameter("@ValidUntilDate", SqlDbType.DateTime)
+                        {
+                            Value = (validUntilDate as object) ?? DBNull.Value
                         }
                 };
             using (DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure))
@@ -2633,7 +2988,7 @@ namespace gamma_mob
                             NomenclatureId = new Guid(table.Rows[0]["NomenclatureID"].ToString()),
                             CharacteristicId = table.Rows[0].IsNull("CharacteristicID") ? Guid.Empty : new Guid(table.Rows[0]["CharacteristicID"].ToString()),
                             QualityId = new Guid(table.Rows[0]["QualityID"].ToString()),
-                            Quantity = Convert.ToDecimal(table.Rows[0]["Quantity"]),
+                            Quantity = table.Rows[0].IsNull("Quantity") ? 0 : Convert.ToDecimal(table.Rows[0]["Quantity"]),
                             //MeasureUnitId = table.Rows[0].IsNull("MeasureUnitID") ? Guid.Empty : new Guid(table.Rows[0]["MeasureUnitID"].ToString()),
                             NomenclatureName = table.Rows[0]["NomenclatureName"].ToString(),
                             ShortNomenclatureName = table.Rows[0]["ShortNomenclatureName"].ToString(),
@@ -2731,10 +3086,10 @@ namespace gamma_mob
         }
 
         public static DbMoveOperationProductResult MoveProduct(Guid? scanId, Guid personId, Guid productId, EndPointInfo endPointInfo, int? productKindId, Guid nomenclatureId, Guid characteristicId
-            , Guid qualityId, int quantity, Guid measureUnitId, Guid? fromProductId, int? fromPlaceId, Guid? fromPlaceZoneId)
+            , Guid qualityId, int quantity, int quantityFractional, Guid measureUnitId, Guid? fromProductId, int? fromPlaceId, Guid? fromPlaceZoneId, int? newWeight, DateTime? validUntilDate)
         {
             DbMoveOperationProductResult acceptProductResult = null;
-            const string sql = "dbo.[mob_AddScanIdToMovementV3]";
+            const string sql = "dbo.[mob_AddScanIdToMovementV6]";
             var parameters = new List<SqlParameter>
                 {
                     new SqlParameter("@ScanID", SqlDbType.UniqueIdentifier)
@@ -2777,6 +3132,10 @@ namespace gamma_mob
                         {
                             Value = quantity
                         },
+                    new SqlParameter("@QuantityFractional", SqlDbType.Int)
+                        {
+                            Value = quantityFractional
+                        },
                     new SqlParameter("@MeasureUnitID", SqlDbType.UniqueIdentifier)
                         {
                             Value = measureUnitId
@@ -2800,6 +3159,14 @@ namespace gamma_mob
                     new SqlParameter("@FromPlaceZoneID", SqlDbType.UniqueIdentifier)
                         {
                             Value = (fromPlaceZoneId as object) ?? DBNull.Value
+                        },
+                    new SqlParameter("@NewWeight", SqlDbType.Int)
+                        {
+                            Value = (newWeight as object) ?? DBNull.Value
+                        },
+                    new SqlParameter("@ValidUntilDate", SqlDbType.DateTime)
+                        {
+                            Value = (validUntilDate as object) ?? DBNull.Value
                         }
                 };
             using (DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure))
@@ -2823,7 +3190,7 @@ namespace gamma_mob
                             NomenclatureId = new Guid(table.Rows[0]["NomenclatureID"].ToString()),
                             CharacteristicId = table.Rows[0].IsNull("CharacteristicID") ? Guid.Empty : new Guid(table.Rows[0]["CharacteristicID"].ToString()),
                             QualityId = new Guid(table.Rows[0]["QualityID"].ToString()),
-                            Quantity = Convert.ToDecimal(table.Rows[0]["Quantity"]),
+                            Quantity = table.Rows[0].IsNull("Quantity") ? 0 : Convert.ToDecimal(table.Rows[0]["Quantity"]),
                             NomenclatureName = table.Rows[0]["NomenclatureName"].ToString(),
                             ShortNomenclatureName = table.Rows[0]["ShortNomenclatureName"].ToString(),
                             CoefficientPackage = table.Rows[0].IsNull("CoefficientPackage") ? (int?)null : Convert.ToInt32(table.Rows[0]["CoefficientPackage"]),
@@ -2930,7 +3297,7 @@ namespace gamma_mob
                             Value = NameSetting
                         }
                 };
-            using (DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure))
+            using (DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure, 2))
             {
                 if (table != null && table.Rows.Count > 0)
                 {
@@ -2943,42 +3310,65 @@ namespace gamma_mob
         private static DataTable ExecuteSelectQuery(string sql, IEnumerable<SqlParameter> parameters,
                                                     CommandType commandType)
         {
-            return ExecuteSelectQuery(sql, parameters, commandType, false);
+            return ExecuteSelectQuery(sql, parameters, commandType, false, null);
+        }
+
+        private static DataTable ExecuteSelectQuery(string sql, IEnumerable<SqlParameter> parameters,
+                                                    CommandType commandType, int commandTimeout)
+        {
+            return ExecuteSelectQuery(sql, parameters, commandType, false, commandTimeout);
         }
 
         private static DataTable ExecuteSilentlySelectQuery(string sql, IEnumerable<SqlParameter> parameters,
                                                     CommandType commandType)
         {
-            return ExecuteSelectQuery(sql, parameters, commandType, true);
+            return ExecuteSelectQuery(sql, parameters, commandType, true, null);
+        }
+
+        private static DataTable ExecuteSilentlySelectQuery(string sql, IEnumerable<SqlParameter> parameters,
+                                                    CommandType commandType, int commandTimeout)
+        {
+            return ExecuteSelectQuery(sql, parameters, commandType, true, commandTimeout);
         }
 
         private static DataTable ExecuteSelectQuery(string sql, IEnumerable<SqlParameter> parameters,
-                                                    CommandType commandType, bool IsSilently)
+                                                    CommandType commandType, bool IsSilently, int? commandTimeout)
         {
             try
             {
+                //Db.AddTimeStampToLog("Start ExecuteSelectQuery");
                 DataTable table = new DataTable();
-                if (!ConnectionState.GetCheckerRunning)
+                if (!ConnectionState.IsConnected)//!ConnectionState.GetCheckerRunning)
                 {
-                    if (!ConnectionState.GetServerPortEnabled)
+                    if (!IsSilently) Shared.LastQueryCompleted = null;
+                }
+                else
+                {
+                    if (1 == 0 && !ConnectionState.GetServerPortEnabled)
                     {//для запуска StartChecker
                         if (!IsSilently) Shared.LastQueryCompleted = null;
                     }
                     else
                     {
+                        //Db.AddTimeStampToLog("New ExecuteSelectQuery.SqlCommand");
                         if (!IsSilently) Cursor.Current = Cursors.WaitCursor;
                         if (!IsSilently) Shared.LastQueryCompleted = null;
+                        var exc = false;
                         using (var command = new SqlCommand(sql))
                         {
-                            command.Connection = new SqlConnection(ConnectionString);
+                            command.Connection = Shared.Connection;
                             command.CommandType = commandType;
+                            if (commandTimeout != null)
+                                command.CommandTimeout = (int)commandTimeout;
                             //command.CommandTimeout = 3600;
                             foreach (SqlParameter parameter in parameters)
                             {
                                 command.Parameters.Add(parameter);
                             }
+                            //Db.AddTimeStampToLog("New ExecuteSelectQuery.SqlDataAdapter");
                             using (var sda = new SqlDataAdapter(command))
                             {
+                                //Db.AddMessageToLog("7.1.5:" + DateTime.Now);
                                 try
                                 {
                                     sda.Fill(table);
@@ -2988,20 +3378,89 @@ namespace gamma_mob
                                 {
                                     //#if DEBUG
                                     //                            MessageBox.Show(ex.Message);
-                                    //                            var sqlex = ex as SqlException;
-                                    //                            if (sqlex != null)
+                                                                var sqlex = ex as SqlException;
+                                                                if (sqlex != null)
+                                                                    //if (sqlex.Message == "General network error.  Check your network documentation.")
+                                                                        ConnectionState.ConnectionLost();
                                     //                                foreach (var error in sqlex.Errors)
                                     //                                {
-                                    //                                    MessageBox.Show(error.ToString());
+                                    //                                    if (error.ToString() == "General network error.  Check your network documentation.")
+                                    //                                        ConnectionLost();
+                                    ////                                    MessageBox.Show(error.ToString());
                                     //                                }
                                     //#endif
-                                    if (!IsSilently) Shared.LastQueryCompleted = false;
-                                    table = null;
+                                    //if (!IsSilently) Shared.LastQueryCompleted = false;
+                                    //table = null;
+                                    exc = true;
+                                }
+                                /*if (exc)
+                                {
+                                    System.Threading.Thread.Sleep(220);
+                                    try
+                                    {
+                                        command.Connection = new SqlConnection(ConnectionString);
+                                        table.Clear();
+                                        sda.Fill(table);
+                                        Shared.LastQueryCompleted = true;
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        //#if DEBUG
+                                        //                            MessageBox.Show(ex.Message);
+                                        //                            var sqlex = ex as SqlException;
+                                        //                            if (sqlex != null)
+                                        //                                foreach (var error in sqlex.Errors)
+                                        //                                {
+                                        //                                    MessageBox.Show(error.ToString());
+                                        //                                }
+                                        //#endif
+                                        if (!IsSilently) Shared.LastQueryCompleted = false;
+                                        table = null;
+                                    }
+                                }*/
+                            }
+                        }
+                        if (1==0 && exc)
+                        {
+                            using (var command = new SqlCommand(sql))
+                            {
+                                command.Connection = new SqlConnection(ConnectionString);
+                                command.CommandType = commandType;
+                                //command.CommandTimeout = 3600;
+                                foreach (SqlParameter parameter in parameters)
+                                {
+                                    command.Parameters.Add(new SqlParameter(parameter.ParameterName, parameter.SqlDbType, parameter.Size, parameter.Direction, parameter.IsNullable, parameter.Precision, parameter.Scale, parameter.SourceColumn, parameter.SourceVersion, parameter.Value));
+                                }
+                                //Db.AddTimeStampToLog("New ExecuteSelectQuery.SqlDataAdapter");
+                                using (var sda = new SqlDataAdapter(command))
+                                {
+                                    //Db.AddMessageToLog("7.1.5:" + DateTime.Now);
+                                        try
+                                        {
+                                            table.Clear();
+                                            sda.Fill(table);
+                                            Shared.LastQueryCompleted = true;
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            //#if DEBUG
+                                            //                            MessageBox.Show(ex.Message);
+                                            //                            var sqlex = ex as SqlException;
+                                            //                            if (sqlex != null)
+                                            //                                foreach (var error in sqlex.Errors)
+                                            //                                {
+                                            //                                    MessageBox.Show(error.ToString());
+                                            //                                }
+                                            //#endif
+                                            if (!IsSilently) Shared.LastQueryCompleted = false;
+                                            table = null;
+                                        }
                                 }
                             }
                         }
                     }
                 }
+                //Db.AddTimeStampToLog("End ExecuteSelectQuery");
                 return table;
             }
             finally
@@ -3029,9 +3488,9 @@ namespace gamma_mob
             try
             {
                 bool ret = false;
-                if (!ConnectionState.GetCheckerRunning)
+                if (ConnectionState.IsConnected)//(!ConnectionState.GetCheckerRunning)
                 {
-                    if (!ConnectionState.GetServerPortEnabled)
+                    if (1==0 && !ConnectionState.GetServerPortEnabled)
                     {//для запуска StartChecker
                         if (!IsSilently) Shared.LastQueryCompleted = null;
                     }
@@ -3039,14 +3498,15 @@ namespace gamma_mob
                     {
                         if (!IsSilently) Cursor.Current = Cursors.WaitCursor;
                         if (!IsSilently) Shared.LastQueryCompleted = null;
+                        var exc = false; 
                         try
                         {
-                            using (var connection = new SqlConnection(ConnectionString))
+                            //using (var connection = new SqlConnection(ConnectionString))
                             {
-                                connection.Open();
+                                //connection.Open();
                                 using (var command = new SqlCommand(sql))
                                 {
-                                    command.Connection = connection;
+                                    command.Connection = Shared.Connection;
                                     command.CommandType = commandType;
                                     command.Parameters.Clear();
                                     foreach (SqlParameter parameter in parameters)
@@ -3056,6 +3516,8 @@ namespace gamma_mob
 
                                     //try
                                     {
+                                        if (command.Connection.State != System.Data.ConnectionState.Open)
+                                            command.Connection.Open();
                                         command.ExecuteNonQuery();
                                         Shared.LastQueryCompleted = true;
                                         ret = true;
@@ -3071,10 +3533,52 @@ namespace gamma_mob
                         }
                         catch (Exception ex)
                         {
-                            if (!IsSilently) Shared.LastQueryCompleted = false;
-                            ret = false;
+                            var sqlex = ex as SqlException;
+                            if (sqlex != null)
+                                if (sqlex.Message == "General network error.  Check your network documentation.")
+                                    ConnectionState.ConnectionLost();
+                            exc = true; 
+                            //if (!IsSilently) Shared.LastQueryCompleted = false;
+                            //ret = false;
                         }
+                        if (1 == 0 && exc)
+                        {
+                            try
+                            {
+                                //using (var connection = new SqlConnection(ConnectionString))
+                                {
+                                    //connection.Open();
+                                    using (var command = new SqlCommand(sql))
+                                    {
+                                        command.Connection = new SqlConnection(ConnectionString);
+                                        command.CommandType = commandType;
+                                        command.Parameters.Clear();
+                                        foreach (SqlParameter parameter in parameters)
+                                        {
+                                            command.Parameters.Add(new SqlParameter(parameter.ParameterName, parameter.SqlDbType, parameter.Size, parameter.Direction, parameter.IsNullable, parameter.Precision, parameter.Scale, parameter.SourceColumn, parameter.SourceVersion, parameter.Value));
+                                        }
 
+                                        //try
+                                        {
+                                            command.ExecuteNonQuery();
+                                            Shared.LastQueryCompleted = true;
+                                            ret = true;
+                                        }
+                                        //catch (Exception ex)
+                                        //{
+                                        //    if (!IsSilently) Shared.LastQueryCompleted = false;
+                                        //    ret = false;
+                                        //}
+
+                                    }
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                if (!IsSilently) Shared.LastQueryCompleted = false;
+                                ret = false;
+                            }
+                        }
                     }
                 }
                 return ret;
@@ -3258,6 +3762,7 @@ namespace gamma_mob
                             CharacteristicId = new Guid(row["1CCharacteristicID"].ToString()),
                             NomenclatureId = new Guid(row["1CNomenclatureID"].ToString()),
                             QualityId = new Guid(row["1CQualityID"].ToString()),
+                            ProductKindId = row.IsNull("ProductKindID") ? (byte?)null : Convert.ToByte(table.Rows[0]["ProductKindID"]),
                             NomenclatureName = row["NomenclatureName"].ToString(),
                             CollectedQuantity = Convert.ToDecimal(row["Quantity"]),
                             ShortNomenclatureName = row["ShortNomenclatureName"].ToString(),
@@ -3492,6 +3997,7 @@ namespace gamma_mob
                                           NomenclatureId = new Guid(row["NomenclatureId"].ToString()),
                                           CharacteristicId = row.IsNull("CharacteristicId") ? Guid.Empty : new Guid(row["CharacteristicId"].ToString()),
                                           QualityId = new Guid(row["QualityId"].ToString()),
+                                          ProductKindId = row.IsNull("ProductKindID") ? (byte?)null : Convert.ToByte(table.Rows[0]["ProductKindID"]),
                                           CollectedQuantity = Convert.ToInt32(row["Quantity"]), 
                                           ShortNomenclatureName = row["ShortNomenclatureName"].ToString(), 
                                           NomenclatureName = row["NomenclatureName"].ToString()
@@ -3789,7 +4295,8 @@ namespace gamma_mob
                             CharacteristicId = row.IsNull("1CCharacteristicID") ? Guid.Empty : new Guid(row["1CCharacteristicID"].ToString()),
                             QualityId = new Guid(row["1CQualityID"].ToString()),
                             Name = row["Name"].ToString(),
-                            Barcode = row["Barcode"].ToString()
+                            Barcode = row["Barcode"].ToString(),
+                            IsMovementFromPallet = row.IsNull("IsMovementFromPallet") ? false : Convert.ToBoolean(row["IsMovementFromPallet"])
                         });
                     }
                 }
@@ -3839,7 +4346,7 @@ namespace gamma_mob
         public static List<ChooseNomenclatureItem> GetBarcodes1C(string barcode)
         {
             List<ChooseNomenclatureItem> list = null;
-            const string sql = "SELECT Barcode, Name, NomenclatureID, CharacteristicID, QualityID, MeasureUnitID, BarcodeID FROM Barcodes WHERE Barcode = @Barcode ORDER BY NomenclatureID, CharacteristicID";
+            const string sql = "SELECT Barcode, Name, NomenclatureID, CharacteristicID, QualityID, MeasureUnitID, BarcodeID, IsMovementFromPallet FROM Barcodes WHERE Barcode = @Barcode ORDER BY NomenclatureID, CharacteristicID";
             SqlCeParameter p = new SqlCeParameter();
             p.ParameterName = "@Barcode";
             p.DbType = DbType.String;
@@ -3889,7 +4396,8 @@ namespace gamma_mob
                                       CharacteristicId = row.IsNull("CharacteristicID") ? new Guid() : new Guid(row["CharacteristicID"].ToString()),
                                       QualityId = row.IsNull("QualityID") ? new Guid() : new Guid(row["QualityID"].ToString()),
                                       MeasureUnitId = row.IsNull("MeasureUnitID") ? new Guid() : new Guid(row["MeasureUnitID"].ToString()),
-                                      BarcodeId = new Guid(row["BarcodeID"].ToString())
+                                      BarcodeId = new Guid(row["BarcodeID"].ToString()),
+                                      IsMovementFromPallet = row.IsNull("IsMovementFromPallet") ? false : Convert.ToBoolean(row["IsMovementFromPallet"])
                                   });
                     }
                 }
@@ -3985,7 +4493,8 @@ namespace gamma_mob
                              MeasureUnitId = row.IsNull("MeasureUnitID") ? new Guid() : new Guid(row["MeasureUnitID"].ToString()),
                              BarcodeId = new Guid(row["BarcodeID"].ToString()),
                              Number = row["Number"].ToString(),
-                             KindId = row.IsNull("KindID") ? null : (int?)Convert.ToInt32(row["KindID"])
+                             KindId = row.IsNull("KindID") ? null : (int?)Convert.ToInt32(row["KindID"]),
+                             IsMovementFromPallet = row.IsNull("IsMovementFromPallet") ? false : Convert.ToBoolean(row["IsMovementFromPallet"])
                          }))
                     {
                         if (previousDate != Convert.ToDateTime(row["DateChange"]))
@@ -4037,15 +4546,22 @@ namespace gamma_mob
                         int index = 0;
                         if (IsFirst)
                         {
-                            var form = new ProgressBarForm(startDate, endDate, table, @"Идет загрузка штрих-кодов");
-                            if (form != null)
+                            if (table.Rows.Count > Shared.MaxCountRowInPackOnFirstUpdateCashedBarcodes)
                             {
-                                var r = form.ShowDialog();
-                                endDate = form.ret;
+                                endDate = ret;
+                            }
+                            else
+                            {
+                                var form = new ProgressBarForm(startDate, endDate, table, @"Идет загрузка штрих-кодов");
+                                if (form != null)
+                                {
+                                    var r = form.ShowDialog();
+                                    endDate = form.ret;
 
-                                //form.bkgndWorker.DoWork += new DoWorkEventHandler(UpdateCashedBarcodesProgress);
-                                //form.bkgndWorker.WorkerReportsProgress = true;
-                                //form.bkgndWorker.RunWorkerAsync(table);
+                                    //form.bkgndWorker.DoWork += new DoWorkEventHandler(UpdateCashedBarcodesProgress);
+                                    //form.bkgndWorker.WorkerReportsProgress = true;
+                                    //form.bkgndWorker.RunWorkerAsync(table);
+                                }
                             }
                         }
                         else
@@ -4064,7 +4580,8 @@ namespace gamma_mob
                                      MeasureUnitId = row.IsNull("MeasureUnitID") ? new Guid() : new Guid(row["MeasureUnitID"].ToString()),
                                      BarcodeId = new Guid(row["BarcodeID"].ToString()),
                                      Number = row["Number"].ToString(),
-                                     KindId = row.IsNull("KindID") ? null : (int?)Convert.ToInt32(row["KindID"])
+                                     KindId = row.IsNull("KindID") ? null : (int?)Convert.ToInt32(row["KindID"]),
+                                     IsMovementFromPallet = row.IsNull("IsMovementFromPallet") ? false : Convert.ToBoolean(row["IsMovementFromPallet"])
                                  }))
                             {
                                 //switch (Convert.ToInt32(row["TypeChange"]))
@@ -4274,10 +4791,10 @@ namespace gamma_mob
                 string checkResult = String.Empty;
                 try
                 {
-                    using (var connection = new SqlConnection(ConnectionString))
+                    //using (var connection = new SqlConnection(ConnectionString))
                     {
-                        connection.Open();
-                        command.Connection = connection;
+                        //connection.Open();
+                        command.Connection = Shared.Connection;
                         var sql = "SELECT dbo.CheckWhetherProductCanBeWithdrawalV1(@ProductID, @CountWithdrawal)";
                         command.CommandText = sql;
                         command.Parameters.Add(new SqlParameter("@ProductID", SqlDbType.UniqueIdentifier)
@@ -4289,7 +4806,7 @@ namespace gamma_mob
                                     Value = countWithdrawal
                                 });
                         checkResult = Convert.ToString(command.ExecuteScalar());
-                        connection.Close();
+                        //connection.Close();
                     }
                 }
                 catch (Exception _)
@@ -4453,7 +4970,8 @@ namespace gamma_mob
                             CharacteristicId = row.IsNull("1CCharacteristicID") ? Guid.Empty : new Guid(row["1CCharacteristicID"].ToString()),
                             QualityId = new Guid(row["1CQualityID"].ToString()),
                             Name = row["Name"].ToString(),
-                            Barcode = row["Barcode"].ToString()
+                            Barcode = row["Barcode"].ToString(),
+                            IsMovementFromPallet = row.IsNull("IsMovementFromPallet") ? false : Convert.ToBoolean(row["IsMovementFromPallet"])
                         });
                     }
                 }
@@ -4461,10 +4979,10 @@ namespace gamma_mob
             return list;
         }
 
-        public static BindingList<ChooseNomenclatureItem> GetNomenclatureInPlaceZone(int placeId, Guid placeZoneId, bool isFilteringOnNomenclature, Guid? nomenclatureId, Guid? characteristicId)
+        public static BindingList<ChooseNomenclatureItem> GetNomenclatureInPlaceZone(int placeId, Guid placeZoneId, bool isFilteringOnNomenclature, Guid? nomenclatureId, Guid? characteristicId, Guid? qualityId)
         {
             BindingList<ChooseNomenclatureItem> list = new BindingList<ChooseNomenclatureItem>(); 
-            const string sql = "dbo.mob_GetNomenclatureInPlaceZone";
+            const string sql = "dbo.mob_GetNomenclatureInPlaceZoneV1";
             var parameters = new List<SqlParameter>
                 {
                     new SqlParameter("@PlaceID", SqlDbType.Int)
@@ -4486,6 +5004,10 @@ namespace gamma_mob
                         new SqlParameter("@CharacteristicID", SqlDbType.UniqueIdentifier)
                         {
                             Value = characteristicId
+                        },
+                        new SqlParameter("@QualityID", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = qualityId
                         }
                 };
             using (DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure))
@@ -4499,11 +5021,13 @@ namespace gamma_mob
                         {
                             NomenclatureId = new Guid(row["1CNomenclatureID"].ToString()),
                             CharacteristicId = row.IsNull("1CCharacteristicID") ? Guid.Empty : new Guid(row["1CCharacteristicID"].ToString()),
-                            QualityId = new Guid(row["1CQualityID"].ToString()),
+                            QualityId = row.IsNull("1CQualityID") ? Guid.Empty : new Guid(row["1CQualityID"].ToString()),
+                            ProductKindId = row.IsNull("ProductKindID") ? (byte?)null : Convert.ToByte(table.Rows[0]["ProductKindID"]),
                             Name = row["Name"].ToString(),
                             Barcode = row["Barcode"].ToString(),
                             MeasureUnitId = row.IsNull("MeasureUnitID") ? Guid.Empty : new Guid(row["MeasureUnitID"].ToString()),
-                            MeasureUnits = row["MeasureUnits"].ToString()
+                            MeasureUnits = row["MeasureUnits"].ToString(),
+                            IsMovementFromPallet = row.IsNull("IsMovementFromPallet") ? false : Convert.ToBoolean(row["IsMovementFromPallet"])
                         });
                     }
                 }

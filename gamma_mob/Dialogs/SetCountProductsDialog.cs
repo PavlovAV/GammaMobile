@@ -14,21 +14,27 @@ namespace gamma_mob.Dialogs
         }
 
         public SetCountProductsDialog(int maxCount, string measure)
-            : this(maxCount.ToString() + " " + measure)
-        {
-            edtQuantity.Maximum = Convert.ToDecimal(maxCount);
-        }
+            : this(maxCount, measure, "Укажите количество")
+        { }
+
+        public SetCountProductsDialog(int maxCount, string measure, string name)
+            : this(Convert.ToDecimal(maxCount), measure, name)
+        { }
 
         public SetCountProductsDialog(decimal? maxCount, string measure)
-            : this(Convert.ToDecimal(maxCount).ToString("0.###") + " " + measure)
+            : this(maxCount, measure, "Укажите количество")
+        { }
+
+        public SetCountProductsDialog(decimal? maxCount, string measure, string name)
+            : this(Convert.ToDecimal(maxCount).ToString("0.###") + " " + measure, name)
         {
             edtQuantity.Maximum = maxCount ?? 0;
         }
-        
-        private SetCountProductsDialog(string maxCount)
+
+        private SetCountProductsDialog(string maxCount, string name)
             : this()
         {
-            lblCount.Text = "Укажите количество" + " (максимально " + maxCount + ")";
+            lblCount.Text = name + " (максимально " + maxCount + ")";
             Shared.SaveToLogInformation("Open SetCountProductsDialog ('" + maxCount + "')");
         }
 

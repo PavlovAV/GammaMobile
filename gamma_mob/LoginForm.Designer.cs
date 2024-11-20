@@ -38,6 +38,7 @@
             this.btnSetInternalNet = new System.Windows.Forms.Button();
             this.btnUpdateProgram = new System.Windows.Forms.Button();
             this.btnExit = new System.Windows.Forms.Button();
+            this.imgConnection = new System.Windows.Forms.PictureBox();
             this.SuspendLayout();
             // 
             // btnHelp
@@ -100,7 +101,7 @@
             this.lblMessage.ReadOnly = true;
             this.lblMessage.Size = new System.Drawing.Size(210, 134);
             this.lblMessage.TabIndex = 1;
-            this.lblMessage.Text = "Просканируйте свой штрих-код";
+            this.lblMessage.Text = "Запуск...";
             this.lblMessage.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.lblMessage.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.lblMessage_KeyPress);
             // 
@@ -144,11 +145,19 @@
             this.btnExit.Visible = false;
             this.btnExit.Click += new System.EventHandler(this.btnExit_Click);
             // 
+            // imgConnection
+            // 
+            this.imgConnection.Location = new System.Drawing.Point(4, 2);
+            this.imgConnection.Name = "imgConnection";
+            this.imgConnection.Size = new System.Drawing.Size(27, 21);
+            this.imgConnection.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            // 
             // LoginForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(238, 295);
+            this.Controls.Add(this.imgConnection);
             this.Controls.Add(this.btnExit);
             this.Controls.Add(this.btnUpdateProgram);
             this.Controls.Add(this.btnSetExternalNet);
@@ -178,5 +187,6 @@
         private System.Windows.Forms.Button btnSetInternalNet;
         private System.Windows.Forms.Button btnUpdateProgram;
         private System.Windows.Forms.Button btnExit;
+        //private System.Windows.Forms.PictureBox imgConnection;
     }
 }

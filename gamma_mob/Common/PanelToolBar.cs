@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Reflection;
 using OpenNETCF.Windows.Forms;
+using System.Windows.Forms;
 
 namespace gamma_mob.Common
 {
@@ -18,6 +19,8 @@ namespace gamma_mob.Common
             int i = 0;
             var buttonSize = new System.Drawing.Size(Shared.ToolBarWeight - 2, Shared.ToolBarHeight - 2);
             Type type = typeof(Images);
+            ImageList imageList = Shared.ImgList;
+            imageList.ImageSize = new System.Drawing.Size(Shared.ToolBarWeight - 4, Shared.ToolBarHeight - 4);
             foreach (var item in type.GetFields(BindingFlags.Static | BindingFlags.Public))
             {
                 var value = (Images)item.GetValue(null);
@@ -26,10 +29,11 @@ namespace gamma_mob.Common
                     var btn = new OpenNETCF.Windows.Forms.Button2()
                     {
                         BackgroundImage = null,
+                        TransparentImage = false,
                         Location = new System.Drawing.Point(1 + i * (Shared.ToolBarWeight - 2), 1),
                         Name = "btn" + value.ToString(),
                         Size = buttonSize,
-                        ImageList = Shared.ImgList,
+                        ImageList = imageList,
                         ImageIndex = (int)Enum.Parse(typeof(Images), value.ToString(), true)
                     };
                     btn.Click += pnlToolBar_ButtonClick;

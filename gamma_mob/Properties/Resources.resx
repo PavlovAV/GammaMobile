@@ -118,19 +118,6 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <assembly alias="System.Drawing" name="System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-  <data name="back" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        /9j/4AAQSkZJRgABAQEAAAAAAAD/2wBDAAkGBwgBBgkBBwgKCgkLDRYPDQwMDRsUFRAWIB0iIiAdHx8k
-        KDQsJCYxJx8fLT0tMTU3Ojo6Iys/RD84QzQ5Ojf/2wBDAQoKCg0MDRoPDxo3JR8lNzc3Nzc3Nzc3Nzc3
-        Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzcsNzc3Nzc3KzQ3Nzf/wAARCAAQABADAREAAhEBAxEB/8QA
-        FgABAQEAAAAAAAAAAAAAAAAABQcD/8QAKRAAAQIEBAQHAAAAAAAAAAAAAQIDBAURIQYSMVEHCEFCABQX
-        IjJSYf/EABcBAAMBAAAAAAAAAAAAAAAAAAIDBQH/xAAlEQAABAQGAwEAAAAAAAAAAAABAgMRBDGx4QAF
-        EjJRcRNBYSH/2gAMAwEAAhEDEQA/AKTO5h65Nrwu2tSJdcKUk0VFHYHo3ue7QWuaUOj4hcd1L07lLiog
-        DlEA21t99+vzB4xcOU2VM4IMPDvmGYSj2vqTnypppktpv4cMB51BM4g48XwomYgkQpGdmCdsbYqlr3Ay
-        Hc4owSSuCAJW2BUw/wCgfTcdvS3xGDXKqbQfdW9e57GwokDWnLjjr5TqRbWBXubOVw/E1U3S15phLhSI
-        WuXMmtK576+HmzMEVBJodhadsAnlYHKU+qbDK+P/2Q==
-</value>
-  </data>
   <data name="docplus" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
@@ -428,22 +415,6 @@
         wP+gFXMPDWHe0REEZrgRkDSGwIMTWHjKg0vV3YOsPhNvQLhCJqE72ttorbaL7jPqXcZ+w3i/0UC/fq2m
         21sVtErRJGf12Wl+ISIlIkGJtL6KapWKvkmFlbKX4ifp7Pe/kYiqwns1KpNG1fxLIqycUsrqf75Vyhpe
         NQpY4z95UFTgd+Ni5gLJszJ28jcI4jci1r0UYsKHUAAAAABJRU5ErkJggg==
-</value>
-  </data>
-  <data name="search" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        YQUAAAJvSURBVDhPY0AGVi2rggJ3vtsftPvDVyD+CcQXXWafKJG08OSAKsEO+JT1mDxX3pobsOPNX6AB
-        fwO2Pv8bsOXp34Adb8HYb9ur0wreiSJQ5ZjAfvrhMt+tr/76bX72PXXDlcZZ+y/Zzdlzxqpq+9Uk3/UP
-        nwIN+Ou1/vF2qHJUIGbpyeO58elb780v/uatO5vy7tOXmC9fv5V8/fat4uu37znzTj6w8d749LPXpmd/
-        tTM7bKDaEEAtodbFfcOTv+4rbt5euXGrxdx58+RA4m5ubkyHDx8x+/DlW0To2ptz3Tc+/WvVv6sZrAkZ
-        aKS1RrmsffjXcdbxnZFR0QJQYTi4eu26TdLay2Wu6x7/tZp8YDZUGAEUQ/OdHFfd++uw9PpdNX1jMagw
-        HGRkZnH5r70933H1/b/GzaswXSCoY8Flu+jKa7vlt/+a5PeWKCgpC0GlGPgFBJl0/RPM7Jff/mq3/NZf
-        xdA8K6gUKtCrmFNgveTGXyD+aVqzYLKeX5yLrme4mVF2e5nVwssvbZbd+ms99eBmLnFZJqgWVMAhJsdk
-        2LxmqsWCy38tFl0H4mtwbLX42t/oZaf/Htq1ZGN1iLgGVAt2oBRV5mXSv2ur2fTjr81mnPhoNuXgSd2C
-        CTknt/Rt/LBY++/7heqfF2RLYPcGMuCSUmbillWHO7cvQSLizVzlv+/mKf19M1fpZUOooApUinhwtEV2
-        /qvZcn9fA/HzGXLX4+144IFNFNCTZ2e70CW9+9l0qb/PgfjBJKn9dhpsbFBp4oCTDqfAtR6Jy48mi/99
-        OEn8b0cEXwBUingQbcOtdLlT9O6FNtHTngYcIgCmtx0MTKqyKQAAAABJRU5ErkJggg==
 </value>
   </data>
   <data name="Binocle" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
@@ -1056,5 +1027,14 @@
   </data>
   <data name="RDP" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\RDP.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="backOffline" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\backOffline.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="back" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\back.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="search" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\search.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>

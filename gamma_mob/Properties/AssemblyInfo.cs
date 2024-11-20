@@ -11,7 +11,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("OAO STG")]
 [assembly: AssemblyProduct("gamma_mob")]
-[assembly: AssemblyCopyright("Copyright © 2015-2023")]
+[assembly: AssemblyCopyright("Copyright © 2015-2024")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -33,7 +33,7 @@ using System.Runtime.InteropServices;
 //      Редакция
 //
 
-[assembly: AssemblyVersion("2.9.4.1")]
+[assembly: AssemblyVersion("2.9.12.5")]
 
 // Следующий атрибут служит для подавления предупреждения FxCop "CA2232: Microsoft.Usage: добавьте к сборке STAThreadAttribute",
 // так как приложение для устройства не поддерживает поток STA.

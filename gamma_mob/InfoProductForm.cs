@@ -17,6 +17,7 @@ namespace gamma_mob
             lblUserInfo.Text = "Логин: " + Settings.UserName + " (" + Shared.PersonName +")";
             textBox1.Text = "Версия: " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
             textBox1.Text += Environment.NewLine + "БД ШК создана: " + Db.GetLocalDbBarcodesDateCreated().ToString(System.Globalization.CultureInfo.InvariantCulture);
+            textBox1.Text += Environment.NewLine + "IsConnected: " + ConnectionState.IsConnected;
             textBox1.Text += Environment.NewLine + "Последнее обновление данных: " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodesMoscowTimeZone.ToString(CultureInfo.InvariantCulture)
                 + Environment.NewLine + Shared.Barcodes1C.GetCountBarcodes
                 + Environment.NewLine + Environment.NewLine + Environment.NewLine 
@@ -37,7 +38,7 @@ namespace gamma_mob
         private void InfoProductByBarcode(string barcode)
         {
             Invoke((MethodInvoker)(() => edtNumber.Text = barcode));
-            if (Db.CheckSqlConnection() == 1)
+            if (Db.CheckSqlConnection() == 2)
             {
                 Shared.ShowMessageInformation(@"Нет связи с базой" + Environment.NewLine + ConnectionState.GetConnectionState());
                 return;

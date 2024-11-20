@@ -12,7 +12,7 @@ namespace gamma_mob.Models
         //public string NomenclatureName { get; set; }
         //public string ShortNomenclatureName { get; set; }
         public Guid? PlaceZoneId { get; set; }
-        public int? ProductKindId { get; set; }
+        public byte? ProductKindId { get; set; }
         public int? CoefficientPackage { get; set; }
         public int? CoefficientPallet { get; set; }
         public int CollectedQuantityUnits { get; set; }

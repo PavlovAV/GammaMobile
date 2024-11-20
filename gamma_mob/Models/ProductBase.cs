@@ -1,4 +1,5 @@
 ﻿using System;
+using gamma_mob.Common;
 
 namespace gamma_mob.Models
 {
@@ -12,7 +13,12 @@ namespace gamma_mob.Models
         public string InPlace { get; set; }
         public bool IsProductR { get; set; }
         public string Quantity { get; set; }
-        
+        public ProductKind? ProductKind { get; set; }
+        public int? OutPlaceID { get; set; }
+        public Guid? OutPlaceZoneID { get; set; }
+        public int? InPlaceID { get; set; }
+        public Guid? InPlaceZoneID { get; set; }
+        public DateTime? DateEnd { get; set; }
 
         /*public string NomenclatureName { get; set; }
         public decimal Quantity { get; set; }

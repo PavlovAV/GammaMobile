@@ -22,7 +22,7 @@ namespace gamma_mob.Common
             bkgndWorker.DoWork += new DoWorkEventHandler(bkgndWorker_DoWork);
             bkgndWorker.ProgressChanged += new ProgressChangedEventHandler(bkgndWorker_ProgressChanged);
             bkgndWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(bkgndWorker_RunWorkerCompleted);
-            
+            ConnectionState.StopChecker();
         }
 
         public BackgroundWorker bkgndWorker { get; set; }
@@ -51,7 +51,6 @@ namespace gamma_mob.Common
             worker.ReportProgress(0);
             System.Threading.Thread.Sleep(100);
             int percent_old = 0;
-            
             try
             {
                 foreach (DataRow row in Table.Rows)
@@ -75,7 +74,8 @@ namespace gamma_mob.Common
                              MeasureUnitId = row.IsNull("MeasureUnitID") ? new Guid() : new Guid(row["MeasureUnitID"].ToString()),
                              BarcodeId = new Guid(row["BarcodeID"].ToString()),
                              Number = row["Number"].ToString(),
-                             KindId = row.IsNull("KindID") ? null : (int?)Convert.ToInt32(row["KindID"])
+                             KindId = row.IsNull("KindID") ? null : (int?)Convert.ToInt32(row["KindID"]),
+                             IsMovementFromPallet = row.IsNull("IsMovementFromPallet") ? false : Convert.ToBoolean(row["IsMovementFromPallet"])
                          }))
                     {
                         retCount = index;
@@ -111,6 +111,7 @@ namespace gamma_mob.Common
                 e.Cancel = true;
                 DialogResult = DialogResult.OK;
             }
+            ConnectionState.StartChecker();
         }
 
         void bkgndWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)

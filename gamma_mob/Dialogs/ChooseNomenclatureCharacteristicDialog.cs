@@ -199,7 +199,9 @@ namespace gamma_mob.Dialogs
                     CharacteristicId = getFromProductResult.CharacteristicId;
                     QualityId = getFromProductResult.QualityId;
                     if (GetCountProducts())
+                    {
                         Invoke((MethodInvoker)(() => DialogResult = DialogResult.OK));
+                    }
                 }
                 else
                 {
@@ -241,7 +243,9 @@ namespace gamma_mob.Dialogs
             Shared.SaveToLogInformation(@"Выбрано Добавить ШК: " + edtBarcode.Text);
             //ChooseNomenclatureCharacteristicFromBarcode(edtBarcode.Text);
             if (BarcodeFunc != null)
+            {
                 BarcodeFunc.Invoke(edtBarcode.Text);
+            }
             else
                 ChooseNomenclatureCharacteristicFromBarcode(edtBarcode.Text);
         }

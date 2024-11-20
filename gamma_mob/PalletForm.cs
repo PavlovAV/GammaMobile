@@ -136,7 +136,7 @@ namespace gamma_mob
                 return;
             }
             var good = Items[gridPalletItems.CurrentRowIndex];
-            var form = new PalletItemProductsForm(ProductId, good.NomenclatureId, good.NomenclatureName, good.CharacteristicId, good.QualityId, this, new RefreshPalletItemsDelegate(RefreshPallet));
+            var form = new PalletItemProductsForm(ProductId, good.NomenclatureId, good.NomenclatureName, good.CharacteristicId, good.QualityId, good.ProductKindId, this, new RefreshPalletItemsDelegate(RefreshPallet));
             if (!form.IsDisposed)
             {
                 BarcodeFunc = null;

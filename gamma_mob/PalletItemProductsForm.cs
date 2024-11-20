@@ -15,9 +15,9 @@ namespace gamma_mob
         }
 
         public PalletItemProductsForm(Guid productId, Guid nomenclatureId, string nomenclatureName
-            , Guid characteristicId, Guid qualityId, Form parentForm, RefreshPalletItemsDelegate refreshPalletItems)
+            , Guid characteristicId, Guid qualityId, byte? productKindId, Form parentForm, RefreshPalletItemsDelegate refreshPalletItems)
             : base(productId, nomenclatureId, nomenclatureName
-            , characteristicId, qualityId, parentForm, refreshPalletItems)
+            , characteristicId, qualityId, productKindId, parentForm, refreshPalletItems)
         {
         }
 

@@ -26,5 +26,6 @@ namespace gamma_mob.Models
         public DateTime? StartExec { get; set; }
         public DateTime? EndExec { get; set; }
         public string State { get; set; }
+        public bool CheckExistMovementToZone { get; set; }
     }
 }

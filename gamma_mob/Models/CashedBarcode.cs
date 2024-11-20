@@ -16,6 +16,7 @@ namespace gamma_mob.Models
         public int? KindId { get; set; }
         public DateTime DateChange { get; set; }
         public int TypeChange { get; set; }
+        public bool IsMovementFromPallet { get; set; }
 
         #region Члены INotifyPropertyChanged
 

@@ -21,21 +21,31 @@ namespace gamma_mob.Dialogs
             IsRequiredPlaceZone = isRequiredPlaceZone;
         }
 
-        public ChooseEndPointDialog(int placeId) : this()
+        public ChooseEndPointDialog(int placeId) : this(placeId, false)
+        {}
+
+        public ChooseEndPointDialog(int placeId, bool checkExistMovementToZone)
+            : this()
         {
             IsRequiredPlaceZone = true;
             EndPointInfo = new EndPointInfo(placeId);
+            CheckExistMovementToZone = checkExistMovementToZone;
         }
 
-
         public ChooseEndPointDialog(int placeId, /*string productBarcode, bool fromBuffer, DbProductIdFromBarcodeResult getProductResult,*/ Form parentForm)
-            : this(placeId)
+            : this(placeId, parentForm, false)
+        { }
+
+        public ChooseEndPointDialog(int placeId, /*string productBarcode, bool fromBuffer, DbProductIdFromBarcodeResult getProductResult,*/ Form parentForm, bool checkExistMovementToZone)
+            : this(placeId, checkExistMovementToZone)
         {
             ParentForm = parentForm;
         }
         private bool IsRequiredPlaceZone { get; set; }
 
         private int? PlaceId { get; set; }
+
+        private bool CheckExistMovementToZone { get; set; }
 
         public EndPointInfo EndPointInfo { get; set; }
 
@@ -147,7 +157,7 @@ namespace gamma_mob.Dialogs
             var placeZone = Shared.PlaceZones.Where(p => p.Barcode == barcode && p.IsValid).FirstOrDefault();
             if (placeZone != null)
             {
-                EndPointInfo = GetPlaceZoneChildId(new EndPointInfo(placeZone.PlaceId));
+                EndPointInfo = GetPlaceZoneChildId(new EndPointInfo(placeZone.PlaceId, placeZone.PlaceZoneId));
                 Invoke((MethodInvoker)(() => DialogResult = DialogResult.OK));
             }
             else
@@ -201,7 +211,7 @@ namespace gamma_mob.Dialogs
             }
             else
             {
-                var placeZones = Db.GetWarehousePlaceZones(endPointInfo.PlaceId);
+                var placeZones = Db.GetWarehousePlaceZones(endPointInfo.PlaceId, CheckExistMovementToZone);
                 if (placeZones != null && placeZones.Count > 0)
                 {
                     //Height = 30 + placeZones.Count * 30;
@@ -211,7 +221,7 @@ namespace gamma_mob.Dialogs
                     //Location = new Point(0, (Screen.PrimaryScreen.WorkingArea.Height - Height) / 2);
                     for (int i = 0; i < placeZones.Count; i++)
                     {
-                        this.AddButtonDelegatePatternParams(placeZones[i].PlaceZoneId, placeZones[i].Name, i, null, width, null, null);
+                        this.AddButtonDelegatePatternParams(placeZones[i].PlaceZoneId, placeZones[i].Name, i, null, width, null, null, placeZones[i].IsExistMovementToZone);
                     }
                 }
 
@@ -222,6 +232,11 @@ namespace gamma_mob.Dialogs
         private EndPointInfo GetPlaceZoneChildId(EndPointInfo endPointInfo)
         {
             {
+                if (endPointInfo.PlaceZoneId == null)
+                {
+                    RemoveButtons(true);
+                    return endPointInfo;
+                }
                 var placeZoneRows = Db.GetPlaceZoneChilds((Guid)endPointInfo.PlaceZoneId);
                 if (placeZoneRows == null || placeZoneRows.Count == 0)
                 {
@@ -242,12 +257,12 @@ namespace gamma_mob.Dialogs
                 {
                     if (placeZoneCells[i] == null || placeZoneCells[i].Count == 0)
                     {
-                        this.AddButtonDelegatePatternParams(placeZoneRows[i].PlaceZoneId, placeZoneRows[i].Name, i, null, buttonWidth, buttonHeight, maxCells);
+                        this.AddButtonDelegatePatternParams(placeZoneRows[i].PlaceZoneId, placeZoneRows[i].Name, i, null, buttonWidth, buttonHeight, maxCells, null);
                         continue;
                     }
                     for (int k = 0; k < placeZoneCells[i].Count; k++)
                     {
-                        this.AddButtonDelegatePatternParams(placeZoneCells[i][k].PlaceZoneId, placeZoneCells[i][k].Name, i, k, buttonWidth, buttonHeight, maxCells);
+                        this.AddButtonDelegatePatternParams(placeZoneCells[i][k].PlaceZoneId, placeZoneCells[i][k].Name, i, k, buttonWidth, buttonHeight, maxCells, null);
                     }
                 }
             }
@@ -256,31 +271,31 @@ namespace gamma_mob.Dialogs
 
         List<ButtonGuidId> buttonsAdded = new List<ButtonGuidId>();
 
-        private void AddButtonDelegatePatternParams(Guid placeZoneId, string placeZoneName, int i, int? k, int width, int? height, int? maxCells)
+        private void AddButtonDelegatePatternParams(Guid placeZoneId, string placeZoneName, int i, int? k, int width, int? height, int? maxCells, bool? isBold)
         {
             if (this.InvokeRequired)
             {
                 MethodInvoker del = delegate
                 {
-                    AddButtonDelegatePatternParams(placeZoneId, placeZoneName, i, k, width, height, maxCells);
+                    AddButtonDelegatePatternParams(placeZoneId, placeZoneName, i, k, width, height, maxCells, isBold);
                 };
                 this.Invoke(del);
                 return;
             }
-            AddButton(placeZoneId, placeZoneName, i, k, width, height, maxCells);
+            AddButton(placeZoneId, placeZoneName, i, k, width, height, maxCells, isBold);
         }
 
-        private void AddButton(Guid placeZoneId, string placeZoneName, int i, int? k, int width, int? height, int? maxCells)
+        private void AddButton(Guid placeZoneId, string placeZoneName, int i, int? k, int width, int? height, int? maxCells, bool? isBold)
         {
 
             Random random = new Random(2);
             //Thread.Sleep(20);
-
+            var font = new Font("Tahoma", (isBold ?? false) ? 11 : 10, (isBold ?? false) ? FontStyle.Bold : FontStyle.Regular);
             var button = new ButtonGuidId(placeZoneId);
             if (k == null && height == null)
             {
                 button.Click += btnUsedPlaceZone_Click;
-                button.Font = new Font("Tahoma", 10, FontStyle.Regular);
+                button.Font = font;
                 button.Text = placeZoneName.Length <= 11 ? placeZoneName : (placeZoneName.Substring(0, 11).Substring(10, 1) == " " ? placeZoneName.Substring(0, 10) : placeZoneName.Substring(0, 11)) + Environment.NewLine + placeZoneName.Substring(11, Math.Min(11, placeZoneName.Length - 11));
                 button.Width = (width - 5 - 20) / 2;
                 button.Height = 33;
@@ -296,7 +311,7 @@ namespace gamma_mob.Dialogs
                     button.Text = placeZoneName.Length <= 11 ? placeZoneName : (placeZoneName.Substring(0, 11).Substring(10, 1) == " " ? placeZoneName.Substring(0, 10) : placeZoneName.Substring(0, 11)) + Environment.NewLine + placeZoneName.Substring(11, Math.Min(11, placeZoneName.Length - 11));
                     button.Width = width;
                     button.Height = (int)height;// Height - 34;
-                    button.Font = new Font("Tahoma", 10, FontStyle.Regular); //new Font(button.Font.Name, 10, button.Font.Style);
+                    button.Font = font;
                     button.Left = (int)maxCells == 0 ? 2 + (button.Width + 6) * Convert.ToInt32(Math.Floor(i / 7)) : 2 * (i + 1) + width * i;// * (i + 1) + buttonWidth * i;
                     button.Top = (int)maxCells == 0 ? 28 + ((int)height + 2) * (i % 7) : 32;
                     Shared.MakeButtonMultiline(button);
@@ -307,7 +322,7 @@ namespace gamma_mob.Dialogs
                     button.Text = placeZoneName.Length <= 11 ? placeZoneName : (placeZoneName.Substring(0, 11).Substring(10, 1) == " " ? placeZoneName.Substring(0, 10) : placeZoneName.Substring(0, 11)) + Environment.NewLine + placeZoneName.Substring(11, Math.Min(11, placeZoneName.Length - 11));
                     button.Width = width;
                     button.Height = (int)height;
-                    button.Font = new Font("Tahoma", 10, FontStyle.Regular); //new Font(button.Font.Name, 10, button.Font.Style);
+                    button.Font = font;
                     button.Left = 2 * (i + 1) + width * i;
                     button.Top = 28 + 2 * ((int)k + 1) + (int)height * (int)k;
                     Shared.MakeButtonMultiline(button);

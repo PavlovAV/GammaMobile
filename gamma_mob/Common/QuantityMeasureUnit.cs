@@ -33,6 +33,9 @@ namespace gamma_mob.Common
         public int Value
         { get { return numericUpDownWithButtons.Value; } }
 
+        public int ValueFractional
+        { get { return numericUpDownWithButtons.ValueFractional; } }
+
         public decimal ValueInBaseMeasureUnit
         { get { return numericUpDownWithButtons.Value * MeasureUnit.Coefficient; } }
         
@@ -80,6 +83,13 @@ namespace gamma_mob.Common
         {
             get { return numericUpDownWithButtons.MaxEditWidth; }
             set { numericUpDownWithButtons.MaxEditWidth = value; }
+        }
+
+        private MeasureUnit _defaultMeasureUnit { get; set; }
+        public MeasureUnit DefaultMeasureUnit
+        {
+            get { return _defaultMeasureUnit; }
+            private set { _defaultMeasureUnit = value; }
         }
 
         public QuantityMeasureUnit()
@@ -167,15 +177,75 @@ namespace gamma_mob.Common
             this.ResumeLayout(false);
             ChooseMeasureUnitList = new List<MeasureUnit>();
         }
-
+        /*
         public void SetMeasureQuantityLocked(MeasureUnit measureUnit, int quantity)
         {
-            ChooseMeasureUnitList.Clear();
-            ChooseMeasureUnitList.Add(measureUnit);
-            FillMeasureUnitList(ChooseMeasureUnitList);
+            //ChooseMeasureUnitList.Clear();
+            //ChooseMeasureUnitList.Add(measureUnit);
+            //FillMeasureUnitList(ChooseMeasureUnitList);
+            List<MeasureUnit> list = new List<MeasureUnit>();
+            list.Add(measureUnit);
+            FillMeasureUnitList(list);
             //SelectedItem = ChooseMeasureUnitList.Find(m => m.MeasureUnitID == measureUnit.MeasureUnitID);
             //MeasureUnit = SelectedItem;
+            numericUpDownWithButtons.IsInteger = measureUnit.IsInteger;
             numericUpDownWithButtons.Value = quantity;
+        }
+        */
+        public void SetMeasureQuantityLocked(MeasureUnit measureUnit, int quantity, int? quantityFeactional)
+        {
+            //ChooseMeasureUnitList.Clear();
+            //ChooseMeasureUnitList.Add(measureUnit);
+            //FillMeasureUnitList(ChooseMeasureUnitList);
+            List<MeasureUnit> list = new List<MeasureUnit>();
+            list.Add(measureUnit);
+            FillMeasureUnitList(list);
+            //SelectedItem = ChooseMeasureUnitList.Find(m => m.MeasureUnitID == measureUnit.MeasureUnitID);
+            //MeasureUnit = SelectedItem;
+            numericUpDownWithButtons.IsInteger = measureUnit.IsInteger;
+            numericUpDownWithButtons.Value = quantity;
+            numericUpDownWithButtons.ValueFractional = quantityFeactional ?? 0;
+            //numericUpDownWithButtons.Value = (int)Math.Floor(quantity);
+            //numericUpDownWithButtons.ValueFractional = (int)((quantity % (int)Math.Floor(quantity)) * 1000);
+        }
+        /*
+        public void SetMeasureQuantityDefaultMeasure(Guid measureUnitId, int quantity)
+        {
+            var measure = ChooseMeasureUnitList.Find(l => l.MeasureUnitID == measureUnitId);
+            if (measure == null)
+            {
+                measure = new MeasureUnit() { MeasureUnitID = measureUnitId, Name = "Test", Numerator = 1, Denominator = 1, IsInteger = false };
+                ChooseMeasureUnitList.Add(measure);
+            }
+            DefaultMeasureUnit = measure;
+            cmbMeasureUnits.SelectedIndex = ChooseMeasureUnitList.FindIndex(l => l.MeasureUnitID == measureUnitId);
+            //SelectedItem = ChooseMeasureUnitList.Find(m => m.MeasureUnitID == measureUnit.MeasureUnitID);
+            //MeasureUnit = SelectedItem;
+            numericUpDownWithButtons.IsInteger = measure.IsInteger;
+            numericUpDownWithButtons.Value = quantity;
+            numericUpDownWithButtons.ValueFractional = 0;
+        }
+        */
+        public void SetMeasureQuantityDefaultMeasure(Guid measureUnitId, int quantity, int? quantityFeactional)
+        {
+            var measure = ChooseMeasureUnitList.Find(l => l.MeasureUnitID == measureUnitId);
+            if (measure == null)
+            {
+                measure = new MeasureUnit() { MeasureUnitID = measureUnitId, Name = "Test", Numerator = 1, Denominator = 1, IsInteger = false };
+                ChooseMeasureUnitList.Add(measure);
+            }
+            DefaultMeasureUnit = measure;
+            var i = ChooseMeasureUnitList.FindIndex(l => l.MeasureUnitID == measureUnitId);
+            if (cmbMeasureUnits.Items.Count > 0)
+                cmbMeasureUnits.SelectedIndex = i;
+            //SelectedItem = ChooseMeasureUnitList.Find(m => m.MeasureUnitID == measureUnit.MeasureUnitID);
+            //MeasureUnit = SelectedItem;
+            numericUpDownWithButtons.IsInteger = measure.IsInteger;
+            numericUpDownWithButtons.Value = quantity;
+            numericUpDownWithButtons.ValueFractional = quantityFeactional ?? 0;
+            //numericUpDownWithButtons.Value = (int)Math.Floor(quantity);
+
+            //numericUpDownWithButtons.ValueFractional = (int)((quantity % (int)Math.Floor(quantity)) * 1000);
         }
 
         private void cmbMeasureUnits_SelectedValueChanged(object sender, EventArgs e)
@@ -184,6 +254,7 @@ namespace gamma_mob.Common
             if (cmb.SelectedItem != null)
             {
                 MeasureUnit = (cmb.SelectedItem as MeasureUnit);
+                DefaultMeasureUnit = MeasureUnit;
                 //Coefficient = (cmb.SelectedItem as MeasureUnit).Coefficient;
             }
         }
@@ -214,7 +285,15 @@ namespace gamma_mob.Common
             //SelectedMeasureUnit = ChooseMeasureUnitList[0];//measureUnit == null ? list[0] : list.Find(z => z.PlaceZoneId == FromPlaceZoneId);
             //cmbMeasureUnits.SelectedItem = SelectedMeasureUnit;
             if (ChooseMeasureUnitList.Count > 0)
-                cmbMeasureUnits.SelectedItem = ChooseMeasureUnitList[0];
+            {
+                if (DefaultMeasureUnit == null)
+                    cmbMeasureUnits.SelectedIndex = 0;
+                else
+                {
+                    cmbMeasureUnits.SelectedIndex = ChooseMeasureUnitList.FindIndex(l => l.MeasureUnitID == DefaultMeasureUnit.MeasureUnitID);
+                    //cmbMeasureUnits.SelectedItem = DefaultMeasureUnit;
+                }
+            }
             else
                 cmbMeasureUnits.SelectedItem = null;
         }

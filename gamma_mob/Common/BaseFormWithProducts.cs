@@ -142,15 +142,15 @@ namespace gamma_mob.Common
         }
 
         #endregion
-
+/*
         #region Connection
 
-        private void ConnectionLost()
+        protected void ConnectionLost()
         {
             Invoke((ConnectStateChangeInvoker)(ShowConnection), new object[] { ConnectState.NoConnection });
         }
 
-        private void ConnectionRestored()
+        protected void ConnectionRestored()
         {
             Invoke((ConnectStateChangeInvoker)(ShowConnection), new object[] { ConnectState.ConnectionRestore });
         }
@@ -158,35 +158,62 @@ namespace gamma_mob.Common
         private void ShowConnection(ConnectState conState)
         {
             if (imgConnection != null)
-            switch (conState)
+                switch (conState)
+                {
+                    case ConnectState.ConInProgress:
+                        imgConnection.Image = ImgList.Images[(int)Images.NetworkTransmitReceive];
+                        break;
+                    case ConnectState.NoConInProgress:
+                        imgConnection.Image = null;
+                        break;
+                    case ConnectState.NoConnection:
+                        imgConnection.Image = ImgList.Images[(int)Images.NetworkOffline];
+                        break;
+                    case ConnectState.ConnectionRestore:
+                        imgConnection.Image = ImgList.Images[(int)Images.NetworkTransmitReceive];
+                        break;
+                }
+            if (PnlToolBar != null)
             {
-                case ConnectState.ConInProgress:
-                    imgConnection.Image = ImgList.Images[(int)Images.NetworkTransmitReceive];
-                    break;
-                case ConnectState.NoConInProgress:
-                    imgConnection.Image = null;
-                    break;
-                case ConnectState.NoConnection:
-                    imgConnection.Image = ImgList.Images[(int)Images.NetworkOffline];
-                    break;
-                case ConnectState.ConnectionRestore:
-                    imgConnection.Image = ImgList.Images[(int)Images.NetworkTransmitReceive];
-                    break;
+                foreach (var control in PnlToolBar.Controls)
+                {
+                    if (control is OpenNETCF.Windows.Forms.Button2)
+                    {
+                        var backButton = (control as OpenNETCF.Windows.Forms.Button2);
+                        if (backButton.ImageIndex == (int)Images.Back || backButton.ImageIndex == (int)Images.BackOffline)
+                        {
+                            switch (conState)
+                            {
+                                case ConnectState.ConInProgress:
+                                    if (backButton.ImageIndex == (int)Images.BackOffline) backButton.ImageIndex = (int)Images.Back;
+                                    break;
+                                case ConnectState.NoConInProgress:
+                                    //imgConnection.Image = null;
+                                    break;
+                                case ConnectState.NoConnection:
+                                    if (backButton.ImageIndex == (int)Images.Back) backButton.ImageIndex = (int)Images.BackOffline;
+                                    break;
+                                case ConnectState.ConnectionRestore:
+                                    if (backButton.ImageIndex == (int)Images.BackOffline) backButton.ImageIndex = (int)Images.Back;
+                                    break;
+                            }
+                        }
+                    }
+                }
             }
         }
 
         #endregion
-
+*/
         #region FormActions
 
         protected override void FormLoad(object sender, EventArgs e)
         {
             base.FormLoad(sender, e);
-            //Подписка на событие восстановления связи
-            ConnectionState.OnConnectionRestored += ConnectionRestored;//UnloadOfflineProducts;
-            //Подписка на событие потери связи
-            ConnectionState.OnConnectionLost += ConnectionLost;
-
+            ////Подписка на событие восстановления связи
+            //ConnectionState.OnConnectionRestored += ConnectionRestored;//UnloadOfflineProducts;
+            ////Подписка на событие потери связи
+            //ConnectionState.OnConnectionLost += ConnectionLost;
             //Подписка на событие +1 не выгружено (ошибка при сохранении в БД остканированной продукции)
             ScannedBarcodes.OnUpdateBarcodesIsNotUploaded += OnUpdateBarcodesIsNotUploaded;
 
@@ -201,8 +228,8 @@ namespace gamma_mob.Common
             if (Shared.ScannedBarcodes.BarcodesIsNotUploaded(DocDirection).Count > 0)
                 Shared.ShowMessageInformation("Есть невыгруженные продукты!" + Environment.NewLine + "Сначала выгрузите в базу в зоне связи!");
             base.OnFormClosing(sender, e);
-            ConnectionState.OnConnectionRestored -= ConnectionRestored;
-            ConnectionState.OnConnectionLost -= ConnectionLost;
+            //ConnectionState.OnConnectionRestored -= ConnectionRestored;
+            //ConnectionState.OnConnectionLost -= ConnectionLost;
             ScannedBarcodes.OnUpdateBarcodesIsNotUploaded -= OnUpdateBarcodesIsNotUploaded;
             ScannedBarcodes.OnUnloadOfflineProducts -= UnloadOfflineProducts;
         }
@@ -249,12 +276,17 @@ namespace gamma_mob.Common
 
         private void RefreshCollected()
         {
-            if (lblCollected != null)
+            try
             {
-                Invoke(
-                    (MethodInvoker)
-                    (() => lblCollected.Text = Collected.ToString(CultureInfo.InvariantCulture)));
+                if (lblCollected != null)
+                {
+                    Invoke(
+                        (MethodInvoker)
+                        (() => lblCollected.Text = Collected.ToString(CultureInfo.InvariantCulture)));
+                }
             }
+            catch (ObjectDisposedException ex)
+            { }
         }
 
         protected bool IsControlExec { get; set; }
@@ -274,14 +306,15 @@ namespace gamma_mob.Common
                     var placeZones = Shared.PlaceZones.Where(p => p.Barcode == barcode); // && (StartPointInfo == null || (StartPointInfo != null && p.PlaceId == StartPointInfo.PlaceId)));
                     if (!fromBuffer && placeZones != null && placeZones.Count() > 0)
                     {
-                        if (placeZones.FirstOrDefault(p => (StartPointInfo == null || (StartPointInfo != null && p.PlaceId == StartPointInfo.PlaceId))) == null)
+                        if (placeZones.FirstOrDefault(p => (StartPointInfo == null || (StartPointInfo != null && (p.PlaceId == StartPointInfo.PlaceId || (p.AllowedUseZonesOfPlaceGroup && p.RootPlaceId == StartPointInfo.PlaceId))))) == null)
                             Shared.ShowMessageError(@"Найденная по ШК " + barcode + " зона не принадлежит складу отгрузки!" + Environment.NewLine + "Невозможно определить зону склада");
                         else if (placeZones.Count() > 1)
                             Shared.ShowMessageError(@"По ШК " + barcode + " найдено несколько зон!" + Environment.NewLine + "Невозможно определить зону склада");
                         else
                         {
                             var placeZone = placeZones.FirstOrDefault();
-                            GetNomenclatureCharacteristicQuantityForm = new GetNomenclatureCharacteristicQuantityDialog(new EndPointInfo(placeZone.PlaceId, placeZone.PlaceZoneId), EndPointInfo, this, false, true, GetNomenclatureGoods());//, barcode, fromBuffer, getProductResult, this);
+                            //GetNomenclatureCharacteristicQuantityForm = new GetNomenclatureCharacteristicQuantityDialog(new EndPointInfo(placeZone.PlaceId, placeZone.PlaceZoneId), EndPointInfo, this, false, true, GetNomenclatureGoods(), checkExistMovementToZone);//, barcode, fromBuffer, getProductResult, this);
+                            GetNomenclatureCharacteristicQuantityForm = new GetNomenclatureCharacteristicQuantityDialog(this, new NomenclatureCharacteristicQuantityDialogParameter() { StartPointInfo = new EndPointInfo(placeZone.PlaceId, placeZone.PlaceZoneId), EndPointInfo = EndPointInfo, IsFilteringOnNomenclature = false, IsFilteringOnEndpoint = true, NomenclatureGoods = GetNomenclatureGoods(), CheckExistMovementToZone = checkExistMovementToZone });//, barcode, fromBuffer, getProductResult, this);
                             GetNomenclatureCharacteristicQuantityForm.Show();
                             Param1 = new AddProductReceivedEventHandlerParameter() { barcode = barcode, endPointInfo = EndPointInfo, fromBuffer = fromBuffer };
                             if (ReturnAddProductBeforeGetNomenclatureCharacteristicQuantity == null)
@@ -294,7 +327,8 @@ namespace gamma_mob.Common
                             Shared.ShowMessageError(@"По ШК " + barcode + " найдено несколько переделов!" + Environment.NewLine + "Невозможно определить передел");
                         else
                         {
-                            GetNomenclatureCharacteristicQuantityForm = new GetNomenclatureCharacteristicQuantityDialog(new EndPointInfo(/*Shared.Warehouses.First(p => p.Barcode == barcode && (StartPointInfo == null || (StartPointInfo != null && p.PlaceId == StartPointInfo.PlaceId))).WarehouseId*/StartPointInfo.PlaceId), EndPointInfo, this, false, true, GetNomenclatureGoods());//, barcode, fromBuffer, getProductResult, this);
+                            //GetNomenclatureCharacteristicQuantityForm = new GetNomenclatureCharacteristicQuantityDialog(new EndPointInfo(/*Shared.Warehouses.First(p => p.Barcode == barcode && (StartPointInfo == null || (StartPointInfo != null && p.PlaceId == StartPointInfo.PlaceId))).WarehouseId*/StartPointInfo.PlaceId), EndPointInfo, this, false, true, GetNomenclatureGoods());//, barcode, fromBuffer, getProductResult, this);
+                            GetNomenclatureCharacteristicQuantityForm = new GetNomenclatureCharacteristicQuantityDialog(this, new NomenclatureCharacteristicQuantityDialogParameter() { StartPointInfo = new EndPointInfo(/*Shared.Warehouses.First(p => p.Barcode == barcode && (StartPointInfo == null || (StartPointInfo != null && p.PlaceId == StartPointInfo.PlaceId))).WarehouseId*/StartPointInfo.PlaceId), EndPointInfo = EndPointInfo, IsFilteringOnNomenclature = false, IsFilteringOnEndpoint = true, NomenclatureGoods = GetNomenclatureGoods() });//, barcode, fromBuffer, getProductResult, this);
                             GetNomenclatureCharacteristicQuantityForm.Show();
                             Param1 = new AddProductReceivedEventHandlerParameter() { barcode = barcode, endPointInfo = EndPointInfo, fromBuffer = fromBuffer };
                             if (ReturnAddProductBeforeGetNomenclatureCharacteristicQuantity == null)
@@ -346,7 +380,16 @@ namespace gamma_mob.Common
 
                             if (getProductResult.ProductKindId == ProductKind.ProductMovement && (getProductResult.ProductId == null || getProductResult.ProductId == Guid.Empty))
                             {
-                                if (CheckIsCreatePalletMovementFromBarcodeScan())
+                                if (!getProductResult.IsMovementFromPallet)
+                                {
+                                    //GetNomenclatureCharacteristicQuantityForm = new GetNomenclatureCharacteristicQuantityDialog(StartPointInfo, EndPointInfo, this, getProductResult.NomenclatureId, getProductResult.CharacteristicId, getProductResult.QualityId, (byte?)getProductResult.ProductKindId, getProductResult.MeasureUnitId, getProductResult.CountProducts, getProductResult.CountFractionalProducts);//, barcode, fromBuffer, getProductResult, this);
+                                    GetNomenclatureCharacteristicQuantityForm = new GetNomenclatureCharacteristicQuantityDialog(this, new NomenclatureCharacteristicQuantityDialogParameter() { StartPointInfo = StartPointInfo, EndPointInfo = EndPointInfo, IsFilteringOnNomenclature = true, IsFilteringOnEndpoint = (StartPointInfo != null && StartPointInfo.PlaceId > 0), NomenclatureId = getProductResult.NomenclatureId, CharacteristicId = getProductResult.CharacteristicId, QualityId = getProductResult.QualityId, ProductKindId = (byte?)getProductResult.ProductKindId, MeasureUnitId = getProductResult.MeasureUnitId, Quantity = getProductResult.CountProducts, QuantityFractional = getProductResult.CountFractionalProducts, ValidUntilDate = getProductResult.ValidUntilDate });//, barcode, fromBuffer, getProductResult, this);
+                                    GetNomenclatureCharacteristicQuantityForm.Show();
+                                    Param1 = new AddProductReceivedEventHandlerParameter() { barcode = barcode, endPointInfo = EndPointInfo, fromBuffer = fromBuffer };
+                                    if (ReturnAddProductBeforeGetNomenclatureCharacteristicQuantity == null)
+                                        ReturnAddProductBeforeGetNomenclatureCharacteristicQuantity += this.ChooseNomenclatureCharacteristicBarcodeReactionInAddProduct;
+                                } 
+                                else if (CheckIsCreatePalletMovementFromBarcodeScan())
                                 {
                                     base.ChooseNomenclatureCharacteristic(this.ChooseNomenclatureCharacteristicBarcodeReactionInAddProduct, new AddProductReceivedEventHandlerParameter() { barcode = barcode, endPointInfo = EndPointInfo, fromBuffer = fromBuffer, getProductResult = getProductResult });
                                     /*if (getProductResult.NomenclatureId == null || getProductResult.NomenclatureId == Guid.Empty || getProductResult.CharacteristicId == null || getProductResult.CharacteristicId == Guid.Empty || getProductResult.QualityId == null || getProductResult.QualityId == Guid.Empty)
@@ -384,7 +427,7 @@ namespace gamma_mob.Common
                                             getProductResult.CountProducts = form.Quantity;
                                         }
                                     }*/
-                                }
+                                }                                
                             }
                             else
                             {
@@ -439,11 +482,13 @@ namespace gamma_mob.Common
             var addResult = AddProductId(scanId, getProductResult, endPointInfo);
             if (Shared.LastQueryCompleted == false)
             {
+                Shared.ScannedBarcodes.NotUploadedScan(scanId, "Shared.LastQueryCompleted == false", addResult == null || addResult.Product == null ? (Guid?)null : addResult.Product.ProductId);
                 Shared.SaveToLogError(@"AddProductId.LastQueryCompleted is null (scanId = " + scanId.ToString() + ")");
                 return null;
             }
             if (addResult == null)
             {
+                Shared.ScannedBarcodes.NotUploadedScan(scanId, "addResult == nul", addResult == null || addResult.Product == null ? (Guid?)null : addResult.Product.ProductId);
                 Shared.ShowMessageError(@"Не удалось добавить продукт" + Environment.NewLine + barcode + " в приказ!");
                 Shared.ScannedBarcodes.ClearLastBarcode();
                 return false;
@@ -451,12 +496,12 @@ namespace gamma_mob.Common
             if (addResult.ResultMessage == string.Empty)
             {
                 Shared.ScannedBarcodes.UploadedScan(scanId, addResult.Product == null ? (Guid?)null : addResult.Product.ProductId);
-                UpdateGrid(addResult, getProductResult.ProductKindId, id, endPointInfo, scanId);
+                UpdateGrid(addResult, getProductResult.ProductKindId, id, endPointInfo, scanId, getProductResult != null && getProductResult.FromPlaceId != null ? new EndPointInfo((int)getProductResult.FromPlaceId, getProductResult.FromPlaceZoneId) : null);
             }
             else
             {
                 Shared.ScannedBarcodes.UploadedScanWithError(scanId, addResult.ResultMessage, addResult.Product == null ? (Guid?)null : addResult.Product.ProductId);
-                if ((DocId != null && id == DocId) || (EndPointInfo != null && endPointInfo.PlaceId == EndPointInfo.PlaceId))
+                if (!addResult.AlreadyMadeChanges && ((DocId != null && id == DocId) || (EndPointInfo != null && endPointInfo.PlaceId == EndPointInfo.PlaceId)))
                 {
                     Shared.ShowMessageError(fromBuffer ? @"Ошибка при загрузке на сервер невыгруженного" + Environment.NewLine + @" продукта: " : @"Продукт: " + barcode + Environment.NewLine + addResult.ResultMessage);
                     Shared.ScannedBarcodes.ClearLastBarcode();
@@ -470,7 +515,7 @@ namespace gamma_mob.Common
             return null;
         }
 
-        protected virtual void UpdateGrid(DbOperationProductResult addResult, ProductKind? productKindId, Guid? id, EndPointInfo endPointInfo, Guid? scanId) { }
+        protected virtual void UpdateGrid(DbOperationProductResult addResult, ProductKind? productKindId, Guid? id, EndPointInfo endPointInfo, Guid? scanId, EndPointInfo startPointInfo) { }
 
         protected abstract bool CheckIsCreatePalletMovementFromBarcodeScan();
 
@@ -486,14 +531,19 @@ namespace gamma_mob.Common
         /// </summary>
         protected void SetPercentBreak(string percentBreakText)
         {
-            if (lblPercentBreak != null)
+            try
             {
-                if (!lblPercentBreak.Visible)
-                    SetVisibledlblPercentBreak();
-                Invoke(
-                    (MethodInvoker)
-                (() => lblPercentBreak.Text = percentBreakText));
+                if (lblPercentBreak != null)
+                {
+                    if (!lblPercentBreak.Visible)
+                        SetVisibledlblPercentBreak();
+                    Invoke(
+                        (MethodInvoker)
+                    (() => lblPercentBreak.Text = percentBreakText));
+                }
             }
+            catch (ObjectDisposedException ex)
+            { }
         }
 
         #endregion
@@ -505,10 +555,13 @@ namespace gamma_mob.Common
         /// </summary>
         protected void SetBufferCount(string bufferCountText)
         {
-            if (lblBufferCount != null)
-                Invoke(
-                    (MethodInvoker)
-                    (() => lblBufferCount.Text = bufferCountText));
+            if (!IsDisposed && lblBufferCount != null)
+            {
+                lblBufferCount.Text = bufferCountText;
+                //Invoke(
+                //    (MethodInvoker)
+                //    (() => lblBufferCount.Text = bufferCountText));
+            }
         }
         
         /// <summary>
@@ -516,15 +569,25 @@ namespace gamma_mob.Common
         /// </summary>
         protected void OnUpdateBarcodesIsNotUploaded()
         {
-            string bufferCountText = "";
-            if (Shared.ScannedBarcodes != null && Shared.ScannedBarcodes.BarcodesIsNotUploaded(DocDirection) != null)
+            try
             {
-                bufferCountText = Shared.ScannedBarcodes.BarcodesIsNotUploaded(DocDirection).Count.ToString(CultureInfo.InvariantCulture);
-                SetBufferCount(bufferCountText);
+                string bufferCountText = "";
+                if (Shared.ScannedBarcodes != null && Shared.ScannedBarcodes.BarcodesIsNotUploaded(DocDirection) != null)
+                {
+                    bufferCountText = Shared.ScannedBarcodes.BarcodesIsNotUploaded(DocDirection).Count.ToString(CultureInfo.InvariantCulture);
+                    Invoke(
+                        new MethodInvoker(delegate
+                        {
+                            if (!IsDisposed && lblBufferCount != null) lblBufferCount.Text = bufferCountText;
+                        }));
+                    //SetBufferCount(bufferCountText);
+                }
+                Invoke(
+                        (MethodInvoker)
+                        (() => Shared.IsExistsUnloadOfflineProducts = !(bufferCountText == "0")));
             }
-            Invoke(
-                    (MethodInvoker)
-                    (() => Shared.IsExistsUnloadOfflineProducts = !(bufferCountText == "0")));
+            catch (ObjectDisposedException ex)
+            { }
         }
 
         /// <summary>
@@ -537,23 +600,27 @@ namespace gamma_mob.Common
         /// </summary>
         protected override void UnloadOfflineProducts()
         {
-            UIServices.SetBusyState(this);
-            Invoke((ConnectStateChangeInvoker)(ShowConnection), new object[] { ConnectState.NoConInProgress });
-            foreach (ScannedBarcode offlineProduct in Shared.ScannedBarcodes.BarcodesIsNotUploaded(DocDirection))
+            //UIServices.SetBusyState(this);
+            ////Invoke((ConnectStateChangeInvoker)(ShowConnection), new object[] { ConnectState.NoConInProgress });
+            //ConnectionLost();
+            if (Shared.ScannedBarcodes != null && Shared.ScannedBarcodes.BarcodesIsNotUploaded(DocDirection) != null)
             {
-                var checkRes = CheckUnloadOfflineProduct(offlineProduct);
-                if (checkRes != "")
+                foreach (ScannedBarcode offlineProduct in Shared.ScannedBarcodes.BarcodesIsNotUploaded(DocDirection))
                 {
-                    Shared.ShowMessageError(checkRes);
-                    Shared.ScannedBarcodes.UploadedScanWithError(offlineProduct.ScanId, checkRes, offlineProduct.ProductId);
+                    var checkRes = CheckUnloadOfflineProduct(offlineProduct);
+                    if (checkRes != "")
+                    {
+                        Shared.ShowMessageError(checkRes);
+                        Shared.ScannedBarcodes.UploadedScanWithError(offlineProduct.ScanId, checkRes, offlineProduct.ProductId);
+                    }
+                    else
+                    {
+                        if (AddProductByBarcode(offlineProduct.ScanId, offlineProduct.Barcode, new EndPointInfo((int)offlineProduct.PlaceId, offlineProduct.PlaceZoneId), true, new DbProductIdFromBarcodeResult() { ProductId = offlineProduct.ProductId ?? new Guid(), ProductKindId = (ProductKind?)offlineProduct.ProductKindId, NomenclatureId = offlineProduct.NomenclatureId ?? new Guid(), CharacteristicId = offlineProduct.CharacteristicId ?? new Guid(), QualityId = offlineProduct.QualityId ?? new Guid(), CountProducts = offlineProduct.Quantity ?? 0, MeasureUnitId = offlineProduct.MeasureUnitId ?? Guid.Empty, FromProductId = offlineProduct.FromProductId, FromPlaceId = offlineProduct.FromPlaceId, FromPlaceZoneId = offlineProduct.FromPlaceZoneId, NewWeight = offlineProduct.NewWeight, ValidUntilDate = offlineProduct.ValidUntilDate }, (Guid)offlineProduct.DocId) == null)
+                            break;
+                    }
                 }
-                else
-                {
-                    if (AddProductByBarcode(offlineProduct.ScanId, offlineProduct.Barcode, new EndPointInfo((int)offlineProduct.PlaceId, offlineProduct.PlaceZoneId), true, new DbProductIdFromBarcodeResult() { ProductId = offlineProduct.ProductId ?? new Guid(), ProductKindId = (ProductKind?)offlineProduct.ProductKindId, NomenclatureId = offlineProduct.NomenclatureId ?? new Guid(), CharacteristicId = offlineProduct.CharacteristicId ?? new Guid(), QualityId = offlineProduct.QualityId ?? new Guid(), CountProducts = offlineProduct.Quantity ?? 0, FromProductId = offlineProduct.FromProductId }, (Guid)offlineProduct.DocId) == null)
-                        break;
-                }
-            }            
-            UIServices.SetNormalState(this);
+            }
+            //UIServices.SetNormalState(this);
         }
 
         #endregion
@@ -594,12 +661,16 @@ namespace gamma_mob.Common
                     CharacteristicId = GetNomenclatureCharacteristicQuantityForm.CharacteristicId,
                     QualityId = GetNomenclatureCharacteristicQuantityForm.QualityId,
                     CountProducts = GetNomenclatureCharacteristicQuantityForm.CountProducts,
+                    CountFractionalProducts = GetNomenclatureCharacteristicQuantityForm.CountFractionalProducts ?? 0,
                     MeasureUnitId = GetNomenclatureCharacteristicQuantityForm.MeasureUnitId,
                     FromProductId = null,
                     FromPlaceId = GetNomenclatureCharacteristicQuantityForm.StartPointInfo.PlaceId,
                     FromPlaceZoneId = GetNomenclatureCharacteristicQuantityForm.StartPointInfo.PlaceZoneId,
-                    ProductKindId = ProductKind.ProductMovement
+                    ProductKindId = GetNomenclatureCharacteristicQuantityForm.ProductKindId == null ? (ProductKind?)null : (ProductKind)GetNomenclatureCharacteristicQuantityForm.ProductKindId,
+                    NewWeight = GetNomenclatureCharacteristicQuantityForm.BaleWeight,
+                    ValidUntilDate = GetNomenclatureCharacteristicQuantityForm.ValidUntilDate
                 };
+                
                 if (GetNomenclatureCharacteristicQuantityForm.DialogResult == DialogResult.OK)
                 {
                     if (ReturnAddProductBeforeGetNomenclatureCharacteristicQuantity != null && (Param1 is AddProductReceivedEventHandlerParameter))
@@ -625,6 +696,7 @@ namespace gamma_mob.Common
                 {
                     if (ReturnAddProductBeforeGetNomenclatureCharacteristicQuantity != null)
                     {
+                        Db.AddMessageToLog("BaseFormWithProducts.ClosingGetNomenclatureCharacteristicQuantityDialog:1-Invoke ReturnAddProductBeforeGetNomenclatureCharacteristicQuantity");
                         Invoke((MethodInvoker)delegate()
                         {
                             ReturnAddProductBeforeGetNomenclatureCharacteristicQuantity((null as AddProductReceivedEventHandlerParameter));

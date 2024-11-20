@@ -32,14 +32,9 @@ namespace gamma_mob.Common
             get { return _barcodeFunc; }
             set
             {
-                //if ((value != null && Scanner.BarcodeReceived != null && value == BarcodeFunc)
-                //    || (value == null && Scanner.BarcodeReceived == null && BarcodeFunc == null))
-                //    return;
                 if (Scanner != null)
                 {
                     Scanner.CurrentScanner.BarcodeReceived -= BarcodeFunc;
-                    //if (ListBarcodeFunc != null && ListBarcodeFunc.Count > 0 && ListBarcodeFunc[(ListBarcodeFunc.Count - 1)] == (BarcodeFunc.Target.ToString() + "/" + BarcodeFunc.Method.ToString()))
-                    //    ListBarcodeFunc.Remove(ListBarcodeFunc.Count-1);
                 }
                 _barcodeFunc = value;
                 if (value == null) return;
@@ -47,18 +42,9 @@ namespace gamma_mob.Common
                 if (Scanner != null) 
                 {
                     Scanner.CurrentScanner.BarcodeReceived += BarcodeFunc;
-                    //if (ListBarcodeFunc == null)
-                    //    ListBarcodeFunc = new SortedList<int, string>();
-                    //if (ListBarcodeFunc != null && (ListBarcodeFunc.Count == 0 || (ListBarcodeFunc.Count > 0 && ListBarcodeFunc[(ListBarcodeFunc.Count - 1)] == (BarcodeFunc.Target.ToString() + "/" + BarcodeFunc.Method.ToString()))))
-                    //    ListBarcodeFunc.Add(ListBarcodeFunc.Count, BarcodeFunc.Target.ToString() + "/" + BarcodeFunc.Method.ToString());
                 }
             }
         }
-
-        //protected void SetBarcodeFunc(BarcodeReceivedEventHandler barcodeFunc)
-        //{
-        //    BarcodeFunc = barcodeFunc;
-        //}
 
         protected ImageList ImgList = Shared.ImgList;
 
@@ -79,8 +65,6 @@ namespace gamma_mob.Common
             {
                 if (BarcodeFunc.Target.ToString().Contains(((Form)sender).Name))
                     Scanner.CurrentScanner.BarcodeReceived -= BarcodeFunc;
-                //if (ListBarcodeFunc != null && ListBarcodeFunc.Count > 0 && ListBarcodeFunc[(ListBarcodeFunc.Count - 1)] == (BarcodeFunc.Target.ToString() + "/" + BarcodeFunc.Method.ToString()))
-                //    ListBarcodeFunc.Remove(ListBarcodeFunc.Count - 1);
             }
             ConnectionState.OnConnectionRestored -= ConnectionRestored;
             ConnectionState.OnConnectionLost -= ConnectionLost;
@@ -137,34 +121,6 @@ namespace gamma_mob.Common
                         imgConnection.Image = ImgList.Images[(int)Images.NetworkTransmitReceive];
                         break;
                 }
-            //if (PnlToolBar != null)
-            //{
-            //    foreach (var control in PnlToolBar.Controls)
-            //    {
-            //        if (control is OpenNETCF.Windows.Forms.Button2)
-            //        {
-            //            var backButton = (control as OpenNETCF.Windows.Forms.Button2);
-            //            if (backButton.ImageIndex == (int)Images.Back || backButton.ImageIndex == (int)Images.BackOffline)
-            //            {
-            //                switch (conState)
-            //                {
-            //                    case ConnectState.ConInProgress:
-            //                        if (backButton.ImageIndex == (int)Images.BackOffline) backButton.ImageIndex = (int)Images.Back;
-            //                        break;
-            //                    case ConnectState.NoConInProgress:
-            //                        //imgConnection.Image = null;
-            //                        break;
-            //                    case ConnectState.NoConnection:
-            //                        if (backButton.ImageIndex == (int)Images.Back) backButton.ImageIndex = (int)Images.BackOffline;
-            //                        break;
-            //                    case ConnectState.ConnectionRestore:
-            //                        if (backButton.ImageIndex == (int)Images.BackOffline) backButton.ImageIndex = (int)Images.Back;
-            //                        break;
-            //                }
-            //            }
-            //        }
-            //    }
-            //}
         }
 
         #endregion

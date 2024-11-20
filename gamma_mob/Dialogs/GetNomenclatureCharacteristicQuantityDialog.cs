@@ -36,7 +36,6 @@ namespace gamma_mob.Dialogs
         {
             ParentForm = parentForm;
             CheckExistMovementToZone = parameter.CheckExistMovementToZone;
-            //StartPointInfo = startPointInfo;
             EndPointInfo = parameter.EndPointInfo;
             StartPointInfo = parameter.StartPointInfo;
             isFilteringOnNomenclature = parameter.IsFilteringOnNomenclature;
@@ -48,9 +47,6 @@ namespace gamma_mob.Dialogs
             ProductKindId = parameter.ProductKindId ?? (byte)ProductKind.ProductMovement;
             NomenclatureGoods = parameter.NomenclatureGoods ?? (parameter.NomenclatureId != null ? new List<Nomenclature>() { new Nomenclature() { NomenclatureId = parameter.NomenclatureId ?? Guid.Empty, CharacteristicId = parameter.CharacteristicId ?? Guid.Empty, QualityId = parameter.QualityId ?? Guid.Empty } } : new List<Nomenclature>());
             ValidUntilDate = parameter.ValidUntilDate;
-            //Barcode = barcode;
-            //FromPlaceId = fromPlaceId;
-            //FromPlaceZoneId = fromPlaceZone == null ? Guid.Empty : fromPlaceZone.PlaceZoneId;
             //заполнить выбор Откуда
             CreateFromPlaceZoneList();
             if (CreateNomenclatureList())
@@ -87,133 +83,9 @@ namespace gamma_mob.Dialogs
             }
             
             init = false;
-            //if (startPointInfo == null)
-            //    Shared.SaveToLogInformation("Open GetNomenclatureCharacteristicQuantityDialog ('null', 'null')");
-            //else
-            //    Shared.SaveToLogInformation("Open GetNomenclatureCharacteristicQuantityDialog ('" + startPointInfo.PlaceId + "', '" + startPointInfo.PlaceZoneId + "')");
+            Shared.SaveToLogInformation(String.Format(@"Open GetNomenclatureCharacteristicQuantityDialog parentForm=" + parentForm.ToString() + ",fromPlaceId=" + (StartPointInfo == null ? "null" : StartPointInfo.PlaceId.ToString()) + ",fromPlaceZone='" + (StartPointInfo == null ? "null" : StartPointInfo.PlaceZoneId == null ? "null" : StartPointInfo.PlaceZoneId.ToString()) + "',toPlaceId=" + (EndPointInfo == null ? "null" : EndPointInfo.PlaceId.ToString()) + ",toPlaceZone='" + (EndPointInfo == null ? "null" : EndPointInfo.PlaceZoneId == null ? "null" : EndPointInfo.PlaceZoneId.ToString()) + "',nomenclatureId='" + NomenclatureId + "',characteristicId='" + CharacteristicId + "'"));
         }
-        /*
-        public GetNomenclatureCharacteristicQuantityDialog(EndPointInfo startPointInfo, EndPointInfo endPointInfo, bool setIsFilteringOnNomenclature, bool setIsFilteringOnEndpoint, List<Nomenclature> nomenclatureGoods)
-            : this()
-        {
-            //StartPointInfo = startPointInfo;
-            EndPointInfo = endPointInfo;
-            StartPointInfo = startPointInfo;
-            isFilteringOnNomenclature = setIsFilteringOnNomenclature;
-            isFilteringOnEndpoint = setIsFilteringOnEndpoint;
-            NomenclatureGoods = nomenclatureGoods;
-            Shared.SaveToLogInformation("Open GetNomenclatureCharacteristicQuantityDialog (fromPlaceId, fromPlaceZone, parentForm, isFilteringOnNomenclature, isFilteringOnEndpoint, nomenclatureGoods)");
-            //Barcode = barcode;
-            //FromPlaceId = fromPlaceId;
-            //FromPlaceZoneId = fromPlaceZone == null ? Guid.Empty : fromPlaceZone.PlaceZoneId;
-            //заполнить выбор Откуда
-            CreateFromPlaceZoneList();
-            if (!isFilteringOnNomenclature && CreateNomenclatureList())
-            {
-                
-                gridChoose.CurrentCell = new DataGridCell(0, 0);
-                if (gridChoose.VisibleRowCount > 0)
-                {
-                    gridChoose.Select(0);
-                    SetNomenclatureFromRow(0);
-                }
-                else
-                {
-                    gridChoose.UnselectAll();
-                    SetNomenclatureFromRow(-1);
-                }
-                if (cmbFromPlaceZones.SelectedItem != null)
-                    FromPlaceZoneChanged((cmbFromPlaceZones.SelectedItem as PlaceZone).PlaceId, (cmbFromPlaceZones.SelectedItem as PlaceZone).PlaceZoneId);
-            }
-            init = false;
-            if (startPointInfo == null)
-                Shared.SaveToLogInformation("Open GetNomenclatureCharacteristicQuantityDialog ('null', 'null')");
-            else
-                Shared.SaveToLogInformation("Open GetNomenclatureCharacteristicQuantityDialog ('" + startPointInfo.PlaceId + "', '" + startPointInfo.PlaceZoneId + "')");
-        }
-
-        public GetNomenclatureCharacteristicQuantityDialog(EndPointInfo startPointInfo, EndPointInfo endPointInfo)
-            : this(startPointInfo, endPointInfo, false, false)
-        { }
-
-        public GetNomenclatureCharacteristicQuantityDialog(EndPointInfo startPointInfo, EndPointInfo endPointInfo, bool isFilteringOnNomenclature, bool isFilteringOnEndpoint)
-            : this(startPointInfo, endPointInfo, false, false, null)
-        { }
-
-        public GetNomenclatureCharacteristicQuantityDialog(EndPointInfo startPointInfo, EndPointInfo endPointInfo, Form parentForm, bool isFilteringOnNomenclature, bool isFilteringOnEndpoint)
-            : this(startPointInfo, endPointInfo, parentForm, isFilteringOnNomenclature, isFilteringOnEndpoint, null)
-        { }
-
-        public GetNomenclatureCharacteristicQuantityDialog(EndPointInfo startPointInfo, EndPointInfo endPointInfo, Form parentForm, bool isFilteringOnNomenclature, bool isFilteringOnEndpoint, List<Nomenclature> nomenclatureGoods)
-            : this(startPointInfo, endPointInfo, parentForm, isFilteringOnNomenclature, isFilteringOnEndpoint, nomenclatureGoods, false)
-        { }
-
-        public GetNomenclatureCharacteristicQuantityDialog(EndPointInfo startPointInfo, EndPointInfo endPointInfo, Form parentForm, bool isFilteringOnNomenclature, bool isFilteringOnEndpoint, List<Nomenclature> nomenclatureGoods, bool checkExistMovementToZone)
-            : this(startPointInfo, endPointInfo, isFilteringOnNomenclature, isFilteringOnEndpoint, nomenclatureGoods)
-        {
-            ParentForm = parentForm;
-            CheckExistMovementToZone = checkExistMovementToZone;
-            Shared.SaveToLogInformation("Open GetNomenclatureCharacteristicQuantityDialog (fromPlaceId, fromPlaceZone, '" + parentForm.Name + "')");
-        }
-
-        public GetNomenclatureCharacteristicQuantityDialog(EndPointInfo startPointInfo, EndPointInfo endPointInfo, Form parentForm)
-            : this(startPointInfo, endPointInfo, parentForm, false, false)
-        { }
-
-        public GetNomenclatureCharacteristicQuantityDialog(EndPointInfo startPointInfo, EndPointInfo endPointInfo, Form parentForm, Guid? nomenclatureId, Guid? characteristicId, Guid? qualityId, byte? productKindId)
-            : this(startPointInfo, endPointInfo, parentForm, true, startPointInfo != null && startPointInfo.PlaceId > 0, (nomenclatureId != null ? new List<Nomenclature>() { new Nomenclature() { NomenclatureId = nomenclatureId ?? Guid.Empty, CharacteristicId = characteristicId ?? Guid.Empty, QualityId = qualityId ?? Guid.Empty } } : new List<Nomenclature>()))
-        {
-            NomenclatureId = nomenclatureId ?? Guid.Empty;
-            CharacteristicId = characteristicId ?? Guid.Empty;
-            QualityId = qualityId ?? Guid.Empty;
-            ProductKindId = productKindId ?? (byte)ProductKind.ProductMovement;
-            //gridChoose.Enabled = false;
-            if (isFilteringOnNomenclature && CreateNomenclatureList())
-            {
-                gridChoose.CurrentCell = new DataGridCell(0, 0);
-                if (gridChoose.VisibleRowCount > 0)
-                {
-                    gridChoose.Select(0);
-                    SetNomenclatureFromRow(0);
-                    btnOK.Enabled = NomenclatureId != Guid.Empty;
-                }
-                else
-                {
-                    gridChoose.UnselectAll();
-                    SetNomenclatureFromRow(-1);
-                }
-
-            }
-            //            isFilteringOnNomenclature = true;
-            Shared.SaveToLogInformation("Open GetNomenclatureCharacteristicQuantityDialog (fromPlaceId, fromPlaceZone, parentForm, '" + NomenclatureId + "', '" + CharacteristicId + "', '" + QualityId + "')");
-        }
-
-        public GetNomenclatureCharacteristicQuantityDialog(EndPointInfo startPointInfo, EndPointInfo endPointInfo, Form parentForm, Guid? nomenclatureId, Guid? characteristicId, Guid? qualityId, byte? productKindId, MeasureUnit measureUnit, int quantity, int? quantityFractional)
-            : this(startPointInfo, endPointInfo, parentForm, nomenclatureId, characteristicId, qualityId, productKindId)
-        {
-            //quantityMeasureUnit.Value = quantity;
-            //quantityMeasureUnit.MeasureUnitId = MeasureUnitId;
-            MeasureUnitId = measureUnit.MeasureUnitID;
-            CountProducts = quantity;
-            CountFractionalProducts = quantityFractional < 10 ? quantityFractional * 100 : quantityFractional < 100 ? quantityFractional * 10 : quantityFractional; 
-            quantityMeasureUnit.Enabled = false;
-            quantityMeasureUnit.SetMeasureQuantityLocked(measureUnit, quantity, quantityFractional);
-            Shared.SaveToLogInformation("Open GetNomenclatureCharacteristicQuantityDialog (fromPlaceId, fromPlaceZone, parentForm, nomenclatureId, characteristicId, qualityId, '" + measureUnit.MeasureUnitID + "', '" + quantity + "')");
-        }
-
-        public GetNomenclatureCharacteristicQuantityDialog(EndPointInfo startPointInfo, EndPointInfo endPointInfo, Form parentForm, Guid? nomenclatureId, Guid? characteristicId, Guid? qualityId, byte? productKindId, Guid measureUnitId, int quantity, int? quantityFractional)
-            : this(startPointInfo, endPointInfo, parentForm, nomenclatureId, characteristicId, qualityId, productKindId)
-        {
-            //quantityMeasureUnit.Value = quantity;
-            //quantityMeasureUnit.MeasureUnitId = MeasureUnitId;
-            MeasureUnitId = measureUnitId;
-            CountProducts = quantity;
-            CountFractionalProducts = quantityFractional < 10 ? quantityFractional * 100 : quantityFractional < 100 ? quantityFractional * 10 : quantityFractional; 
-            quantityMeasureUnit.Enabled = true;
-            quantityMeasureUnit.SetMeasureQuantityDefaultMeasure(measureUnitId, quantity, quantityFractional);
-            Shared.SaveToLogInformation("Open GetNomenclatureCharacteristicQuantityDialog (fromPlaceId, fromPlaceZone, parentForm, nomenclatureId, characteristicId, qualityId, measureUnitId = '" + measureUnitId + "', '" + quantity + "')");
-        }
-        */
+        
         public void SetGridRowHeight(DataGrid dg, int nRow, int cy)
         {
             ArrayList arrRows = ((ArrayList)(dg.GetType().GetField("m_rlrow", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance).GetValue(dg)));
@@ -267,68 +139,24 @@ namespace gamma_mob.Dialogs
 
         private BindingSource BSourcePlaceZone { get; set; }
         private List<PlaceZone> ChoosePlaceZoneList { get; set; }
-        //private PlaceZone _selectedPlaceZone { get; set; }
-        //public PlaceZone SelectedPlaceZone 
-        //{
-        //    get { return _selectedPlaceZone; }
-        //    set
-        //    {
-        //        _selectedPlaceZone = value;
-        //        FromPlaceZoneId = value == null ? Guid.Empty : value.PlaceZoneId;
-        //    }
-        //}
-
-//        private BindingSource BSourceMeasureUnit { get; set; }
-//        private List<MeasureUnit> ChooseMeasureUnitList { get; set; }
-        //private MeasureUnit _selectedMeasureUnit { get; set; }
-        //private MeasureUnit SelectedMeasureUnit
-        //{
-        //    get { return _selectedMeasureUnit; }
-        //    set
-        //    {
-        //        _selectedMeasureUnit = value;
-        //        MeasureUnitId = value == null ? Guid.Empty : value.MeasureUnitID ;
-        //    }
-        //}
-
-        //private void GetPlaceZoneList(int placeId)
-        //{
-        //    List<PlaceZone> list = Shared.PlaceZones.FindAll(z => z.PlaceId == placeId && z.IsValid);
-        //    ChoosePlaceZoneList = list;
-        //    if (BSource == null)
-        //        BSource = new BindingSource { DataSource = ChoosePlaceZoneList };
-        //    else
-        //    {
-        //        BSource.DataSource = ChoosePlaceZoneList;
-        //    }
-        //    cmbFromPlaceZones.DataSource = BSource;
-        //}
 
         private void GetNomenclatureList()
         {
             //List<ChooseNomenclatureItem> list = Shared.Barcodes1C.GetNomenclaturesFromBarcodeInBarcodes(Barcode);
             ChooseNomenclatureList = new BindingList<ChooseNomenclatureItem>();
-            //////if (StartPointInfo.PlaceId != 0)
-            //if (NomenclatureId != Guid.Empty)
-            //{
-            //    ChooseNomenclatureList = Db.GetNomenclatureCharacteristicQualityFromId(NomenclatureId, CharacteristicId, QualityId);
-            //}
-            //else
+            var chooseNomenclatureList = Db.GetNomenclatureInPlaceZone(StartPointInfo.PlaceId, StartPointInfo.PlaceZoneId ?? Guid.Empty, isFilteringOnNomenclature, NomenclatureId, CharacteristicId, QualityId);
+            if (NomenclatureGoods != null && NomenclatureGoods.Count > 0)
             {
-                var chooseNomenclatureList = Db.GetNomenclatureInPlaceZone(StartPointInfo.PlaceId, StartPointInfo.PlaceZoneId ?? Guid.Empty, isFilteringOnNomenclature, NomenclatureId, CharacteristicId, QualityId);
-                if (NomenclatureGoods != null && NomenclatureGoods.Count > 0)
+                ChooseNomenclatureList.Clear();
+                foreach (var item in NomenclatureGoods)
                 {
-                    ChooseNomenclatureList.Clear();
-                    foreach (var item in NomenclatureGoods)
-                    {
-                        var nomenclature = chooseNomenclatureList.FirstOrDefault(n => n.NomenclatureId == item.NomenclatureId && n.CharacteristicId == item.CharacteristicId && n.QualityId == item.QualityId);
-                        if (nomenclature != null)
-                            ChooseNomenclatureList.Add(nomenclature);
-                    }
+                    var nomenclature = chooseNomenclatureList.FirstOrDefault(n => n.NomenclatureId == item.NomenclatureId && n.CharacteristicId == item.CharacteristicId && n.QualityId == item.QualityId);
+                    if (nomenclature != null)
+                        ChooseNomenclatureList.Add(nomenclature);
                 }
-                else
-                    ChooseNomenclatureList = chooseNomenclatureList;
             }
+            else
+                ChooseNomenclatureList = chooseNomenclatureList;
             if (BSourceNomenclature == null)
                 BSourceNomenclature = new BindingSource { DataSource = ChooseNomenclatureList };
             else
@@ -424,17 +252,11 @@ namespace gamma_mob.Dialogs
             GetFromPlaceZoneList(StartPointInfo);
             cmbFromPlaceZones.DisplayMember = "Name";
             cmbFromPlaceZones.ValueMember = "PlaceZoneId";
-            //var selectedPlaceZone = fromPlaceZone == null ? list[0] : list.Find(z => z.PlaceZoneId == FromPlaceZoneId);
-            //cmbFromPlaceZones.SelectedItem = selectedPlaceZone;
-            //cmbFromPlaceZones.SelectedItem = startPointInfo == null ? list.First(l => l.PlaceId == 0) : startPointInfo.PlaceZoneId == null ? list[0] : list.Find(z => z.PlaceZoneId == (startPointInfo.PlaceZoneId == null ? Guid.Empty : startPointInfo.PlaceZoneId));
-            //cmbFromPlaceZones.SelectedIndex = cmbFromPlaceZones.Items.Count > 0 ? cmbFromPlaceZones.Items.Count - 1 : 0;
             if (StartPointInfo == null)
                 SetPlaceZone(0, Guid.Empty);
             else if (StartPointInfo != null && (StartPointInfo.PlaceZoneId ?? Guid.Empty) == Guid.Empty)
             {
                 cmbFromPlaceZones.SelectedIndex = 0;
-                //SetPlaceZone(startPointInfo.PlaceId, Guid.Empty);
-                ////FromPlaceZoneChanged((cmbFromPlaceZones.SelectedItem as PlaceZone).PlaceId,(cmbFromPlaceZones.SelectedItem as PlaceZone).PlaceZoneId)
             }
             else
             {
@@ -443,9 +265,6 @@ namespace gamma_mob.Dialogs
                     if ((cmbFromPlaceZones.Items[i] as PlaceZone).PlaceZoneId == StartPointInfo.PlaceZoneId)
                         cmbFromPlaceZones.SelectedIndex = i;
                 }
-                ////cmbFromPlaceZones.SelectedIndex = cmbFromPlaceZones.Items.Count > 0 && startPointInfo.PlaceZoneId != null ? cmbFromPlaceZones.Items.IndexOf() : 0;
-                ////SetPlaceZone(startPointInfo.PlaceId, startPointInfo.PlaceZoneId == null ? Guid.Empty : (Guid)startPointInfo.PlaceZoneId);
-                //FromPlaceZoneChanged(startPointInfo.PlaceId, startPointInfo.PlaceZoneId == null ? Guid.Empty : (Guid)startPointInfo.PlaceZoneId);
             }
             return true;
         }
@@ -461,18 +280,6 @@ namespace gamma_mob.Dialogs
             sb.Visible = true;
             return true;
         }
-        //private bool setNomenclaturId()
-        //{
-        //    var good = ChooseNomenclatureList[gridChoose.CurrentRowIndex];
-        //    if (good == null || gridChoose.Visible == false)
-        //    {
-        //        return false;
-        //    }
-        //    NomenclatureId = good.NomenclatureId;
-        //    CharacteristicId = good.CharacteristicId;
-        //    QualityId = good.QualityId;
-        //    return GetCountProducts();
-        //}
         
         private bool GetCountProducts()
         {
@@ -534,30 +341,14 @@ namespace gamma_mob.Dialogs
                     Close();
                 }
             }
-            //if (setNomenclaturId())
-                //DialogResult = DialogResult.OK;
-            //else
-            //    DialogResult = DialogResult.Cancel;
-            //Close();
-            //if ((ParentForm is BaseFormWithChooseEndpoint))
-            //    //if ((Parent as BaseFormWithChooseEndpoint).ChooseEndPointForm != null)
-            //{
-            //    Invoke((MethodInvoker)(() => (ParentForm as BaseFormWithChooseEndpoint).TopMost = true));
-            //    Invoke((MethodInvoker)delegate()
-            //    {
-            //        (ParentForm as BaseFormWithChooseEndpoint).BringToFrontChooseEndPointForm();
-            //    });
-            //}
         }
 
         private void ChoosePlaceZone(EndPointInfo param)
         {
             base.ReturnPlaceZoneBeforeChoosedPlaceZone -= this.ChoosePlaceZone;
-            //BarcodeFunc = this.BarcodeReaction;
             if (param != null)
             {
                 EndPointInfo = param;
-                //AddProductByBarcode(param.barcode, param.endPointInfo, param.fromBuffer, param.getProductResult);
                 if (checkSetBaleWeight())
                 {
                     DialogResult = DialogResult.OK;
@@ -568,10 +359,7 @@ namespace gamma_mob.Dialogs
 
         private void gridChoose_DoubleClick(object sender, EventArgs e)
         {
-            //if (setNomenclaturId())
-                DialogResult = DialogResult.OK;
-            //else
-            //    DialogResult = DialogResult.Cancel;
+            DialogResult = DialogResult.OK;
             Close();
         }
 
@@ -579,12 +367,6 @@ namespace gamma_mob.Dialogs
         {
             base.FormLoad(sender, e);
             BarcodeFunc = ChooseNomenclatureCharacteristicFromBarcode;
-            //if (!CreateNomenclatureList())
-            //{
-            //    DialogResult = DialogResult.Abort;
-            //    Close();
-            //    return;
-            //}
         }
 
         protected override void OnFormClosing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -659,43 +441,11 @@ namespace gamma_mob.Dialogs
                         }
                         else GetFromPlaceZoneList(new EndPointInfo(placeZones[0].PlaceId, placeZones[0].PlaceZoneId));
                         
-                        //if (StartPointInfo == null)
-                        //    SetPlaceZone(0, Guid.Empty);
-                        //else if (StartPointInfo != null && (StartPointInfo.PlaceZoneId ?? Guid.Empty) == Guid.Empty)
-                        //{
-                        //    Invoke((MethodInvoker)(() => cmbFromPlaceZones.SelectedIndex = 0));
-                        //    //SetPlaceZone(startPointInfo.PlaceId, Guid.Empty);
-                        //    ////FromPlaceZoneChanged((cmbFromPlaceZones.SelectedItem as PlaceZone).PlaceId,(cmbFromPlaceZones.SelectedItem as PlaceZone).PlaceZoneId)
-                        //}
-                        //else
+                        for (int i = 0; i < cmbFromPlaceZones.Items.Count; i++)
                         {
-                            for (int i = 0; i < cmbFromPlaceZones.Items.Count; i++)
-                            {
-                                if ((cmbFromPlaceZones.Items[i] as PlaceZone).PlaceZoneId == placeZones[0].PlaceZoneId)
-                                    Invoke((MethodInvoker)(() => cmbFromPlaceZones.SelectedIndex = i));
-                            }
-                            ////cmbFromPlaceZones.SelectedIndex = cmbFromPlaceZones.Items.Count > 0 && startPointInfo.PlaceZoneId != null ? cmbFromPlaceZones.Items.IndexOf() : 0;
-                            ////SetPlaceZone(startPointInfo.PlaceId, startPointInfo.PlaceZoneId == null ? Guid.Empty : (Guid)startPointInfo.PlaceZoneId);
-                            //FromPlaceZoneChanged(startPointInfo.PlaceId, startPointInfo.PlaceZoneId == null ? Guid.Empty : (Guid)startPointInfo.PlaceZoneId);
+                            if ((cmbFromPlaceZones.Items[i] as PlaceZone).PlaceZoneId == placeZones[0].PlaceZoneId)
+                                Invoke((MethodInvoker)(() => cmbFromPlaceZones.SelectedIndex = i));
                         }
-                        /*if (ChoosePlaceZoneList.Any(p => p.PlaceId == 0))
-                        {
-                            ChoosePlaceZoneList = Shared.PlaceZones.FindAll(z => z.PlaceId == placeZones[0].PlaceId && z.IsValid);
-                        }
-                        BSourcePlaceZone.DataSource = ChoosePlaceZoneList;
-                        cmbFromPlaceZones.DataSource = BSourcePlaceZone;
-                        Invoke((MethodInvoker)cmbFromPlaceZones.Update);
-                        var placeZone = ChoosePlaceZoneList.FirstOrDefault(p => p.PlaceZoneId == placeZones[0].PlaceZoneId);
-                        cmbFromPlaceZones.SelectedItem = placeZone;
-                        if (this.InvokeRequired)
-                        {
-                            MethodInvoker del = delegate
-                            {
-                                FromPlaceZoneChanged(placeZone.PlaceId, placeZone.PlaceZoneId);
-                            };
-                            this.Invoke(del);
-                        }
-                        else FromPlaceZoneChanged(placeZone.PlaceId, placeZone.PlaceZoneId);*/
                     }
                 }
                 else if (Shared.Warehouses.Any(p => p.Barcode == barcode && (StartPointInfo == null || (StartPointInfo != null && p.WarehouseId == StartPointInfo.PlaceId))))
@@ -869,58 +619,7 @@ namespace gamma_mob.Dialogs
                 var currentRowIndex = (sender as DataGrid).CurrentRowIndex;
                 if (currentRowIndex >= 0)
                     SetNomenclatureFromRow(currentRowIndex);
-                
-                //FromPlaceZoneId = (cmb.SelectedItem as PlaceZone).PlaceZoneId;
-                //GetNomenclatureList();
-                //RefreshGridRowHeight();
             }
         }
-
-        //private void GetMeasureUnitList(string measureUnits)
-        //{
-        //    //measureUnits = "<Root><MeasureUnit>  <MeasureUnitID>9574BDF9-8AB4-11EA-9438-0015B2A9C22A</MeasureUnitID>  <Name>т</Name>  <Coefficient>1.000</Coefficient></MeasureUnit><MeasureUnit>	<MeasureUnitID>9574BDF9-8AB4-11EA-9438-0015B2A9C22A</MeasureUnitID>	<Name>т</Name>	<Coefficient>1.000</Coefficient></MeasureUnit></Root>";
-
-        //    XmlSerializer serializer = new XmlSerializer(typeof(List<MeasureUnit>),
-        //    new XmlRootAttribute("Root"));
-        //    var list = measureUnits == String.Empty ? new List<MeasureUnit>() : (List<MeasureUnit>)serializer.Deserialize(new StringReader(measureUnits));
-
-        //    //List<MeasureUnit> list = new List<MeasureUnit>();
-        //    //var measureUnit = Shared.Warehouses.Find(w => w.WarehouseId == fromPlaceId);
-        //    //if (place.WarehouseZones != null && place.WarehouseZones.Count > 0)
-        //    //    list = Shared.PlaceZones.FindAll(z => z.PlaceId == fromPlaceId && z.IsValid);
-        //    //else
-        //    //    list.Add(new MeasureUnit() { Id = fromPlaceId, Name = "Передел" });
-        //    ChooseMeasureUnitList = list;
-        //    if (BSourceMeasureUnit == null)
-        //        BSourceMeasureUnit = new BindingSource { DataSource = ChooseMeasureUnitList };
-        //    else
-        //        BSourceMeasureUnit.DataSource = ChooseMeasureUnitList;
-        //    quantityMeasureUnit./*cmbMeasureUnits.*/DataSource = BSourceMeasureUnit;
-        //    quantityMeasureUnit./*cmbMeasureUnits.*/DisplayMember = "Name";
-        //    quantityMeasureUnit./*cmbMeasureUnits.*/ValueMember = "MeasureUnitID";
-        //    //SelectedMeasureUnit = ChooseMeasureUnitList[0];//measureUnit == null ? list[0] : list.Find(z => z.PlaceZoneId == FromPlaceZoneId);
-        //    //cmbMeasureUnits.SelectedItem = SelectedMeasureUnit;
-        //    if (ChooseMeasureUnitList.Count > 0)
-        //        quantityMeasureUnit./*cmbMeasureUnits.*/SelectedItem = ChooseMeasureUnitList[0];
-        //    else
-        //        quantityMeasureUnit./*cmbMeasureUnits.*/SelectedItem = null;
-        //}
-
-        //private void cmbMeasureUnits_SelectedValueChanged(object sender, EventArgs e)
-        //{
-        //    var cmb = sender as ComboBox;
-        //    MeasureUnitId = (cmb.SelectedItem as MeasureUnit).MeasureUnitID;
-        //}
-
-        //private void btnUP_Click(object sender, EventArgs e)
-        //{
-        //    edtQuantity.Text = (Convert.ToInt32(edtQuantity.Text) + 1).ToString();
-        //}
-
-        //private void btnDown_Click(object sender, EventArgs e)
-        //{
-        //    edtQuantity.Text = (Convert.ToInt32(edtQuantity.Text) - 1).ToString();
-        //}
-
     }
 }

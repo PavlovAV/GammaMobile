@@ -23,7 +23,6 @@ namespace gamma_mob
         public LoginForm()
         {
             InitializeComponent(); 
-            //imgConnection.Image = ImgList.Images[(int)Images.NetworkOffline];
         }
 
         private string barcode;
@@ -81,11 +80,6 @@ namespace gamma_mob
                 Shared.SaveToLogError(@"Error LoginFormLoad");
             }
 
-            ////Подписка на событие восстановления связи
-            //ConnectionState.OnConnectionRestored += ConnectionRestored;//UnloadOfflineProducts;
-            ////Подписка на событие потери связи
-            //ConnectionState.OnConnectionLost += ConnectionLost;
-
             ConnectionState.CheckConnection(Settings.CurrentServer);
             if (Shared.TimerForCheckBatteryLevel == null)
             {
@@ -106,7 +100,6 @@ namespace gamma_mob
         {
             base.FormLoad(sender, e);
             BarcodeFunc = AuthorizeByBarcode;
-            //ConnectionState.GetIpFromSettings(Settings.CurrentServer);
 #if DEBUG
             InitConnection(null);
             //AuthorizeByBarcode("00000000000217"); //Грузчик мак.участка
@@ -121,135 +114,22 @@ namespace gamma_mob
             var tm = new System.Threading.Timer(tc, null, 1000, Timeout.Infinite);
 #endif
             
-//            var t = ConnectionState.TimerForCheckConnectionAvialabled;
-//            //if (ConnectionState.CheckConnection(Settings.CurrentServer))
-//            //{
-//            //    switch (Db.CheckSqlConnection())
-//            //    {
-//            //        case 2:
-//            //            ConnectionLost();
-//            //            lblMessage.Text = "Нет связи с БД " + Settings.CurrentServer + Environment.NewLine + ConnectionState.GetConnectionState();
-//            //            break;
-//            //        case 1:
-//            //            lblMessage.Text = "Неверно указан логин или пароль к БД " + Settings.CurrentServer + Environment.NewLine + ConnectionState.GetConnectionState();
-//            //            break;
-//            //        default:
-//            //            lblMessage.Text = "Соединение с БД " + Settings.CurrentServer + " установлено" + Environment.NewLine + ConnectionState.GetConnectionState();
-//            //            break;
-//            //    }
-//            //}
-//            //else
-//            //{
-//            //    lblMessage.Text = "Нет связи с БД " + Settings.CurrentServer + ". Повторите попытку в зоне покрытия WiFi" + Environment.NewLine + ConnectionState.GetConnectionState();
-//            //}
-//            try
-//            {
-//                Shared.SaveToLogStartProgramInformation(@"Version " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version);
-//                Shared.SaveToLogStartProgramInformation(@"Model " + Shared.Device.GetModel());
-//                Shared.SaveToLogStartProgramInformation(@"HostName " + Shared.Device.GetHostName());
-//                Shared.SaveToLogStartProgramInformation(@"IpAdress " + Shared.Device.GetDeviceIP());
-//                var cerdispProcess = Shared.GetProcessRunning(@"cerdisp");
-//                if (cerdispProcess != null)
-//                {
-//                    btnExecRDP.Text = "Останов RDP";
-//                }
-//                else
-//                {
-//                    btnExecRDP.Text = "Запуск RDP";
-//                }
-//                Shared.SaveToLogStartProgramInformation(@"DbBarcodes created:" + Db.GetLocalDbBarcodesDateCreated().ToString(System.Globalization.CultureInfo.InvariantCulture));
-//                Shared.UpdateBatterySerialumber();
-//                var batterySuspendTimeout = Shared.Device.GetBatterySuspendTimeout();
-//                Shared.SaveToLogStartProgramInformation(@"BatterySuspendTimeout " + batterySuspendTimeout.ToString());
-//                Shared.SaveToLogStartProgramInformation(@"BatteryLevel " + Shared.Device.GetBatteryLevel().ToString());
-//                Shared.SaveToLogStartProgramInformation(@"WiFiPowerStatus " + Shared.Device.GetWiFiPowerStatus().ToString());
-//                if (batterySuspendTimeout != 600)
-//                    Shared.SaveToLogStartProgramInformation(@"SetBatterySuspendTimeout(600) " + Shared.Device.SetBatterySuspendTimeout(600).ToString());
-                
-//                UInt64 userFreeBytes, totalDiskBytes, totalFreeBytesExecutable, totalFreeBytesUpdatable;
-//                GetDiskFreeSpaceEx(@"\", out userFreeBytes, out totalDiskBytes, out totalFreeBytesExecutable);
-//                GetDiskFreeSpaceEx(@"\FlashDisk\", out userFreeBytes, out totalDiskBytes, out totalFreeBytesUpdatable);
-//                Shared.SaveToLogStartProgramInformation(@"FreeSpace " + totalFreeBytesExecutable.ToString() + @"/" +
-//                    totalFreeBytesUpdatable.ToString());
-//            }
-//            catch
-//            {
-//                Shared.SaveToLogError(@"Error LoginFormLoad");
-//            }
-
-//            ////Подписка на событие восстановления связи
-//            //ConnectionState.OnConnectionRestored += ConnectionRestored;//UnloadOfflineProducts;
-//            ////Подписка на событие потери связи
-//            //ConnectionState.OnConnectionLost += ConnectionLost;
-
-//            ConnectionState.CheckConnection(Settings.CurrentServer);
-//            if (Shared.TimerForCheckBatteryLevel == null)
-//            {
-//                Shared.SaveToLogError(@"Внимание! Не запущена автоматическая проверка уровня заряда аккумулятора.");
-//            }
-
-//#if !DEBUG
-//            if (Shared.TimerForCheckUpdateProgram == null)
-//            {
-//                Shared.SaveToLogError(@"Внимание! Не запущена автоматическая проверка на наличие новой версии программы.");
-//            }
-//#endif
-
-        }
+       }
 
         protected override void OnFormClosing(object sender, CancelEventArgs e)
         {
             base.OnFormClosing(sender, e);
-            //ConnectionState.OnConnectionRestored -= ConnectionRestored;
-            //ConnectionState.OnConnectionLost -= ConnectionLost;
         }
-
-        //private void ConnectionLost()
-        //{
-        //    ConnectionLost(string.Empty);
-        //}
-
-        //private void ConnectionRestored()
-        //{
-        //    ConnectionRestored(string.Empty);            
-        //}
 
         private void ConnectionLost(string message)
         {
             SetLblMessageText(message == string.Empty ? "Связь потеряна! \r\n\r\nНайдите зону с устойчивой связью" : message);
-            //Invoke((LoginStateChangeInvoker)(ShowConnection), new object[] { ConnectState.NoConnection, message });
         }
 
         private void ConnectionRestored(string message)
         {
             SetLblMessageText(message == string.Empty ? "Связь восстановлена! \r\n\r\nПросканируйте \r\nсвой штрих-код" : message);
-            //Invoke((LoginStateChangeInvoker)(ShowConnection), new object[] { ConnectState.ConnectionRestore, message });
-            ////Invoke(new EventHandler(ConnectionRestored));
         }
-
-        //private void ShowConnection(ConnectState conState, string message)
-        //{
-        //    switch (conState)
-        //    {
-        //        //case ConnectState.ConInProgress:
-        //        //    imgConnection.Image = ImgList.Images[(int)Images.NetworkTransmitReceive];
-        //        //    break;
-        //        //case ConnectState.NoConInProgress:
-        //        //    imgConnection.Image = null;
-        //        //    break;
-        //        case ConnectState.NoConnection:
-        //            lblMessage.Text = message == string.Empty ? "Связь потеряна! \r\n\r\nНайдите зону с устойчивой связью" : message ;
-        //            imgConnection.Image = ImgList.Images[(int)Images.NetworkOffline];
-        //            break;
-        //        case ConnectState.ConnectionRestore:
-        //            lblMessage.Text = message == string.Empty ? "Связь восстановлена! \r\n\r\nПросканируйте \r\nсвой штрих-код" : message;
-        //            imgConnection.Image = ImgList.Images[(int)Images.NetworkTransmitReceive];
-        //            //ConnectionRestored();
-        //            break;
-        //    }
-        //    if (conState == ConnectState.NoConnection && message == string.Empty)
-        //        Shared.SaveToLogInformation(message);
-        //}
 
         private void SetLblMessageText(string text)
         {
@@ -267,7 +147,6 @@ namespace gamma_mob
             }
             if (!ConnectionState.GetServerPortEnabled)
             {
-                //ConnectionState.ConnectionLost();
                 this.ConnectionLost(); 
                 return;
             }
@@ -286,7 +165,6 @@ namespace gamma_mob
             Person person = Db.PersonByBarcode(barcode);
             if (person == null)
             {
-                //MessageBox.Show(@"Неверный шк или нет связи с базой");
                 if (ConnectionState.IsConnected)
                     ConnectionLost(@"Неверный шк");
                 else 
@@ -296,8 +174,6 @@ namespace gamma_mob
 
             if (person.UserName == String.Empty)
             {
-                //MessageBox.Show(@"Не определен логин." + Environment.NewLine + @"Обратитесь в техподдержку Гаммы!", @"Логин не определен",
-                //                MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
                 ConnectionLost(@"Не определен логин." + Environment.NewLine + @"Обратитесь в техподдержку Гаммы!");
                 return;
             }
@@ -336,8 +212,6 @@ namespace gamma_mob
                     DialogResult result = form.ShowDialog();
                     if (result != DialogResult.OK || form.Password == String.Empty)
                     {
-                        //MessageBox.Show(@"Не указан пароль." + Environment.NewLine + @"Попробуйте еще раз!", @"Пароль не введен",
-                        //                MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
                         ConnectionLost(@"Не указан пароль." + Environment.NewLine + @"Попробуйте еще раз!");
                         return;
                     }
@@ -365,6 +239,7 @@ namespace gamma_mob
             Shared.PersonName = person.Name;
             Shared.PlaceId = person.PlaceID;
             Shared.VisibledButtonsOnMainWindow = (VisibleButtonsOnMainWindow)person.i1;
+#if DEBUG
             var ii = (int)(VisibleButtonsOnMainWindow.btnExtAccept
                     | VisibleButtonsOnMainWindow.btnDocOrder
                     | VisibleButtonsOnMainWindow.btnDocTransfer
@@ -374,12 +249,10 @@ namespace gamma_mob
                     | VisibleButtonsOnMainWindow.btnInfoProduct
                     | VisibleButtonsOnMainWindow.btnInventarisation
                     );
-
+#endif
 
             SetLblMessageText("Вы авторизовались " + Environment.NewLine + "как " + person.Name + " (" + Settings.UserName + ")" +
                     "\r\n\r\nИдет загрузка данных...");
-            //Shared.LastTimeBarcodes1C = Db.GetServerDateTime();
-            //Shared.Barcodes1C = Db.GetBarcodes1C();
             Cursor.Current = Cursors.WaitCursor;
             SetLblMessageText(("\r\n\r\nИдет выгрузка\r\nлогов на сервер..."));
             Shared.DeleteOldUploadedToServerLogs();
@@ -401,13 +274,12 @@ namespace gamma_mob
             SetLblMessageText(("\r\n\r\nИнициализация\r\nсканирования на ТСД..."));
             res = res && Shared.ScannedBarcodes != null;
             SetLblMessageText(("Загрузка закончена"));
-            if (!res)//!InitializationData())                
+            if (!res)
             {
                 SetLblMessageText("Просканируйте \r\nсвой штрих-код");
                 ConnectionError();
                 return;
             }
-            //Thread.Sleep(3000);
             Invoke((MethodInvoker)(CloseForm));
         }
 
@@ -419,17 +291,11 @@ namespace gamma_mob
 
         private void ConnectionError()
         {
-            //MessageBox.Show(@"Нет связи с базой данных. Попробуйте еще раз." + Environment.NewLine + ConnectionState.GetConnectionState()
-            //                , @"Ошибка связи с БД",
-            //                MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
             ConnectionLost(@"Нет связи с базой данных. Попробуйте еще раз." + Environment.NewLine + ConnectionState.GetConnectionState());
         }
 
         private void WrongUserPass()
         {
-            //MessageBox.Show(@"Неверно указан логин или пароль в настройках. Обратитесь к администратору приложения"
-            //                , @"Ошибка связи с БД",
-            //                MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
             ConnectionLost(@"Неверно указан логин или пароль в настройках. Обратитесь к администратору приложения");
         }
 
@@ -450,68 +316,7 @@ namespace gamma_mob
                 SetLblMessageText("RDP остановлен");
                 btnExecRDP.Text = "Запуск RDP";
             }
-            /*
-            var cerdispProcess = GetProcessRunning(@"cerdisp");
-            if (cerdispProcess == null)
-            {
-                RegistryKey reg = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\CERDISP", true);
-                //RegistryKey reg = Registry.LocalMachine.OpenSubKey(@"SOFTWARE", true);
-                //reg.DeleteSubKey(@"CERDISP");
-                if (reg == null)
-                {
-                    reg = Registry.LocalMachine.OpenSubKey(@"SOFTWARE", true);
-                    reg.CreateSubKey(@"CERDISP");
-                    reg = reg.OpenSubKey(@"CERDISP", true);
-                }
-                var serverIP = ConnectionState.GetServerIp();
-                var hostname = (string)reg.GetValue("Hostname", "");
-                if (serverIP != "" && hostname != serverIP)
-                {
-                    reg.SetValue("Hostname", serverIP, RegistryValueKind.String);
-                }
-
-                if (File.Exists(Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase) +
-                           @"\cerdisp.exe"))
-                {
-                    System.Diagnostics.Process.Start(Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase) +
-                               @"\cerdisp.exe", "-c");
-                    lblMessage.Text = "RDP запущен по адресу " + serverIP;
-                    btnExecRDP.Text = "Останов RDP";
-                }
-                else
-                {
-                    lblMessage.Text = "RDP не запущен. Файл" + Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase) +
-                               @"\cerdisp.exe не найден.";
-                }
-            }
-            else
-            {
-                cerdispProcess.Kill();
-                lblMessage.Text = "RDP остановлен";
-                btnExecRDP.Text = "Запуск RDP";
-            }*/
         }
-
-        /*private static OpenNETCF.ToolHelp.ProcessEntry GetProcessRunning(string processsName)
-        {
-            try
-            {
-                OpenNETCF.ToolHelp.ProcessEntry cerdispProcess = null;
-                foreach (OpenNETCF.ToolHelp.ProcessEntry clsProcess in OpenNETCF.ToolHelp.ProcessEntry.GetProcesses())
-                {
-                    if (cerdispProcess == null && clsProcess.ExeFile.Contains(processsName))
-                    {
-                        cerdispProcess = clsProcess;
-                    }
-                }
-                return cerdispProcess;
-            }
-            catch
-            {
-                return null;
-            }
-
-        }*/
 
         private void btnHelp_Click(object sender, EventArgs e)
         {

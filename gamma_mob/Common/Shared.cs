@@ -575,29 +575,6 @@ namespace gamma_mob.Common
 
         public static bool InitializationData()
         {
-        //    Cursor.Current = Cursors.WaitCursor;
-        //    Control.Invoke(
-        //            (MethodInvoker)
-        //            (() => lblMessage.Text = "Идет выгрузка\r\nлогов на сервер..."));
-        //    Shared.DeleteOldUploadedToServerLogs();
-        //    var res = true;
-        //    Invoke((MethodInvoker)(() => lblMessage.Text = "Идет загрузка\r\nштрих-кодов с сервера..."));
-        //    res = res & Shared.Barcodes1C == null;
-        //    Invoke((MethodInvoker)(() => lblMessage.Text = "Идет загрузка\r\nскладов с сервера..."));
-        //    res = res & Shared.Warehouses == null;
-        //    Invoke((MethodInvoker)(() => lblMessage.Text = "Идет загрузка\r\nзон склада с сервера..."));
-        //    res = res & Shared.PlaceZones == null;
-        //    Invoke((MethodInvoker)(() => lblMessage.Text = "Обновление\r\nштрих-кодов с сервера..."));
-        //    res = res & Shared.Barcodes1C.UpdateBarcodes(true) == null;
-        //    Invoke((MethodInvoker)(() => lblMessage.Text = "Идет загрузка\r\nмак. % брака с сервера..."));
-        //    res = res & Shared.MaxAllowedPercentBreak == null;
-        //    Invoke((MethodInvoker)(() => lblMessage.Text = "Идет загрузка периода\r\nзагрузки ШК с сервера..."));
-        //    res = res & Shared.TimerPeriodForBarcodesUpdate == null;
-        //    Invoke((MethodInvoker)(() => lblMessage.Text = "Идет загрузка периода\r\nпопыток выгрузки на сервера..."));
-        //    res = res & Shared.TimerPeriodForUnloadOfflineProducts == null;
-        //    Invoke((MethodInvoker)(() => lblMessage.Text = "Инициализация\r\nсканирования на ТСД..."));
-        //    res = res & Shared.ScannedBarcodes == null;
-        //    Invoke((MethodInvoker)(() => lblMessage.Text = "Загрузка закончена"));
             return !(Shared.Barcodes1C == null || Shared.PlaceZones == null || Shared.Warehouses == null || Shared.PlaceZones == null || Shared.Barcodes1C.UpdateBarcodes(true) == null/*Shared.Barcodes1C.InitCountBarcodes() == null ||*/
                 || Shared.MaxAllowedPercentBreak == null || Shared.TimerPeriodForBarcodesUpdate == null || Shared.TimerPeriodForUnloadOfflineProducts == null
                 || Shared.ScannedBarcodes == null );// // Shared.TimerForBarcodesUpdate == null);

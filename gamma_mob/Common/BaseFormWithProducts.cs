@@ -15,11 +15,6 @@ namespace gamma_mob.Common
     {        
         #region Panels
 
-/*        public System.Windows.Forms.TextBox edtNumber { get; private set; }
-        private System.Windows.Forms.Button btnAddProduct;
-        private System.Windows.Forms.PictureBox imgConnection;
-        private System.Windows.Forms.Panel pnlSearch;
-*/
         private System.Windows.Forms.Label lblBufferCount;
         private System.Windows.Forms.Label lblCollected;
         private System.Windows.Forms.Label lblPercentBreak;
@@ -142,79 +137,12 @@ namespace gamma_mob.Common
         }
 
         #endregion
-/*
-        #region Connection
 
-        protected void ConnectionLost()
-        {
-            Invoke((ConnectStateChangeInvoker)(ShowConnection), new object[] { ConnectState.NoConnection });
-        }
-
-        protected void ConnectionRestored()
-        {
-            Invoke((ConnectStateChangeInvoker)(ShowConnection), new object[] { ConnectState.ConnectionRestore });
-        }
-
-        private void ShowConnection(ConnectState conState)
-        {
-            if (imgConnection != null)
-                switch (conState)
-                {
-                    case ConnectState.ConInProgress:
-                        imgConnection.Image = ImgList.Images[(int)Images.NetworkTransmitReceive];
-                        break;
-                    case ConnectState.NoConInProgress:
-                        imgConnection.Image = null;
-                        break;
-                    case ConnectState.NoConnection:
-                        imgConnection.Image = ImgList.Images[(int)Images.NetworkOffline];
-                        break;
-                    case ConnectState.ConnectionRestore:
-                        imgConnection.Image = ImgList.Images[(int)Images.NetworkTransmitReceive];
-                        break;
-                }
-            if (PnlToolBar != null)
-            {
-                foreach (var control in PnlToolBar.Controls)
-                {
-                    if (control is OpenNETCF.Windows.Forms.Button2)
-                    {
-                        var backButton = (control as OpenNETCF.Windows.Forms.Button2);
-                        if (backButton.ImageIndex == (int)Images.Back || backButton.ImageIndex == (int)Images.BackOffline)
-                        {
-                            switch (conState)
-                            {
-                                case ConnectState.ConInProgress:
-                                    if (backButton.ImageIndex == (int)Images.BackOffline) backButton.ImageIndex = (int)Images.Back;
-                                    break;
-                                case ConnectState.NoConInProgress:
-                                    //imgConnection.Image = null;
-                                    break;
-                                case ConnectState.NoConnection:
-                                    if (backButton.ImageIndex == (int)Images.Back) backButton.ImageIndex = (int)Images.BackOffline;
-                                    break;
-                                case ConnectState.ConnectionRestore:
-                                    if (backButton.ImageIndex == (int)Images.BackOffline) backButton.ImageIndex = (int)Images.Back;
-                                    break;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        #endregion
-*/
         #region FormActions
 
         protected override void FormLoad(object sender, EventArgs e)
         {
             base.FormLoad(sender, e);
-            ////Подписка на событие восстановления связи
-            //ConnectionState.OnConnectionRestored += ConnectionRestored;//UnloadOfflineProducts;
-            ////Подписка на событие потери связи
-            //ConnectionState.OnConnectionLost += ConnectionLost;
-            //Подписка на событие +1 не выгружено (ошибка при сохранении в БД остканированной продукции)
             ScannedBarcodes.OnUpdateBarcodesIsNotUploaded += OnUpdateBarcodesIsNotUploaded;
 
             //Подписка на событие Выгрузить невыгруженную продукцию
@@ -228,8 +156,6 @@ namespace gamma_mob.Common
             if (Shared.ScannedBarcodes.BarcodesIsNotUploaded(DocDirection).Count > 0)
                 Shared.ShowMessageInformation("Есть невыгруженные продукты!" + Environment.NewLine + "Сначала выгрузите в базу в зоне связи!");
             base.OnFormClosing(sender, e);
-            //ConnectionState.OnConnectionRestored -= ConnectionRestored;
-            //ConnectionState.OnConnectionLost -= ConnectionLost;
             ScannedBarcodes.OnUpdateBarcodesIsNotUploaded -= OnUpdateBarcodesIsNotUploaded;
             ScannedBarcodes.OnUnloadOfflineProducts -= UnloadOfflineProducts;
         }
@@ -392,54 +318,11 @@ namespace gamma_mob.Common
                                 else if (CheckIsCreatePalletMovementFromBarcodeScan())
                                 {
                                     base.ChooseNomenclatureCharacteristic(this.ChooseNomenclatureCharacteristicBarcodeReactionInAddProduct, new AddProductReceivedEventHandlerParameter() { barcode = barcode, endPointInfo = EndPointInfo, fromBuffer = fromBuffer, getProductResult = getProductResult });
-                                    /*if (getProductResult.NomenclatureId == null || getProductResult.NomenclatureId == Guid.Empty || getProductResult.CharacteristicId == null || getProductResult.CharacteristicId == Guid.Empty || getProductResult.QualityId == null || getProductResult.QualityId == Guid.Empty)
-                                    {
-                                        using (var form = new ChooseNomenclatureCharacteristicDialog(barcode))
-                                        {
-                                            DialogResult result = form.ShowDialog();
-                                            Invoke((MethodInvoker)Activate);
-                                            if (result != DialogResult.OK || form.NomenclatureId == null || form.CharacteristicId == null || form.QualityId == null)
-                                            {
-                                                MessageBox.Show(@"Не выбран продукт. Продукт не добавлен!", @"Продукт не добавлен",
-                                                                MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
-                                                return;
-                                            }
-                                            else
-                                            {
-                                                getProductResult.NomenclatureId = form.NomenclatureId;
-                                                getProductResult.CharacteristicId = form.CharacteristicId;
-                                                getProductResult.QualityId = form.QualityId;
-                                            }
-                                        }
-                                    }
-                                    using (var form = new SetCountProductsDialog())
-                                    {
-                                        DialogResult result = form.ShowDialog();
-                                        Invoke((MethodInvoker)Activate);
-                                        if (result != DialogResult.OK || form.Quantity == null)
-                                        {
-                                            MessageBox.Show(@"Не указано количество продукта. Продукт не добавлен!", @"Продукт не добавлен",
-                                                            MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
-                                            return;
-                                        }
-                                        else
-                                        {
-                                            getProductResult.CountProducts = form.Quantity;
-                                        }
-                                    }*/
                                 }                                
                             }
                             else
                             {
                                 AddProductByBarcode(barcode, fromBuffer, getProductResult);
-                                /*if (EndPointInfo != null && EndPointInfo.IsAvailabilityPlaceZoneId && !EndPointInfo.IsSettedDefaultPlaceZoneId)
-                                {
-                                    base.ChooseEndPoint(this.ChoosePlaceZoneBarcodeReactionInAddProduct, new AddProductReceivedEventHandlerParameter() { barcode = barcode, endPointInfo = EndPointInfo, fromBuffer = fromBuffer, getProductResult = getProductResult });
-                                }
-                                else
-                                {
-                                    AddProductByBarcode(barcode, EndPointInfo, fromBuffer, getProductResult);
-                                }*/
                             }
                         }
                     }

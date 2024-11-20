@@ -10,26 +10,6 @@ namespace gamma_mob.Common
 {
     public class BarcodeScanner : IDisposable
     {
-       /*private static IBarcodeScanner _currentScanner { get; set; }
-        public static IBarcodeScanner CurrentScanner 
-        {
-            get
-            {
-                if (_currentScanner == null)
-                {
-                    if (Program.deviceName.Contains("Falcon"))
-                    {
-                        _currentScanner = new BarcodeScannerFalcon();
-                    }
-                    else if (Program.deviceName.Contains("CPT"))
-                    {
-                        _currentScanner = new BarcodeScannerCipherlab();
-                    }
-                }
-                return _currentScanner;
-            }
-        }
-        */
         public IBarcodeScanner CurrentScanner { get; set; }
 
         private BarcodeScanner()

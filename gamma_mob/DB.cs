@@ -286,9 +286,6 @@ namespace gamma_mob
                         strQuery = "ALTER TABLE Logs ADD column FromProductId uniqueidentifier";
                         empComLog.CommandText = strQuery;
                         empComLog.ExecuteNonQuery();
-                        //strQuery = "UPDATE Settings SET DatabaseCreateTime = GETDATE()";
-                        //empComBarcodes.CommandText = strQuery;
-                        //empComBarcodes.ExecuteNonQuery();
                     }
 
                     if (!ColumnCeExists(empConLog, "Logs", "InPlaceZoneID"))
@@ -296,9 +293,6 @@ namespace gamma_mob
                         strQuery = "ALTER TABLE Logs ADD column InPlaceZoneID uniqueidentifier";
                         empComLog.CommandText = strQuery;
                         empComLog.ExecuteNonQuery();
-                        //strQuery = "UPDATE Settings SET DatabaseCreateTime = GETDATE()";
-                        //empComBarcodes.CommandText = strQuery;
-                        //empComBarcodes.ExecuteNonQuery();
                     }
 
                     if (!ColumnCeExists(empConLog, "Logs", "FromPlaceID"))
@@ -306,9 +300,6 @@ namespace gamma_mob
                         strQuery = "ALTER TABLE Logs ADD column FromPlaceID int";
                         empComLog.CommandText = strQuery;
                         empComLog.ExecuteNonQuery();
-                        //strQuery = "UPDATE Settings SET DatabaseCreateTime = GETDATE()";
-                        //empComBarcodes.CommandText = strQuery;
-                        //empComBarcodes.ExecuteNonQuery();
                     }
 
                     if (!ColumnCeExists(empConLog, "Logs", "FromPlaceZoneID"))
@@ -316,9 +307,6 @@ namespace gamma_mob
                         strQuery = "ALTER TABLE Logs ADD column FromPlaceZoneID uniqueidentifier";
                         empComLog.CommandText = strQuery;
                         empComLog.ExecuteNonQuery();
-                        //strQuery = "UPDATE Settings SET DatabaseCreateTime = GETDATE()";
-                        //empComBarcodes.CommandText = strQuery;
-                        //empComBarcodes.ExecuteNonQuery();
                     }
 
                     if (!ColumnCeExists(empConLog, "Logs", "MeasureUnitID"))
@@ -326,9 +314,6 @@ namespace gamma_mob
                         strQuery = "ALTER TABLE Logs ADD column MeasureUnitID uniqueidentifier";
                         empComLog.CommandText = strQuery;
                         empComLog.ExecuteNonQuery();
-                        //strQuery = "UPDATE Settings SET DatabaseCreateTime = GETDATE()";
-                        //empComBarcodes.CommandText = strQuery;
-                        //empComBarcodes.ExecuteNonQuery();
                     }
 
                     if (!ColumnCeExists(empConLog, "Logs", "NewWeight"))
@@ -336,9 +321,6 @@ namespace gamma_mob
                         strQuery = "ALTER TABLE Logs ADD column NewWeight int";
                         empComLog.CommandText = strQuery;
                         empComLog.ExecuteNonQuery();
-                        //strQuery = "UPDATE Settings SET DatabaseCreateTime = GETDATE()";
-                        //empComBarcodes.CommandText = strQuery;
-                        //empComBarcodes.ExecuteNonQuery();
                     }
 
                     if (!ColumnCeExists(empConLog, "Logs", "QuantityFractional"))
@@ -346,9 +328,6 @@ namespace gamma_mob
                         strQuery = "ALTER TABLE Logs ADD column QuantityFractional int";
                         empComLog.CommandText = strQuery;
                         empComLog.ExecuteNonQuery();
-                        //strQuery = "UPDATE Settings SET DatabaseCreateTime = GETDATE()";
-                        //empComBarcodes.CommandText = strQuery;
-                        //empComBarcodes.ExecuteNonQuery();
                     }
 
                     if (!ColumnCeExists(empConLog, "Logs", "ValidUntilDate"))
@@ -356,9 +335,6 @@ namespace gamma_mob
                         strQuery = "ALTER TABLE Logs ADD column ValidUntilDate DateTime";
                         empComLog.CommandText = strQuery;
                         empComLog.ExecuteNonQuery();
-                        //strQuery = "UPDATE Settings SET DatabaseCreateTime = GETDATE()";
-                        //empComBarcodes.CommandText = strQuery;
-                        //empComBarcodes.ExecuteNonQuery();
                     }
 
                     if (!TableCeExists(empConBarcodes, "Barcodes"))
@@ -383,18 +359,6 @@ namespace gamma_mob
                         empComBarcodes.ExecuteNonQuery();
                     }
 
-
-                    //if (!ColumnCeExists(empCon, "ScannedBarcodes", "DocId"))
-                    //{
-                    //    strQuery = "ALTER TABLE ScannedBarcodes ADD DocId uniqueidentifier";
-                    //    empCom.CommandText = strQuery;
-                    //    empCom.ExecuteNonQuery();
-                    //}                    
-                    //strQuery = "INSERT INTO ScannedBarcodes (Barcode) VALUES (@Barcode)";
-                    //empCom.CommandText = strQuery;
-                    //empCom.Parameters.AddWithValue("@Barcode", @"1234567");
-                    //empCom.ExecuteNonQuery();
-                    
                     empConLog.Close();
                     empConBarcodes.Close();
                     empConLog.Open();
@@ -555,34 +519,6 @@ namespace gamma_mob
                 else 
                     return 2;
             }
-            //using (var connection = new SqlConnection(ConnectionString))
-            /*{
-                try
-                {
-                    //connection.Open();
-                    //if (!Shared.IsLocalDateTimeUpdated)
-                    {
-                        DateTime? serverDateTime = Db.GetServerDateTime();
-                        if (serverDateTime == null)
-                        {
-                            return 2;
-                        }
-                        else
-                        {
-                            Shared.SetSystemDateTime((DateTime)serverDateTime);
-                        }
-                    }
-                    //connection.Close();
-                }
-                catch (SqlException ex)
-                {
-                    return ex.Class == 14 ? 1 : 2;
-                }
-                catch (Exception)
-                {
-                    return 2;
-                }
-            }*/
             Db.AddMessageToLog("3:" + DateTime.Now);
             return -1;// 0;
         }
@@ -648,7 +584,6 @@ namespace gamma_mob
         public static int? GetCountBarcodeNomenclatures()
         {
             int? ret = 0;
-            //const string sql = "SELECT CountBarcodeNomenclatures FROM Settings";
             const string sql = "SELECT count(*) AS CountBarcodeNomenclatures FROM Barcodes WHERE KindId is null";
             var parameters = new List<SqlCeParameter>();
             using (DataTable table = ExecuteCeSelectQuery(sql, parameters, CommandType.Text, ConnectServerCe.BarcodesServer))
@@ -662,24 +597,9 @@ namespace gamma_mob
             return ret;
         }
         
-        /*public static bool SetCountBarcodeNomenclatures(int? value)
-        {
-            const string sql = "UPDATE Settings SET CountBarcodeNomenclatures = @Value";
-
-            var parameters = new List<SqlCeParameter>();
-            SqlCeParameter p = new SqlCeParameter();
-            p.ParameterName = "@Value";
-            p.DbType = DbType.Int32;
-            p.Value = value ?? 0;
-            parameters.Add(p);
-
-            return ExecuteCeNonQuery(sql, parameters, CommandType.Text, ConnectServerCe.BarcodesServer);
-        }*/
-
         public static int? GetCountBarcodeProducts()
         {
             int? ret = 0;
-            //const string sql = "SELECT CountBarcodeProducts FROM Settings";
             const string sql = "SELECT count(*) AS CountBarcodeProducts FROM Barcodes WHERE KindId is not null";
             var parameters = new List<SqlCeParameter>();
             using (DataTable table = ExecuteCeSelectQuery(sql, parameters, CommandType.Text, ConnectServerCe.BarcodesServer))
@@ -692,20 +612,6 @@ namespace gamma_mob
             }
             return ret;
         }
-
-        /*public static bool SetCountBarcodeProducts(int? value)
-        {
-            const string sql = "UPDATE Settings SET CountBarcodeProducts = @Value";
-
-            var parameters = new List<SqlCeParameter>();
-            SqlCeParameter p = new SqlCeParameter();
-            p.ParameterName = "@Value";
-            p.DbType = DbType.Int32;
-            p.Value = value ?? 0;
-            parameters.Add(p);
-
-            return ExecuteCeNonQuery(sql, parameters, CommandType.Text, ConnectServerCe.BarcodesServer);
-        }*/
 
         public static bool UpdateBarcodes1C(CashedBarcode item)
         {
@@ -1260,25 +1166,6 @@ namespace gamma_mob
                             };
                         list.Add(item);
                     };
-                    /*
-                    list = (from DataRow row in table.Rows
-                            select new ScannedBarcode
-                            {
-                                Barcode = row["Barcode"].ToString(),
-                                ScanId = new Guid(row["LogID"].ToString()),
-                                PlaceId = row.IsNull("PlaceId") ? -1 : Convert.ToInt32(row["PlaceId"]),
-                                PlaceZoneId = row.IsNull("PlaceZoneId") ? (Guid?)null : new Guid(row["PlaceZoneId"].ToString()),
-                                DocTypeId = row.IsNull("DocTypeId") ? -1 : Convert.ToInt32(row["DocTypeId"]),
-                                DocId = row.IsNull("DocId") ? (Guid?)null : new Guid(row["DocId"].ToString()),
-                                IsUploaded = row.IsNull("LogDate") ? false : Convert.ToBoolean(row["LogDate"]),
-                                DateScanned = Convert.ToDateTime(row["LogDate"]),
-                                ProductId = row.IsNull("ProductId") ? (Guid?)null : new Guid(row["ProductId"].ToString()),
-                                ProductKindId = Convert.ToInt32(row["ProductKindId"]),
-                                NomenclatureId = row.IsNull("NomenclatureId") ? (Guid?)null : new Guid(row["NomenclatureId"].ToString()),
-                                CharacteristicId = row.IsNull("CharacteristicId") ? (Guid?)null : new Guid(row["CharacteristicId"].ToString()),
-                                QualityId = row.IsNull("QualityId") ? (Guid?)null : new Guid(row["QualityId"].ToString()),
-                                Quantity = row.IsNull("Quantity") ? (int?)null : Convert.ToInt32(row["Quantity"]),
-                            }).ToList();*/
                 }
             }
             return list;
@@ -1295,12 +1182,6 @@ namespace gamma_mob
             const string sqlCE = "SELECT LogId, LogDate, Log, Barcode, UserName, PersonId, PlaceId, PlaceZoneId, DocTypeId, DocId, IsUploaded, ToDelete, IsDeleted, ProductId, ProductKindId, NomenclatureId, CharacteristicId, QualityId, Quantity, MeasureUnitId, FromProductId, FromPlaceId, FromPlaceZoneId, NewWeight, QuantityFractional, ValidUntilDate FROM Logs WHERE IsUploadedToServer = 0 ORDER BY LogDate";
 
             var parametersCE = new List<SqlCeParameter>();
-                //{
-                //    new SqlCeParameter("@PersonId", SqlDbType.UniqueIdentifier)
-                //        {
-                //            Value = (Shared.PersonId as object) ?? DBNull.Value
-                //        }
-                //};
 
             using (DataTable table = ExecuteCeSelectQuery(sqlCE, parametersCE, CommandType.Text, ConnectServerCe.LogServer))
             {
@@ -1315,27 +1196,27 @@ namespace gamma_mob
                         {
                             new SqlParameter("@DeviceName", SqlDbType.Text)
                                 {
-                                    Value = deviceName,//.ToString(),
+                                    Value = deviceName,
                                 },
                             new SqlParameter("@DeviceIP", SqlDbType.Text)
                                 {
-                                    Value = deviceIP,//.ToString(),
+                                    Value = deviceIP,
                                 },
                             new SqlParameter("@UserName", SqlDbType.Text)
                                 {
-                                    Value = row["UserName"],//.ToString(),
+                                    Value = row["UserName"],
                                 },
                             new SqlParameter("@PersonId", SqlDbType.UniqueIdentifier)
                                 {
-                                    Value = row["PersonId"],// row.IsNull("PersonId") ? (Guid?)null : new Guid(row["PersonId"].ToString()),
+                                    Value = row["PersonId"],
                                 },
                             new SqlParameter("@LogId", SqlDbType.UniqueIdentifier)
                                 {
-                                    Value = row["LogId"],//row.IsNull("LogId") ? (Guid?)null : new Guid(row["LogId"].ToString()),
+                                    Value = row["LogId"],
                                 },
                             new SqlParameter("@LogDate", SqlDbType.DateTime)
                                 {
-                                    Value = row["LogDate"],//row.IsNull("LogDate") ? (DateTime?)null : Convert.ToDateTime(row["LogDate"]),
+                                    Value = row["LogDate"],
                                 },
                             new SqlParameter("@Log", SqlDbType.Text)
                                 {
@@ -1347,63 +1228,63 @@ namespace gamma_mob
                                 },
                             new SqlParameter("@PlaceId", SqlDbType.Int)
                                 {
-                                    Value = row["PlaceId"],// row.IsNull("PlaceId") ? (int?)null : Convert.ToInt32(row["PlaceId"]),
+                                    Value = row["PlaceId"],
                                 },
                             new SqlParameter("@DocTypeId", SqlDbType.Int)
                                 {
-                                    Value = row["DocTypeId"],// row.IsNull("DocTypeId") ? (int?)null : Convert.ToInt32(row["DocTypeId"]),
+                                    Value = row["DocTypeId"],
                                 }, 
                             new SqlParameter("@IsUploaded", SqlDbType.Bit)
                                 {
-                                    Value = row["IsUploaded"],// row.IsNull("IsUploaded") ? false : row["IsUploaded"].ToString() == "True" ? true : false,
+                                    Value = row["IsUploaded"],
                                 },
                             new SqlParameter("@DocId", SqlDbType.UniqueIdentifier)
                                 {
-                                    Value = row["DocId"],// row.IsNull("DocId") ? (Guid?)null : new Guid(row["DocId"].ToString()),
+                                    Value = row["DocId"],
                                 },
                             new SqlParameter("@PlaceZoneId", SqlDbType.UniqueIdentifier)
                                 {
-                                    Value = row["PlaceZoneId"], // row.IsNull("PlaceZoneId") ? (Guid?)null : new Guid(row["PlaceZoneId"].ToString()),
+                                    Value = row["PlaceZoneId"],
                                 },
                             new SqlParameter("@ToDelete", SqlDbType.Bit)
                                 {
-                                    Value = row["ToDelete"], // row.IsNull("ToDelete") ? false : row["ToDelete"].ToString() == "True" ? true : false,
+                                    Value = row["ToDelete"],
                                 },
                             new SqlParameter("@IsDeleted", SqlDbType.Bit)
                                 {
-                                    Value = row["IsDeleted"], // row.IsNull("IsDeleted") ? false : row["IsDeleted"].ToString() == "True" ? true : false,
+                                    Value = row["IsDeleted"],
                                 },
                             new SqlParameter("@ProductId", SqlDbType.UniqueIdentifier)
                                 {
-                                    Value = row["ProductId"], // row.IsNull("ProductId") ? (Guid?)null : new Guid(row["ProductId"].ToString()),
+                                    Value = row["ProductId"],
                                 },
                             new SqlParameter("@ProductKindId", SqlDbType.Int)
                                 {
-                                    Value = row["ProductKindId"], // row.IsNull("ProductKindId") ? (int?)null : Convert.ToInt32(row["ProductKindId"]),
+                                    Value = row["ProductKindId"],
                                 },
                             new SqlParameter("@NomenclatureId", SqlDbType.UniqueIdentifier)
                                 {
-                                    Value = row["NomenclatureId"], // row.IsNull("NomenclatureId") ? (Guid?)null : new Guid(row["NomenclatureId"].ToString()),
+                                    Value = row["NomenclatureId"],
                                 },
                             new SqlParameter("@CharacteristicId", SqlDbType.UniqueIdentifier)
                                 {
-                                    Value = row["CharacteristicId"], // row.IsNull("CharacteristicId") ? (Guid?)null : new Guid(row["CharacteristicId"].ToString()),
+                                    Value = row["CharacteristicId"],
                                 },
                             new SqlParameter("@QualityId", SqlDbType.UniqueIdentifier)
                                 {
-                                    Value = row["QualityId"], // row.IsNull("QualityId") ? (Guid?)null : new Guid(row["QualityId"].ToString()),
+                                    Value = row["QualityId"],
                                 },
                             new SqlParameter("@Quantity", SqlDbType.Int)
                                 {
-                                    Value = row["Quantity"], // row.IsNull("Quantity") ? (int?)null : Convert.ToInt32(row["Quantity"]),
+                                    Value = row["Quantity"],
                                 },
                             new SqlParameter("@MeasureUnitId", SqlDbType.UniqueIdentifier)
                                 {
-                                    Value = row["MeasureUnitId"], // row.IsNull("QualityId") ? (Guid?)null : new Guid(row["QualityId"].ToString()),
+                                    Value = row["MeasureUnitId"],
                                 },
                             new SqlParameter("@FromProductId", SqlDbType.UniqueIdentifier)
                                 {
-                                    Value = row["FromProductId"], // row.IsNull("FromProductId") ? (Guid?)null : new Guid(row["FromProductId"].ToString()),
+                                    Value = row["FromProductId"],
                                 },
                             new SqlParameter("@FromPlaceId", SqlDbType.Int)
                                 {
@@ -1588,45 +1469,11 @@ namespace gamma_mob
                 if (table != null && table.Rows.Count > 0)
                 {
                     result = true;
-                        //ScanCode нельзя, иначе пойдет запись в лог
-                    //    new ScannedBarcode
-                    //{
-                    //    Barcode = table.Rows[0]["Barcode"].ToString(),
-                    //    ScanId = new Guid(table.Rows[0]["LogId"].ToString()),
-                    //    PlaceId = table.Rows[0].IsNull("PlaceId") ? (Guid?)null : new Guid(table.Rows[0]["PlaceId"].ToString()),
-                    //    PlaceZoneId = table.Rows[0].IsNull("PlaceZoneId") ? null : new Guid(table.Rows[0]["PlaceZoneId"].ToString()),
-                    //    DocTypeId = Convert.ToInt16(table.Rows[0]["DocTypeId"].ToString()),
-                    //    DocId = table.Rows[0].IsNull("DocId") ? null : new Guid(table.Rows[0]["DocId"].ToString()),
-                    //    IsUploaded = Convert.ToBoolean(table.Rows[0]["IsUploaded"]),
-                    //    DateScanned = Convert.ToDateTime(table.Rows[0]["LogDate"])
-                    //};
                 }
             }
             return result;
         }
 
-        /*
-        public static List<ScannedBarcode> GetScannedBarcodes()
-        {
-            List<ScannedBarcode> list = null;
-            const string sql = "SELECT LogId, Barcode, LogDate FROM Logs ORDER BY LogDate";
-            using (DataTable table = ExecuteCeSelectQuery(sql, new List<SqlCeParameter>(), CommandType.Text))
-            {
-                if (table != null && table.Rows.Count > 0)
-                {
-                    list = new List<ScannedBarcode>();
-                    list.AddRange(from DataRow row in table.Rows
-                                  select new ScannedBarcode
-                                  {
-                                      Barcode = row["Barcode"].ToString(),
-                                      ScanId = row.IsNull("LogId") ? new Guid() : new Guid(row["LogId"].ToString()),
-                                      DateScanned = Convert.ToDateTime(row["LogDate"].ToString())
-                                  });
-                }
-            }
-            return list;
-        }
-*/
         public static List<string> GetLogs()
         {
             List<string> list = null;
@@ -1968,27 +1815,6 @@ namespace gamma_mob
                 }
             }
             return placeZones;
-            /*List<PlaceZone> list = null;
-            const string sql = "dbo.mob_GetWarehousePlaceZones";
-            var parameters = new List<SqlParameter>
-                {
-                    new SqlParameter("@PlaceID", SqlDbType.Int)
-                        {
-                            Value = placeId
-                        }
-                };
-            using (DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure))
-            {
-                if (table != null && table.Rows.Count > 0)
-                {
-                    list = (from DataRow row in table.Rows
-                            select new PlaceZone
-                                {
-                                    PlaceZoneId = new Guid(row["PlaceZoneID"].ToString()), Name = row["Name"].ToString()
-                                }).ToList();
-                }
-            }
-            return list;*/
         }
 
         public static List<PlaceZone> GetPlaceZoneExistMovements(List<PlaceZone> placeZones)
@@ -2028,28 +1854,6 @@ namespace gamma_mob
         {
             var placeZones = Shared.PlaceZones.Where(p => p.PlaceZoneParentId == placeZoneId && p.IsValid).ToList();
             return placeZones;
-            /*List<PlaceZone> list = null;
-            const string sql = "dbo.mob_GetPlaceZoneChilds";
-            var parameters = new List<SqlParameter>
-                {
-                    new SqlParameter("@PlaceZoneID", SqlDbType.UniqueIdentifier)
-                        {
-                            Value = placeZoneId
-                        }
-                };
-            using (DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure))
-            {
-                if (table != null && table.Rows.Count > 0)
-                {
-                    list = (from DataRow row in table.Rows
-                            select new PlaceZone
-                            {
-                                PlaceZoneId = new Guid(row["PlaceZoneID"].ToString()),
-                                Name = row["Name"].ToString()
-                            }).ToList();
-                }
-            }
-            return list;*/
         }
 
         public static List<Barcodes> GetCurrentMovementBarcodes(int placeId, Guid personId)
@@ -4308,18 +4112,6 @@ namespace gamma_mob
         {
             DataTable ret;
             const string sql = "SELECT Count(*) AS CountBarcodes, Sum(Case When KindId is null Then 1 Else 0 End) AS CountNomenclatures, Sum(Case When KindId is not null Then 1 Else 0 End) AS CountProducts FROM Barcodes ";
-            //using (DataTable table = ExecuteCeSelectQuery(sql, new List<SqlCeParameter>(), CommandType.Text, ConnectServerCe.BarcodesServer))
-            //{
-            //    if (table != null && table.Rows.Count > 0)
-            //    {
-            //        ret = table.Rows[0]["CountBarcodes"].ToString() + "/" + table.Rows[0]["CountNomenclatures"].ToString() + "/" + table.Rows[0]["CountProducts"].ToString();
-            //    }
-            //    else
-            //    {
-            //        ret = "0/0/0";
-            //    }
-
-            //}
             ret = ExecuteCeSelectQuery(sql, new List<SqlCeParameter>(), CommandType.Text, ConnectServerCe.BarcodesServer);
             return ret;
         }
@@ -4427,39 +4219,7 @@ namespace gamma_mob
                                     var endDate = form.ret;
                                     list = form.retCount;
                                 }
-                                //form.bkgndWorker.DoWork += new DoWorkEventHandler(UpdateCashedBarcodesProgress);
-                                //form.bkgndWorker.WorkerReportsProgress = true;
-                                //form.bkgndWorker.RunWorkerAsync(table);
                             }
-                    /*foreach (DataRow row in table.Rows)
-                    {
-                        UpdateBarcodes1C(
-                            new CashedBarcode
-                            {
-                                DateChange = date,
-                                TypeChange = 0,
-                                Barcode = row["Barcode"].ToString(),
-                                Name = row["Name"].ToString(),
-                                NomenclatureId = row.IsNull("NomenclatureID") ? new Guid() : new Guid(row["NomenclatureID"].ToString()),
-                                CharacteristicId = row.IsNull("CharacteristicID") ? new Guid() : new Guid(row["CharacteristicID"].ToString()),
-                                QualityId = row.IsNull("QualityID") ? new Guid() : new Guid(row["QualityID"].ToString()),
-                                MeasureUnitId = row.IsNull("MeasureUnitID") ? new Guid() : new Guid(row["MeasureUnitID"].ToString()),
-                                BarcodeId = new Guid(row["BarcodeID"].ToString()),
-                                Number = row["Number"].ToString(),
-                                KindId = row.IsNull("KindID") ? null : (int?)Convert.ToInt32(row["KindID"])
-                            });
-                        //list.Add(
-                        //    new ChooseNomenclatureItem
-                        //{
-                        //    Barcode = row["Barcode"].ToString(),
-                        //    Name = row["Name"].ToString(),
-                        //    NomenclatureId = new Guid(row["NomenclatureID"].ToString()),
-                        //    CharacteristicId = row.IsNull("CharacteristicID") ? new Guid() : new Guid(row["CharacteristicID"].ToString()),
-                        //    QualityId = new Guid(row["QualityID"].ToString()),
-                        //    MeasureUnitId = new Guid(row["MeasureUnitID"].ToString()),
-                        //    BarcodeId = new Guid(row["BarcodeID"].ToString())
-                        //});
-                    }*/
                 }
             }
             return list;
@@ -4584,15 +4344,6 @@ namespace gamma_mob
                                      IsMovementFromPallet = row.IsNull("IsMovementFromPallet") ? false : Convert.ToBoolean(row["IsMovementFromPallet"])
                                  }))
                             {
-                                //switch (Convert.ToInt32(row["TypeChange"]))
-                                //{
-                                //    case 2:
-                                //        Shared.Barcodes1C.RemovedBarcode(row.IsNull("KindID") ? null : (int?)Convert.ToInt32(row["KindID"]));
-                                //        break;
-                                //    case 0:
-                                //        Shared.Barcodes1C.AddedBarcode(row.IsNull("KindID") ? null : (int?)Convert.ToInt32(row["KindID"]));
-                                //        break;
-                                //}
                                 if (previousDate != Convert.ToDateTime(row["DateChange"]))
                                 {
                                     ret = previousDate;//возвращаем время последней удачно записанной строки с предыдущим временем (чтобы если несколько изменений в один момент и произойдет сбой, то все эти записи этого момента кешировались повторно) 
@@ -4614,30 +4365,7 @@ namespace gamma_mob
             return ret;
         }
 
-       /* public static List<ChooseNomenclatureItem> GetBarcodes1C1()
-        {
-            List<ChooseNomenclatureItem> list = null;
-            const string sql = "dbo.mob_GetBarcodes1C";
-            using (DataTable table = ExecuteSelectQuery(sql, new List<SqlParameter>(), CommandType.StoredProcedure))
-            {
-                if (table != null && table.Rows.Count > 0)
-                {
-                    list = (from DataRow row in table.Rows
-                                  select new ChooseNomenclatureItem
-                                  {
-                                      Barcode = row["Barcode"].ToString(),
-                                      Name = row["Name"].ToString(),
-                                      NomenclatureId = new Guid(row["NomenclatureID"].ToString()),
-                                      CharacteristicId = new Guid(row["CharacteristicID"].ToString()),
-                                      QualityId = new Guid(row["QualityID"].ToString()),
-                                      MeasureUnitId = new Guid(row["MeasureUnitID"].ToString())
-                                  }).ToList();
-                }
-            }
-            return list;
-        }
-        */
-        public static DataTable RemoveProductRFromOrder(Guid docShipmentOrderId, Guid nomenclatureId,
+       public static DataTable RemoveProductRFromOrder(Guid docShipmentOrderId, Guid nomenclatureId,
                                                              Guid characteristicId, Guid qualityId, decimal quantity)
         {
             const string sql = "dbo.mob_RemoveProductRFromOrder";
@@ -4762,27 +4490,6 @@ namespace gamma_mob
             }
             return result;
         }
-
-        //public static bool? CheckWhetherProductCanBeWithdrawal(int countWithdrawal)
-        //{
-        //    bool chrckResult = null;
-        //    const string sql = "select dbo.CheckWhetherProductCanBeWithdrawal(@CountWithdrawal)";
-        //    var parameters = new List<SqlParameter>
-        //        {
-        //            new SqlParameter("@CountWithdrawal", SqlDbType.Int)
-        //                {
-        //                    Value = countWithdrawal
-        //                }
-        //        };
-        //    using (DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.TableDirect))
-        //    {
-        //        if (table != null && table.Rows.Count > 0)
-        //        {
-        //            chrckResult = table.Rows[0]["ValueSetting"].ToString();
-        //        }
-        //    }
-        //    return Convert.ToInt32(command.ExecuteScalar());
-        //}
 
         public static string CheckWhetherProductCanBeWithdrawal(Guid productID, int countWithdrawal)
         {

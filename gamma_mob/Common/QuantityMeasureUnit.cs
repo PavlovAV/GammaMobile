@@ -177,55 +177,17 @@ namespace gamma_mob.Common
             this.ResumeLayout(false);
             ChooseMeasureUnitList = new List<MeasureUnit>();
         }
-        /*
-        public void SetMeasureQuantityLocked(MeasureUnit measureUnit, int quantity)
-        {
-            //ChooseMeasureUnitList.Clear();
-            //ChooseMeasureUnitList.Add(measureUnit);
-            //FillMeasureUnitList(ChooseMeasureUnitList);
-            List<MeasureUnit> list = new List<MeasureUnit>();
-            list.Add(measureUnit);
-            FillMeasureUnitList(list);
-            //SelectedItem = ChooseMeasureUnitList.Find(m => m.MeasureUnitID == measureUnit.MeasureUnitID);
-            //MeasureUnit = SelectedItem;
-            numericUpDownWithButtons.IsInteger = measureUnit.IsInteger;
-            numericUpDownWithButtons.Value = quantity;
-        }
-        */
+        
         public void SetMeasureQuantityLocked(MeasureUnit measureUnit, int quantity, int? quantityFeactional)
         {
-            //ChooseMeasureUnitList.Clear();
-            //ChooseMeasureUnitList.Add(measureUnit);
-            //FillMeasureUnitList(ChooseMeasureUnitList);
             List<MeasureUnit> list = new List<MeasureUnit>();
             list.Add(measureUnit);
             FillMeasureUnitList(list);
-            //SelectedItem = ChooseMeasureUnitList.Find(m => m.MeasureUnitID == measureUnit.MeasureUnitID);
-            //MeasureUnit = SelectedItem;
             numericUpDownWithButtons.IsInteger = measureUnit.IsInteger;
             numericUpDownWithButtons.Value = quantity;
             numericUpDownWithButtons.ValueFractional = quantityFeactional ?? 0;
-            //numericUpDownWithButtons.Value = (int)Math.Floor(quantity);
-            //numericUpDownWithButtons.ValueFractional = (int)((quantity % (int)Math.Floor(quantity)) * 1000);
         }
-        /*
-        public void SetMeasureQuantityDefaultMeasure(Guid measureUnitId, int quantity)
-        {
-            var measure = ChooseMeasureUnitList.Find(l => l.MeasureUnitID == measureUnitId);
-            if (measure == null)
-            {
-                measure = new MeasureUnit() { MeasureUnitID = measureUnitId, Name = "Test", Numerator = 1, Denominator = 1, IsInteger = false };
-                ChooseMeasureUnitList.Add(measure);
-            }
-            DefaultMeasureUnit = measure;
-            cmbMeasureUnits.SelectedIndex = ChooseMeasureUnitList.FindIndex(l => l.MeasureUnitID == measureUnitId);
-            //SelectedItem = ChooseMeasureUnitList.Find(m => m.MeasureUnitID == measureUnit.MeasureUnitID);
-            //MeasureUnit = SelectedItem;
-            numericUpDownWithButtons.IsInteger = measure.IsInteger;
-            numericUpDownWithButtons.Value = quantity;
-            numericUpDownWithButtons.ValueFractional = 0;
-        }
-        */
+        
         public void SetMeasureQuantityDefaultMeasure(Guid measureUnitId, int quantity, int? quantityFeactional)
         {
             var measure = ChooseMeasureUnitList.Find(l => l.MeasureUnitID == measureUnitId);
@@ -238,14 +200,9 @@ namespace gamma_mob.Common
             var i = ChooseMeasureUnitList.FindIndex(l => l.MeasureUnitID == measureUnitId);
             if (cmbMeasureUnits.Items.Count > 0)
                 cmbMeasureUnits.SelectedIndex = i;
-            //SelectedItem = ChooseMeasureUnitList.Find(m => m.MeasureUnitID == measureUnit.MeasureUnitID);
-            //MeasureUnit = SelectedItem;
             numericUpDownWithButtons.IsInteger = measure.IsInteger;
             numericUpDownWithButtons.Value = quantity;
             numericUpDownWithButtons.ValueFractional = quantityFeactional ?? 0;
-            //numericUpDownWithButtons.Value = (int)Math.Floor(quantity);
-
-            //numericUpDownWithButtons.ValueFractional = (int)((quantity % (int)Math.Floor(quantity)) * 1000);
         }
 
         private void cmbMeasureUnits_SelectedValueChanged(object sender, EventArgs e)
@@ -297,39 +254,5 @@ namespace gamma_mob.Common
             else
                 cmbMeasureUnits.SelectedItem = null;
         }
-
-        //private void btnUP_Click(object sender, EventArgs e)
-        //{
-        //    edtQuantity.Text = (Convert.ToInt32(edtQuantity.Text) + 1).ToString();
-        //}
-
-        //private void btnDown_Click(object sender, EventArgs e)
-        //{
-        //    edtQuantity.Text = (Convert.ToInt32(edtQuantity.Text) - 1).ToString();
-        //}
-
-        //protected override void OnResize(EventArgs e)
-        //{
-        //    base.OnResize(e);
-        //    int edtWidth = Convert.ToInt32(this.Width * 0.5);
-        //    if (edtWidth != edtQuantity.Width)
-        //    {
-        //        var edtQuantityWidth = (edtWidth >= MinEditWidth && edtWidth <= MaxEditWidth ? edtWidth : (edtWidth < MinEditWidth ? MinEditWidth : (edtWidth > MaxEditWidth ? MaxEditWidth : edtQuantity.Width)));
-        //        //edtQuantity.Width = edtQuantityWidth;
-        //        int btnWidth = Convert.ToInt32((this.Width - edtQuantityWidth) * 0.3);
-        //        if (btnWidth > 0)//(btnWidth >= MinButtonWidth && btnWidth <= MaxButtonWidth && btnWidth != btnDown.Width)
-        //        {
-        //            panel1.Width = btnWidth*2;
-        //            btnDown.Width = btnWidth;
-        //            btnUP.Width = btnWidth;
-        //            if (edtQuantityWidth <= MinEditWidth)
-        //                edtQuantity.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Regular);
-        //            else if (edtQuantityWidth >= MaxEditWidth)
-        //                edtQuantity.Font = new System.Drawing.Font("Tahoma", 14F, System.Drawing.FontStyle.Regular);
-        //            else
-        //                edtQuantity.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular);
-        //        }
-        //    }
-        //}
     }
 }

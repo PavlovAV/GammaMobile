@@ -509,7 +509,6 @@ namespace gamma_mob
         {
             if (string.IsNullOrEmpty(ConnectionString)) return 1;
             if (!ConnectionState.CheckConnection()) return 1;
-            DateTime? serverDateTime = null;//new DateTime();
             const string sql = "SELECT 1 AS One";
             var parameters = new List<SqlParameter>();
             using (DataTable table = ExecuteSilentlySelectQuery(sql, parameters, CommandType.Text, 2))

@@ -42,13 +42,17 @@ namespace gamma_mob.Models
 //            return true;
 //#endif
             System.Diagnostics.Debug.Write(DateTime.Now.ToString() + " !!!!!Db.GetServerDateTime()!" + Environment.NewLine);
-            var date = Db.GetServerDateTime();
-            if (date == null)
+            var serverDateTime = Db.GetServerDateTime();
+            if (serverDateTime == null)
                 return false;
             else
             {
+                if (!Shared.IsLocalDateTimeUpdated)
+                {
+                    Shared.SetSystemDateTime((DateTime)serverDateTime);
+                }
                 System.Diagnostics.Debug.Write(DateTime.Now.ToString() + " !!!!!UpdateBarcodes(date)!" + Environment.NewLine);
-                return UpdateBarcodes((DateTime)date, isFirst);
+                return UpdateBarcodes((DateTime)serverDateTime, isFirst);
             }
         }
 

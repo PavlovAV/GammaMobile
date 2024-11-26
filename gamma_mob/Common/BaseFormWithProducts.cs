@@ -212,7 +212,11 @@ namespace gamma_mob.Common
                 }
             }
             catch (ObjectDisposedException ex)
-            { }
+            {
+#if OUTPUTDEBUGINFO
+                System.Diagnostics.Debug.WriteLine("ObjectDisposedEXCEPTION RefreshCollected:" + Environment.NewLine + ex.Message);
+#endif
+            }
         }
 
         protected bool IsControlExec { get; set; }
@@ -426,7 +430,11 @@ namespace gamma_mob.Common
                 }
             }
             catch (ObjectDisposedException ex)
-            { }
+            {
+#if OUTPUTDEBUGINFO
+                System.Diagnostics.Debug.WriteLine("ObjectDisposedEXCEPTION SetPercentBreak:" + Environment.NewLine + ex.Message);
+#endif
+            }
         }
 
         #endregion
@@ -470,7 +478,11 @@ namespace gamma_mob.Common
                         (() => Shared.IsExistsUnloadOfflineProducts = !(bufferCountText == "0")));
             }
             catch (ObjectDisposedException ex)
-            { }
+            {
+#if OUTPUTDEBUGINFO
+                System.Diagnostics.Debug.WriteLine("ObjectDisposedEXCEPTION OnUpdateBarcodesIsNotUploaded:" + Environment.NewLine + ex.Message);
+#endif
+            }
         }
 
         /// <summary>

@@ -17,7 +17,11 @@ namespace gamma_mob.Common
                 form.Invoke((MethodInvoker)(() => Cursor.Current = Cursors.WaitCursor));
             }
             catch (ObjectDisposedException ex)
-            { }
+            {
+#if OUTPUTDEBUGINFO
+                System.Diagnostics.Debug.WriteLine("ObjectDisposedEXCEPTION SetBusyState:" + Environment.NewLine + ex.Message);
+#endif
+            }
         }
 
         public static void SetNormalState(Form form)
@@ -28,7 +32,11 @@ namespace gamma_mob.Common
                 form.Invoke((MethodInvoker)(() => Cursor.Current = Cursors.Default));
             }
             catch (ObjectDisposedException ex)
-            { }
+            {
+#if OUTPUTDEBUGINFO
+                System.Diagnostics.Debug.WriteLine("ObjectDisposedEXCEPTION SetNormalState:" + Environment.NewLine + ex.Message);
+#endif
+            }
         }
     }
 }

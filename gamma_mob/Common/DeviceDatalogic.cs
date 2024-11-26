@@ -43,7 +43,12 @@ namespace gamma_mob.Common
                             ipAdress = addr[i].ToString();
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+#if OUTPUTDEBUGINFO
+                MessageBox.Show(ex.Message);
+#endif            
+            }
             return ipAdress;
         }
 
@@ -356,7 +361,7 @@ namespace gamma_mob.Common
                             }
 
             }
-#if !DEBUG
+#if !(DEBUG && !ASRELEASE)
             if (reboot)
             {
                 Shared.SaveToLogError("Error - Rebooting Device");

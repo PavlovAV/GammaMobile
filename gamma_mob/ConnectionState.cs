@@ -54,8 +54,12 @@ namespace gamma_mob
                         ipAddress = IPAddress.Parse(ServerIp); //ipHostEntry.AddressList[0];
                         iPEndPoint = new IPEndPoint(ipAddress, Convert.ToInt32(ServerPort));
                     }
-                    catch (Exception)
-                    { }
+                    catch (Exception ex)
+                    {
+#if OUTPUTDEBUGINFO
+                        System.Diagnostics.Debug.WriteLine("EXCEPTION IsConnected:" + Environment.NewLine + ex.Message);
+#endif
+                    }
                 }
                 if (!value && _isConnected)
                 { 
@@ -113,7 +117,7 @@ namespace gamma_mob
                     return false;
                 }*/
             }
-#if DEBUG
+#if DEBUG && !ASRELEASE
            return true;
 #endif
            if (!Shared.Device.GetWiFiPowerStatus())
@@ -223,6 +227,9 @@ namespace gamma_mob
                     }
                     catch (Exception ex)
                     {
+#if OUTPUTDEBUGINFO
+                        System.Diagnostics.Debug.WriteLine("EXCEPTION GetServerPortEnabled:" + Environment.NewLine + ex.Message);
+#endif
                         Shared.LastQueryCompleted = false;
                         return false;
                     }
@@ -238,18 +245,24 @@ namespace gamma_mob
 
         public static void CheckConnectionAvialabled(object obj)
         {
-            var n = DateTime.Now.ToString();
-            System.Diagnostics.Debug.Write(n + " !!!!!CheckConnectionAvialabledFromTimer(" + _checkConnectionAvialabledRunning.ToString() + ")!" + Environment.NewLine);
+#if OUTPUTDEBUGINFO
+            //var n = DateTime.Now.ToString();
+            //System.Diagnostics.Debug.Write(n + " !!!!!CheckConnectionAvialabledFromTimer(" + _checkConnectionAvialabledRunning.ToString() + ")!" + Environment.NewLine);
+#endif
             if (_checkConnectionAvialabledRunning) return;
             lock (lockerCheckConnectionAvialabled)
             {
                 _checkConnectionAvialabledRunning = true;
-                System.Diagnostics.Debug.Write(n + " !!!!!CheckConnectionAvialabled(" + _checkConnectionAvialabledRunning.ToString() + ")!" + Environment.NewLine);
+#if OUTPUTDEBUGINFO
+                //System.Diagnostics.Debug.Write(n + " !!!!!CheckConnectionAvialabled(" + _checkConnectionAvialabledRunning.ToString() + ")!" + Environment.NewLine);
+#endif
                 //using (var connection = new SqlConnection(Db.GetConnectionString()))
                 {
                     try
                     {
-                        System.Diagnostics.Debug.Write("Connection!" + Environment.NewLine);
+#if OUTPUTDEBUGINFO
+                        //System.Diagnostics.Debug.Write("Connection!" + Environment.NewLine);
+#endif
                         if (Shared.ConnectionCheckStatus.State != System.Data.ConnectionState.Open)
                         {
                             Shared.ConnectionCheckStatus.Open();
@@ -324,7 +337,10 @@ namespace gamma_mob
                     }
                     catch (Exception ex)
                     {
-                        System.Diagnostics.Debug.Write("Exception!" + Environment.NewLine + ex.Message);
+#if OUTPUTDEBUGINFO
+                        System.Diagnostics.Debug.WriteLine("EXCEPTION CheckConnectionAvialabled:" + Environment.NewLine + ex.Message);
+#endif
+
                         //if (Shared.Connection.State == System.Data.ConnectionState.Open)
                         //    StopChecker();
                         var s = ex.Message;
@@ -374,7 +390,9 @@ namespace gamma_mob
             if (!ConnectionState.IsConnected) lock (Locker) ConnectionState.IsConnected = true;
             if (_timerForCheckConnectionAvialabled != null && _checkerRunning)
             {
+#if OUTPUTDEBUGINFO
                 System.Diagnostics.Debug.WriteLine("_timerForCheckConnectionAvialabled.Dispose");
+#endif
                 _timerForCheckConnectionAvialabled.Change(Timeout.Infinite, Timeout.Infinite);
                 // if (TimerForCheckConnectionAvialabled != null) 
                 //_timerForCheckConnectionAvialabled.Dispose();
@@ -387,7 +405,9 @@ namespace gamma_mob
             if (ConnectionState.IsConnected) lock (Locker) ConnectionState.IsConnected = false;
             if (_timerForCheckConnectionAvialabled == null || !_checkerRunning)//!_checkConnectionAvialabledRunning)
             {
+#if OUTPUTDEBUGINFO
                 System.Diagnostics.Debug.WriteLine("TimerForCheckConnectionAvialabled.Create");
+#endif
                 //var t = TimerForCheckConnectionAvialabled;
                 //_checkerRunning = true;
                 _timerForCheckConnectionAvialabled.Change(0, 100);

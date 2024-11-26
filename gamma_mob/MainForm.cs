@@ -21,7 +21,7 @@ namespace gamma_mob
             else
                 btnCloseApp.Top = btnComplectPallet.Top;
             var btnTop = 1;
-            var listButtons = new SortedList<string,System.Windows.Forms.Button>();
+            var listButtons = new SortedList<string, System.Windows.Forms.Button>();
             foreach (var control in panel1.Controls)
             {
                 if (control is System.Windows.Forms.Button)
@@ -52,7 +52,7 @@ namespace gamma_mob
                 ShowMessageInformation(@"Внимание! Не запущена автоматическая" + Environment.NewLine + @"загрузка штрих-кодов.");
             }
             Shared.SaveToLogStartProgramInformation(@"Локальные база ШК " + Shared.Barcodes1C.GetCountBarcodes + "; посл.обн " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodesMoscowTimeZone.ToString(System.Globalization.CultureInfo.InvariantCulture)
-                 + "; создан " + Db.GetLocalDbBarcodesDateCreated().ToString(System.Globalization.CultureInfo.InvariantCulture));
+                 + "; создан " + Shared.Barcodes1C.GetLocalDbBarcodesDateCreated.ToString(System.Globalization.CultureInfo.InvariantCulture));
             if (Program.deviceName.Contains("CPT"))
                 btnCloseApp.Visible = true;
          }
@@ -361,7 +361,7 @@ namespace gamma_mob
                             buttonUserInfo.Text = "Версия: " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
                             break;
                         case 4:
-                            buttonUserInfo.Text = "БД ШК создан:" + Db.GetLocalDbBarcodesDateCreated().ToString(System.Globalization.CultureInfo.InvariantCulture);
+                            buttonUserInfo.Text = "БД ШК создан:" + Shared.Barcodes1C.GetLocalDbBarcodesDateCreated.ToString(System.Globalization.CultureInfo.InvariantCulture);
                             break;
                         case 5:
                             buttonUserInfo.Text = "БД ШК обновлен: " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodesMoscowTimeZone.ToString(System.Globalization.CultureInfo.InvariantCulture);

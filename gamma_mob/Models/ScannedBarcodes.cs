@@ -167,7 +167,9 @@ namespace gamma_mob.Models
 
         public bool UnloadOfflineProducts(bool isSilent)
         {
+#if OUTPUTDEBUGINFO
             System.Diagnostics.Debug.Write(DateTime.Now.ToString() + " !!!!!UnloadOfflineProducts()!" + Environment.NewLine);
+#endif
             Db.RefreshIsUplodedFalase();
             if (OnUnloadOfflineProducts != null) OnUnloadOfflineProducts();
                 

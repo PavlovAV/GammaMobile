@@ -78,7 +78,7 @@ namespace gamma_mob.Common
             this.Controls.Add(pnlSearch);
             pnlSearch.ResumeLayout(false);
             ResumeLayout(false);
-#if DEBUG
+#if DEBUG && !ASRELEASE
             if (edtNumber.Text.Length == 0)
                 //edtNumber.Text = "20804777671007243010000";
                 edtNumber.Text = "240701410801002";

@@ -100,7 +100,11 @@ namespace gamma_mob.Common
                 }
             }
             catch (Exception ex)
-            { }
+            {
+#if OUTPUTDEBUGINFO
+                MessageBox.Show(ex.Message);
+#endif
+            }
         }
 
         private void OnFormClosing(object sender, CancelEventArgs e)

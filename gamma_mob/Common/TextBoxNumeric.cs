@@ -73,8 +73,12 @@ namespace gamma_mob.Common
                         undoing = false;
                     }
                 }
-                catch
-                { }
+                catch (Exception ex)
+                {
+#if OUTPUTDEBUGINFO
+                    System.Diagnostics.Debug.WriteLine("ObjectDisposedEXCEPTION OnUpdateBarcodesIsNotUploaded:" + Environment.NewLine + ex.Message);
+#endif
+                }
             }
             else
                 base.OnTextChanged(e);

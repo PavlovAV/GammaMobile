@@ -8,17 +8,21 @@ Global
 		Debug|Any CPU = Debug|Any CPU
 		DebugWIthScaner|Any CPU = DebugWIthScaner|Any CPU
 		Release|Any CPU = Release|Any CPU
+		ReleaseWithOutputDebug|Any CPU = ReleaseWithOutputDebug|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{2FD39108-709B-49CC-AB4B-A321FDE10E9E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2FD39108-709B-49CC-AB4B-A321FDE10E9E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2FD39108-709B-49CC-AB4B-A321FDE10E9E}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
-		{2FD39108-709B-49CC-AB4B-A321FDE10E9E}.DebugWIthScaner|Any CPU.ActiveCfg = DebugWithScaner|Any CPU
-		{2FD39108-709B-49CC-AB4B-A321FDE10E9E}.DebugWIthScaner|Any CPU.Build.0 = DebugWithScaner|Any CPU
-		{2FD39108-709B-49CC-AB4B-A321FDE10E9E}.DebugWIthScaner|Any CPU.Deploy.0 = DebugWithScaner|Any CPU
+		{2FD39108-709B-49CC-AB4B-A321FDE10E9E}.DebugWIthScaner|Any CPU.ActiveCfg = Debug|Any CPU
+		{2FD39108-709B-49CC-AB4B-A321FDE10E9E}.DebugWIthScaner|Any CPU.Build.0 = Debug|Any CPU
+		{2FD39108-709B-49CC-AB4B-A321FDE10E9E}.DebugWIthScaner|Any CPU.Deploy.0 = Debug|Any CPU
 		{2FD39108-709B-49CC-AB4B-A321FDE10E9E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2FD39108-709B-49CC-AB4B-A321FDE10E9E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2FD39108-709B-49CC-AB4B-A321FDE10E9E}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{2FD39108-709B-49CC-AB4B-A321FDE10E9E}.ReleaseWithOutputDebug|Any CPU.ActiveCfg = ReleaseWithOutputDebug|Any CPU
+		{2FD39108-709B-49CC-AB4B-A321FDE10E9E}.ReleaseWithOutputDebug|Any CPU.Build.0 = ReleaseWithOutputDebug|Any CPU
+		{2FD39108-709B-49CC-AB4B-A321FDE10E9E}.ReleaseWithOutputDebug|Any CPU.Deploy.0 = ReleaseWithOutputDebug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

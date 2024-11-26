@@ -233,7 +233,7 @@ namespace gamma_mob
                         //    endPointInfo = form.EndPointInfo;
                         if ((endPointInfo.IsAvailabilityPlaceZoneId && endPointInfo.PlaceZoneId == null) || (endPointInfo.IsAvailabilityChildPlaceZoneId && endPointInfo.PlaceZoneId != null))
                         {
-#if DEBUG
+#if DEBUG && !ASRELEASE
                             if (endPointInfo.PlaceId == 36)
                             {
                                 endPointInfo.PlaceZoneId = new Guid("47516637-DDB5-EE11-8A59-28565A070C02");

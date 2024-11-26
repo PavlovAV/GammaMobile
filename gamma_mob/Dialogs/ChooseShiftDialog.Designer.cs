@@ -29,7 +29,6 @@
         private void InitializeComponent()
         {
             this.lblCount = new System.Windows.Forms.Label();
-            this.btnOK = new System.Windows.Forms.Button();
             this.rdbShift1 = new System.Windows.Forms.RadioButton();
             this.rdbShift2 = new System.Windows.Forms.RadioButton();
             this.rdbShift3 = new System.Windows.Forms.RadioButton();
@@ -46,55 +45,49 @@
             this.lblCount.Text = "Укажите вашу смену";
             this.lblCount.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
-            // btnOK
-            // 
-            this.btnOK.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular);
-            this.btnOK.Location = new System.Drawing.Point(65, 149);
-            this.btnOK.Name = "btnOK";
-            this.btnOK.Size = new System.Drawing.Size(100, 35);
-            this.btnOK.TabIndex = 3;
-            this.btnOK.Text = "OK";
-            this.btnOK.Click += new System.EventHandler(this.btnOK_Click);
-            // 
             // rdbShift1
             // 
-            this.rdbShift1.Font = new System.Drawing.Font("Tahoma", 18F, System.Drawing.FontStyle.Regular);
-            this.rdbShift1.Location = new System.Drawing.Point(19, 43);
+            this.rdbShift1.Font = new System.Drawing.Font("Tahoma", 30F, System.Drawing.FontStyle.Regular);
+            this.rdbShift1.Location = new System.Drawing.Point(13, 34);
             this.rdbShift1.Name = "rdbShift1";
-            this.rdbShift1.Size = new System.Drawing.Size(87, 20);
+            this.rdbShift1.Size = new System.Drawing.Size(87, 55);
             this.rdbShift1.TabIndex = 5;
             this.rdbShift1.Tag = "1";
-            this.rdbShift1.Text = " 1";
+            this.rdbShift1.Text = " 1 ";
+            this.rdbShift1.CheckedChanged += new System.EventHandler(this.rdbShift_CheckedChanged);
             // 
             // rdbShift2
             // 
-            this.rdbShift2.Font = new System.Drawing.Font("Tahoma", 18F, System.Drawing.FontStyle.Regular);
-            this.rdbShift2.Location = new System.Drawing.Point(19, 98);
+            this.rdbShift2.Font = new System.Drawing.Font("Tahoma", 30F, System.Drawing.FontStyle.Regular);
+            this.rdbShift2.Location = new System.Drawing.Point(13, 116);
             this.rdbShift2.Name = "rdbShift2";
-            this.rdbShift2.Size = new System.Drawing.Size(87, 20);
+            this.rdbShift2.Size = new System.Drawing.Size(87, 55);
             this.rdbShift2.TabIndex = 6;
             this.rdbShift2.Tag = "2";
-            this.rdbShift2.Text = " 2";
+            this.rdbShift2.Text = " 2 ";
+            this.rdbShift2.CheckedChanged += new System.EventHandler(this.rdbShift_CheckedChanged);
             // 
             // rdbShift3
             // 
-            this.rdbShift3.Font = new System.Drawing.Font("Tahoma", 18F, System.Drawing.FontStyle.Regular);
-            this.rdbShift3.Location = new System.Drawing.Point(125, 43);
+            this.rdbShift3.Font = new System.Drawing.Font("Tahoma", 30F, System.Drawing.FontStyle.Regular);
+            this.rdbShift3.Location = new System.Drawing.Point(129, 34);
             this.rdbShift3.Name = "rdbShift3";
-            this.rdbShift3.Size = new System.Drawing.Size(100, 20);
+            this.rdbShift3.Size = new System.Drawing.Size(89, 55);
             this.rdbShift3.TabIndex = 7;
             this.rdbShift3.Tag = "3";
-            this.rdbShift3.Text = " 3";
+            this.rdbShift3.Text = " 3 ";
+            this.rdbShift3.CheckedChanged += new System.EventHandler(this.rdbShift_CheckedChanged);
             // 
             // rdbShift4
             // 
-            this.rdbShift4.Font = new System.Drawing.Font("Tahoma", 18F, System.Drawing.FontStyle.Regular);
-            this.rdbShift4.Location = new System.Drawing.Point(125, 98);
+            this.rdbShift4.Font = new System.Drawing.Font("Tahoma", 30F, System.Drawing.FontStyle.Regular);
+            this.rdbShift4.Location = new System.Drawing.Point(129, 116);
             this.rdbShift4.Name = "rdbShift4";
-            this.rdbShift4.Size = new System.Drawing.Size(100, 20);
+            this.rdbShift4.Size = new System.Drawing.Size(89, 55);
             this.rdbShift4.TabIndex = 8;
             this.rdbShift4.Tag = "4";
-            this.rdbShift4.Text = " 4";
+            this.rdbShift4.Text = " 4 ";
+            this.rdbShift4.CheckedChanged += new System.EventHandler(this.rdbShift_CheckedChanged);
             // 
             // ChooseShiftDialog
             // 
@@ -106,7 +99,6 @@
             this.Controls.Add(this.rdbShift3);
             this.Controls.Add(this.rdbShift2);
             this.Controls.Add(this.rdbShift1);
-            this.Controls.Add(this.btnOK);
             this.Controls.Add(this.lblCount);
             this.Location = new System.Drawing.Point(0, 40);
             this.Name = "ChooseShiftDialog";
@@ -118,7 +110,6 @@
         #endregion
 
         private System.Windows.Forms.Label lblCount;
-        private System.Windows.Forms.Button btnOK;
         private System.Windows.Forms.RadioButton rdbShift1;
         private System.Windows.Forms.RadioButton rdbShift2;
         private System.Windows.Forms.RadioButton rdbShift3;

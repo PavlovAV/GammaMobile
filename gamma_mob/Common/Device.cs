@@ -39,7 +39,12 @@ namespace gamma_mob.Common
             {
                 strHostName = Dns.GetHostName();
             }
-            catch { }
+            catch (Exception ex)
+            {
+#if OUTPUTDEBUGINFO
+                System.Diagnostics.Debug.WriteLine("ERROR GetHostName:" + Environment.NewLine + ex.Message);
+#endif
+            }
             return strHostName;
         }
 
@@ -228,7 +233,12 @@ namespace gamma_mob.Common
             {
                 MessageBeep(millisecond);
             }
-            catch { }
+            catch (Exception ex)
+            {
+#if OUTPUTDEBUGINFO
+                System.Diagnostics.Debug.WriteLine("ERROR PlayBeep:" + Environment.NewLine + ex.Message);
+#endif
+            }
         }
 
         #endregion

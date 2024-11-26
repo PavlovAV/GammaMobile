@@ -186,7 +186,7 @@ namespace gamma_mob.Common
             //int b1 = 0;
             string SerialNum = "SerialNum";/*
             Cipherlab.SystemAPI.Member.SysInfo sysInfo = new Cipherlab.SystemAPI.Member.SysInfo();
-#if !DEBUG
+#if !(DEBUG && !ASRELEASE)
             b1 = Cipherlab.SystemAPI.Member.GetSysInfo(ref sysInfo);
             return sysInfo.SerialNum; 
 #else
@@ -236,7 +236,7 @@ namespace gamma_mob.Common
             //int b1 = 0;
             string IPAddr = "000.000.000.000";
             //Cipherlab.SystemAPI.Member.WlanAdptInfo wlanAdptInfo = new Cipherlab.SystemAPI.Member.WlanAdptInfo();
-//#if !DEBUG
+//#if !(DEBUG && !ASRELEASE)
 //            b1 = Cipherlab.SystemAPI.Member.GetWlanIpInfo(ref wlanAdptInfo);
 
 //            return wlanAdptInfo.IPAddr;
@@ -276,7 +276,7 @@ namespace gamma_mob.Common
             //int b1 = 0;
             byte onOff = new byte();
             bool WiFiStatus = false;
-//#if !DEBUG
+//#if !(DEBUG && !ASRELEASE)
 //            b1 = Cipherlab.SystemAPI.Member.GetWiFiPower(ref onOff);
 //            return onOff == 1;
 //#else
@@ -305,8 +305,11 @@ namespace gamma_mob.Common
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
+#if OUTPUTDEBUGINFO
+                System.Windows.Forms.MessageBox.Show(ex.Message);
+#endif
                 WiFiStatus = true;
             }
             return WiFiStatus;
@@ -345,8 +348,11 @@ namespace gamma_mob.Common
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
+#if OUTPUTDEBUGINFO
+                System.Windows.Forms.MessageBox.Show(ex.Message);
+#endif
                 ReturnSinalQuality = true;
             }
             return ReturnSinalQuality;
@@ -375,8 +381,11 @@ namespace gamma_mob.Common
                 //}
                 return int.Parse(oBatteryTimeout.ToString());
             }
-            catch 
+            catch (Exception ex)
             {
+#if OUTPUTDEBUGINFO
+                System.Windows.Forms.MessageBox.Show(ex.Message);
+#endif
                 return 0;
             }
         }
@@ -397,8 +406,11 @@ namespace gamma_mob.Common
                 key.SetValue("BattPowerOff", timeout);
                 return true;
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
+#if OUTPUTDEBUGINFO
+                System.Windows.Forms.MessageBox.Show(ex.Message);
+#endif
                 return false;
             }
         }
@@ -1034,8 +1046,8 @@ namespace gamma_mob.Common
                         }
                     }
             }
-             
-#if !DEBUG
+
+#if !(DEBUG && !ASRELEASE)
             if (reboot)
             {
                 Shared.SaveToLogError("Error - Rebooting Device");

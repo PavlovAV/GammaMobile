@@ -66,7 +66,7 @@ namespace gamma_mob
         private static string ConnectionCeString (ConnectServerCe serverCe) 
         {
             {
-//#if DEBUG
+//#if DEBUG && !ASRELEASE
 //                string startupPath = Program.deviceName.Contains("Falcon") ? @"\FlashDisk\gamma_mob" : 
 //                    Program.deviceName.Contains("CPT") ? @"\USER_DATA\gamma_mob" : "";
 //#else
@@ -583,7 +583,8 @@ namespace gamma_mob
         public static int? GetCountBarcodeNomenclatures()
         {
             int? ret = 0;
-            const string sql = "SELECT count(*) AS CountBarcodeNomenclatures FROM Barcodes WHERE KindId is null";
+            //const string sql = "SELECT count(*) AS CountBarcodeNomenclatures FROM Barcodes WHERE KindId is null";
+            const string sql = "SELECT CountBarcodeNomenclatures FROM Settings";
             var parameters = new List<SqlCeParameter>();
             using (DataTable table = ExecuteCeSelectQuery(sql, parameters, CommandType.Text, ConnectServerCe.BarcodesServer))
             {
@@ -596,10 +597,25 @@ namespace gamma_mob
             return ret;
         }
         
+        public static bool SetCountBarcodeNomenclatures(int? value)
+        {
+            const string sql = "UPDATE Settings SET CountBarcodeNomenclatures = @Value";
+
+            var parameters = new List<SqlCeParameter>();
+            SqlCeParameter p = new SqlCeParameter();
+            p.ParameterName = "@Value";
+            p.DbType = DbType.Int32;
+            p.Value = value ?? 0;
+            parameters.Add(p);
+
+            return ExecuteCeNonQuery(sql, parameters, CommandType.Text, ConnectServerCe.BarcodesServer);
+        }
+
         public static int? GetCountBarcodeProducts()
         {
             int? ret = 0;
-            const string sql = "SELECT count(*) AS CountBarcodeProducts FROM Barcodes WHERE KindId is not null";
+            //const string sql = "SELECT count(*) AS CountBarcodeProducts FROM Barcodes WHERE KindId is not null";
+            const string sql = "SELECT CountBarcodeProducts FROM Settings";
             var parameters = new List<SqlCeParameter>();
             using (DataTable table = ExecuteCeSelectQuery(sql, parameters, CommandType.Text, ConnectServerCe.BarcodesServer))
             {
@@ -612,6 +628,20 @@ namespace gamma_mob
             return ret;
         }
 
+        public static bool SetCountBarcodeProducts(int? value)
+        {
+            const string sql = "UPDATE Settings SET CountBarcodeProducts = @Value";
+
+            var parameters = new List<SqlCeParameter>();
+            SqlCeParameter p = new SqlCeParameter();
+            p.ParameterName = "@Value";
+            p.DbType = DbType.Int32;
+            p.Value = value ?? 0;
+            parameters.Add(p);
+
+            return ExecuteCeNonQuery(sql, parameters, CommandType.Text, ConnectServerCe.BarcodesServer);
+        }
+        
         public static bool UpdateBarcodes1C(CashedBarcode item)
         {
             {
@@ -640,7 +670,7 @@ namespace gamma_mob
                         string sql2 = "DELETE Barcodes WHERE BarcodeId = @BarcodeID";
                         var ret2 = ExecuteCeNonQuery(sql2, parameters2, CommandType.Text, ConnectServerCe.BarcodesServer);
                         var ret2_ = ExecuteCeNonQuery(sql2, parameters2_, CommandType.Text, ConnectServerCe.BackupBarcodesServer);
-                        //Shared.Barcodes1C.RemovedBarcode(item.KindId);
+                        Shared.Barcodes1C.RemovedBarcode(item.KindId);
                         return ret2;
                         break;
                     case 0:
@@ -711,7 +741,7 @@ namespace gamma_mob
                         string sql0 = "INSERT INTO Barcodes (Barcode, Name, NomenclatureID, CharacteristicID, QualityID, MeasureUnitID, BarcodeID, Number, KindId, IsMovementFromPallet) VALUES (@Barcode, @Name, @NomenclatureID, @CharacteristicID, @QualityID, @MeasureUnitID, @BarcodeID, @Number, @KindID, @IsMovementFromPallet)";
                         var ret0 = ExecuteCeNonQuery(sql0, parameters0, CommandType.Text, ConnectServerCe.BarcodesServer);
                         var ret0_ = ExecuteCeNonQuery(sql0, parameters0_, CommandType.Text, ConnectServerCe.BackupBarcodesServer);
-                        //Shared.Barcodes1C.AddedBarcode(item.KindId);
+                        Shared.Barcodes1C.AddedBarcode(item.KindId);
                         return ret0; 
                         break;
                     case 1:
@@ -3179,19 +3209,29 @@ namespace gamma_mob
                                 }
                                 catch (Exception ex)
                                 {
-                                    //#if DEBUG
-                                    //                            MessageBox.Show(ex.Message);
-                                                                var sqlex = ex as SqlException;
-                                                                if (sqlex != null)
-                                                                    //if (sqlex.Message == "General network error.  Check your network documentation.")
-                                                                        ConnectionState.ConnectionLost();
-                                    //                                foreach (var error in sqlex.Errors)
-                                    //                                {
-                                    //                                    if (error.ToString() == "General network error.  Check your network documentation.")
-                                    //                                        ConnectionLost();
-                                    ////                                    MessageBox.Show(error.ToString());
-                                    //                                }
-                                    //#endif
+#if OUTPUTDEBUGINFO
+                                    if (!IsSilently)
+                                        MessageBox.Show(ex.Message);
+                                    else
+                                        System.Diagnostics.Debug.WriteLine(ex.Message);
+#endif
+                                    var sqlex = ex as SqlException;
+                                    if (sqlex != null)
+                                    {
+                                        //if (sqlex.Message == "General network error.  Check your network documentation.")
+                                        ConnectionState.ConnectionLost();
+#if OUTPUTDEBUGINFO
+                                        foreach (var error in sqlex.Errors)
+                                        {
+                                        //                                    if (error.ToString() == "General network error.  Check your network documentation.")
+                                        //                                        ConnectionLost();
+                                            if (!IsSilently)
+                                                MessageBox.Show(error.ToString());
+                                            else
+                                                System.Diagnostics.Debug.WriteLine(error.ToString());
+                                        }
+#endif
+                                    }
                                     //if (!IsSilently) Shared.LastQueryCompleted = false;
                                     //table = null;
                                     exc = true;
@@ -3246,15 +3286,21 @@ namespace gamma_mob
                                         }
                                         catch (Exception ex)
                                         {
-                                            //#if DEBUG
-                                            //                            MessageBox.Show(ex.Message);
-                                            //                            var sqlex = ex as SqlException;
-                                            //                            if (sqlex != null)
-                                            //                                foreach (var error in sqlex.Errors)
-                                            //                                {
-                                            //                                    MessageBox.Show(error.ToString());
-                                            //                                }
-                                            //#endif
+#if OUTPUTDEBUGINFO
+                                            if (!IsSilently)
+                                                MessageBox.Show(ex.Message);
+                                            else
+                                                System.Diagnostics.Debug.WriteLine(ex.Message);
+                                            var sqlex = ex as SqlException;
+                                            if (sqlex != null)
+                                                foreach (var error in sqlex.Errors)
+                                                {
+                                                    if (!IsSilently)
+                                                        MessageBox.Show(error.ToString());
+                                                    else
+                                                        System.Diagnostics.Debug.WriteLine(error.ToString());
+                                                }
+#endif
                                             if (!IsSilently) Shared.LastQueryCompleted = false;
                                             table = null;
                                         }
@@ -3336,10 +3382,29 @@ namespace gamma_mob
                         }
                         catch (Exception ex)
                         {
+#if OUTPUTDEBUGINFO
+                            if (!IsSilently)
+                                MessageBox.Show(ex.Message);
+                            else
+                                System.Diagnostics.Debug.WriteLine(ex.Message);
+#endif
                             var sqlex = ex as SqlException;
                             if (sqlex != null)
+                            {
                                 if (sqlex.Message == "General network error.  Check your network documentation.")
                                     ConnectionState.ConnectionLost();
+#if OUTPUTDEBUGINFO
+                                foreach (var error in sqlex.Errors)
+                                {
+                                    //                                    if (error.ToString() == "General network error.  Check your network documentation.")
+                                    //                                        ConnectionLost();
+                                    if (!IsSilently)
+                                        MessageBox.Show(error.ToString());
+                                    else
+                                        System.Diagnostics.Debug.WriteLine(error.ToString());
+                                }
+#endif
+                            }
                             exc = true; 
                             //if (!IsSilently) Shared.LastQueryCompleted = false;
                             //ret = false;
@@ -3378,6 +3443,12 @@ namespace gamma_mob
                             }
                             catch (Exception ex)
                             {
+#if OUTPUTDEBUGINFO
+                                if (!IsSilently)
+                                    MessageBox.Show(ex.Message);
+                                else
+                                    System.Diagnostics.Debug.WriteLine(ex.Message);
+#endif
                                 if (!IsSilently) Shared.LastQueryCompleted = false;
                                 ret = false;
                             }
@@ -3419,7 +3490,7 @@ namespace gamma_mob
                         }
                         catch (Exception ex)
                         {
-#if DEBUG
+#if OUTPUTDEBUGINFO
                             MessageBox.Show(ex.Message);
                             var sqlex = ex as SqlException;
                             if (sqlex != null)
@@ -3470,7 +3541,7 @@ namespace gamma_mob
                         }
                         catch (Exception ex)
                         {
-#if DEBUG
+#if OUTPUTDEBUGINFO
                             MessageBox.Show(ex.Message);
                             var sqlex = ex as SqlException;
                             if (sqlex != null)
@@ -4515,8 +4586,12 @@ namespace gamma_mob
                         //connection.Close();
                     }
                 }
-                catch (Exception _)
-                { }
+                catch (Exception ex)
+                {
+#if OUTPUTDEBUGINFO
+                MessageBox.Show(ex.Message);
+#endif
+                }
                 return checkResult;
             }
         }

@@ -54,13 +54,13 @@ namespace gamma_mob
                 var cerdispProcess = Shared.GetProcessRunning(@"cerdisp");
                 if (cerdispProcess != null)
                 {
-                    btnExecRDP.Text = "Останов RDP";
+                    Invoke((MethodInvoker)(() => btnExecRDP.Text = "Останов RDP"));
                 }
                 else
                 {
-                    btnExecRDP.Text = "Запуск RDP";
+                    Invoke((MethodInvoker)(() => btnExecRDP.Text = "Запуск RDP"));
                 }
-                Shared.SaveToLogStartProgramInformation(@"DbBarcodes created:" + Db.GetLocalDbBarcodesDateCreated().ToString(System.Globalization.CultureInfo.InvariantCulture));
+                Shared.SaveToLogStartProgramInformation(@"DbBarcodes created:" + Shared.Barcodes1C.GetLocalDbBarcodesDateCreated.ToString(System.Globalization.CultureInfo.InvariantCulture));
                 Shared.UpdateBatterySerialumber();
                 var batterySuspendTimeout = Shared.Device.GetBatterySuspendTimeout();
                 Shared.SaveToLogStartProgramInformation(@"BatterySuspendTimeout " + batterySuspendTimeout.ToString());
@@ -77,7 +77,7 @@ namespace gamma_mob
             }
             catch
             {
-                Shared.SaveToLogError(@"Error LoginFormLoad");
+                Shared.SaveToLogError(@"ERROR InitConnection in LoginForm");
             }
 
             ConnectionState.CheckConnection(Settings.CurrentServer);
@@ -86,7 +86,7 @@ namespace gamma_mob
                 Shared.SaveToLogError(@"Внимание! Не запущена автоматическая проверка уровня заряда аккумулятора.");
             }
 
-#if !DEBUG
+#if !(DEBUG && !ASRELEASE)
             if (Shared.TimerForCheckUpdateProgram == null)
             {
                 Shared.SaveToLogError(@"Внимание! Не запущена автоматическая проверка на наличие новой версии программы.");
@@ -100,7 +100,7 @@ namespace gamma_mob
         {
             base.FormLoad(sender, e);
             BarcodeFunc = AuthorizeByBarcode;
-#if DEBUG
+#if DEBUG && !ASRELEASE
             InitConnection(null);
             //AuthorizeByBarcode("00000000000217"); //Грузчик мак.участка
             //AuthorizeByBarcode("00000000000068"); //Лобанов
@@ -150,7 +150,7 @@ namespace gamma_mob
                 this.ConnectionLost(); 
                 return;
             }
-#if !DEBUG
+#if !(DEBUG && !ASRELEASE)
             switch (Db.CheckSqlConnection())
             {
                 case 2:
@@ -184,26 +184,25 @@ namespace gamma_mob
             if (person.UserName.Contains("0"))
             {
                using (var form = new ChooseShiftDialog())
-                {
-#if !DEBUG
-                    DialogResult result = form.ShowDialog();
-                    if (result != DialogResult.OK || form.ShiftId < 1)
-                    {
-                        //MessageBox.Show(@"Не указан номер смены." + Environment.NewLine + @"Попробуйте еще раз!", @"Смена не выбрана",
-                        //                MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
-                        ConnectionLost(@"Не указан номер смены." + Environment.NewLine + @"Попробуйте еще раз!");
-                        return;
-                    }
-                    Settings.UserName = person.UserName.Replace("0", form.ShiftId.ToString());
-                    Settings.Password = "123456";
-                    Shared.ShiftId = form.ShiftId;
-#endif
-#if DEBUG
+               {
+#if DEBUG && !ASRELEASE
                     Shared.ShiftId = 1;
                     Settings.UserName = person.UserName.Replace("0", Shared.ShiftId.ToString());
                     Settings.Password = "123456";
+#else
+                   DialogResult result = form.ShowDialog();
+                   if (result != DialogResult.OK || form.ShiftId < 1)
+                   {
+                       //MessageBox.Show(@"Не указан номер смены." + Environment.NewLine + @"Попробуйте еще раз!", @"Смена не выбрана",
+                       //                MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
+                       ConnectionLost(@"Не указан номер смены." + Environment.NewLine + @"Попробуйте еще раз!");
+                       return;
+                   }
+                   Settings.UserName = person.UserName.Replace("0", form.ShiftId.ToString());
+                   Settings.Password = "123456";
+                   Shared.ShiftId = form.ShiftId;
 #endif
-                }
+               }
             }
             else
             {
@@ -239,7 +238,7 @@ namespace gamma_mob
             Shared.PersonName = person.Name;
             Shared.PlaceId = person.PlaceID;
             Shared.VisibledButtonsOnMainWindow = (VisibleButtonsOnMainWindow)person.i1;
-#if DEBUG
+#if DEBUG && !ASRELEASE
             var ii = (int)(VisibleButtonsOnMainWindow.btnExtAccept
                     | VisibleButtonsOnMainWindow.btnDocOrder
                     | VisibleButtonsOnMainWindow.btnDocTransfer
@@ -328,7 +327,7 @@ namespace gamma_mob
                 btnHelp.Text = "Скрыть";
                 lblMessage.Font = new System.Drawing.Font("Tahoma", 10, System.Drawing.FontStyle.Regular);
                 SetLblMessageText("Версия: " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version + Environment.NewLine + "Сервер: " + Settings.CurrentServer + Environment.NewLine + "БД/логин: " + Settings.Database + "/" + Settings.UserName);
-                SetLblMessageText(lblMessage.Text + Environment.NewLine + "БД ШК создан:" + Db.GetLocalDbBarcodesDateCreated().ToString(System.Globalization.CultureInfo.InvariantCulture));
+                SetLblMessageText(lblMessage.Text + Environment.NewLine + "БД ШК создан:" + Shared.Barcodes1C.GetLocalDbBarcodesDateCreated.ToString(System.Globalization.CultureInfo.InvariantCulture));
                 btnExecRDP.Visible = true;
                 btnTestPing.Visible = true;
                 btnTestSQL.Visible = true;
@@ -367,8 +366,11 @@ namespace gamma_mob
                         cerdispProcess.Kill();
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
+#if OUTPUTDEBUGINFO
+                    MessageBox.Show(ex.Message);
+#endif
                 }
             }
         }

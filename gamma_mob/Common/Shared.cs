@@ -91,7 +91,9 @@ namespace gamma_mob.Common
 
         private static void HandleSqlConnectionCheckStatus(object connection, StateChangeEventArgs args)
         {
+#if OUTPUTDEBUGINFO
             System.Diagnostics.Debug.WriteLine("DB change detected: " + args.OriginalState + " => " + args.CurrentState);
+#endif
             if (args.OriginalState == System.Data.ConnectionState.Open && args.CurrentState == System.Data.ConnectionState.Closed)
             {
                 //Shared.ConnectionOpenned = false;
@@ -464,12 +466,16 @@ namespace gamma_mob.Common
         public static void RefreshBarcodes1CFromTimer(object obj)
         {
             var n = DateTime.Now.ToString();
+#if OUTPUTDEBUGINFO
             System.Diagnostics.Debug.Write(n + " !!!!!RefreshBarcodes1CFromTimer(" + _refreshBarcodes1CRunning.ToString() + ")!" + Environment.NewLine);
+#endif
             if (_refreshBarcodes1CRunning) return;
             lock (lockerForBarcodesUpdate)
             {
                 _refreshBarcodes1CRunning = true;
+#if OUTPUTDEBUGINFO
                 System.Diagnostics.Debug.Write(n + " !!!!!Barcodes1C.UpdateBarcodes(" + _refreshBarcodes1CRunning.ToString() + ")!" + Environment.NewLine);
+#endif
                 Barcodes1C.UpdateBarcodes(false);
             }
             _refreshBarcodes1CRunning = false;
@@ -503,12 +509,16 @@ namespace gamma_mob.Common
         public static void UnloadOfflineProductsFromTimer(object obj)
         {
             var n = DateTime.Now.ToString();
+#if OUTPUTDEBUGINFO
             System.Diagnostics.Debug.Write(n + " !!!!!UnloadOfflineProductsFromTimer(" + _unloadOfflineProductsRunning.ToString() + ")!" + Environment.NewLine);
+#endif
             if (!Shared.IsExistsUnloadOfflineProducts || _unloadOfflineProductsRunning || !ConnectionState.IsConnected) return;
             lock (lockerForUnloadOfflineProducts)
             {
                 _unloadOfflineProductsRunning = true;
+#if OUTPUTDEBUGINFO
                 System.Diagnostics.Debug.Write(n + " !!!!!UnloadOfflineProducts(" + _unloadOfflineProductsRunning.ToString() + ")!" + Environment.NewLine);
+#endif
                 ScannedBarcodes.UnloadOfflineProducts(false);
             }
             _unloadOfflineProductsRunning = false;
@@ -719,9 +729,11 @@ namespace gamma_mob.Common
             {
                 Db.AddMessageToLog(scanId, dateScanned, barcode, placeId, placeZoneId, docTypeId, docId, isUploaded, productId, productKindId, nomenclatureId, characteristicId, qualityId, quantity, quantityFractional, measureUnitId, fromProductId, fromPlaceId, fromPlaceZoneId, newWeight, validUntilDate);
             }
-            catch (Exception err)
+            catch (Exception ex)
             {
-                //MessageBox.Show(err.Message);
+#if OUTPUTDEBUGINFO
+                MessageBox.Show(ex.Message);
+#endif
             }
         }
 
@@ -732,9 +744,11 @@ namespace gamma_mob.Common
             {
                 Db.AddMessageToLog(scanId, dateScanned, barcode, placeId, placeZoneId, docTypeId, docId, isUploaded, productId, productKindId, nomenclatureId, characteristicId, qualityId, quantity, quantityFractional, null, null, null, null, null, null);
             }
-            catch (Exception err)
+            catch (Exception ex)
             {
-                //MessageBox.Show(err.Message);
+#if OUTPUTDEBUGINFO
+                MessageBox.Show(ex.Message);
+#endif
             }
         }
 
@@ -745,9 +759,11 @@ namespace gamma_mob.Common
             {
                 Db.AddMessageToLog(scanId, dateScanned, barcode, placeId, placeZoneId, docTypeId, docId, isUploaded, productId, productKindId, nomenclatureId, characteristicId, qualityId, quantity, null, null, null, null, null, null, null);
             }
-            catch (Exception err)
+            catch (Exception ex)
             {
-                //MessageBox.Show(err.Message);
+#if OUTPUTDEBUGINFO
+                MessageBox.Show(ex.Message);
+#endif
             }
         }
 
@@ -758,9 +774,11 @@ namespace gamma_mob.Common
             {
                 Db.AddMessageToLog(scanId, isUploaded, log);
             }
-            catch (Exception err)
+            catch (Exception ex)
             {
-               // MessageBox.Show(err.Message);
+#if OUTPUTDEBUGINFO
+                MessageBox.Show(ex.Message);
+#endif
             }
         }
 
@@ -771,9 +789,11 @@ namespace gamma_mob.Common
             {
                 Db.AddMessageToLog(scanId, isUploaded, isDeleted, log);
             }
-            catch (Exception err)
+            catch (Exception ex)
             {
-                //MessageBox.Show(err.Message);
+#if OUTPUTDEBUGINFO
+                MessageBox.Show(ex.Message);
+#endif
             }
         }
         /*public static void SaveToLog(Guid scanId, DateTime dateScanned, string barcode, int placeId, Guid? placeZoneId, int docTypeId, Guid? docId, bool isUploaded)
@@ -797,9 +817,11 @@ namespace gamma_mob.Common
             {
                 Db.AddMessageToLog(log, docId, productId);
             }
-            catch (Exception err)
+            catch (Exception ex)
             {
-                MessageBox.Show(err.Message);
+#if OUTPUTDEBUGINFO
+                MessageBox.Show(ex.Message);
+#endif
             }
         }
 
@@ -810,9 +832,11 @@ namespace gamma_mob.Common
             {
                 Db.AddMessageToLog(log);
             }
-            catch (Exception err)
+            catch (Exception ex)
             {
-                 MessageBox.Show(err.Message);
+#if OUTPUTDEBUGINFO
+                MessageBox.Show(ex.Message);
+#endif
             }
         }
 
@@ -838,6 +862,9 @@ namespace gamma_mob.Common
 
         public static void SaveToLogError(string log)
         {
+#if OUTPUTDEBUGINFO
+            MessageBox.Show(log);
+#endif            
             Shared.SaveToLogError(log, null, null);
         }
 
@@ -854,14 +881,15 @@ namespace gamma_mob.Common
 
         public static void DeleteOldUploadedToServerLogs()
         {
-
             try
             {
                 Db.DeleteOldUploadedToServerLogs();
             }
-            catch (Exception err)
+            catch (Exception ex)
             {
-               // MessageBox.Show(err.Message);
+#if OUTPUTDEBUGINFO
+                MessageBox.Show(ex.Message);
+#endif
             }
         }
 
@@ -932,8 +960,11 @@ namespace gamma_mob.Common
                 batteryLevel = Shared.Device.GetBatteryLevel();
                 UpdateBatterySerialumber();
             }
-            catch
+            catch (Exception ex)
             {
+#if OUTPUTDEBUGINFO
+                MessageBox.Show(ex.Message);
+#endif
             }
         }
 
@@ -1078,8 +1109,11 @@ namespace gamma_mob.Common
                 }
                 return cerdispProcess;
             }
-            catch
+            catch (Exception ex)
             {
+#if OUTPUTDEBUGINFO
+                MessageBox.Show(ex.Message);
+#endif
                 return null;
             }
 

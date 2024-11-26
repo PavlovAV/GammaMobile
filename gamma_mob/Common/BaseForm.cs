@@ -90,7 +90,11 @@ namespace gamma_mob.Common
                 Invoke((ConnectStateChangeInvoker)(ShowConnection), new object[] { ConnectState.NoConnection });
             }
             catch (ObjectDisposedException ex)
-            { }
+            {
+#if OUTPUTDEBUGINFO
+                System.Diagnostics.Debug.WriteLine("ObjectDisposedEXCEPTION ConnectionLost:" + Environment.NewLine + ex.Message);
+#endif
+            }
         }
 
         protected void ConnectionRestored()
@@ -100,7 +104,11 @@ namespace gamma_mob.Common
             Invoke((ConnectStateChangeInvoker)(ShowConnection), new object[] { ConnectState.ConnectionRestore });
             }
             catch (ObjectDisposedException ex)
-            { }
+            {
+#if OUTPUTDEBUGINFO
+                System.Diagnostics.Debug.WriteLine("ObjectDisposedEXCEPTION ConnectionRestored:" + Environment.NewLine + ex.Message);
+#endif
+            }
         }
 
         protected virtual void ShowConnection(ConnectState conState)

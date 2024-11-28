@@ -78,33 +78,27 @@ namespace gamma_mob.Common
         {
             get
             {
-                if (_connectionCheckStatus == null || _connectionCheckStatus.ConnectionString == String.Empty || _connectionCheckStatus.ConnectionString != Db.GetConnectionString())
+                if (_connectionCheckStatus == null || _connectionCheckStatus.ConnectionString == String.Empty || _connectionCheckStatus.ConnectionString != Db.GetConnectionString(ConnectionCheckStatusTimeout))
                 {
-                    _connectionCheckStatus = new SqlConnection(Db.GetConnectionString());
-                    _connectionCheckStatus.StateChange += HandleSqlConnectionCheckStatus;
+                    _connectionCheckStatus = new SqlConnection(Db.GetConnectionString(ConnectionCheckStatusTimeout));
                 }
                 return _connectionCheckStatus;
             }
         }
 
-        //public static bool Shared.ConnectionOpenned {get; private set;}
-
-        private static void HandleSqlConnectionCheckStatus(object connection, StateChangeEventArgs args)
+        private static int? _connectionCheckStatusTimeout { get; set; }
+        private static int ConnectionCheckStatusTimeout
         {
-#if OUTPUTDEBUGINFO
-            System.Diagnostics.Debug.WriteLine("DB change detected: " + args.OriginalState + " => " + args.CurrentState);
-#endif
-            if (args.OriginalState == System.Data.ConnectionState.Open && args.CurrentState == System.Data.ConnectionState.Closed)
+            get
             {
-                //Shared.ConnectionOpenned = false;
-                //ConnectionState.StartChecker();
-                ConnectionState.ConnectionLost();
+                if (_connectionCheckStatusTimeout == null)
+                {
+                    var timeout = Db.GetProgramSettings("ConnectionCheckStatusTimeout");
+                    if (timeout != null && timeout != String.Empty)
+                        _connectionCheckStatusTimeout = Convert.ToInt32(timeout);
+                }
+                return _connectionCheckStatusTimeout ?? 60;
             }
-            //else if (args.OriginalState == System.Data.ConnectionState.Closed && args.CurrentState == System.Data.ConnectionState.Open)
-            //{
-            //    //ConnectionOpenned = true;
-            //    ConnectionState.StopChecker();
-            //}
         }
 
         private static bool? _lastQueryCompleted { get; set; }

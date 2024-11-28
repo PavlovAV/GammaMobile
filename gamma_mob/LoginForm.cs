@@ -344,6 +344,17 @@ namespace gamma_mob
                 SetLblMessageText(lblMessage.Text + Environment.NewLine + "IsConnected " + ConnectionState.IsConnected);
                 SetLblMessageText(lblMessage.Text + Environment.NewLine + "Имя ТСД: " + Shared.Device.GetHostName() + " (s/n " + Shared.Device.GetDeviceName() + ")" );
                 SetLblMessageText(lblMessage.Text + Environment.NewLine + "IP адрес " + Shared.Device.GetDeviceIP());
+#if DEBUG
+                SetLblMessageText(lblMessage.Text + Environment.NewLine + "DEBUG;");
+#else
+                SetLblMessageText(lblMessage.Text + Environment.NewLine + "!DEBUG;");
+#endif
+#if OUTPUTDEBUGINFO
+                SetLblMessageText(lblMessage.Text + "OUTPUTDEBUGINFO;");
+#endif
+#if ASRELEASE
+                SetLblMessageText(lblMessage.Text + "ASRELEASE;");
+#endif
             }
             else
             {

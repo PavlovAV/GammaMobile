@@ -21,6 +21,9 @@ namespace gamma_mob
     {
         private static string ConnectionString { get; set; }
 
+        private static string ConnectionCheckStatusString { get; set; }
+        private static int connectionCheckStatusTimeout { get; set; }
+
         private static string _deviceName  { get; set; }
         public static string deviceName
         {
@@ -503,6 +506,20 @@ namespace gamma_mob
         public static string GetConnectionString()
         {
             return ConnectionString;
+        }
+
+        public static string GetConnectionString(int newTimeout)
+        {
+            if (connectionCheckStatusTimeout != newTimeout)
+            {
+                string connectionString = ConnectionString;
+                if (ConnectionString.LastIndexOf("Connection Timeout") > 0)
+                {
+                    connectionString = ConnectionString.Substring(0, ConnectionString.LastIndexOf("Connection Timeout")) + "Connection Timeout=" + newTimeout;
+                }
+                ConnectionCheckStatusString = connectionString;
+            }
+            return ConnectionCheckStatusString;
         }
 
         public static int CheckSqlConnection()
@@ -2122,7 +2139,7 @@ namespace gamma_mob
         {
             List<Warehouse> list = null;
             const string sql = "dbo.mob_GetWarehouses";
-            using (DataTable table = ExecuteSelectQuery(sql, new List<SqlParameter>(), CommandType.StoredProcedure))
+            using (DataTable table = ExecuteSelectQuery(sql, new List<SqlParameter>(), CommandType.StoredProcedure, 5))
             {
                 if (table != null && table.Rows.Count > 0)
                 {
@@ -2183,7 +2200,7 @@ namespace gamma_mob
         {
             List<PlaceZone> list = null;
             const string sql = "SELECT PlaceID, PlaceZoneID, Name, Barcode, PlaceZoneParentID, v, RootPlaceID, AllowedUseZonesOfPlaceGroup FROM vPlaceZones ORDER BY SortOrder";
-            using (DataTable table = ExecuteSelectQuery(sql, new List<SqlParameter>(), CommandType.Text))
+            using (DataTable table = ExecuteSelectQuery(sql, new List<SqlParameter>(), CommandType.Text, 5))
             {
                 if (table != null && table.Rows.Count > 0)
                 {

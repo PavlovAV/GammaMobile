@@ -279,24 +279,38 @@ namespace gamma_mob
                             //if (client.Connected)
                             //    client.Close();
                         }
-                        else if (Shared.ConnectionCheckStatus.State == System.Data.ConnectionState.Open && IsConnected
-                            && (DateTime.Now - lastCheckOpennedConnection).Seconds >= 5)
+                        else if (Shared.ConnectionCheckStatus.State == System.Data.ConnectionState.Open && IsConnected)
                         {
-                            TcpClient TcpClient = new TcpClient();
-                            var client = TcpClient.Client;
-                            var result = client.BeginConnect(iPEndPoint, null, client);
-
-                            var success = result.AsyncWaitHandle.WaitOne(1000, false);
-
-                            if (!success)
+                            if (Settings.GetCurrentServerIsExternal())
                             {
-                                throw new Exception("Failed to connect.");
+                                if ((DateTime.Now - lastCheckOpennedConnection).Seconds >= 5)
+                                {
+                                    TcpClient TcpClient = new TcpClient();
+                                    var client = TcpClient.Client;
+                                    var result = client.BeginConnect(iPEndPoint, null, client);
+
+                                    var success = result.AsyncWaitHandle.WaitOne(1000, false);
+
+                                    if (!success)
+                                    {
+                                        throw new Exception("Failed to connect.");
+                                    }
+
+                                    // we have connected
+                                    client.EndConnect(result);
+                                    lastCheckOpennedConnection = DateTime.Now;
+                                }
+                            }
+                            else if ((DateTime.Now - lastCheckOpennedConnection).Seconds >= 2)
+                            {
+                                using (var pinger = new Ping())
+                                {
+                                    PingReply reply = pinger.Send(ServerIp, 200);
+                                }
+                                lastCheckOpennedConnection = DateTime.Now;
                             }
 
-                            // we have connected
-                            client.EndConnect(result);
                         }
-                        
                         //else if (Shared.Connection.State == System.Data.ConnectionState.Open && !Shared.LastQueryCompleted)
                         //{
                         //    Shared.Connection.

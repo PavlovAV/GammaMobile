@@ -381,6 +381,9 @@ namespace gamma_mob
                         case 10:
                             buttonUserInfo.Text = "Сер.номер: " + Shared.Device.GetDeviceName();
                             break;
+                        case 11:
+                            buttonUserInfo.Text = "Метод проверки: " + Settings.CurrentCheckConnectionMethod;
+                            break;
                     }
                 }
                 catch
@@ -392,7 +395,7 @@ namespace gamma_mob
 
         private void btnUserInfo_Click(object sender, EventArgs e)
         {
-            userInfoTextId = userInfoTextId == 10 ? (short)0 : (short)(userInfoTextId + 1);
+            userInfoTextId = userInfoTextId == 11 ? (short)0 : (short)(userInfoTextId + 1);
         }
 
         private void btnCloseApp_Click(object sender, EventArgs e)

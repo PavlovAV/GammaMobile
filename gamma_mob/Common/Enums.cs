@@ -143,4 +143,22 @@ namespace gamma_mob.Common
         btnInfoProduct = 512,
         ALL = ~NONE
     }
+
+    public enum CheckConnectionMethod
+    {
+        /// <summary>
+        /// Проверка используя Ping
+        /// </summary>
+        Ping,
+        /// <summary>
+        /// Проверка используя открытие порта на сервере
+        /// </summary>
+        TcpCl
+    }
+
+    public enum CurrentServer
+    {
+        Internal,
+        External
+    }
 }

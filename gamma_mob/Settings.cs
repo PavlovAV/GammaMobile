@@ -19,11 +19,13 @@ namespace gamma_mob
         private static readonly string m_settingsPath;
         private static readonly string m_currentSecondServerFlag;
         private static readonly string m_settingsCPath;
+        private static readonly string m_currentCheckConnectionMethodFlag;
 
         static Settings()
         {
             m_settingsPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase);
             m_currentSecondServerFlag = m_settingsPath + @"\CurrentSecondServer.flg";
+            m_currentCheckConnectionMethodFlag = m_settingsPath + @"\CurrentCheckConnectionMethod.flg";
             m_settingsPath += @"\Settings.xml";
             m_settingsCPath = m_settingsPath + @"c";
 /*#if DEBUG
@@ -144,6 +146,9 @@ namespace gamma_mob
                 m_settings.Add("progSettings.Gamma.CurrentServer", File.Exists(m_currentSecondServerFlag)
                      ? m_settings.Get("progSettings.Gamma.SecondServerIP") : m_settings.Get("progSettings.Gamma.ServerIP"));
                 Shared.SaveToLogStartProgramInformation("CurrentServer/DB " + CurrentServer + "/" + Database);
+                m_settings.Add("progSettings.Gamma.CurrentCheckConnectionMethod", File.Exists(m_currentCheckConnectionMethodFlag)
+                     ? CheckConnectionMethod.TcpCl.ToString() : CheckConnectionMethod.Ping.ToString());
+                Shared.SaveToLogStartProgramInformation("CurrentCheckConnectionMethod " + CurrentCheckConnectionMethod);
             }
         }
 
@@ -187,6 +192,22 @@ namespace gamma_mob
         {
             get { return m_settings.Get("progSettings.Gamma.CurrentServer"); }
             //set { m_settings.Set("CurrentServer", value); }
+        }
+
+        private static string _currentCheckConnectionMethod { get; set; }
+        public static string CurrentCheckConnectionMethod
+        {
+            get 
+            {
+                if (_currentCheckConnectionMethod == null || _currentCheckConnectionMethod == String.Empty)
+                    _currentCheckConnectionMethod = m_settings.Get("progSettings.Gamma.CurrentCheckConnectionMethod");
+                return _currentCheckConnectionMethod; 
+            }
+            set
+            {
+                _currentCheckConnectionMethod = m_settings.Get("progSettings.Gamma.CurrentCheckConnectionMethod");
+            }
+            //set { m_settings.Set("CurrentCheckConnectionMethod", value); }
         }
 
         public static void Update()
@@ -253,6 +274,45 @@ namespace gamma_mob
         public static bool GetCurrentServerIsExternal()
         {
             return !(m_settings.Get("progSettings.Gamma.CurrentServer") == ServerIP);
+        }
+
+        public static bool SetCurrentCheckConnectionMethod(bool isChangeCheckConnectionMethodToPing)
+        {
+            bool ret = false;
+            if (isChangeCheckConnectionMethodToPing)
+            {
+                try
+                {
+                    if (File.Exists(m_currentCheckConnectionMethodFlag)) File.Delete(m_currentCheckConnectionMethodFlag);
+                    m_settings.Set("progSettings.Gamma.CurrentCheckConnectionMethod", CheckConnectionMethod.Ping.ToString());
+                    CurrentCheckConnectionMethod = CheckConnectionMethod.Ping.ToString();
+                    ret = true;
+                }
+                catch
+                {
+                    Shared.SaveToLogError("Error Delete(m_currentCheckConnectionMethodFlag)");
+                }
+            } 
+            else
+            {
+                try
+                {
+                    File.CreateText(m_currentCheckConnectionMethodFlag);
+                    m_settings.Set("progSettings.Gamma.CurrentCheckConnectionMethod", CheckConnectionMethod.TcpCl.ToString());
+                    CurrentCheckConnectionMethod = CheckConnectionMethod.TcpCl.ToString();
+                    ret = true;
+                }
+                catch
+                {
+                    Shared.SaveToLogError("Error Create(m_currentCheckConnectionMethodFlag)");
+                }
+            }
+            return ret;
+        }
+
+        public static bool GetCurrentCheckConnectionMethod(string method)
+        {
+            return (CurrentCheckConnectionMethod == method);
         }
 
         private static void UpdateDeviceSettings()

@@ -242,6 +242,16 @@ namespace gamma_mob
         private static IAsyncResult result;
         private static bool _checkConnectionAvialabledRunning;
         private static DateTime lastCheckOpennedConnection { get; set; }
+        private static Ping _pinger { get; set; }
+        private static Ping pinger 
+        { 
+            get
+            {
+                if (_pinger == null) _pinger = new Ping();
+                return _pinger;
+            }
+        }
+
 
         public static void CheckConnectionAvialabled(object obj)
         {
@@ -265,6 +275,8 @@ namespace gamma_mob
 #endif
                         if (Shared.ConnectionCheckStatus.State != System.Data.ConnectionState.Open)
                         {
+                            if (Settings.GetCurrentCheckConnectionMethod(CheckConnectionMethod.Ping.ToString())) 
+                                pinger.Send(ServerIp, 250); 
                             Shared.ConnectionCheckStatus.Open();
                             lastCheckOpennedConnection = DateTime.Now;
                             //if (client.Connected)
@@ -273,6 +285,8 @@ namespace gamma_mob
                         }
                         else if (Shared.ConnectionCheckStatus.State == System.Data.ConnectionState.Open && !IsConnected)
                         {
+                            if (Settings.GetCurrentCheckConnectionMethod(CheckConnectionMethod.Ping.ToString())) 
+                                pinger.Send(ServerIp, 250); 
                             Shared.ConnectionCheckStatus.Close();
                             Shared.ConnectionCheckStatus.Open();
                             lastCheckOpennedConnection = DateTime.Now;
@@ -281,32 +295,29 @@ namespace gamma_mob
                         }
                         else if (Shared.ConnectionCheckStatus.State == System.Data.ConnectionState.Open && IsConnected)
                         {
-                            if (Settings.GetCurrentServerIsExternal())
+                            if (Settings.GetCurrentCheckConnectionMethod(CheckConnectionMethod.Ping.ToString()))
                             {
-                                if ((DateTime.Now - lastCheckOpennedConnection).Seconds >= 5)
+                                if ((DateTime.Now - lastCheckOpennedConnection).Seconds >= 2)
                                 {
-                                    TcpClient TcpClient = new TcpClient();
-                                    var client = TcpClient.Client;
-                                    var result = client.BeginConnect(iPEndPoint, null, client);
-
-                                    var success = result.AsyncWaitHandle.WaitOne(1000, false);
-
-                                    if (!success)
-                                    {
-                                        throw new Exception("Failed to connect.");
-                                    }
-
-                                    // we have connected
-                                    client.EndConnect(result);
+                                    pinger.Send(ServerIp, 250);
                                     lastCheckOpennedConnection = DateTime.Now;
                                 }
                             }
-                            else if ((DateTime.Now - lastCheckOpennedConnection).Seconds >= 2)
+                            else if ((DateTime.Now - lastCheckOpennedConnection).Seconds >= 5)
                             {
-                                using (var pinger = new Ping())
+                                TcpClient TcpClient = new TcpClient();
+                                var client = TcpClient.Client;
+                                var result = client.BeginConnect(iPEndPoint, null, client);
+
+                                var success = result.AsyncWaitHandle.WaitOne(1000, false);
+
+                                if (!success)
                                 {
-                                    PingReply reply = pinger.Send(ServerIp, 200);
+                                    throw new Exception("Failed to connect.");
                                 }
+
+                                // we have connected
+                                client.EndConnect(result);
                                 lastCheckOpennedConnection = DateTime.Now;
                             }
 

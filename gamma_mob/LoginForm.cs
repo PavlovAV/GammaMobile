@@ -332,8 +332,8 @@ namespace gamma_mob
                 btnTestPing.Visible = true;
                 btnTestSQL.Visible = true;
                 btnTestWiFi.Visible = true;
-                btnSetExternalNet.Visible = true;
-                btnSetInternalNet.Visible = true;
+                btnSetCheckConnectionMethod.Visible = true;
+                btnSetCurrentServer.Visible = true;
                 btnUpdateProgram.Visible = true;
                 if (Shared.Device is DeviceCipherlab)
                 {
@@ -341,6 +341,7 @@ namespace gamma_mob
                     btnExit.Visible = true;
                 }
                 RefreshBtnSetNetEnabled();
+                RefreshBtnSetCheckConnectionMethod();
                 SetLblMessageText(lblMessage.Text + Environment.NewLine + "IsConnected " + ConnectionState.IsConnected);
                 SetLblMessageText(lblMessage.Text + Environment.NewLine + "Имя ТСД: " + Shared.Device.GetHostName() + " (s/n " + Shared.Device.GetDeviceName() + ")" );
                 SetLblMessageText(lblMessage.Text + Environment.NewLine + "IP адрес " + Shared.Device.GetDeviceIP());
@@ -365,8 +366,8 @@ namespace gamma_mob
                 btnTestPing.Visible = false;
                 btnTestSQL.Visible = false;
                 btnTestWiFi.Visible = false;
-                btnSetExternalNet.Visible = false;
-                btnSetInternalNet.Visible = false;
+                btnSetCheckConnectionMethod.Visible = false;
+                btnSetCurrentServer.Visible = false;
                 btnUpdateProgram.Visible = false;
                 btnExit.Visible = false;
                 try
@@ -514,21 +515,11 @@ namespace gamma_mob
             SetBarcode(e.KeyChar);
         }
 
-        private void btnSetInternalNet_Click(object sender, EventArgs e)
-        {
-            ChangeCurrentServer(false);
-        }
-
-        private void btnSetExternalNet_Click(object sender, EventArgs e)
-        {
-            ChangeCurrentServer(true);
-        }
-
-        private void ChangeCurrentServer(bool isChangeExternalServer)
+        private void btnSetCurrentServer_Click(object sender, EventArgs e)
         {
             if (Shared.ShowMessageQuestion("Вы уверены, что хотите изменить адрес сервера?") == DialogResult.Yes)
             {
-                if ((!isChangeExternalServer) ? Settings.SetCurrentInternalServer() : Settings.SetCurrentExternalServer())
+                if (((sender as Button).Text == CurrentServer.External.ToString()) ? Settings.SetCurrentInternalServer() : Settings.SetCurrentExternalServer())
                 {
                     RefreshBtnSetNetEnabled();
                     SetLblMessageText("Установлен адрес сервера " + Settings.CurrentServer);
@@ -536,7 +527,7 @@ namespace gamma_mob
                 }
                 else
                 {
-                    SetLblMessageText("Ошибка при установке адреса сервера " + (!isChangeExternalServer ? Settings.ServerIP : Settings.SecondServerIP));
+                    SetLblMessageText("Ошибка при изменении текущего адреса сервера " + (sender as Button).Text);
                     Shared.SaveToLogError(lblMessage.Text);
                 }
             }
@@ -544,8 +535,30 @@ namespace gamma_mob
 
         public void RefreshBtnSetNetEnabled()
         {
-            btnSetExternalNet.Enabled = Settings.CurrentServer == Settings.ServerIP;
-            btnSetInternalNet.Enabled = Settings.CurrentServer == Settings.SecondServerIP;
+            btnSetCurrentServer.Text = !(Settings.CurrentServer == Settings.SecondServerIP) ? CurrentServer.Internal.ToString() : CurrentServer.External.ToString();
+        }
+
+        private void btnSetCheckConnectionMethod_Click(object sender, EventArgs e)
+        {
+            if (Shared.ShowMessageQuestion("Вы уверены, что хотите изменить способ проверки доступности сервера?") == DialogResult.Yes)
+            {
+                if (Settings.SetCurrentCheckConnectionMethod((sender as Button).Text == CheckConnectionMethod.TcpCl.ToString()))
+                {
+                    RefreshBtnSetCheckConnectionMethod();
+                    SetLblMessageText("Установлен способ проверки доступности сервера " + Settings.CurrentCheckConnectionMethod);
+                    Shared.SaveToLogInformation(lblMessage.Text);
+                }
+                else
+                {
+                    SetLblMessageText("Ошибка при изменении текущего способа проверки доступности сервера " + (sender as Button).Text);
+                    Shared.SaveToLogError(lblMessage.Text);
+                }
+            }
+        }
+
+        public void RefreshBtnSetCheckConnectionMethod()
+        {
+            btnSetCheckConnectionMethod.Text = Settings.CurrentCheckConnectionMethod;
         }
 
         private void btnUpdateProgram_Click(object sender, EventArgs e)

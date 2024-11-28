@@ -34,8 +34,8 @@
             this.btnTestSQL = new System.Windows.Forms.Button();
             this.btnExecRDP = new System.Windows.Forms.Button();
             this.lblMessage = new System.Windows.Forms.TextBox();
-            this.btnSetExternalNet = new System.Windows.Forms.Button();
-            this.btnSetInternalNet = new System.Windows.Forms.Button();
+            this.btnSetCheckConnectionMethod = new System.Windows.Forms.Button();
+            this.btnSetCurrentServer = new System.Windows.Forms.Button();
             this.btnUpdateProgram = new System.Windows.Forms.Button();
             this.btnExit = new System.Windows.Forms.Button();
             this.imgConnection = new System.Windows.Forms.PictureBox();
@@ -105,25 +105,25 @@
             this.lblMessage.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.lblMessage.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.lblMessage_KeyPress);
             // 
-            // btnSetExternalNet
+            // btnSetCheckConnectionMethod
             // 
-            this.btnSetExternalNet.Location = new System.Drawing.Point(123, 25);
-            this.btnSetExternalNet.Name = "btnSetExternalNet";
-            this.btnSetExternalNet.Size = new System.Drawing.Size(98, 20);
-            this.btnSetExternalNet.TabIndex = 9;
-            this.btnSetExternalNet.Text = "Ч-з модем";
-            this.btnSetExternalNet.Visible = false;
-            this.btnSetExternalNet.Click += new System.EventHandler(this.btnSetExternalNet_Click);
+            this.btnSetCheckConnectionMethod.Location = new System.Drawing.Point(123, 25);
+            this.btnSetCheckConnectionMethod.Name = "btnSetCheckConnectionMethod";
+            this.btnSetCheckConnectionMethod.Size = new System.Drawing.Size(98, 20);
+            this.btnSetCheckConnectionMethod.TabIndex = 9;
+            this.btnSetCheckConnectionMethod.Text = "";
+            this.btnSetCheckConnectionMethod.Visible = false;
+            this.btnSetCheckConnectionMethod.Click += new System.EventHandler(this.btnSetCheckConnectionMethod_Click);
             // 
-            // btnSetInternalNet
+            // btnSetCurrentServer
             // 
-            this.btnSetInternalNet.Location = new System.Drawing.Point(13, 25);
-            this.btnSetInternalNet.Name = "btnSetInternalNet";
-            this.btnSetInternalNet.Size = new System.Drawing.Size(94, 20);
-            this.btnSetInternalNet.TabIndex = 8;
-            this.btnSetInternalNet.Text = "Внутр.сеть";
-            this.btnSetInternalNet.Visible = false;
-            this.btnSetInternalNet.Click += new System.EventHandler(this.btnSetInternalNet_Click);
+            this.btnSetCurrentServer.Location = new System.Drawing.Point(13, 25);
+            this.btnSetCurrentServer.Name = "btnSetCurrentServer";
+            this.btnSetCurrentServer.Size = new System.Drawing.Size(94, 20);
+            this.btnSetCurrentServer.TabIndex = 8;
+            this.btnSetCurrentServer.Text = "";
+            this.btnSetCurrentServer.Visible = false;
+            this.btnSetCurrentServer.Click += new System.EventHandler(this.btnSetCurrentServer_Click);
             // 
             // btnUpdateProgram
             // 
@@ -160,8 +160,8 @@
             this.Controls.Add(this.imgConnection);
             this.Controls.Add(this.btnExit);
             this.Controls.Add(this.btnUpdateProgram);
-            this.Controls.Add(this.btnSetExternalNet);
-            this.Controls.Add(this.btnSetInternalNet);
+            this.Controls.Add(this.btnSetCheckConnectionMethod);
+            this.Controls.Add(this.btnSetCurrentServer);
             this.Controls.Add(this.lblMessage);
             this.Controls.Add(this.btnExecRDP);
             this.Controls.Add(this.btnTestSQL);
@@ -183,8 +183,8 @@
         private System.Windows.Forms.Button btnTestSQL;
         private System.Windows.Forms.Button btnExecRDP;
         private System.Windows.Forms.TextBox lblMessage;
-        private System.Windows.Forms.Button btnSetExternalNet;
-        private System.Windows.Forms.Button btnSetInternalNet;
+        private System.Windows.Forms.Button btnSetCheckConnectionMethod;
+        private System.Windows.Forms.Button btnSetCurrentServer;
         private System.Windows.Forms.Button btnUpdateProgram;
         private System.Windows.Forms.Button btnExit;
         //private System.Windows.Forms.PictureBox imgConnection;

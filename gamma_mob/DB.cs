@@ -3147,7 +3147,7 @@ namespace gamma_mob
                             Value = NameSetting
                         }
                 };
-            using (DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure, 2))
+            using (DataTable table = ExecuteSilentlySelectQuery(sql, parameters, CommandType.StoredProcedure, 2))
             {
                 if (table != null && table.Rows.Count > 0)
                 {

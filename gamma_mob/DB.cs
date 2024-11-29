@@ -755,11 +755,18 @@ namespace gamma_mob
                                     };
                             parameters0_.Add(pp);
                         }
-                        string sql0 = "INSERT INTO Barcodes (Barcode, Name, NomenclatureID, CharacteristicID, QualityID, MeasureUnitID, BarcodeID, Number, KindId, IsMovementFromPallet) VALUES (@Barcode, @Name, @NomenclatureID, @CharacteristicID, @QualityID, @MeasureUnitID, @BarcodeID, @Number, @KindID, @IsMovementFromPallet)";
-                        var ret0 = ExecuteCeNonQuery(sql0, parameters0, CommandType.Text, ConnectServerCe.BarcodesServer);
-                        var ret0_ = ExecuteCeNonQuery(sql0, parameters0_, CommandType.Text, ConnectServerCe.BackupBarcodesServer);
-                        Shared.Barcodes1C.AddedBarcode(item.KindId);
-                        return ret0; 
+                        if (!CheckBarcodeExistInBarcodesServer(item.BarcodeId))
+                        {
+                            string sql0 = "INSERT INTO Barcodes (Barcode, Name, NomenclatureID, CharacteristicID, QualityID, MeasureUnitID, BarcodeID, Number, KindId, IsMovementFromPallet) VALUES (@Barcode, @Name, @NomenclatureID, @CharacteristicID, @QualityID, @MeasureUnitID, @BarcodeID, @Number, @KindID, @IsMovementFromPallet)";
+                            var ret0 = ExecuteCeNonQuery(sql0, parameters0, CommandType.Text, ConnectServerCe.BarcodesServer);
+                            var ret0_ = ExecuteCeNonQuery(sql0, parameters0_, CommandType.Text, ConnectServerCe.BackupBarcodesServer);
+                            Shared.Barcodes1C.AddedBarcode(item.KindId);
+                            return ret0;
+                        }
+                        else
+                        {
+                            return true;
+                        }
                         break;
                     case 1:
 
@@ -3580,6 +3587,50 @@ namespace gamma_mob
             finally
             {
                 Cursor.Current = Cursors.Default;
+            }
+        }
+
+        private static bool CheckBarcodeExistInBarcodesServer(Guid barcodeId)
+        {
+            try
+            {
+                DataTable table;
+                Shared.LastCeQueryCompleted = false;
+                using (var command = new SqlCeCommand("SELECT COUNT(*) AS CountBarcode FROM Barcodes WHERE BarcodeID = @BarcodeID"))
+                {
+                    command.Connection = new SqlCeConnection(ConnectionCeString(ConnectServerCe.BarcodesServer));
+                    command.CommandType = CommandType.Text;
+                    command.Parameters.Add(new SqlCeParameter() {ParameterName = "@BarcodeID", SqlDbType = SqlDbType.UniqueIdentifier, Value = barcodeId });
+                    using (var sda = new SqlCeDataAdapter(command))
+                    {
+                        try
+                        {
+                            table = new DataTable();
+                            sda.Fill(table);
+                            Shared.LastCeQueryCompleted = true;
+                        }
+                        catch (Exception ex)
+                        {
+#if OUTPUTDEBUGINFO
+                            MessageBox.Show(ex.Message);
+                            var sqlex = ex as SqlException;
+                            if (sqlex != null)
+                                foreach (var error in sqlex.Errors)
+                                {
+                                    MessageBox.Show(error.ToString());
+                                }
+#endif
+                            Shared.LastCeQueryCompleted = false;
+                            table = null;
+                        }
+                    }
+                }
+                return table == null || table.Rows == null || table.Rows.Count == 0 ? true : table.Rows[0]["CountBarcode"] == "0";
+            }
+            finally
+            {
+                Cursor.Current = Cursors.Default;
+                if (Shared.LastCeQueryCompleted == null) Shared.LastCeQueryCompleted = false;
             }
         }
 

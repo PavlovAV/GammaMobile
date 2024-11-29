@@ -53,9 +53,10 @@ namespace gamma_mob.Common
         protected virtual void FormLoad(object sender, EventArgs e)
         {
             //Подписка на событие восстановления связи
-            ConnectionState.OnConnectionRestored += ConnectionRestored;//UnloadOfflineProducts;
+            //ConnectionState.OnConnectionRestored += ConnectionRestored;//UnloadOfflineProducts;
             //Подписка на событие потери связи
-            ConnectionState.OnConnectionLost += ConnectionLost;
+            //ConnectionState.OnConnectionLost += ConnectionLost;
+            ConnectionState.OnConnectionStateChanged += ConnectionStateChanged;
             Shared.SaveToLogInformation("Open " + ((Form)sender).Name + " " + ((Form)sender).Text);
         }
 
@@ -66,8 +67,9 @@ namespace gamma_mob.Common
                 if (BarcodeFunc.Target.ToString().Contains(((Form)sender).Name))
                     Scanner.CurrentScanner.BarcodeReceived -= BarcodeFunc;
             }
-            ConnectionState.OnConnectionRestored -= ConnectionRestored;
-            ConnectionState.OnConnectionLost -= ConnectionLost;
+            //ConnectionState.OnConnectionRestored -= ConnectionRestored;
+            //ConnectionState.OnConnectionLost -= ConnectionLost;
+            ConnectionState.OnConnectionStateChanged -= ConnectionStateChanged;
             if (ParentForm != null)
             {
                 ParentForm.Show();
@@ -82,38 +84,54 @@ namespace gamma_mob.Common
 
         #region Connection
 
-        protected void ConnectionLost()
+        protected void ConnectionStateChanged(bool isConnected)
         {
             if (this.IsDisposed) return;
             try
             {
-                Invoke((ConnectStateChangeInvoker)(ShowConnection), new object[] { ConnectState.NoConnection });
+                Invoke((ConnectStateChangeInvoker)(ShowConnection), new object[] { isConnected ? ConnectState.ConnectionRestore : ConnectState.NoConnection });
             }
             catch (ObjectDisposedException ex)
             {
 #if OUTPUTDEBUGINFO
-                System.Diagnostics.Debug.WriteLine("ObjectDisposedEXCEPTION ConnectionLost:" + Environment.NewLine + ex.Message);
+                System.Diagnostics.Debug.WriteLine("ObjectDisposedEXCEPTION ConnectionStateChanged:isConnected=" + isConnected + Environment.NewLine + ex.Message);
 #endif
             }
         }
 
-        protected void ConnectionRestored()
-        {
-            try
-            {
-            Invoke((ConnectStateChangeInvoker)(ShowConnection), new object[] { ConnectState.ConnectionRestore });
-            }
-            catch (ObjectDisposedException ex)
-            {
-#if OUTPUTDEBUGINFO
-                System.Diagnostics.Debug.WriteLine("ObjectDisposedEXCEPTION ConnectionRestored:" + Environment.NewLine + ex.Message);
-#endif
-            }
-        }
+//        protected void ConnectionLost()
+//        {
+//            if (this.IsDisposed) return;
+//            try
+//            {
+//                Invoke((ConnectStateChangeInvoker)(ShowConnection), new object[] { ConnectState.NoConnection });
+//            }
+//            catch (ObjectDisposedException ex)
+//            {
+//#if OUTPUTDEBUGINFO
+//                System.Diagnostics.Debug.WriteLine("ObjectDisposedEXCEPTION ConnectionLost:" + Environment.NewLine + ex.Message);
+//#endif
+//            }
+//        }
+
+//        protected void ConnectionRestored()
+//        {
+//            try
+//            {
+//            Invoke((ConnectStateChangeInvoker)(ShowConnection), new object[] { ConnectState.ConnectionRestore });
+//            }
+//            catch (ObjectDisposedException ex)
+//            {
+//#if OUTPUTDEBUGINFO
+//                System.Diagnostics.Debug.WriteLine("ObjectDisposedEXCEPTION ConnectionRestored:" + Environment.NewLine + ex.Message);
+//#endif
+//            }
+//        }
 
         protected virtual void ShowConnection(ConnectState conState)
         {
             if (imgConnection != null)
+            {
                 switch (conState)
                 {
                     case ConnectState.ConInProgress:
@@ -128,7 +146,8 @@ namespace gamma_mob.Common
                     case ConnectState.ConnectionRestore:
                         imgConnection.Image = ImgList.Images[(int)Images.NetworkTransmitReceive];
                         break;
-                }
+                } 
+            }
         }
 
         #endregion

@@ -11,7 +11,7 @@ namespace gamma_mob
 {
     internal static class ConnectionState
     {
-        public delegate void MethodContainer();
+        public delegate void MethodContainer(bool isConnected);
 
         private static bool _isConnected;
         private static bool _checkerRunning;
@@ -21,6 +21,7 @@ namespace gamma_mob
         private static string _serverIp = "";
         private static string _serverPort = "1433";
         private static readonly object Locker = new object();
+        private static readonly object LockerCurrentConnectionState = new object();
 
         private static string _stateConnection { get; set; }
         private static string stateConnection 
@@ -61,18 +62,22 @@ namespace gamma_mob
 #endif
                     }
                 }
-                if (!value && _isConnected)
-                { 
-                    if (OnConnectionLost != null) OnConnectionLost(); 
-                }
-                else if (value && !_isConnected)
-                { 
-                    if (OnConnectionRestored != null) OnConnectionRestored(); 
-                }
+                //if (!value && _isConnected)
+                //{ 
+                //    if (OnConnectionLost != null) OnConnectionLost(); 
+                //}
+                //else if (value && !_isConnected)
+                //{ 
+                //    if (OnConnectionRestored != null) OnConnectionRestored(); 
+                //}
+                if (value != _isConnected)
+                    if (OnConnectionStateChanged != null) OnConnectionStateChanged(value); 
                 _isConnected = value;
                 
             }
         }
+
+        public static ConnectState CurrentConnectionState { get; set; }
 
         public static string ServerIp
         {
@@ -90,9 +95,9 @@ namespace gamma_mob
             return stateConnection;
         }
 
-        public static event MethodContainer OnConnectionRestored;
-        public static event MethodContainer OnConnectionLost;
-
+        //public static event MethodContainer OnConnectionRestored;
+        //public static event MethodContainer OnConnectionLost;
+        public static event MethodContainer OnConnectionStateChanged;
 
         //        static private DateTime TimePingChecked = new DateTime();
         public static Boolean CheckConnection(string server)
@@ -352,10 +357,18 @@ namespace gamma_mob
                         //    }
                         //}
 
-                        if (!IsConnected)
-                        {
-                            lock (Locker) IsConnected = true;
-                        }
+                        //if (!IsConnected)
+                        //{
+                        //    lock (Locker) IsConnected = true;
+                        //    if (CurrentConnectionState != ConnectState.ConnectionRestore && OnConnectionRestored != null)
+                        //        OnConnectionRestored();
+                        //}
+                        //else
+                        //{
+                        //    if (CurrentConnectionState == ConnectState.ConnectionRestore && OnConnectionLost != null)
+                        //        OnConnectionLost();
+                        //}
+                        ConnectionStateChange(true);
                         //isWorking = false;
                         //if (OnConnectionRestored != null) OnConnectionRestored();
 
@@ -369,11 +382,12 @@ namespace gamma_mob
                         //if (Shared.Connection.State == System.Data.ConnectionState.Open)
                         //    StopChecker();
                         var s = ex.Message;
-                        if (IsConnected)
-                        {
-                            lock (Locker) IsConnected = false;
-                            //if (OnConnectionLost != null) OnConnectionLost();
-                        }
+                        //if (IsConnected)
+                        //{
+                        //    lock (Locker) IsConnected = false;
+                        //    //if (OnConnectionLost != null) OnConnectionLost();
+                        //}
+                        ConnectionStateChange(false);
                     }
                 }
             }
@@ -401,14 +415,25 @@ namespace gamma_mob
 
         }
 
-        public static void ConnectionLost()
+        public static void ConnectionStateChange(bool isConnected)
         {
-            if (ConnectionState.IsConnected)
-                //lock (Locker) 
-                    ConnectionState.IsConnected = false;
-            else
-                if (OnConnectionLost != null) OnConnectionLost(); 
+            if (isConnected != ConnectionState.IsConnected)
+            {
+                //lock (LockerCurrentConnectionState) 
+                    ConnectionState.IsConnected = isConnected;
+            }
+            //else
+            //    if (OnConnectionLost != null) OnConnectionLost(); 
         }
+
+        //public static void ConnectionLost()
+        //{
+        //    if (ConnectionState.IsConnected)
+        //        //lock (Locker) 
+        //            ConnectionState.IsConnected = false;
+        //    else
+        //        if (OnConnectionLost != null) OnConnectionLost(); 
+        //}
 
         public static void StopChecker()
         {

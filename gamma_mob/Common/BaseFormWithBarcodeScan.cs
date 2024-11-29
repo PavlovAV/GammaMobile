@@ -18,23 +18,26 @@ namespace gamma_mob.Common
         public virtual void ActivatePanels()
         {
             ActivatePanelSearch();
-            if (!ConnectionState.IsConnected)
-                ConnectionState.ConnectionLost(); 
+            //if (!ConnectionState.IsConnected)
+            //    ConnectionState.ConnectionLost(); 
+            ConnectionStateChanged(ConnectionState.IsConnected);
         }
 
         public virtual void ActivatePanels(List<int> pnlToolBar_ActivButtons)
         {
             ActivatePanelSearch();
             base.ActivateToolBar(pnlToolBar_ActivButtons);
-            if (!ConnectionState.IsConnected)
-                ConnectionState.ConnectionLost(); 
+            //if (!ConnectionState.IsConnected)
+            //    ConnectionState.ConnectionLost(); 
+            ConnectionStateChanged(ConnectionState.IsConnected);
         }
 
         public virtual void ActivatePanelsWithoutSearch(List<int> pnlToolBar_ActivButtons)
         {
             base.ActivateToolBar(pnlToolBar_ActivButtons);
-            if (!ConnectionState.IsConnected)
-                ConnectionState.ConnectionLost();
+            //if (!ConnectionState.IsConnected)
+            //    ConnectionState.ConnectionLost();
+            ConnectionStateChanged(ConnectionState.IsConnected);
         }
 
         private void ActivatePanelSearch()

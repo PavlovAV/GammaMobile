@@ -147,7 +147,8 @@ namespace gamma_mob
             }
             if (!ConnectionState.GetServerPortEnabled)
             {
-                this.ConnectionLost(); 
+                //this.ConnectionLost(); 
+                ConnectionState.ConnectionStateChange(false);
                 return;
             }
 #if !(DEBUG && !ASRELEASE)
@@ -466,7 +467,8 @@ namespace gamma_mob
                 switch (Db.CheckSqlConnection())
                 {
                     case 2:
-                        ConnectionLost();
+                        //ConnectionLost();
+                        ConnectionState.ConnectionStateChange(false);
                         SetLblMessageText("Нет связи с БД " + Settings.CurrentServer + Environment.NewLine + ConnectionState.GetConnectionState());
                         break;
                     case 1:

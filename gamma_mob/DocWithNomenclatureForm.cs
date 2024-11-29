@@ -242,7 +242,7 @@ namespace gamma_mob
             {
                 if (showMessage)
                 {
-                    ConnectionState.ConnectionLost();
+                    //ConnectionState.ConnectionLost();
                     Shared.ShowMessageInformation(@"Не удалось получить информацию о документе!" + Environment.NewLine + "Попробуйте ещё раз обновить!");
                 }
                 else

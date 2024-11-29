@@ -3236,7 +3236,8 @@ namespace gamma_mob
                                     if (sqlex != null)
                                     {
                                         //if (sqlex.Message == "General network error.  Check your network documentation.")
-                                        ConnectionState.ConnectionLost();
+                                        //ConnectionState.ConnectionLost();
+                                        ConnectionState.ConnectionStateChange(false);
 #if OUTPUTDEBUGINFO
                                         foreach (var error in sqlex.Errors)
                                         {
@@ -3409,7 +3410,8 @@ namespace gamma_mob
                             if (sqlex != null)
                             {
                                 if (sqlex.Message == "General network error.  Check your network documentation.")
-                                    ConnectionState.ConnectionLost();
+                                    //ConnectionState.ConnectionLost();
+                                    ConnectionState.ConnectionStateChange(false);
 #if OUTPUTDEBUGINFO
                                 foreach (var error in sqlex.Errors)
                                 {

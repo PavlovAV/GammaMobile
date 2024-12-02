@@ -459,8 +459,8 @@ namespace gamma_mob.Common
 
         public static void RefreshBarcodes1CFromTimer(object obj)
         {
-            var n = DateTime.Now.ToString();
 #if OUTPUTDEBUGINFO
+            var n = DateTime.Now.ToString();
             System.Diagnostics.Debug.Write(n + " !!!!!RefreshBarcodes1CFromTimer(" + _refreshBarcodes1CRunning.ToString() + ")!" + Environment.NewLine);
 #endif
             if (_refreshBarcodes1CRunning) return;

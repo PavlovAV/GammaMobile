@@ -90,6 +90,7 @@ namespace gamma_mob.Common
             try
             {
                 Invoke((ConnectStateChangeInvoker)(ShowConnection), new object[] { isConnected ? ConnectState.ConnectionRestore : ConnectState.NoConnection });
+                ConnectionState.SetCurrentShowConnectionState(isConnected);
             }
             catch (ObjectDisposedException ex)
             {

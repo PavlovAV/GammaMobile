@@ -23,6 +23,8 @@ namespace gamma_mob
         private static readonly object Locker = new object();
         private static readonly object LockerCurrentConnectionState = new object();
 
+        private static bool currentShowConnectionState;
+
         private static string _stateConnection { get; set; }
         private static string stateConnection 
         {
@@ -306,6 +308,8 @@ namespace gamma_mob
                                 {
                                     pinger.Send(ServerIp, 250);
                                     lastCheckOpennedConnection = DateTime.Now;
+                                    if (!currentShowConnectionState)
+                                        if (OnConnectionStateChanged != null) OnConnectionStateChanged(true);
                                 }
                             }
                             else if ((DateTime.Now - lastCheckOpennedConnection).Seconds >= 5)
@@ -324,6 +328,8 @@ namespace gamma_mob
                                 // we have connected
                                 client.EndConnect(result);
                                 lastCheckOpennedConnection = DateTime.Now;
+                                if (!currentShowConnectionState)
+                                    if (OnConnectionStateChanged != null) OnConnectionStateChanged(true);
                             }
 
                         }
@@ -434,6 +440,11 @@ namespace gamma_mob
         //    else
         //        if (OnConnectionLost != null) OnConnectionLost(); 
         //}
+
+        public static void SetCurrentShowConnectionState(bool isConnectionState)
+        {
+            currentShowConnectionState = isConnectionState;
+        }
 
         public static void StopChecker()
         {

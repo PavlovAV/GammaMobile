@@ -693,7 +693,7 @@ namespace gamma_mob
                     case 0:
 
                         var parameters0 = new List<SqlCeParameter>();
-
+                
                         SqlCeParameter p0 = new SqlCeParameter();
                         p0.ParameterName = "@Barcode";
                         p0.DbType = DbType.String;
@@ -3625,7 +3625,7 @@ namespace gamma_mob
                         }
                     }
                 }
-                return table == null || table.Rows == null || table.Rows.Count == 0 ? true : table.Rows[0]["CountBarcode"] == "0";
+                return !(table == null || table.Rows == null || (table.Rows.Count == 0 ? true : table.Rows[0]["CountBarcode"].ToString() == "0"));
             }
             finally
             {

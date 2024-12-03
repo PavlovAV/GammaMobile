@@ -89,8 +89,9 @@ namespace gamma_mob.Common
             if (this.IsDisposed) return;
             try
             {
-                Invoke((ConnectStateChangeInvoker)(ShowConnection), new object[] { isConnected ? ConnectState.ConnectionRestore : ConnectState.NoConnection });
+                //обязательно в таком порядке: сначала SetCurrent, потом Invoke; а то не обновится иконка назад
                 ConnectionState.SetCurrentShowConnectionState(isConnected);
+                Invoke((ConnectStateChangeInvoker)(ShowConnection), new object[] { isConnected ? ConnectState.ConnectionRestore : ConnectState.NoConnection });
             }
             catch (ObjectDisposedException ex)
             {

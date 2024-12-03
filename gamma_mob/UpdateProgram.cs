@@ -425,7 +425,7 @@ namespace gamma_mob
                                         byte[] image = (byte[])null; //(byte?[])reader.GetValue(4);
                                         string md5 = reader.GetString(4);
                                         bool action = (bool)reader.GetValue(5);
-                                        string timeout = reader.GetString(6);
+                                        string timeout = reader.GetValue(6).ToString();
                                         Int32 fileSize = (Int32)reader.GetValue(7);
                                         bool isFreeSpace = true;
                                         try

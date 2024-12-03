@@ -448,7 +448,7 @@ namespace gamma_mob
 
         public static void StopChecker()
         {
-            if (!ConnectionState.IsConnected) lock (Locker) ConnectionState.IsConnected = true;
+            //if (!ConnectionState.IsConnected) lock (Locker) ConnectionState.IsConnected = true;
             if (_timerForCheckConnectionAvialabled != null && _checkerRunning)
             {
 #if OUTPUTDEBUGINFO
@@ -463,7 +463,7 @@ namespace gamma_mob
 
         public static void StartChecker()
         {
-            if (ConnectionState.IsConnected) lock (Locker) ConnectionState.IsConnected = false;
+            //if (ConnectionState.IsConnected) lock (Locker) ConnectionState.IsConnected = false;
             if (_timerForCheckConnectionAvialabled == null || !_checkerRunning)//!_checkConnectionAvialabledRunning)
             {
 #if OUTPUTDEBUGINFO

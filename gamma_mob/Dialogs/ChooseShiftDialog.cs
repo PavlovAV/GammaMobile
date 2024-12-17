@@ -14,16 +14,39 @@ namespace gamma_mob.Dialogs
 
         public byte ShiftId { get; set; }
 
-        private void rdbShift_CheckedChanged(object sender, EventArgs e)
+        private void btnOK_Click(object sender, EventArgs e)
         {
-            if (sender is System.Windows.Forms.RadioButton)
+            DialogResult = DialogResult.OK;
+            if (rdbShift1.Checked)
+                ShiftId = 1;
+            else if (rdbShift2.Checked)
+                ShiftId = 2;
+            else if (rdbShift3.Checked)
+                ShiftId = 3;
+            else if (rdbShift4.Checked)
+                ShiftId = 4;
+            else
+                ShiftId = 0;
+            Close();
+        }
+
+        private void button_Click(object sender, EventArgs e)
+        {
+            switch ((sender as Button).Tag.ToString()) 
             {
-                if ((sender as System.Windows.Forms.RadioButton).Checked)
-                {
-                    ShiftId = (byte)int.Parse((sender as System.Windows.Forms.RadioButton).Text);
-                    DialogResult = DialogResult.OK;
-                }
-            }    
+                case "1":
+                    rdbShift1.Checked = true;
+                    break;
+                case "2":
+                    rdbShift2.Checked = true;
+                    break;
+                case "3":
+                    rdbShift3.Checked = true;
+                    break;
+                case "4":
+                    rdbShift4.Checked = true;
+                    break;
+            }
         }
     }
 }

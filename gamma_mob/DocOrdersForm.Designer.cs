@@ -44,8 +44,8 @@ namespace gamma_mob
             this.gridDocShipmentOrders.Size = new System.Drawing.Size(638, 432);
             this.gridDocShipmentOrders.TabIndex = 1;
             this.gridDocShipmentOrders.DoubleClick += new System.EventHandler(this.gridDocShipmentOrders_DoubleClick);
-            this.gridDocShipmentOrders.PreferredRowHeight = 40;
-            this.gridDocShipmentOrders.Font = new System.Drawing.Font("Tahoma", 12, System.Drawing.FontStyle.Regular);
+            this.gridDocShipmentOrders.PreferredRowHeight = 10;
+            this.gridDocShipmentOrders.Font = new System.Drawing.Font("Tahoma", 11, System.Drawing.FontStyle.Regular);
             this.gridDocShipmentOrders.GridLineColor = System.Drawing.SystemColors.ControlDarkDark;
             // 
             // DocOrdersForm

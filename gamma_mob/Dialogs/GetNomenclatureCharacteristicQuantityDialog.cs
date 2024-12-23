@@ -11,6 +11,8 @@ using OpenNETCF.Windows.Forms;
 using System.Xml.Serialization;
 using System.IO;
 
+using System.Runtime.InteropServices;
+
 namespace gamma_mob.Dialogs
 {
     public partial class GetNomenclatureCharacteristicQuantityDialog : BaseFormWithChooseEndpoint
@@ -18,6 +20,7 @@ namespace gamma_mob.Dialogs
         public GetNomenclatureCharacteristicQuantityDialog()
         {
             InitializeComponent();
+            
             if (!Shared.IsScanGroupPackOnlyFromProduct && Shared.IsAvailabilityChoiseNomenclatureForMovingGroupPack)
             {
                 gridChoose.Visible = true;
@@ -75,12 +78,18 @@ namespace gamma_mob.Dialogs
                 quantityMeasureUnit.Enabled = true;
                 quantityMeasureUnit.SetMeasureQuantityDefaultMeasure((Guid)parameter.MeasureUnitId, parameter.Quantity, parameter.QuantityFractional);
             }
-            else
+            else if (parameter.MeasureUnit != null)
             {
                 MeasureUnitId = parameter.MeasureUnit.MeasureUnitID;
                 quantityMeasureUnit.Enabled = false;
                 quantityMeasureUnit.SetMeasureQuantityLocked(parameter.MeasureUnit, parameter.Quantity, parameter.QuantityFractional);
             }
+            //else
+            //{
+            //    MeasureUnitId = (Guid)parameter.MeasureUnitId;
+            //    quantityMeasureUnit.Enabled = true;
+            //    quantityMeasureUnit.SetMeasureQuantityDefaultMeasure((Guid)parameter.MeasureUnitId, parameter.Quantity, parameter.QuantityFractional);
+            //}
             
             init = false;
             Shared.SaveToLogInformation(String.Format(@"Open GetNomenclatureCharacteristicQuantityDialog parentForm=" + parentForm.ToString() + ",fromPlaceId=" + (StartPointInfo == null ? "null" : StartPointInfo.PlaceId.ToString()) + ",fromPlaceZone='" + (StartPointInfo == null ? "null" : StartPointInfo.PlaceZoneId == null ? "null" : StartPointInfo.PlaceZoneId.ToString()) + "',toPlaceId=" + (EndPointInfo == null ? "null" : EndPointInfo.PlaceId.ToString()) + ",toPlaceZone='" + (EndPointInfo == null ? "null" : EndPointInfo.PlaceZoneId == null ? "null" : EndPointInfo.PlaceZoneId.ToString()) + "',nomenclatureId='" + NomenclatureId + "',characteristicId='" + CharacteristicId + "'"));
@@ -223,7 +232,7 @@ namespace gamma_mob.Dialogs
             {
                 var place = Shared.Warehouses.Find(w => w.WarehouseId == startPointInfo.PlaceId);
                 if ((place.WarehouseZones != null && place.WarehouseZones.Count > 0))
-                    if (isFilteringOnEndpoint)
+                    if (isFilteringOnEndpoint && startPointInfo.PlaceZoneId != null)
                         list = Shared.PlaceZones.FindAll(z => z.PlaceId == startPointInfo.PlaceId && z.IsValid && z.PlaceZoneId == startPointInfo.PlaceZoneId).ToList();
                     else
                     {

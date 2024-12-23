@@ -2157,11 +2157,93 @@ namespace gamma_mob
                                       WarehouseId = Convert.ToInt32(row["WarehouseID"]),
                                       WarehouseName = row["WarehouseName"].ToString(),
                                       WarehouseZones = GetWarehousePlaceZones(Convert.ToInt32(row["WarehouseID"])),
-                                      PlaceGroupId = Convert.ToInt32(row["PlaceGroupID"])
+                                      PlaceGroupId = Convert.ToInt32(row["PlaceGroupID"]),
+                                      WarehouseShortName = row["WarehouseShortName"].ToString(),
+                                      Barcode = row["Barcode"] == null ? "null" : row["Barcode"].ToString()
                                   });
                 }
             }
             return list;
+        }
+
+        public static List<Warehouse> GetShortcutStartPoints()
+        {
+            List<Warehouse> list = null;
+            const string sql = "dbo.mob_GetShortcutStartPoints";
+            var parameters = new List<SqlParameter>
+                {
+                    new SqlParameter("@Object", SqlDbType.Text)
+                        {
+                            Value = String.Empty
+                        },
+                    new SqlParameter("@PersonID", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = Shared.PersonId
+                        }
+
+                };
+            using (DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure, 5))
+            {
+                if (table != null && table.Rows.Count > 0)
+                {
+                    list = new List<Warehouse>();
+                    list.AddRange(from DataRow row in table.Rows
+                                  select new Warehouse
+                                  {
+                                      WarehouseId = Convert.ToInt32(row["WarehouseID"]),
+                                      WarehouseName = row["WarehouseName"].ToString(),
+                                      WarehouseZones = GetWarehousePlaceZones(Convert.ToInt32(row["WarehouseID"])),
+                                      PlaceGroupId = Convert.ToInt32(row["PlaceGroupID"]),
+                                      WarehouseShortName = row["WarehouseShortName"].ToString(),
+                                      Barcode = row["Barcode"] == null ? "null" : row["Barcode"].ToString()
+                                  });
+                }
+            }
+            return list;
+        }
+
+        public static bool AddShortcutStartPoint(int placeId)
+        {
+            const string sql = "dbo.mob_AddShortcutStartPoint";
+            var parameters = new List<SqlParameter>
+                {
+                    new SqlParameter("@Object", SqlDbType.Text)
+                        {
+                            Value = String.Empty
+                        },
+                    new SqlParameter("@PersonID", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = Shared.PersonId
+                        },
+                    new SqlParameter("@PlaceID", SqlDbType.Int)
+                        {
+                            Value = placeId
+                        }
+                };
+            ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure);
+            return Shared.LastQueryCompleted ?? false;
+        }
+
+        public static bool DelShortcutStartPoint(int placeId)
+        {
+            const string sql = "dbo.mob_DelShortcutStartPoint";
+            var parameters = new List<SqlParameter>
+                {
+                    new SqlParameter("@Object", SqlDbType.Text)
+                        {
+                            Value = String.Empty
+                        },
+                    new SqlParameter("@PersonID", SqlDbType.UniqueIdentifier)
+                        {
+                            Value = Shared.PersonId
+                        },
+                    new SqlParameter("@PlaceID", SqlDbType.Int)
+                        {
+                            Value = placeId
+                        }
+                };
+            ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure);
+            return Shared.LastQueryCompleted ?? false;
         }
 
         public static List<MeasureUnitNomenclature> GetMeasureUnitsForNomenclature(Guid nomenclatureId, Guid characteristicId)

@@ -77,6 +77,9 @@ namespace gamma_mob.Common
                 case (int)Images.RDP:
                     RDPToolBarButton();
                     break;
+                case (int)Images.ShortcutStartPointsPanelEnabled:
+                    ShortcutStartPointsPanelEnabled();
+                    break;
             }
         }
 
@@ -121,6 +124,15 @@ namespace gamma_mob.Common
                 Shared.ShowMessageInformation("RDP запущен");
             else
                 Shared.ShowMessageInformation("RDP остановлен");
+        }
+
+        protected virtual void ShortcutStartPointsPanelEnabled() 
+        {
+            if (!Shared.VisibleShortcutStartPoints)
+            {
+                Shared.VisibleShortcutStartPoints = true;
+                Shared.ShowMessageInformation("Включена видимость панели с кнопками складов откуда." + Environment.NewLine + "Нажмите Назад и откройте список повторно." + Environment.NewLine + "Затем, при необходимости, добавьте кнопку склада.");
+            }
         }
 
         protected override void ShowConnection(ConnectState conState)

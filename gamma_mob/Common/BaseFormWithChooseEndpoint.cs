@@ -217,8 +217,8 @@ namespace gamma_mob.Common
                 //this.btnChangeEndPointZone.ForeColor = System.Drawing.Color.DarkRed;
                 btnChangeEndPointZone.Location = new System.Drawing.Point(0, 0);
                 btnChangeEndPointZone.Name = "btnChangeEndPointZone";
-                btnChangeEndPointZone.Size = new System.Drawing.Size(22, 22);
-                btnChangeEndPointZone.Text = "...";
+                btnChangeEndPointZone.Size = new System.Drawing.Size(29, 22);
+                btnChangeEndPointZone.Text = "->|";
                 btnChangeEndPointZone.Click += new System.EventHandler(this.btnChangeEndPointZone_Click);
                 // 
                 // lblEndPointZoneName
@@ -226,9 +226,9 @@ namespace gamma_mob.Common
                 lblEndPointZoneName.Dock = System.Windows.Forms.DockStyle.None;
                 lblEndPointZoneName.Font = new System.Drawing.Font("Tahoma", 8F, System.Drawing.FontStyle.Bold);
                 lblEndPointZoneName.ForeColor = System.Drawing.Color.DarkRed;
-                lblEndPointZoneName.Location = new System.Drawing.Point(23, 0);
+                lblEndPointZoneName.Location = new System.Drawing.Point(30, 3);
                 lblEndPointZoneName.Name = "lblEndPointZoneName";
-                lblEndPointZoneName.Size = new System.Drawing.Size(616, 22);
+                lblEndPointZoneName.Size = new System.Drawing.Size(609, 22);
                 lblEndPointZoneName.Text = "lblEndPointZoneName";
                 
                 PnlZone.Controls.Add(btnChangeEndPointZone);

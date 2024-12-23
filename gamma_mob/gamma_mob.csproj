@@ -349,6 +349,7 @@
     <Compile Include="Models\Person.cs" />
     <Compile Include="Models\PlaceZone.cs" />
     <Compile Include="Models\Product.cs" />
+    <Compile Include="Models\ShortcutStartPoints.cs" />
     <Compile Include="Models\SystemTime.cs" />
     <Compile Include="Models\Warehouse.cs" />
     <Compile Include="Models\MovementProduct.cs" />
@@ -524,6 +525,7 @@
     <Content Include="Resources\printer.png" />
     <Content Include="Resources\RDP.png" />
     <Content Include="Resources\save.png" />
+    <None Include="Resources\ShortcutStartPointsPanelEnabled.png" />
     <Content Include="Settings.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

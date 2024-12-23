@@ -37,6 +37,8 @@ namespace gamma_mob.Common
                         ImageIndex = (int)Enum.Parse(typeof(Images), value.ToString(), true)
                     };
                     btn.Click += pnlToolBar_ButtonClick;
+                    if ((int)value == (int)Images.ShortcutStartPointsPanelEnabled && Shared.VisibleShortcutStartPoints)
+                        btn.Enabled = false;
                     this.Controls.Add(btn);
                     i++;
                 }

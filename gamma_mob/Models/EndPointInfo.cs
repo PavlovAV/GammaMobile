@@ -44,6 +44,8 @@ namespace gamma_mob.Models
                     {
                         PlaceName = w.WarehouseName;
                         PlaceGroupId = w.PlaceGroupId;
+                        PlaceBarcode = w.Barcode;
+                        PlaceShortName = w.WarehouseShortName;
                     }
                 }
                 var placeZone = Shared.PlaceZones.Find(p => p.PlaceId == value);
@@ -75,5 +77,7 @@ namespace gamma_mob.Models
         public bool IsAvailabilityPlaceZoneId { get; set; }
         public string PlaceZoneBarcode { get; private set; }
         public int? PlaceGroupId { get; set; }
+        public string PlaceBarcode { get; private set; }
+        public string PlaceShortName { get; private set; }
     }
 }

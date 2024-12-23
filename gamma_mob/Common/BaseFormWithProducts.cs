@@ -257,8 +257,9 @@ namespace gamma_mob.Common
                             Shared.ShowMessageError(@"По ШК " + barcode + " найдено несколько переделов!" + Environment.NewLine + "Невозможно определить передел");
                         else
                         {
+                            var warehouse = Shared.Warehouses.FirstOrDefault(p => p.Barcode == barcode);
                             //GetNomenclatureCharacteristicQuantityForm = new GetNomenclatureCharacteristicQuantityDialog(new EndPointInfo(/*Shared.Warehouses.First(p => p.Barcode == barcode && (StartPointInfo == null || (StartPointInfo != null && p.PlaceId == StartPointInfo.PlaceId))).WarehouseId*/StartPointInfo.PlaceId), EndPointInfo, this, false, true, GetNomenclatureGoods());//, barcode, fromBuffer, getProductResult, this);
-                            GetNomenclatureCharacteristicQuantityForm = new GetNomenclatureCharacteristicQuantityDialog(this, new NomenclatureCharacteristicQuantityDialogParameter() { StartPointInfo = new EndPointInfo(/*Shared.Warehouses.First(p => p.Barcode == barcode && (StartPointInfo == null || (StartPointInfo != null && p.PlaceId == StartPointInfo.PlaceId))).WarehouseId*/StartPointInfo.PlaceId), EndPointInfo = EndPointInfo, IsFilteringOnNomenclature = false, IsFilteringOnEndpoint = true, NomenclatureGoods = GetNomenclatureGoods() });//, barcode, fromBuffer, getProductResult, this);
+                            GetNomenclatureCharacteristicQuantityForm = new GetNomenclatureCharacteristicQuantityDialog(this, new NomenclatureCharacteristicQuantityDialogParameter() { StartPointInfo = new EndPointInfo(warehouse.WarehouseId), EndPointInfo = EndPointInfo, IsFilteringOnNomenclature = false, IsFilteringOnEndpoint = true, NomenclatureGoods = GetNomenclatureGoods() });//, barcode, fromBuffer, getProductResult, this);
                             GetNomenclatureCharacteristicQuantityForm.Show();
                             Param1 = new AddProductReceivedEventHandlerParameter() { barcode = barcode, endPointInfo = EndPointInfo, fromBuffer = fromBuffer };
                             if (ReturnAddProductBeforeGetNomenclatureCharacteristicQuantity == null)

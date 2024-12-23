@@ -92,7 +92,7 @@ namespace gamma_mob
         protected override void FormLoad(object sender, EventArgs e)
         {
             base.FormLoad(sender, e);
-            base.ActivatePanels(new List<int>() { (int)Images.Back, (int)Images.Inspect, (int)Images.Refresh, (int)Images.UploadToDb, (int)Images.InfoProduct, (int)Images.RDP });//, pnlToolBar_ButtonClick);
+            base.ActivatePanels(new List<int>() { (int)Images.Back, (int)Images.Inspect, (int)Images.Refresh, (int)Images.UploadToDb, (int)Images.InfoProduct, (int)Images.RDP, (int)Images.ShortcutStartPointsPanelEnabled });//, pnlToolBar_ButtonClick);
         }
 
         protected override void RefreshToolBarButton()

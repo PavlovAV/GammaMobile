@@ -23,6 +23,7 @@ namespace gamma_mob.Common
         Remove,
         InfoProduct,
         RDP,
+        ShortcutStartPointsPanelEnabled,
         BackOffline
     }
 

@@ -144,6 +144,8 @@ namespace gamma_mob.Common
 
         public static VisibleButtonsOnMainWindow VisibledButtonsOnMainWindow { get; set; }
 
+        public static bool VisibleShortcutStartPoints { get; set; } 
+
         public static List<Warehouse> Warehouses
         {
             get
@@ -157,7 +159,6 @@ namespace gamma_mob.Common
                 return _warehouses;
             }
         }
-
 
         private static List<MeasureUnitNomenclature> _measureUnits = new List<MeasureUnitNomenclature>();
         public static List<MeasureUnit> GetMeasureUnitsForNomenclature(Guid nomenclatureId, Guid characteristicId)
@@ -400,7 +401,7 @@ namespace gamma_mob.Common
             ImgList.Images.Add(Resources.delete);
             ImgList.Images.Add(Resources.InfoProduct);
             ImgList.Images.Add(Resources.RDP);
-            //ImgList.Images.Add(Resources.backOnline); 
+            ImgList.Images.Add(Resources.ShortcutStartPointsPanelEnabled);
             ImgList.Images.Add(Resources.backOffline); 
         }
 

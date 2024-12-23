@@ -106,8 +106,10 @@ namespace gamma_mob
             //AuthorizeByBarcode("00000000000068"); //Лобанов
             //AuthorizeByBarcode("00000000000088"); //Багрянцев
             //AuthorizeByBarcode("20100000002142"); //Березгин
-            AuthorizeByBarcode("20100000000223"); //солодухин
+            //AuthorizeByBarcode("20100000000223"); //солодухин
             //AuthorizeByBarcode("20100000001282"); //Шарыпов
+            //AuthorizeByBarcode("20100000002012");//Холопов О.Н.
+            AuthorizeByBarcode("20100000002128");//Якимов
 #else
             TimerCallback tc = new TimerCallback(InitConnection);
             // создаем таймер

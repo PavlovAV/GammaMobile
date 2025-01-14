@@ -119,7 +119,7 @@ namespace gamma_mob
                 return;
             }
             EndPointInfo endPointInfo;
-            using (var form = new ChooseEndPointDialog(false))
+            using (var form = new ChooseEndPointDialog(false, (Images?)null))
             {
                 DialogResult result = form.ShowDialog();
                 if (result != DialogResult.OK) return;

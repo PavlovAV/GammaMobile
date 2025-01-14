@@ -46,7 +46,7 @@ namespace gamma_mob.Common
 
         public void ChooseEndPoint(bool checkExistMovementToZone)
         {
-            ChooseEndPointForm = new ChooseEndPointDialog(EndPointInfo.PlaceId, this, checkExistMovementToZone);//, barcode, fromBuffer, getProductResult, this);
+            ChooseEndPointForm = new ChooseEndPointDialog(EndPointInfo.PlaceId, this, checkExistMovementToZone, Images.PlaceTo);//, barcode, fromBuffer, getProductResult, this);
             ChooseEndPointForm.TopMost = true;
             ChooseEndPointForm.Show();
             ChooseEndPointForm.SetBarcodeReaction(ChoosePlaceZoneBarcodeReaction);
@@ -166,9 +166,9 @@ namespace gamma_mob.Common
             }
         }
 
-        public EndPointInfo ChangeZone(int placeId, bool checkExistMovementToZone)
+        public EndPointInfo ChangeZone(int placeId, bool checkExistMovementToZone, Images placeFromOrTo)
         {
-            using (var formPlaceZone = new ChooseEndPointDialog(placeId, checkExistMovementToZone))
+            using (var formPlaceZone = new ChooseEndPointDialog(placeId, checkExistMovementToZone, placeFromOrTo))
             {
                 DialogResult resultPlaceZone = formPlaceZone.ShowDialog();
                 if (resultPlaceZone != DialogResult.OK)
@@ -240,7 +240,7 @@ namespace gamma_mob.Common
 
         private void btnChangeEndPointZone_Click(object sender, EventArgs e)
         {
-            var newEndpointInfo = ChangeZone(EndPointInfo.PlaceId, checkExistMovementToZone);
+            var newEndpointInfo = ChangeZone(EndPointInfo.PlaceId, checkExistMovementToZone, Images.PlaceTo);
             if (newEndpointInfo != null)
             {
                 EndPointInfo = newEndpointInfo;
@@ -252,7 +252,7 @@ namespace gamma_mob.Common
 
         protected bool ChangeStartPointZone_Click(object sender, EventArgs e)
         {
-            var newStartPointInfo = ChangeZone(StartPointInfo != null && StartPointInfo.PlaceId > 0 ? StartPointInfo.PlaceId : Shared.PlaceId, false);
+            var newStartPointInfo = ChangeZone(StartPointInfo != null && StartPointInfo.PlaceId > 0 ? StartPointInfo.PlaceId : Shared.PlaceId, false, Images.PlaceFrom);
             if (newStartPointInfo != null)
             {
                 StartPointInfo = newStartPointInfo;

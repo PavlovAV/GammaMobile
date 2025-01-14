@@ -53,7 +53,7 @@ namespace gamma_mob
             if (war != null && war.WarehouseZones != null && war.WarehouseZones.Count > 0)
             {
                 {
-                    using (var form = new ChooseEndPointDialog(EndPointInfo.PlaceId))
+                    using (var form = new ChooseEndPointDialog(EndPointInfo.PlaceId, (Images?)null))
                     {
                         DialogResult result = form.ShowDialog();
                         Invoke((MethodInvoker)Activate);

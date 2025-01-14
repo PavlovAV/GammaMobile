@@ -233,101 +233,128 @@ namespace gamma_mob.Common
         {
             {
                 {
-                    var placeZones = Shared.PlaceZones.Where(p => p.Barcode == barcode); // && (StartPointInfo == null || (StartPointInfo != null && p.PlaceId == StartPointInfo.PlaceId)));
-                    if (!fromBuffer && placeZones != null && placeZones.Count() > 0)
+                    var warehouses = Shared.Warehouses.Where(p => p.Barcode == barcode);
+                    int? warehouseId = null;
+                    Guid? placeZoneId = null;
+                    bool getNomenclatureShow = false;
+                    if (!fromBuffer && warehouses != null && warehouses.Count() > 0)
                     {
-                        if (placeZones.FirstOrDefault(p => (StartPointInfo == null || (StartPointInfo != null && (p.PlaceId == StartPointInfo.PlaceId || (p.AllowedUseZonesOfPlaceGroup && p.RootPlaceId == StartPointInfo.PlaceId))))) == null)
-                            Shared.ShowMessageError(@"Найденная по ШК " + barcode + " зона не принадлежит складу отгрузки!" + Environment.NewLine + "Невозможно определить зону склада");
-                        else if (placeZones.Count() > 1)
-                            Shared.ShowMessageError(@"По ШК " + barcode + " найдено несколько зон!" + Environment.NewLine + "Невозможно определить зону склада");
-                        else
-                        {
-                            var placeZone = placeZones.FirstOrDefault();
-                            //GetNomenclatureCharacteristicQuantityForm = new GetNomenclatureCharacteristicQuantityDialog(new EndPointInfo(placeZone.PlaceId, placeZone.PlaceZoneId), EndPointInfo, this, false, true, GetNomenclatureGoods(), checkExistMovementToZone);//, barcode, fromBuffer, getProductResult, this);
-                            GetNomenclatureCharacteristicQuantityForm = new GetNomenclatureCharacteristicQuantityDialog(this, new NomenclatureCharacteristicQuantityDialogParameter() { StartPointInfo = new EndPointInfo(placeZone.PlaceId, placeZone.PlaceZoneId), EndPointInfo = EndPointInfo, IsFilteringOnNomenclature = false, IsFilteringOnEndpoint = true, NomenclatureGoods = GetNomenclatureGoods(), CheckExistMovementToZone = checkExistMovementToZone });//, barcode, fromBuffer, getProductResult, this);
-                            GetNomenclatureCharacteristicQuantityForm.Show();
-                            Param1 = new AddProductReceivedEventHandlerParameter() { barcode = barcode, endPointInfo = EndPointInfo, fromBuffer = fromBuffer };
-                            if (ReturnAddProductBeforeGetNomenclatureCharacteristicQuantity == null)
-                                ReturnAddProductBeforeGetNomenclatureCharacteristicQuantity += this.ChooseNomenclatureCharacteristicBarcodeReactionInAddProduct;
-                        }
-                    }
-                    else if (!fromBuffer && Shared.Warehouses.Any(p => p.Barcode == barcode && (StartPointInfo == null || (StartPointInfo != null && p.WarehouseId == StartPointInfo.PlaceId))))
-                    {
-                        if (Shared.Warehouses.Count(p => p.Barcode == barcode && (StartPointInfo == null || (StartPointInfo != null && p.WarehouseId == StartPointInfo.PlaceId))) > 1)
+                        if (warehouses.FirstOrDefault(p => (StartPointInfo == null || (StartPointInfo != null && (p.WarehouseId == StartPointInfo.PlaceId || (p.WarehouseId != StartPointInfo.PlaceId && p.IsShadowMovingOutWarehouse))))) == null)
+                            Shared.ShowMessageError(@"Найденный по ШК " + barcode + " передел не принадлежит складу отгрузки!" + Environment.NewLine + "Невозможно определить передел");
+                        else if (warehouses.Count() > 1)
                             Shared.ShowMessageError(@"По ШК " + barcode + " найдено несколько переделов!" + Environment.NewLine + "Невозможно определить передел");
                         else
                         {
-                            var warehouse = Shared.Warehouses.FirstOrDefault(p => p.Barcode == barcode);
-                            //GetNomenclatureCharacteristicQuantityForm = new GetNomenclatureCharacteristicQuantityDialog(new EndPointInfo(/*Shared.Warehouses.First(p => p.Barcode == barcode && (StartPointInfo == null || (StartPointInfo != null && p.PlaceId == StartPointInfo.PlaceId))).WarehouseId*/StartPointInfo.PlaceId), EndPointInfo, this, false, true, GetNomenclatureGoods());//, barcode, fromBuffer, getProductResult, this);
-                            GetNomenclatureCharacteristicQuantityForm = new GetNomenclatureCharacteristicQuantityDialog(this, new NomenclatureCharacteristicQuantityDialogParameter() { StartPointInfo = new EndPointInfo(warehouse.WarehouseId), EndPointInfo = EndPointInfo, IsFilteringOnNomenclature = false, IsFilteringOnEndpoint = true, NomenclatureGoods = GetNomenclatureGoods() });//, barcode, fromBuffer, getProductResult, this);
-                            GetNomenclatureCharacteristicQuantityForm.Show();
-                            Param1 = new AddProductReceivedEventHandlerParameter() { barcode = barcode, endPointInfo = EndPointInfo, fromBuffer = fromBuffer };
-                            if (ReturnAddProductBeforeGetNomenclatureCharacteristicQuantity == null)
-                                ReturnAddProductBeforeGetNomenclatureCharacteristicQuantity += this.ChooseNomenclatureCharacteristicBarcodeReactionInAddProduct;
-                        }
-                    }
-                    else
-                    {
-                        Cursor.Current = Cursors.WaitCursor;
-                        DbProductIdFromBarcodeResult getProductResult = Shared.Barcodes1C.GetProductFromBarcodeOrNumberInBarcodes(barcode, false);
-                        Cursor.Current = Cursors.Default;
-
-                        if (getProductResult == null || getProductResult.ProductKindId == null || (Shared.FactProductKinds.Contains((ProductKind)getProductResult.ProductKindId) && (getProductResult.ProductId == null || getProductResult.ProductId == Guid.Empty)))
-                        {
-                            Shared.ShowMessageError(@"Продукция не найдена по ШК! " + barcode + " (Локальные база ШК " + Shared.Barcodes1C.GetCountBarcodes + "; посл.обн " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodesMoscowTimeZone.ToString(System.Globalization.CultureInfo.InvariantCulture) + ")");
-                        }
-                        else
-                        {
-                            if (!fromBuffer)
-                            {
-                                if ((this is DocWithNomenclatureForm) && IsControlExec && StartExec == null && (countScan ?? 3) > 2)
+                            var warehouse = warehouses.FirstOrDefault();
+                            warehouseId = warehouse.WarehouseId;
+                            if (warehouse.WarehouseZones != null && warehouse.WarehouseZones.Where(p => p.IsValid).Count()>1)
                                 {
-                                    countScan = 0;
-                                    if (Shared.ShowMessageQuestion(@"Вы не отметили, что погрузка начата. Вы уже начали погрузку?") == DialogResult.Yes)
+                                    using (var formPlaceZone = new ChooseEndPointDialog(warehouse.WarehouseId, Images.PlaceFrom))
                                     {
-                                        UIServices.SetBusyState(this);
-                                        var result = Db.UpdateStartExecInDocOrder(DocId, Shared.PersonId);
-                                        UIServices.SetNormalState(this);
-                                        if (result == null)
-                                        {
-                                            Shared.ShowMessageError("Ошибка при сохранении времени начала погрузки. Попробуйте еще раз.");
-                                        }
+                                        DialogResult resultPlaceZone = formPlaceZone.ShowDialog();
+                                        if (resultPlaceZone == DialogResult.OK)
+                                            placeZoneId = formPlaceZone.EndPointInfo.PlaceZoneId;
                                         else
-                                        {
-                                            try
-                                            {
-                                                CultureInfo culture = new CultureInfo("ru-RU");
-                                                StartExec = Convert.ToDateTime(result, culture);
-                                            }
-                                            catch
-                                            {
-                                                Shared.ShowMessageError(result);
-                                            }
-                                        }
+                                            getNomenclatureShow = true;
                                     }
-                                }
-                                countScan++;
-                            }
-
-                            if (getProductResult.ProductKindId == ProductKind.ProductMovement && (getProductResult.ProductId == null || getProductResult.ProductId == Guid.Empty))
-                            {
-                                if (!getProductResult.IsMovementFromPallet)
+                                } else if (warehouse.WarehouseZones != null && warehouse.WarehouseZones.Where(p => p.IsValid).Count()==1)
                                 {
-                                    //GetNomenclatureCharacteristicQuantityForm = new GetNomenclatureCharacteristicQuantityDialog(StartPointInfo, EndPointInfo, this, getProductResult.NomenclatureId, getProductResult.CharacteristicId, getProductResult.QualityId, (byte?)getProductResult.ProductKindId, getProductResult.MeasureUnitId, getProductResult.CountProducts, getProductResult.CountFractionalProducts);//, barcode, fromBuffer, getProductResult, this);
-                                    GetNomenclatureCharacteristicQuantityForm = new GetNomenclatureCharacteristicQuantityDialog(this, new NomenclatureCharacteristicQuantityDialogParameter() { StartPointInfo = StartPointInfo, EndPointInfo = EndPointInfo, IsFilteringOnNomenclature = true, IsFilteringOnEndpoint = (StartPointInfo != null && StartPointInfo.PlaceId > 0), NomenclatureId = getProductResult.NomenclatureId, CharacteristicId = getProductResult.CharacteristicId, QualityId = getProductResult.QualityId, ProductKindId = (byte?)getProductResult.ProductKindId, MeasureUnitId = getProductResult.MeasureUnitId, Quantity = getProductResult.CountProducts, QuantityFractional = getProductResult.CountFractionalProducts, ValidUntilDate = getProductResult.ValidUntilDate });//, barcode, fromBuffer, getProductResult, this);
+                                    placeZoneId = warehouse.WarehouseZones.FirstOrDefault(p => p.IsValid).PlaceZoneId;
+                                } else
+                                {
+                                    //GetNomenclatureCharacteristicQuantityForm = new GetNomenclatureCharacteristicQuantityDialog(new EndPointInfo(/*Shared.Warehouses.First(p => p.Barcode == barcode && (StartPointInfo == null || (StartPointInfo != null && p.PlaceId == StartPointInfo.PlaceId))).WarehouseId*/StartPointInfo.PlaceId), EndPointInfo, this, false, true, GetNomenclatureGoods());//, barcode, fromBuffer, getProductResult, this);
+                                    GetNomenclatureCharacteristicQuantityForm = new GetNomenclatureCharacteristicQuantityDialog(this, new NomenclatureCharacteristicQuantityDialogParameter() { StartPointInfo = new EndPointInfo(warehouse.WarehouseId), EndPointInfo = EndPointInfo, IsFilteringOnNomenclature = false, IsFilteringOnEndpoint = true, NomenclatureGoods = GetNomenclatureGoods() });//, barcode, fromBuffer, getProductResult, this);
                                     GetNomenclatureCharacteristicQuantityForm.Show();
                                     Param1 = new AddProductReceivedEventHandlerParameter() { barcode = barcode, endPointInfo = EndPointInfo, fromBuffer = fromBuffer };
                                     if (ReturnAddProductBeforeGetNomenclatureCharacteristicQuantity == null)
                                         ReturnAddProductBeforeGetNomenclatureCharacteristicQuantity += this.ChooseNomenclatureCharacteristicBarcodeReactionInAddProduct;
-                                } 
-                                else if (CheckIsCreatePalletMovementFromBarcodeScan())
-                                {
-                                    base.ChooseNomenclatureCharacteristic(this.ChooseNomenclatureCharacteristicBarcodeReactionInAddProduct, new AddProductReceivedEventHandlerParameter() { barcode = barcode, endPointInfo = EndPointInfo, fromBuffer = fromBuffer, getProductResult = getProductResult });
-                                }                                
+                                    getNomenclatureShow = true;
+                                }
+                        }
+                    }
+                    if (!getNomenclatureShow)
+                    {
+                        var placeZones = Shared.PlaceZones.Where(p => (placeZoneId == null && p.Barcode == barcode) || (placeZoneId != null && p.PlaceZoneId == placeZoneId)); // && (StartPointInfo == null || (StartPointInfo != null && p.PlaceId == StartPointInfo.PlaceId)));
+                        if (!fromBuffer && placeZones != null && placeZones.Count() > 0)
+                        {
+                            if (placeZones.FirstOrDefault(p => (StartPointInfo == null || (StartPointInfo != null && (p.PlaceId == StartPointInfo.PlaceId || (p.AllowedUseZonesOfPlaceGroup && p.RootPlaceId == StartPointInfo.PlaceId))))) == null)
+                                Shared.ShowMessageError(@"Найденная по ШК " + barcode + " зона не принадлежит складу отгрузки!" + Environment.NewLine + "Невозможно определить зону склада");
+                            else if (placeZones.Count() > 1)
+                                Shared.ShowMessageError(@"По ШК " + barcode + " найдено несколько зон!" + Environment.NewLine + "Невозможно определить зону склада");
+                            else
+                            {
+                                var placeZone = placeZones.FirstOrDefault();
+                                //GetNomenclatureCharacteristicQuantityForm = new GetNomenclatureCharacteristicQuantityDialog(new EndPointInfo(placeZone.PlaceId, placeZone.PlaceZoneId), EndPointInfo, this, false, true, GetNomenclatureGoods(), checkExistMovementToZone);//, barcode, fromBuffer, getProductResult, this);
+                                GetNomenclatureCharacteristicQuantityForm = new GetNomenclatureCharacteristicQuantityDialog(this, new NomenclatureCharacteristicQuantityDialogParameter() { StartPointInfo = new EndPointInfo(placeZone.PlaceId, placeZone.PlaceZoneId), EndPointInfo = EndPointInfo, IsFilteringOnNomenclature = false, IsFilteringOnEndpoint = true, NomenclatureGoods = GetNomenclatureGoods(), CheckExistMovementToZone = checkExistMovementToZone });//, barcode, fromBuffer, getProductResult, this);
+                                GetNomenclatureCharacteristicQuantityForm.Show();
+                                Param1 = new AddProductReceivedEventHandlerParameter() { barcode = barcode, endPointInfo = EndPointInfo, fromBuffer = fromBuffer };
+                                if (ReturnAddProductBeforeGetNomenclatureCharacteristicQuantity == null)
+                                    ReturnAddProductBeforeGetNomenclatureCharacteristicQuantity += this.ChooseNomenclatureCharacteristicBarcodeReactionInAddProduct;
+                            }
+                        }
+                        else
+                        {
+                            Cursor.Current = Cursors.WaitCursor;
+                            DbProductIdFromBarcodeResult getProductResult = Shared.Barcodes1C.GetProductFromBarcodeOrNumberInBarcodes(barcode, false);
+                            Cursor.Current = Cursors.Default;
+
+                            if (getProductResult == null || getProductResult.ProductKindId == null || (Shared.FactProductKinds.Contains((ProductKind)getProductResult.ProductKindId) && (getProductResult.ProductId == null || getProductResult.ProductId == Guid.Empty)))
+                            {
+                                Shared.ShowMessageError(@"Продукция не найдена по ШК! " + barcode + " (Локальные база ШК " + Shared.Barcodes1C.GetCountBarcodes + "; посл.обн " + Shared.Barcodes1C.GetLastUpdatedTimeBarcodesMoscowTimeZone.ToString(System.Globalization.CultureInfo.InvariantCulture) + ")");
                             }
                             else
                             {
-                                AddProductByBarcode(barcode, fromBuffer, getProductResult);
+                                if (!fromBuffer)
+                                {
+                                    if ((this is DocWithNomenclatureForm) && IsControlExec && StartExec == null && (countScan ?? 3) > 2)
+                                    {
+                                        countScan = 0;
+                                        if (Shared.ShowMessageQuestion(@"Вы не отметили, что погрузка начата. Вы уже начали погрузку?") == DialogResult.Yes)
+                                        {
+                                            UIServices.SetBusyState(this);
+                                            var result = Db.UpdateStartExecInDocOrder(DocId, Shared.PersonId);
+                                            UIServices.SetNormalState(this);
+                                            if (result == null)
+                                            {
+                                                Shared.ShowMessageError("Ошибка при сохранении времени начала погрузки. Попробуйте еще раз.");
+                                            }
+                                            else
+                                            {
+                                                try
+                                                {
+                                                    CultureInfo culture = new CultureInfo("ru-RU");
+                                                    StartExec = Convert.ToDateTime(result, culture);
+                                                }
+                                                catch
+                                                {
+                                                    Shared.ShowMessageError(result);
+                                                }
+                                            }
+                                        }
+                                    }
+                                    countScan++;
+                                }
+
+                                if (getProductResult.ProductKindId == ProductKind.ProductMovement && (getProductResult.ProductId == null || getProductResult.ProductId == Guid.Empty))
+                                {
+                                    if (!getProductResult.IsMovementFromPallet)
+                                    {
+                                        //GetNomenclatureCharacteristicQuantityForm = new GetNomenclatureCharacteristicQuantityDialog(StartPointInfo, EndPointInfo, this, getProductResult.NomenclatureId, getProductResult.CharacteristicId, getProductResult.QualityId, (byte?)getProductResult.ProductKindId, getProductResult.MeasureUnitId, getProductResult.CountProducts, getProductResult.CountFractionalProducts);//, barcode, fromBuffer, getProductResult, this);
+                                        GetNomenclatureCharacteristicQuantityForm = new GetNomenclatureCharacteristicQuantityDialog(this, new NomenclatureCharacteristicQuantityDialogParameter() { StartPointInfo = StartPointInfo, EndPointInfo = EndPointInfo, IsFilteringOnNomenclature = true, IsFilteringOnEndpoint = (StartPointInfo != null && StartPointInfo.PlaceId > 0), NomenclatureId = getProductResult.NomenclatureId, CharacteristicId = getProductResult.CharacteristicId, QualityId = getProductResult.QualityId, ProductKindId = (byte?)getProductResult.ProductKindId, MeasureUnitId = getProductResult.MeasureUnitId, Quantity = getProductResult.CountProducts, QuantityFractional = getProductResult.CountFractionalProducts, ValidUntilDate = getProductResult.ValidUntilDate });//, barcode, fromBuffer, getProductResult, this);
+                                        GetNomenclatureCharacteristicQuantityForm.Show();
+                                        Param1 = new AddProductReceivedEventHandlerParameter() { barcode = barcode, endPointInfo = EndPointInfo, fromBuffer = fromBuffer };
+                                        if (ReturnAddProductBeforeGetNomenclatureCharacteristicQuantity == null)
+                                            ReturnAddProductBeforeGetNomenclatureCharacteristicQuantity += this.ChooseNomenclatureCharacteristicBarcodeReactionInAddProduct;
+                                    }
+                                    else if (CheckIsCreatePalletMovementFromBarcodeScan())
+                                    {
+                                        base.ChooseNomenclatureCharacteristic(this.ChooseNomenclatureCharacteristicBarcodeReactionInAddProduct, new AddProductReceivedEventHandlerParameter() { barcode = barcode, endPointInfo = EndPointInfo, fromBuffer = fromBuffer, getProductResult = getProductResult });
+                                    }
+                                }
+                                else
+                                {
+                                    AddProductByBarcode(barcode, fromBuffer, getProductResult);
+                                }
                             }
                         }
                     }

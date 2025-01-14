@@ -86,7 +86,7 @@ namespace gamma_mob.Models
         {
             Shared.SaveToLogInformation(@"Нажата кнопка Изменение списка складов откуда для быстрого запуска ");
             //var btn = (sender as System.Windows.Forms.Button);
-            using (var form = new ChooseEndPointDialog(false))
+            using (var form = new ChooseEndPointDialog(false, Images.PlaceFrom))
             {
                 System.Windows.Forms.DialogResult result = form.ShowDialog();
                 if (result != System.Windows.Forms.DialogResult.OK) return;

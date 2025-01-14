@@ -2159,7 +2159,9 @@ namespace gamma_mob
                                       WarehouseZones = GetWarehousePlaceZones(Convert.ToInt32(row["WarehouseID"])),
                                       PlaceGroupId = Convert.ToInt32(row["PlaceGroupID"]),
                                       WarehouseShortName = row["WarehouseShortName"].ToString(),
-                                      Barcode = row["Barcode"] == null ? "null" : row["Barcode"].ToString()
+                                      Barcode = row["Barcode"] == null ? "null" : row["Barcode"].ToString(),
+                                      IsShadowMovingInWarehouse = Convert.ToBoolean(row["IsShadowMovingInWarehouse"]),
+                                      IsShadowMovingOutWarehouse = Convert.ToBoolean(row["IsShadowMovingOutWarehouse"])
                                   });
                 }
             }

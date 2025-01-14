@@ -21,25 +21,40 @@ namespace gamma_mob.Common
             Type type = typeof(Images);
             ImageList imageList = Shared.ImgList;
             imageList.ImageSize = new System.Drawing.Size(Shared.ToolBarWeight - 4, Shared.ToolBarHeight - 4);
+            int btnX = 1;
             foreach (var item in type.GetFields(BindingFlags.Static | BindingFlags.Public))
             {
                 var value = (Images)item.GetValue(null);
                 if (activButtons.Contains((int)value))
                 {
-                    var btn = new OpenNETCF.Windows.Forms.Button2()
-                    {
-                        BackgroundImage = null,
-                        TransparentImage = false,
-                        Location = new System.Drawing.Point(1 + i * (Shared.ToolBarWeight - 2), 1),
-                        Name = "btn" + value.ToString(),
-                        Size = buttonSize,
-                        ImageList = imageList,
-                        ImageIndex = (int)Enum.Parse(typeof(Images), value.ToString(), true)
-                    };
+                    var btn = value == Images.PlaceFrom || value == Images.PlaceTo ? 
+                        new OpenNETCF.Windows.Forms.Button2()
+                        {
+                            BackgroundImage = null,
+                            TransparentImage = false,
+                            Location = new System.Drawing.Point(btnX + buttonSize.Width, 1),
+                            Name = "btn" + value.ToString(),
+                            Text = value == Images.PlaceFrom ? "Откуда" : "Куда",
+                            Font = new System.Drawing.Font("Tahoma",12f,System.Drawing.FontStyle.Bold),
+                            Size = new System.Drawing.Size(4*buttonSize.Width, buttonSize.Height),
+                            BackColor = this.BackColor,
+                            BorderColor = this.BackColor
+                        }
+                        :
+                        new OpenNETCF.Windows.Forms.Button2()
+                        {
+                            BackgroundImage = null,
+                            TransparentImage = false,
+                            Location = new System.Drawing.Point(btnX, 1),
+                            Name = "btn" + value.ToString(),
+                            Size = buttonSize,
+                            ImageList = imageList,
+                            ImageIndex = (int)Enum.Parse(typeof(Images), value.ToString(), true),
+                            Enabled = !((int)value == (int)Images.ShortcutStartPointsPanelEnabled && Shared.VisibleShortcutStartPoints)
+                        };
                     btn.Click += pnlToolBar_ButtonClick;
-                    if ((int)value == (int)Images.ShortcutStartPointsPanelEnabled && Shared.VisibleShortcutStartPoints)
-                        btn.Enabled = false;
                     this.Controls.Add(btn);
+                    btnX += 1 + buttonSize.Width;
                     i++;
                 }
             }

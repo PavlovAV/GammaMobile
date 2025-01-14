@@ -89,7 +89,7 @@ namespace gamma_mob
             {
                 int placeId = Shared.PlaceId;
                 Guid? placeZoneId = null;
-                using (var formPlaceZone = new ChooseEndPointDialog(placeId))
+                using (var formPlaceZone = new ChooseEndPointDialog(placeId, Images.PlaceFrom))
                 {
                     DialogResult resultPlaceZone = formPlaceZone.ShowDialog();
                     if (resultPlaceZone != DialogResult.OK)

@@ -24,7 +24,9 @@ namespace gamma_mob.Common
         InfoProduct,
         RDP,
         ShortcutStartPointsPanelEnabled,
-        BackOffline
+        BackOffline,
+        PlaceFrom,
+        PlaceTo
     }
 
     public enum ConnectState

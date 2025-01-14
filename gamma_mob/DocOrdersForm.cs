@@ -205,7 +205,7 @@ namespace gamma_mob
                             var dialogResult = Shared.ShowMessageInformation(message);
                             //if (dialogResult == DialogResult.Yes)
                             {
-                                using (var formPlaceZone = new ChooseEndPointDialog((int)inPlaceID))
+                                using (var formPlaceZone = new ChooseEndPointDialog((int)inPlaceID, Images.PlaceFrom))
                                 {
                                     DialogResult resultPlaceZone = formPlaceZone.ShowDialog();
                                     if (resultPlaceZone != DialogResult.OK)
@@ -246,7 +246,7 @@ namespace gamma_mob
                                 var dialogResult = Shared.ShowMessageQuestion(message);
                                 if (dialogResult == DialogResult.Yes)
                                 {
-                                    using (var formPlaceZone = new ChooseEndPointDialog(endPointInfo.PlaceId, selectedDocOrder.CheckExistMovementToZone))
+                                    using (var formPlaceZone = new ChooseEndPointDialog(endPointInfo.PlaceId, selectedDocOrder.CheckExistMovementToZone, Images.PlaceTo))
                                     {
                                         DialogResult resultPlaceZone = formPlaceZone.ShowDialog();
                                         if (resultPlaceZone != DialogResult.OK)

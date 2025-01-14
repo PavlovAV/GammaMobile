@@ -10,5 +10,7 @@ namespace gamma_mob.Models
         public string Barcode { get; set; }
         public int PlaceGroupId { get; set; }
         public string WarehouseShortName { get; set; }
+        public bool IsShadowMovingInWarehouse { get; set; }
+        public bool IsShadowMovingOutWarehouse { get; set; }
     }
 }

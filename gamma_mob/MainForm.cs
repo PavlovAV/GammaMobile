@@ -138,7 +138,7 @@ namespace gamma_mob
         private void btnDocMovement_Click(object sender, EventArgs e)
         {
             EndPointInfo endPointInfo;
-            using (var form = new ChooseEndPointDialog(false))
+            using (var form = new ChooseEndPointDialog(false, Images.PlaceTo))
             {
                 DialogResult result = form.ShowDialog();
                 if (result != DialogResult.OK) return;
@@ -166,7 +166,7 @@ namespace gamma_mob
             EndPointInfo endPointInfo = param.endPointInfo;
             if (param.dialogResult == DialogResult.Yes)
             {
-                using (var formPlaceZone = new ChooseEndPointDialog(endPointInfo.PlaceId))
+                using (var formPlaceZone = new ChooseEndPointDialog(endPointInfo.PlaceId, Images.PlaceTo))
                 {
                     DialogResult resultPlaceZone = formPlaceZone.ShowDialog();
                     if (resultPlaceZone != DialogResult.OK)

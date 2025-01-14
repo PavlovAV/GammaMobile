@@ -16,28 +16,37 @@ namespace gamma_mob.Dialogs
             InitializeComponent();
         }
 
-        public ChooseEndPointDialog(bool isRequiredPlaceZone) : this()
+        public ChooseEndPointDialog(Images? placeFromOrTo)
+            : this()
+        {
+            if (placeFromOrTo != null)
+                PlaceFromOrTo = (Images)placeFromOrTo;
+        }
+
+        public ChooseEndPointDialog(bool isRequiredPlaceZone, Images? placeFromOrTo)
+            : this(placeFromOrTo)
         {
             IsRequiredPlaceZone = isRequiredPlaceZone;
         }
 
-        public ChooseEndPointDialog(int placeId) : this(placeId, false)
+        public ChooseEndPointDialog(int placeId, Images? placeFromOrTo)
+            : this(placeId, false, placeFromOrTo)
         {}
 
-        public ChooseEndPointDialog(int placeId, bool checkExistMovementToZone)
-            : this()
+        public ChooseEndPointDialog(int placeId, bool checkExistMovementToZone, Images? placeFromOrTo)
+            : this(placeFromOrTo)
         {
             IsRequiredPlaceZone = true;
             EndPointInfo = new EndPointInfo(placeId);
             CheckExistMovementToZone = checkExistMovementToZone;
         }
 
-        public ChooseEndPointDialog(int placeId, /*string productBarcode, bool fromBuffer, DbProductIdFromBarcodeResult getProductResult,*/ Form parentForm)
-            : this(placeId, parentForm, false)
+        public ChooseEndPointDialog(int placeId, /*string productBarcode, bool fromBuffer, DbProductIdFromBarcodeResult getProductResult,*/ Form parentForm, Images? placeFromOrTo)
+            : this(placeId, parentForm, false, placeFromOrTo)
         { }
 
-        public ChooseEndPointDialog(int placeId, /*string productBarcode, bool fromBuffer, DbProductIdFromBarcodeResult getProductResult,*/ Form parentForm, bool checkExistMovementToZone)
-            : this(placeId, checkExistMovementToZone)
+        public ChooseEndPointDialog(int placeId, /*string productBarcode, bool fromBuffer, DbProductIdFromBarcodeResult getProductResult,*/ Form parentForm, bool checkExistMovementToZone, Images? placeFromOrTo)
+            : this(placeId, checkExistMovementToZone, placeFromOrTo)
         {
             ParentForm = parentForm;
         }
@@ -47,11 +56,12 @@ namespace gamma_mob.Dialogs
 
         private bool CheckExistMovementToZone { get; set; }
 
-        public EndPointInfo EndPointInfo { get; set; }
+        public EndPointInfo EndPointInfo { get; private set; }
 
         public bool FromBuffer { get; private set; }
         public DbProductIdFromBarcodeResult GetProductResult { get; private set; }
         public string ProductBarcode { get; private set; }
+        private Images PlaceFromOrTo { get; set; }
 
         private void btnUsedPlace_Click(object sender, EventArgs e)
         {
@@ -105,7 +115,10 @@ namespace gamma_mob.Dialogs
         protected override void FormLoad(object sender, EventArgs e)
         {
             base.FormLoad(sender, e);
-            base.ActivateToolBar(new List<int>() { (int)Images.Back});
+            if (PlaceFromOrTo != null)
+                base.ActivateToolBar(new List<int>() { (int)Images.Back, (int)PlaceFromOrTo});
+            else
+                base.ActivateToolBar(new List<int>() { (int)Images.Back });
             BarcodeFunc = ChoosePlaceZoneFromBarcode;
             if (EndPointInfo == null || EndPointInfo.PlaceId == null)
             {

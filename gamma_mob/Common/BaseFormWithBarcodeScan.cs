@@ -104,7 +104,8 @@ namespace gamma_mob.Common
             ResumeLayout(false);
 #if DEBUG && !ASRELEASE
             if (edtNumber.Text.Length == 0)
-                edtNumber.Text = "20804777671007243010000";
+                edtNumber.Text = "20700434803009876";
+                //edtNumber.Text = "20804777671007243010000";
                 //edtNumber.Text = "240701410801002";
                 //edtNumber.Text = "20300000000692";
 #endif
@@ -146,7 +147,8 @@ namespace gamma_mob.Common
             else
             {
                 var edtNumberText = edtNumber.Text;
-                Invoke((MethodInvoker)(() => edtNumber.Text = String.Empty));
+                if (edtNumberText.Length < 14)
+                    Invoke((MethodInvoker)(() => edtNumber.Text = String.Empty));
                 ActionByBarcode(edtNumberText);
             }
         }

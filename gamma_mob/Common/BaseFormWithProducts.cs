@@ -397,25 +397,25 @@ namespace gamma_mob.Common
             var addResult = AddProductId(scanId, getProductResult, endPointInfo);
             if (Shared.LastQueryCompleted == false)
             {
-                Shared.ScannedBarcodes.NotUploadedScan(scanId, "Shared.LastQueryCompleted == false", addResult == null || addResult.Product == null ? (Guid?)null : addResult.Product.ProductId);
+                Shared.ScannedBarcodes.NotUploadedScan(scanId, "Shared.LastQueryCompleted == false", addResult == null || addResult.Product == null ? (getProductResult != null && getProductResult.ProductId != null && getProductResult.ProductId != Guid.Empty && getProductResult.ProductKindId != null && getProductResult.ProductKindId != ProductKind.ProductMovement ? getProductResult.ProductId : (Guid?)null) : addResult.Product.ProductId);
                 Shared.SaveToLogError(@"AddProductId.LastQueryCompleted is null (scanId = " + scanId.ToString() + ")");
                 return null;
             }
             if (addResult == null)
             {
-                Shared.ScannedBarcodes.NotUploadedScan(scanId, "addResult == nul", addResult == null || addResult.Product == null ? (Guid?)null : addResult.Product.ProductId);
+                Shared.ScannedBarcodes.NotUploadedScan(scanId, "addResult == nul", addResult == null || addResult.Product == null ? (getProductResult != null && getProductResult.ProductId != null && getProductResult.ProductId != Guid.Empty && getProductResult.ProductKindId != null && getProductResult.ProductKindId != ProductKind.ProductMovement ? getProductResult.ProductId : (Guid?)null) : addResult.Product.ProductId);
                 Shared.ShowMessageError(@"Не удалось добавить продукт" + Environment.NewLine + barcode + " в приказ!");
                 Shared.ScannedBarcodes.ClearLastBarcode();
                 return false;
             }
             if (addResult.ResultMessage == string.Empty)
             {
-                Shared.ScannedBarcodes.UploadedScan(scanId, addResult.Product == null ? (Guid?)null : addResult.Product.ProductId);
+                Shared.ScannedBarcodes.UploadedScan(scanId, addResult.Product == null ? (getProductResult != null && getProductResult.ProductId != null && getProductResult.ProductId != Guid.Empty && getProductResult.ProductKindId != null && getProductResult.ProductKindId != ProductKind.ProductMovement ? getProductResult.ProductId : (Guid?)null) : addResult.Product.ProductId);
                 UpdateGrid(addResult, getProductResult.ProductKindId, id, endPointInfo, scanId, getProductResult != null && getProductResult.FromPlaceId != null ? new EndPointInfo((int)getProductResult.FromPlaceId, getProductResult.FromPlaceZoneId) : null);
             }
             else
             {
-                Shared.ScannedBarcodes.UploadedScanWithError(scanId, addResult.ResultMessage, addResult.Product == null ? (Guid?)null : addResult.Product.ProductId);
+                Shared.ScannedBarcodes.UploadedScanWithError(scanId, addResult.ResultMessage, addResult.Product == null ? (getProductResult != null && getProductResult.ProductId != null && getProductResult.ProductId != Guid.Empty && getProductResult.ProductKindId != null && getProductResult.ProductKindId != ProductKind.ProductMovement ? getProductResult.ProductId : (Guid?)null) : addResult.Product.ProductId);
                 if (!addResult.AlreadyMadeChanges && ((DocId != null && id == DocId) || (EndPointInfo != null && endPointInfo.PlaceId == EndPointInfo.PlaceId)))
                 {
                     Shared.ShowMessageError(fromBuffer ? @"Ошибка при загрузке на сервер невыгруженного" + Environment.NewLine + @" продукта: " : @"Продукт: " + barcode + Environment.NewLine + addResult.ResultMessage);

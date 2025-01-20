@@ -34,6 +34,7 @@ using System.Runtime.InteropServices;
 //
 
 [assembly: AssemblyVersion("2.9.12.21")]
+[assembly: AssemblyVersion("2.9.12.22")]
 
 // Следующий атрибут служит для подавления предупреждения FxCop "CA2232: Microsoft.Usage: добавьте к сборке STAThreadAttribute",
 // так как приложение для устройства не поддерживает поток STA.

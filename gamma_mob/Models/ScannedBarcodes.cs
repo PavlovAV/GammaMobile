@@ -50,8 +50,10 @@ namespace gamma_mob.Models
             {
                 item.IsUploaded = true;
                 if (item.ProductId != productId)
+                {
                     Shared.SaveToLogInformation("Change ProductId from " + item.ProductId + " to " + (productId == null ? "" : productId.ToString()) + " ON Barcode " + item.Barcode + " | ScanId " + item.ScanId.ToString());
-                item.ProductId = productId;
+                    item.ProductId = productId;
+                }
                 Shared.SaveToLogInformation("Set IsUploaded => True ON Barcode " + item.Barcode + " | ScanId " + item.ScanId.ToString());
                 Shared.SaveToLog(item.ScanId, item.IsUploaded, null);
                 if (OnUpdateBarcodesIsNotUploaded != null) OnUpdateBarcodesIsNotUploaded();
@@ -73,8 +75,10 @@ namespace gamma_mob.Models
                 item.IsUploaded = true;
                 item.UploadResult = errorLog;
                 if (item.ProductId != productId)
+                {
                     Shared.SaveToLogInformation("Change ProductId from " + item.ProductId + " to " + (productId == null ? "" : productId.ToString()) + " ON Barcode " + item.Barcode + " | ScanId " + item.ScanId.ToString());
-                item.ProductId = productId;
+                    item.ProductId = productId;
+                }
                 Shared.SaveToLogInformation("Set IsUploadedWithError => True | " + errorLog + " ON Barcode " + item.Barcode + " | ScanId " + item.ScanId.ToString());
                 Shared.SaveToLog(item.ScanId, item.IsUploaded, errorLog);
                 if (OnUpdateBarcodesIsNotUploaded != null) OnUpdateBarcodesIsNotUploaded();
@@ -96,8 +100,10 @@ namespace gamma_mob.Models
                 item.IsUploaded = false;
                 item.UploadResult = errorLog;
                 if (item.ProductId != productId)
+                {
                     Shared.SaveToLogInformation("Change ProductId from " + item.ProductId + " to " + (productId == null ? "" : productId.ToString()) + " ON Barcode " + item.Barcode + " | ScanId " + item.ScanId.ToString());
-                item.ProductId = productId;
+                    item.ProductId = productId;
+                }
                 Shared.SaveToLogInformation("Set IsUploaded => False | " + errorLog + " ON Barcode " + item.Barcode + " | ScanId " + item.ScanId.ToString());
                 Shared.SaveToLog(item.ScanId, item.IsUploaded, errorLog);
                 if (OnUpdateBarcodesIsNotUploaded != null) OnUpdateBarcodesIsNotUploaded();

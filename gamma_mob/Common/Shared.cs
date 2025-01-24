@@ -535,6 +535,22 @@ namespace gamma_mob.Common
             }
         }
 
+        private static List<BarcodeKind> _barcodeKinds { get; set; }
+
+        public static List<BarcodeKind> BarcodeKinds
+        {
+            get
+            {
+                if (_barcodeKinds == null)
+                {
+                    List<BarcodeKind> list = Db.GetBarcodeKinds();
+                    if (list == null) return new List<BarcodeKind>();
+                    _barcodeKinds = list;
+                }
+                return _barcodeKinds;
+            }
+        }
+
         private static string _batterySerialNumber { get; set; }
 
         private static string batterySerialNumber

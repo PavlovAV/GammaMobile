@@ -2313,6 +2313,30 @@ namespace gamma_mob
             return list;
         }
 
+        public static List<BarcodeKind> GetBarcodeKinds()
+        {
+            List<BarcodeKind> list = null;
+            const string sql = "SELECT [BarcodeKindID], [Name], [BarcodeTypeID], [LastValue], [Template], [BarcodeGroupID] FROM BarcodeKinds ORDER BY [BarcodeKindID]";
+            using (DataTable table = ExecuteSelectQuery(sql, new List<SqlParameter>(), CommandType.Text, 5))
+            {
+                if (table != null && table.Rows.Count > 0)
+                {
+                    list = new List<BarcodeKind>();
+                    list.AddRange(from DataRow row in table.Rows
+                                  select new BarcodeKind
+                                  {
+                                      BarcodeKindId = row["BarcodeKindID"].ToString(),
+                                      Name = row["Name"].ToString(),
+                                      BarcodeTypeId = row.IsNull("BarcodeTypeID") ? (int?)null : Convert.ToInt32(row["BarcodeTypeID"]),
+                                      LastValue = row.IsNull("LastValue") ? (int?)null : Convert.ToInt32(row["LastValue"]),
+                                      Template = row["Template"].ToString(),
+                                      BarcodeGroupId = row.IsNull("BarcodeGroupID") ? (int?)null : Convert.ToInt32(row["BarcodeGroupID"])
+                                  });
+                }
+            }
+            return list;
+        }
+
         public static DbDeleteOperationProductResult DeleteLastProductFromMovement(string barcode, int placeId, Guid personId, DocDirection docDirection)
         {
             DbDeleteOperationProductResult result = null;

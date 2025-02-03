@@ -3151,7 +3151,7 @@ namespace gamma_mob
                     {
                         acceptProductResult.Product = new Product
                         {
-                            ProductId = new Guid(table.Rows[0]["ProductID"].ToString()),
+                            ProductId = table.Rows[0].IsNull("ProductID") ? Guid.Empty : new Guid(table.Rows[0]["ProductID"].ToString()),
                             NomenclatureId = new Guid(table.Rows[0]["NomenclatureID"].ToString()),
                             CharacteristicId = table.Rows[0].IsNull("CharacteristicID") ? Guid.Empty : new Guid(table.Rows[0]["CharacteristicID"].ToString()),
                             QualityId = new Guid(table.Rows[0]["QualityID"].ToString()),

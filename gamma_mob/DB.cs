@@ -1407,7 +1407,7 @@ namespace gamma_mob
                                 + "," + (row["FromPlaceZoneId"].ToString() == String.Empty ? "NULL" : "'" + row["FromPlaceZoneId"] + "'")
                                 + "," + (row["NewWeight"].ToString() == String.Empty ? "NULL" : "'" + row["NewWeight"] + "'")
                                 + "," + (row["QuantityFractional"].ToString() == String.Empty ? "NULL" : "'" + row["QuantityFractional"] + "'")
-                                + "," + (row["ValidUntilDate"].ToString() == String.Empty ? "NULL" : "'" + row["ValidUntilDate"] + "'")
+                                + "," + (row["ValidUntilDate"].ToString() == String.Empty ? "NULL" : "'" + ((DateTime)row["ValidUntilDate"]).ToString("yyyyMMdd HH:mm:ss.fff") + "'")
                                 + ")";
                             if (value.Length > 0)
                             {

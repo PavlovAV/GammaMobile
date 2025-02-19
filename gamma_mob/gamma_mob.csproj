@@ -319,6 +319,7 @@
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Models\AddPalletItemResult.cs" />
+    <Compile Include="Models\BarcodeKind.cs" />
     <Compile Include="Models\Barcodes.cs" />
     <Compile Include="Models\ChooseNomenclatureItem.cs" />
     <Compile Include="Models\Barcodes1C.cs" />

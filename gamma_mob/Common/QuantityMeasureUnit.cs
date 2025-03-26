@@ -193,12 +193,15 @@ namespace gamma_mob.Common
             var measure = ChooseMeasureUnitList.Find(l => l.MeasureUnitID == measureUnitId);
             if (measure == null)
             {
+                var chooseMeasureUnitList = ChooseMeasureUnitList;
                 measure = new MeasureUnit() { MeasureUnitID = measureUnitId, Name = "Test", Numerator = 1, Denominator = 1, IsInteger = false };
-                ChooseMeasureUnitList.Add(measure);
+                chooseMeasureUnitList.Add(measure);
+                //cmbMeasureUnits.Items.Add(measure);
+                //FillMeasureUnitList(chooseMeasureUnitList);
             }
             DefaultMeasureUnit = measure;
             var i = ChooseMeasureUnitList.FindIndex(l => l.MeasureUnitID == measureUnitId);
-            if (cmbMeasureUnits.Items.Count > 0)
+            if (cmbMeasureUnits.Items.Count > 0 && cmbMeasureUnits.Items.Count >= (i+1))
                 cmbMeasureUnits.SelectedIndex = i;
             numericUpDownWithButtons.IsInteger = measure.IsInteger;
             numericUpDownWithButtons.Value = quantity;

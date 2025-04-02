@@ -5,6 +5,7 @@ namespace gamma_mob.Models
     public class Product
     {
         public Guid ProductId { get; set; }
+        public string Number { get; set; }
         public Guid NomenclatureId { get; set; }
         public Guid CharacteristicId { get; set; }
         public decimal Quantity { get; set; }

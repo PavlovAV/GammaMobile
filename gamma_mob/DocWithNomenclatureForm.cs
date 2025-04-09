@@ -413,31 +413,38 @@ namespace gamma_mob
         {
             Shared.SaveToLogInformation(@"Начало выбора зоны откуда");
             var res = false;
-            if (StartPointInfo != null && !StartPointInfo.IsAvailabilityPlaceZoneId)
-                res = true;
-            else
+            if (edtNumber.Text.Length == 14 && (edtNumber.Text.Substring(0, 3) == "202" || edtNumber.Text.Substring(0, 3) == "203"))
             {
-                if (this.InvokeRequired)
+                if (StartPointInfo != null && !StartPointInfo.IsAvailabilityPlaceZoneId)
+                    res = true;
+                else
                 {
-                    Invoke((MethodInvoker)delegate()
+                    if (this.InvokeRequired)
                     {
+                        Invoke((MethodInvoker)delegate()
+                        {
+                            res = this.ChangeStartPointZone_Click(new object(), new EventArgs());
+                        });
+                    }
+                    else
                         res = this.ChangeStartPointZone_Click(new object(), new EventArgs());
-                    });
+                }
+
+                if (res && StartPointInfo != null)
+                {
+                    if (edtNumber.Text == String.Empty && StartPointInfo.PlaceZoneBarcode != "")
+                        Invoke((MethodInvoker)(() => edtNumber.Text = StartPointInfo.PlaceZoneBarcode));
+                    AddProductClick();
+                    Shared.SaveToLogInformation(@"Выбрано Добавить ШК: " + edtNumber.Text);
                 }
                 else
-                    res = this.ChangeStartPointZone_Click(new object(), new EventArgs());
-            }
-            if (res && StartPointInfo != null)
-            {
-                if (edtNumber.Text == String.Empty && StartPointInfo.PlaceZoneBarcode != "")
-                    Invoke((MethodInvoker)(() => edtNumber.Text = StartPointInfo.PlaceZoneBarcode));
-                AddProductClick();
-                Shared.SaveToLogInformation(@"Выбрано Добавить ШК: " + edtNumber.Text);
+                {
+                    Shared.ShowMessageError(@"Ошибка! Не выбрана зона Откуда");
+                }
             }
             else
-            {
-                Shared.ShowMessageError(@"Ошибка! Не выбрана зона Откуда");
-            }
+                AddProductClick();
+            
         }
 
     }

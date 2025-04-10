@@ -104,9 +104,9 @@ namespace gamma_mob.Common
             ResumeLayout(false);
 #if DEBUG && !ASRELEASE
             if (edtNumber.Text.Length == 0)
-                //edtNumber.Text = "20700434803009876";
+                edtNumber.Text = "20703340901010000";
                 //edtNumber.Text = "20804777671007243010000";
-                edtNumber.Text = "2250119110713674";
+                //edtNumber.Text = "2250119110713674";
                 //edtNumber.Text = "20300000000692";
 #endif
         }
@@ -118,6 +118,16 @@ namespace gamma_mob.Common
         protected override void FormLoad(object sender, EventArgs e)
         {
             base.FormLoad(sender, e);
+            if (edtNumber == null)
+            {
+                edtNumber = new System.Windows.Forms.TextBox()
+                {
+                    Location = new System.Drawing.Point(0, 1),
+                    Name = "edtNumber",
+                    //Size = new System.Drawing.Size(127, pnlElementHeight),
+                    Visible = false
+                };
+            }
             BarcodeFunc = BarcodeReaction;
         }
 
@@ -147,7 +157,8 @@ namespace gamma_mob.Common
             else
             {
                 var edtNumberText = edtNumber.Text;
-                if (edtNumberText.Length < 14 || (edtNumberText.Length == 14 && Shared.BarcodeKinds.FirstOrDefault(k => k.BarcodeKindId == edtNumberText.Substring(0,3)).BarcodeGroupId != 5))
+                BarcodeKind kind;
+                if (edtNumberText.Length < 14 || (edtNumberText.Length == 14 && (kind = Shared.BarcodeKinds.FirstOrDefault(k => k.BarcodeKindId == edtNumberText.Substring(0, 3))) != null && kind.BarcodeGroupId != 5))
                     Invoke((MethodInvoker)(() => edtNumber.Text = String.Empty));
                 ActionByBarcode(edtNumberText);
             }

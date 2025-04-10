@@ -2121,7 +2121,7 @@ namespace gamma_mob
                             CharacteristicId = row.IsNull("1CCharacteristicID") ? new Guid() : new Guid(row["1CCharacteristicID"].ToString()),
                             NomenclatureId = new Guid(row["1CNomenclatureID"].ToString()),
                             QualityId = new Guid(row["1CQualityID"].ToString()),
-                            ProductKindId = row.IsNull("ProductKindID") ? (byte?)null : Convert.ToByte(table.Rows[0]["ProductKindID"]),
+                            ProductKindId = row.IsNull("ProductKindID") ? (byte?)null : Convert.ToByte(row["ProductKindID"]),
                             NomenclatureName = row["NomenclatureName"].ToString(),
                             ShortNomenclatureName = row["ShortNomenclatureName"].ToString(),
                             CountProductSpools = table.Rows[0].IsNull("CountProductSpools") ? 0 : Convert.ToInt32(row["CountProductSpools"]),

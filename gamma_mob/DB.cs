@@ -2931,7 +2931,7 @@ namespace gamma_mob
                             Value = (validUntilDate as object) ?? DBNull.Value
                         }
                 };
-            using (DataTable table = (orderType == OrderType.Purchase && productKindId == (int)ProductKind.ProductBale && quantity < 30) ? ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure, quantity) : ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure))
+            using (DataTable table = (productKindId == (int)ProductKind.ProductBale && quantity > 30) ? ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure, quantity) : ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure))
             {
                 if (table != null && table.Rows.Count > 0)
                 {
@@ -3135,7 +3135,7 @@ namespace gamma_mob
                             Value = (validUntilDate as object) ?? DBNull.Value
                         }
                 };
-            using (DataTable table = ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure))
+            using (DataTable table = (productKindId == (int)ProductKind.ProductBale && quantity > 30) ? ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure, quantity) : ExecuteSelectQuery(sql, parameters, CommandType.StoredProcedure))
             {
                 if (table != null && table.Rows.Count > 0)
                 {

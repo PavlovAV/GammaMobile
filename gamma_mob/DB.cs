@@ -4983,7 +4983,7 @@ namespace gamma_mob
                             NomenclatureId = new Guid(row["1CNomenclatureID"].ToString()),
                             CharacteristicId = row.IsNull("1CCharacteristicID") ? Guid.Empty : new Guid(row["1CCharacteristicID"].ToString()),
                             QualityId = row.IsNull("1CQualityID") ? Guid.Empty : new Guid(row["1CQualityID"].ToString()),
-                            ProductKindId = row.IsNull("ProductKindID") ? (byte?)null : Convert.ToByte(table.Rows[0]["ProductKindID"]),
+                            ProductKindId = row.IsNull("ProductKindID") ? (byte?)null : Convert.ToByte(row["ProductKindID"]),
                             Name = row["Name"].ToString(),
                             Barcode = row["Barcode"].ToString(),
                             MeasureUnitId = row.IsNull("MeasureUnitID") ? Guid.Empty : new Guid(row["MeasureUnitID"].ToString()),

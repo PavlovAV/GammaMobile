@@ -48,8 +48,8 @@ namespace gamma_mob.Models
                         PlaceShortName = w.WarehouseShortName;
                     }
                 }
-                var placeZone = Shared.PlaceZones.Find(p => p.PlaceId == value);
-                
+                var placeZone = Shared.PlaceZones.Find(p => p.PlaceId == value && p.IsValid);
+
                 IsAvailabilityPlaceZoneId = (placeZone != null);
             }
         }

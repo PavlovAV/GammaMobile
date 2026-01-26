@@ -51,6 +51,7 @@ namespace gamma_mob
                 Shared.SaveToLogStartProgramInformation(@"Model " + Shared.Device.GetModel());
                 Shared.SaveToLogStartProgramInformation(@"HostName " + Shared.Device.GetHostName());
                 Shared.SaveToLogStartProgramInformation(@"IpAdress " + Shared.Device.GetDeviceIP());
+                Shared.SaveToLogStartProgramInformation(@"MacAdress " + Shared.Device.GetMacAddress());
                 var cerdispProcess = Shared.GetProcessRunning(@"cerdisp");
                 if (cerdispProcess != null)
                 {

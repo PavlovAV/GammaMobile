@@ -9,6 +9,7 @@ using System.Runtime.InteropServices;
 using Microsoft.Win32;
 using System.IO;
 using System.Reflection;
+using OpenNETCF.Net.NetworkInformation;
 
 namespace gamma_mob.Common
 {
@@ -361,6 +362,18 @@ namespace gamma_mob.Common
         public string GetModel()
         {
             return Scancode.TerminalID.Model.ToString();
+        }
+
+        public string GetMacAddress()
+        {
+            foreach (NetworkInterface nic in NetworkInterface.GetAllNetworkInterfaces())
+            {
+                if (nic.NetworkInterfaceType != NetworkInterfaceType.Loopback)
+                {
+                    return nic.GetPhysicalAddress().ToString();
+                }
+            }
+            return string.Empty;
         }
 
         public int GetBatterySuspendTimeout()

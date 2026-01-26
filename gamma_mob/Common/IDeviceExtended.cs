@@ -27,5 +27,7 @@ namespace gamma_mob.Common
 
         bool UpdateDeviceSettings(NameValueCollection m_settings);
 
+        string GetMacAddress();
+
     }
 }

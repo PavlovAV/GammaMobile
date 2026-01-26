@@ -69,6 +69,18 @@ namespace gamma_mob.Common
             return Datalogic.API.Device.GetModel().ToString();
         }
 
+        public string GetMacAddress()
+        {
+            foreach (NetworkInterface nic in NetworkInterface.GetAllNetworkInterfaces())
+            {
+                if (nic.NetworkInterfaceType != NetworkInterfaceType.Loopback)
+                {
+                    return nic.GetPhysicalAddress().ToString();
+                }
+            }
+            return string.Empty;
+        }
+
         #endregion
 
         #region IDevice Members
